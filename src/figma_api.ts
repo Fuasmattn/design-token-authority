@@ -6,8 +6,8 @@ import {
 } from '@figma/rest-api-spec'
 
 export default class FigmaApi {
-  private baseUrl = 'https://api.figma.com'
-  private token: string
+  private readonly baseUrl = 'https://api.figma.com'
+  private readonly token: string
 
   constructor(token: string) {
     this.token = token

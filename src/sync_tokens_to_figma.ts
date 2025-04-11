@@ -33,19 +33,19 @@ async function main() {
 
   console.log('POST variables API response:', apiResp)
 
-  if (postVariablesPayload.variableCollections && postVariablesPayload.variableCollections.length) {
+  if (postVariablesPayload.variableCollections?.length) {
     console.log('Updated variable collections', postVariablesPayload.variableCollections)
   }
 
-  if (postVariablesPayload.variableModes && postVariablesPayload.variableModes.length) {
+  if (postVariablesPayload.variableModes?.length) {
     console.log('Updated variable modes', postVariablesPayload.variableModes)
   }
 
-  if (postVariablesPayload.variables && postVariablesPayload.variables.length) {
+  if (postVariablesPayload.variables?.length) {
     console.log('Updated variables', postVariablesPayload.variables)
   }
 
-  if (postVariablesPayload.variableModeValues && postVariablesPayload.variableModeValues.length) {
+  if (postVariablesPayload.variableModeValues?.length) {
     console.log('Updated variable mode values', postVariablesPayload.variableModeValues)
   }
 

@@ -10,8 +10,8 @@ export function colorApproximatelyEqual(colorA: RGB | RGBA, colorB: RGB | RGBA) 
 
 export function parseColor(color: string): RGB | RGBA {
   color = color.trim()
-  const hexRegex = /^#([A-Fa-f0-9]{6})([A-Fa-f0-9]{2}){0,1}$/
-  const hexShorthandRegex = /^#([A-Fa-f0-9]{3})([A-Fa-f0-9]){0,1}$/
+  const hexRegex = /^#([A-Fa-f0-9]{6})([A-Fa-f0-9]{2})?$/
+  const hexShorthandRegex = /^#([A-Fa-f0-9]{3})([A-Fa-f0-9])?$/
 
   if (hexRegex.test(color) || hexShorthandRegex.test(color)) {
     const hexValue = color.substring(1)

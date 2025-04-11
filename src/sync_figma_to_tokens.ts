@@ -38,8 +38,9 @@ async function main() {
   }
 
   Object.entries(tokensFiles).forEach(([fileName, fileContent]) => {
-    fs.writeFileSync(`${outputDir}/${fileName}`, JSON.stringify(fileContent, null, 2))
-    console.log(`Wrote ${fileName}`)
+    const trimmedFileName = fileName.replace(' ', '')
+    fs.writeFileSync(`${outputDir}/${trimmedFileName}`, JSON.stringify(fileContent, null, 2))
+    console.log(`Wrote ${trimmedFileName}`)
   })
 
   console.log(green(`✅ Tokens files have been written to the ${outputDir} directory`))

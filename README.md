@@ -1,4 +1,4 @@
-# variables-github-action-example
+# figma-variables-to-styledictionary
 
 This repository contains a couple of GitHub Actions workflows:
 
@@ -24,6 +24,27 @@ In addition, you must also have a [personal access token](https://www.figma.com/
 Before running either of these workflows, you'll need to create an [encrypted secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) in your repository named `GH_ACTION_VARIABLES_SYNC_FIGMA_TOKEN` containing your personal access token.
 
 Both workflows are configured to [run manually](https://docs.github.com/en/actions/using-workflows/manually-running-a-workflow) for demonstration purposes, and are designed to be as conservative as possible in their functionality (see details below).
+
+### Use it outside a Github Workflow
+
+Export the required environment variables
+
+```bash
+export FILE_KEY=
+export PERSONAL_ACCESS_TOKEN=
+```
+
+Run this script to fetch the variables from Figma and create the tokens files
+
+```bash
+npm run sync-figma-to-tokens -- --output tokens
+```
+
+Run this command to transform the tokens with StyleDictionary
+
+```bash
+npm run build
+```
 
 ### Sync Figma variables to tokens
 
@@ -55,33 +76,10 @@ This workflow has some key behaviors to note:
 - For optional Figma variable properties like scopes and code syntax, the workflow will not modify these properties in Figma if the tokens json files do not contain those properties.
 - If a string variable is bound to a text node content in the same file, and the text node uses a [shared font in the organization](https://help.figma.com/hc/en-us/articles/360039956774), that variable cannot be updated and will result in a 400 response.
 
-## Local development
+## The StyleDictionary bit
 
-You can run the GitHub actions locally by running `npm install` and creating a `.env` file with the following contents:
+Once the tokens are extracted from Figma to JSON, a script `removedollarsigns.sh` removes all **$ dollar signs** from the JSON strings, required for StyleDictionary.
 
-```
-FILE_KEY="your_file_key"
-PERSONAL_ACCESS_TOKEN="your_personal_access_token"
-```
+This repo adds [StyleDictionary](https://amzn.github.io/style-dictionary/#/), which takes `.json` files in the `tokens/` directory (which should have been populated by the variables sync) and converts them to the specified format. The StyleDictionary configuration is found in `config.json` which details output location, format (SwiftUI, CSS etc).
 
-and then running:
-
-```sh
-npm run sync-tokens-to-figma
-
-# or
-
-# Defaults to writing to the tokens_new directory
-npm run sync-figma-to-tokens
-
-# Writes to the specified directory
-npm run sync-figma-to-tokens -- --output directory_name
-```
-
-### Testing
-
-Run the Jest tests:
-
-```sh
-npm run test
-```
+StyleDictionary licensed [under the Apache License](https://raw.githubusercontent.com/amzn/style-dictionary/main/LICENSE), Version 2.0 (the "License") Copyright 2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.

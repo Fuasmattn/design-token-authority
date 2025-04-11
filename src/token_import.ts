@@ -69,7 +69,7 @@ function traverseCollection({
   tokens: { [tokenName: string]: Token }
 }) {
   // if key is a meta field, move on
-  if (key.charAt(0) === '$') {
+  if (key.startsWith('$')) {
     return
   }
 
@@ -77,7 +77,7 @@ function traverseCollection({
     tokens[key] = object
   } else {
     Object.entries<TokenOrTokenGroup>(object).forEach(([key2, object2]) => {
-      if (key2.charAt(0) !== '$' && typeof object2 === 'object') {
+      if (!key2.startsWith('$') && typeof object2 === 'object') {
         traverseCollection({
           key: `${key}/${key2}`,
           object: object2,
@@ -115,7 +115,7 @@ function variableResolvedTypeFromToken(token: Token) {
 }
 
 function isAlias(value: string) {
-  return value.toString().trim().charAt(0) === '{'
+  return value.toString().trim().startsWith('{')
 }
 
 function variableValueFromToken(
@@ -130,7 +130,7 @@ function variableValueFromToken(
     const value = token.$value
       .trim()
       .replace(/\./g, '/')
-      .replace(/[\{\}]/g, '')
+      .replace(/[{}]/g, '')
 
     // When mapping aliases to existing local variables, we assume that variable names
     // are unique *across all collections* in the Figma file
@@ -204,7 +204,7 @@ function tokenAndVariableDifferences(token: Token, variable: LocalVariable | nul
     differences.description = token.$description
   }
 
-  if (token.$extensions && token.$extensions['com.figma']) {
+  if (token.$extensions?.['com.figma']) {
     const figmaExtensions = token.$extensions['com.figma']
 
     if (

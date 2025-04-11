@@ -1,0 +1,30 @@
+{
+  "source": ["tokens/*.json"],
+  "platforms": {
+    "js": {
+      "transforms": ["attribute/cti", "size/px", "name/cti/camel"],
+      "buildPath": "build/js/",
+      "transformGroup": "scss",
+      "files": [
+        {
+          "destination": "colorpalette.js",
+          "format": "javascript/es6"
+        }
+      ]
+    },
+    "CSS": {
+      "buildPath": "build/css//",
+      "prefix": "",
+      "transformGroup": "css",
+      "files": [
+        {
+          "destination": "variables.css",
+          "format": "css/variables",
+          "options": {
+            "outputReferences": true
+          }
+        }
+      ]
+    }
+  }
+}
