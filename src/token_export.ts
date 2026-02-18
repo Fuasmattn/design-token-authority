@@ -24,6 +24,13 @@ function tokenValueFromVariable(
   if (typeof value === 'object') {
     if ('type' in value && value.type === 'VARIABLE_ALIAS') {
       const aliasedVariable = localVariables[value.id]
+      if (!aliasedVariable) {
+        console.warn(
+          `⚠️  Warning: Variable "${variable.name}" references an alias with ID "${value.id}" that does not exist in local variables. This may be a remote variable.`,
+        )
+        // Return the variable ID as a fallback
+        return `{${value.id}}`
+      }
       return `{${aliasedVariable.name.replace(/\//g, '.')}}`
     } else if ('r' in value) {
       return rgbToHex(value)
