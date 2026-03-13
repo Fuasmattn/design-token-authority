@@ -108,3 +108,21 @@ export const defineConfig = (config: Config) => config
 
 - TICKET-007 (CLI) — config is loaded by CLI commands
 - TICKET-002 (SD v4) — outputs drive Style Dictionary platform configs
+
+---
+
+## Implementation Comments
+
+**2026-03-13 — Initial implementation merged.**
+
+- **Zod not used:** The npm registry was unavailable at implementation time, so Zod
+  could not be installed. Validation is done with plain TypeScript functions in
+  `src/config/schema.ts` that produce the same error semantics (field-specific
+  `ConfigValidationError`). Migrating to Zod later is straightforward — replace the
+  `validate*` functions with `z.object(...).parse()` calls; the `Config` type stays
+  the same.
+- Config file is loaded via dynamic `import()` in `src/config/loader.ts`, which means
+  `tsx` handles TypeScript compilation transparently at runtime.
+- Types and `defineConfig` helper are exported from `src/config/index.ts` for consuming
+  project autocompletion.
+- Tests are in `src/config/schema.test.ts` (17 cases covering happy path + all error branches).

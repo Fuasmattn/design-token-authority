@@ -3,3 +3,4 @@ settings.local.json
 .env
 tokens
 build
+dist

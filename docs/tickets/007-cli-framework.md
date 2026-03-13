@@ -70,3 +70,28 @@ runMain(main)
 ## Dependencies
 
 - TICKET-008 (config schema) — CLI loads and validates config
+
+---
+
+## Implementation Comments
+
+**2026-03-13 — Initial implementation merged.**
+
+- **Library choice:** Used `commander` (v12, already available as transitive dep)
+  instead of `citty`. `citty` could not be installed (npm registry unavailable).
+  Commander is well-maintained, supports subcommands, auto-generated help, and all
+  the flags specified in the acceptance criteria.
+- CLI entrypoint: `src/cli.ts`. During dev, run via `npm run figma-tokens -- <command>`.
+  The `bin` field in `package.json` points to `./dist/cli.js` for distribution via npx.
+- **ASCII logo:** A simple farmhouse ASCII art is shown in `--help` output,
+  matching the "Design Token Farm" project name. The exact design can be refined later.
+- **`init` is a stub:** Writes a template `figma-tokens.config.ts`. Full wizard
+  implementation is deferred to TICKET-015.
+- **`build` command:** Inlines the Style Dictionary transform registrations from
+  `style-dictionary.config.ts` and reads token source / output dirs from config.
+  This duplicates the transform code for now; a future refactor (post output-target
+  tickets) should extract shared transforms into a module.
+- **`push` confirmation:** Uses `readline` to prompt "Are you sure?" before applying
+  changes. `--dry-run` skips the API call entirely.
+- Exit codes: 0 success, 1 runtime error, 2 validation/config error.
+- Tests in `src/cli.test.ts` verify help output and error handling.
