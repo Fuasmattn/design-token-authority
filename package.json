@@ -1,5 +1,6 @@
 {
   "name": "design-token-farm",
+  "version": "0.1.0",
   "type": "module",
   "exports": {
     ".": "./dist/config/index.js"
@@ -8,6 +9,9 @@
     "design-token-farm": "./dist/cli.js",
     "dtf": "./dist/cli.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "prettier:check": "prettier --check src/",
     "dtf": "tsx src/cli.ts",
@@ -17,8 +21,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "build": "tsx style-dictionary.config.ts",
-    "build:cli": "tsc --outDir dist && chmod +x dist/cli.js",
-    "prepare": "test -f dist/cli.js && chmod +x dist/cli.js || true"
+    "build:cli": "tsc && chmod +x dist/cli.js",
+    "prepare": "npm run build:cli"
   },
   "dependencies": {
     "axios": "^1.12.0",

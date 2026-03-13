@@ -183,7 +183,7 @@ const OUTPUT_OPTIONS = [
 // Main wizard
 // ---------------------------------------------------------------------------
 
-export async function runInit(options: InitOptions): Promise<void> {
+export async function runInit(_options: InitOptions): Promise<void> {
   const configPath = path.resolve('dtf.config.ts')
 
   if (fs.existsSync(configPath)) {
