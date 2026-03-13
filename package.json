@@ -1,6 +1,9 @@
 {
   "name": "design-token-farm",
   "type": "module",
+  "exports": {
+    ".": "./dist/config/index.js"
+  },
   "bin": {
     "design-token-farm": "./dist/cli.js",
     "dtf": "./dist/cli.js"
@@ -13,10 +16,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "build": "tsx style-dictionary.config.ts"
+    "build": "tsx style-dictionary.config.ts",
+    "build:cli": "tsc --outDir dist && chmod +x dist/cli.js",
+    "prepare": "test -f dist/cli.js && chmod +x dist/cli.js || true"
   },
   "dependencies": {
-    "axios": "^1.6.0",
+    "axios": "^1.12.0",
     "commander": "^12.1.0",
     "dotenv": "^16.3.1",
     "style-dictionary": "^4.4.0",
@@ -28,7 +33,7 @@
     "@figma/rest-api-spec": "^0.10.0",
     "@types/node": "^20.4.5",
     "@vitest/coverage-v8": "^4.1.0",
-    "prettier": "3.0.0",
+    "prettier": "^3.8.1",
     "vitest": "^4.1.0"
   }
 }
