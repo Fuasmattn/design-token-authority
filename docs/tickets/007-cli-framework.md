@@ -11,6 +11,7 @@ Replace bare `npm run` scripts with a proper CLI (`figma-tokens`) that exposes n
 ## Background
 
 Currently the tool is driven by two npm scripts pointing at TypeScript files. There is no:
+
 - Help text or usage documentation
 - Argument validation
 - `--dry-run`, `--output`, `--verbose` flags
@@ -28,6 +29,9 @@ A proper CLI turns this project into a distributable tool rather than a template
 - [ ] `--config <path>` flag on all commands — points to project config file (TICKET-008)
 - [ ] `--verbose` flag enables debug-level logging
 - [ ] Exit codes: `0` on success, `1` on error, `2` on validation failure
+- [ ] `push` command validates config and token changes before applying, exits with code `2` if validation fails
+- [ ] `push` command needs additional confirmation from the user as it will modify the Figma file (e.g. "Are you sure you want to push changes to Figma? (y/N)")
+- [ ] cli tool uses ASCII output, a ASCII farm logo (to be designed in pairing when working on this ticket) and colors for better readability (e.g. green for success, red for errors)
 
 ## Implementation Notes
 
@@ -43,7 +47,9 @@ const pull = defineCommand({
     output: { type: 'string', default: 'tokens', description: 'Output directory' },
     config: { type: 'string', description: 'Path to config file' },
   },
-  async run({ args }) { /* ... */ },
+  async run({ args }) {
+    /* ... */
+  },
 })
 
 const main = defineCommand({
@@ -54,6 +60,7 @@ runMain(main)
 ```
 
 `package.json`:
+
 ```json
 {
   "bin": { "figma-tokens": "./dist/cli.js" }
