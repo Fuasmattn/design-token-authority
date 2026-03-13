@@ -1,9 +1,9 @@
 {
   "helper": {
-    "type": "color",
-    "value": "#9747ff",
-    "description": "⚠️ only for internal usage",
-    "extensions": {
+    "$type": "color",
+    "$value": "#9747ff",
+    "$description": "⚠️ only for internal usage",
+    "$extensions": {
       "com.figma": {
         "hiddenFromPublishing": false,
         "scopes": [
@@ -14,10 +14,10 @@
     }
   },
   "helper muted": {
-    "type": "color",
-    "value": "#f2e8ff",
-    "description": "⚠️ only for internal usage",
-    "extensions": {
+    "$type": "color",
+    "$value": "#f2e8ff",
+    "$description": "⚠️ only for internal usage",
+    "$extensions": {
       "com.figma": {
         "hiddenFromPublishing": false,
         "scopes": [
@@ -28,10 +28,10 @@
     }
   },
   "helper subtle": {
-    "type": "color",
-    "value": "#d6b7ff",
-    "description": "⚠️ only for internal usage",
-    "extensions": {
+    "$type": "color",
+    "$value": "#d6b7ff",
+    "$description": "⚠️ only for internal usage",
+    "$extensions": {
       "com.figma": {
         "hiddenFromPublishing": false,
         "scopes": [
@@ -42,10 +42,10 @@
     }
   },
   "helper bold": {
-    "type": "color",
-    "value": "#5f00db",
-    "description": "⚠️ only for internal usage",
-    "extensions": {
+    "$type": "color",
+    "$value": "#5f00db",
+    "$description": "⚠️ only for internal usage",
+    "$extensions": {
       "com.figma": {
         "hiddenFromPublishing": false,
         "scopes": [
