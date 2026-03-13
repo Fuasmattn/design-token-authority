@@ -78,3 +78,27 @@ export async function runInit() {
 - TICKET-007 (CLI — `init` is a subcommand)
 - TICKET-008 (config schema — init writes a valid config)
 - TICKET-014 (autodiscovery — init calls analyze internally)
+
+---
+
+## Implementation Comments
+
+**2026-03-13 — Implemented.**
+
+- **@clack/prompts not used:** npm registry was unavailable, so the wizard uses
+  Node.js `readline` for interactive prompts. The UX is functional but not as
+  polished as @clack. This can be swapped in later for spinners/multiselect.
+- Full wizard flow implemented in `src/commands/init.ts`:
+  1. Asks for Figma file key or URL (validates format, accepts both)
+  2. Asks for PAT
+  3. Makes a test API call + runs autodiscovery (TICKET-014)
+  4. Displays analysis table, asks to confirm or manually input layer mapping
+  5. Confirms detected brands or allows manual input
+  6. Numbered multiselect for output targets (CSS, Tailwind v3/v4, iOS, Android)
+  7. Writes `figma-tokens.config.ts`, `.env.example`, and `.env`
+- Graceful fallback: if the Figma API call fails (bad token, network), the wizard
+  continues with manual layer/brand input instead of aborting.
+- `extractFileKey()` handles both direct keys and `figma.com/file/...` or
+  `figma.com/design/...` URL formats.
+- Tests in `src/commands/init.test.ts` cover the extractFileKey helper.
+  The interactive wizard itself would need stdin mocking for full E2E tests.

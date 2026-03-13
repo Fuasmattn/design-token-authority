@@ -3,7 +3,7 @@
 /**
  * TICKET-007: CLI entrypoint for figma-tokens.
  *
- * Subcommands: pull, push, build, init
+ * Subcommands: pull, push, build, init, analyze
  * Global flags: --config, --verbose
  */
 
@@ -14,6 +14,7 @@ import { runPull } from './commands/pull.js'
 import { runPush } from './commands/push.js'
 import { runBuild } from './commands/build.js'
 import { runInit } from './commands/init.js'
+import { runAnalyze } from './commands/analyze.js'
 import { brightRed } from './utils.js'
 
 // ---------------------------------------------------------------------------
@@ -108,6 +109,22 @@ program
     try {
       const config = await loadConfig(opts.config)
       await runBuild(config, { verbose: opts.verbose })
+    } catch (err) {
+      handleError(err)
+    }
+  })
+
+// ---- analyze ----
+
+program
+  .command('analyze')
+  .description('Analyze Figma file structure and infer layer roles')
+  .option('-c, --config <path>', 'Path to config file')
+  .option('-v, --verbose', 'Enable verbose logging')
+  .action(async (opts) => {
+    try {
+      const config = await loadConfig(opts.config)
+      await runAnalyze(config, { verbose: opts.verbose })
     } catch (err) {
       handleError(err)
     }
