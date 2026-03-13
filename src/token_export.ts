@@ -19,17 +19,17 @@ function tokenValueFromVariable(
   variable: LocalVariable,
   modeId: string,
   localVariables: { [id: string]: LocalVariable },
-) {
+): string | number | boolean | null {
   const value = variable.valuesByMode[modeId]
   if (typeof value === 'object') {
     if ('type' in value && value.type === 'VARIABLE_ALIAS') {
       const aliasedVariable = localVariables[value.id]
       if (!aliasedVariable) {
         console.warn(
-          `⚠️  Warning: Variable "${variable.name}" references an alias with ID "${value.id}" that does not exist in local variables. This may be a remote variable.`,
+          `⚠️  Warning: Variable "${variable.name}" references an alias with ID "${value.id}" that does not exist in local variables. This variable will be skipped.`,
         )
-        // Return the variable ID as a fallback
-        return `{${value.id}}`
+        // Return null to skip this variable
+        return null
       }
       return `{${aliasedVariable.name.replace(/\//g, '.')}}`
     } else if ('r' in value) {
@@ -58,6 +58,13 @@ export function tokenFilesFromLocalVariables(localVariablesResponse: GetLocalVar
     collection.modes.forEach((mode) => {
       const fileName = `${collection.name}.${mode.name}.json`
 
+      const tokenValue = tokenValueFromVariable(variable, mode.modeId, localVariables)
+
+      // Skip variables with unresolvable aliases
+      if (tokenValue === null) {
+        return
+      }
+
       if (!tokenFiles[fileName]) {
         tokenFiles[fileName] = {}
       }
@@ -71,7 +78,7 @@ export function tokenFilesFromLocalVariables(localVariablesResponse: GetLocalVar
 
       const token: Token = {
         $type: tokenTypeFromVariable(variable),
-        $value: tokenValueFromVariable(variable, mode.modeId, localVariables),
+        $value: tokenValue,
         $description: variable.description,
         $extensions: {
           'com.figma': {

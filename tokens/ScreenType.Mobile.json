@@ -1,70 +1,110 @@
 {
   "Spacing": {
-    "[DRAFT] vertical": {
-      "global-grid-gap": {
-        "type": "number",
-        "value": "{Dimensions.spacing.16}",
-        "description": "",
-        "extensions": {
-          "com.figma": {
-            "hiddenFromPublishing": true,
-            "scopes": [
-              "GAP"
-            ],
-            "codeSyntax": {}
-          }
+    "horizontal content-grid-item-padding": {
+      "type": "number",
+      "value": "{Dimensions.spacing.4}",
+      "description": "Only for section with colored backgrounds.",
+      "extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "GAP"
+          ],
+          "codeSyntax": {}
         }
-      },
-      "grid-gap": {
-        "type": "number",
-        "value": "{Dimensions.spacing.6}",
-        "description": "",
-        "extensions": {
-          "com.figma": {
-            "hiddenFromPublishing": true,
-            "scopes": [
-              "GAP"
-            ],
-            "codeSyntax": {}
-          }
+      }
+    },
+    "vertical content-grid-item-padding": {
+      "type": "number",
+      "value": "{Dimensions.spacing.14}",
+      "description": "Only for section with colored backgrounds.",
+      "extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "GAP"
+          ],
+          "codeSyntax": {}
         }
-      },
-      "grid-item-gap 2": {
-        "type": "number",
-        "value": "{Dimensions.spacing.6}",
-        "description": "",
-        "extensions": {
-          "com.figma": {
-            "hiddenFromPublishing": true,
-            "scopes": [
-              "GAP"
-            ],
-            "codeSyntax": {}
-          }
+      }
+    },
+    "horizontal content-grid-item-gap": {
+      "type": "number",
+      "value": "{Dimensions.spacing.5}",
+      "description": "",
+      "extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "GAP"
+          ],
+          "codeSyntax": {}
         }
-      },
-      "section-padding": {
-        "type": "number",
-        "value": "{Dimensions.spacing.10}",
-        "description": "Only for section with colored backgrounds.",
-        "extensions": {
-          "com.figma": {
-            "hiddenFromPublishing": true,
-            "scopes": [
-              "GAP"
-            ],
-            "codeSyntax": {}
-          }
+      }
+    },
+    "vertical grid-column-gap": {
+      "type": "number",
+      "value": "{Dimensions.spacing.6}",
+      "description": "",
+      "extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "GAP"
+          ],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "spacer-height-lg": {
+      "type": "number",
+      "value": "{Dimensions.spacing.8}",
+      "description": "",
+      "extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "ALL_SCOPES"
+          ],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "spacer-height-md": {
+      "type": "number",
+      "value": "{Dimensions.spacing.6}",
+      "description": "",
+      "extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "ALL_SCOPES"
+          ],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "spacer-height-sm": {
+      "type": "number",
+      "value": "{Dimensions.spacing.4}",
+      "description": "",
+      "extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "ALL_SCOPES"
+          ],
+          "codeSyntax": {}
         }
       }
     }
   },
   "Typography": {
     "size": {
-      "h1": {
+      "heading-3xl": {
         "type": "number",
         "value": "{Typography.font-size.text-4xl}",
-        "description": "",
+        "description": "h1 stage",
         "extensions": {
           "com.figma": {
             "hiddenFromPublishing": false,
@@ -75,10 +115,10 @@
           }
         }
       },
-      "h2": {
+      "heading-2xl": {
         "type": "number",
         "value": "{Typography.font-size.text-3xl}",
-        "description": "",
+        "description": "h1 regular",
         "extensions": {
           "com.figma": {
             "hiddenFromPublishing": false,
@@ -89,10 +129,10 @@
           }
         }
       },
-      "h3": {
+      "heading-xl": {
         "type": "number",
         "value": "{Typography.font-size.text-2xl}",
-        "description": "",
+        "description": "h2",
         "extensions": {
           "com.figma": {
             "hiddenFromPublishing": false,
@@ -103,7 +143,35 @@
           }
         }
       },
-      "h4": {
+      "heading-lg": {
+        "type": "number",
+        "value": "{Typography.font-size.text-xl}",
+        "description": "h3",
+        "extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "FONT_SIZE"
+            ],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "heading-md": {
+        "type": "number",
+        "value": "{Typography.font-size.text-lg}",
+        "description": "h4",
+        "extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "FONT_SIZE"
+            ],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "title": {
         "type": "number",
         "value": "{Typography.font-size.text-xl}",
         "description": "",
@@ -117,23 +185,9 @@
           }
         }
       },
-      "title": {
+      "title-sm": {
         "type": "number",
         "value": "{Typography.font-size.text-lg}",
-        "description": "",
-        "extensions": {
-          "com.figma": {
-            "hiddenFromPublishing": false,
-            "scopes": [
-              "FONT_SIZE"
-            ],
-            "codeSyntax": {}
-          }
-        }
-      },
-      "title sm": {
-        "type": "number",
-        "value": "{Typography.font-size.text-base}",
         "description": "",
         "extensions": {
           "com.figma": {
@@ -159,7 +213,7 @@
           }
         }
       },
-      "body sm": {
+      "body-sm": {
         "type": "number",
         "value": "{Typography.font-size.text-sm}",
         "description": "",
@@ -187,55 +241,25 @@
           }
         }
       },
-      "interaction": {
-        "interaction": {
-          "type": "number",
-          "value": "{Typography.font-size.text-base}",
-          "description": "",
-          "extensions": {
-            "com.figma": {
-              "hiddenFromPublishing": false,
-              "scopes": [
-                "FONT_SIZE"
-              ],
-              "codeSyntax": {}
-            }
-          }
-        },
-        "interaction sm": {
-          "type": "number",
-          "value": "{Typography.font-size.text-sm}",
-          "description": "",
-          "extensions": {
-            "com.figma": {
-              "hiddenFromPublishing": false,
-              "scopes": [
-                "FONT_SIZE"
-              ],
-              "codeSyntax": {}
-            }
-          }
-        },
-        "interaction lg": {
-          "type": "number",
-          "value": "{Typography.font-size.text-lg}",
-          "description": "",
-          "extensions": {
-            "com.figma": {
-              "hiddenFromPublishing": false,
-              "scopes": [
-                "FONT_SIZE"
-              ],
-              "codeSyntax": {}
-            }
+      "caption-sm": {
+        "type": "number",
+        "value": "{Typography.font-size.text-xxs}",
+        "description": "",
+        "extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "FONT_SIZE"
+            ],
+            "codeSyntax": {}
           }
         }
       }
     },
-    "line-Height": {
-      "h1": {
+    "line-height": {
+      "heading-3xl": {
         "type": "number",
-        "value": 44,
+        "value": 46,
         "description": "",
         "extensions": {
           "com.figma": {
@@ -247,7 +271,7 @@
           }
         }
       },
-      "h2": {
+      "heading-2xl": {
         "type": "number",
         "value": 40,
         "description": "",
@@ -261,7 +285,7 @@
           }
         }
       },
-      "h3": {
+      "heading-xl": {
         "type": "number",
         "value": 32,
         "description": "",
@@ -275,7 +299,21 @@
           }
         }
       },
-      "h4": {
+      "heading-lg": {
+        "type": "number",
+        "value": 28,
+        "description": "",
+        "extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "LINE_HEIGHT"
+            ],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "heading-md": {
         "type": "number",
         "value": 28,
         "description": "",
@@ -291,7 +329,7 @@
       },
       "title": {
         "type": "number",
-        "value": 26,
+        "value": 28,
         "description": "",
         "extensions": {
           "com.figma": {
@@ -303,9 +341,9 @@
           }
         }
       },
-      "title sm": {
+      "title-sm": {
         "type": "number",
-        "value": 24,
+        "value": 28,
         "description": "",
         "extensions": {
           "com.figma": {
@@ -331,9 +369,9 @@
           }
         }
       },
-      "body sm": {
+      "body-sm": {
         "type": "number",
-        "value": 22,
+        "value": 20,
         "description": "",
         "extensions": {
           "com.figma": {
@@ -347,7 +385,7 @@
       },
       "caption": {
         "type": "number",
-        "value": 18,
+        "value": 16,
         "description": "",
         "extensions": {
           "com.figma": {
@@ -359,47 +397,17 @@
           }
         }
       },
-      "interaction": {
-        "interaction": {
-          "type": "number",
-          "value": 24,
-          "description": "",
-          "extensions": {
-            "com.figma": {
-              "hiddenFromPublishing": false,
-              "scopes": [
-                "LINE_HEIGHT"
-              ],
-              "codeSyntax": {}
-            }
-          }
-        },
-        "interaction sm": {
-          "type": "number",
-          "value": 22,
-          "description": "",
-          "extensions": {
-            "com.figma": {
-              "hiddenFromPublishing": false,
-              "scopes": [
-                "LINE_HEIGHT"
-              ],
-              "codeSyntax": {}
-            }
-          }
-        },
-        "interaction lg": {
-          "type": "number",
-          "value": 26,
-          "description": "",
-          "extensions": {
-            "com.figma": {
-              "hiddenFromPublishing": false,
-              "scopes": [
-                "LINE_HEIGHT"
-              ],
-              "codeSyntax": {}
-            }
+      "caption-sm": {
+        "type": "number",
+        "value": 10,
+        "description": "",
+        "extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "LINE_HEIGHT"
+            ],
+            "codeSyntax": {}
           }
         }
       }

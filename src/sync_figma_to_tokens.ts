@@ -9,7 +9,7 @@ import { tokenFilesFromLocalVariables } from './token_export.js'
 /**
  * Usage:
  *
- * // Defaults to writing to the tokens_new directory
+ * // Defaults to writing to the tokens directory
  * npm run sync-figma-to-tokens
  *
  * // Writes to the specified directory
@@ -27,7 +27,7 @@ async function main() {
 
   const tokensFiles = tokenFilesFromLocalVariables(localVariables)
 
-  let outputDir = 'tokens_new'
+  let outputDir = 'tokens'
   const outputArgIdx = process.argv.indexOf('--output')
   if (outputArgIdx !== -1) {
     outputDir = process.argv[outputArgIdx + 1]
