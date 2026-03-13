@@ -1,11 +1,12 @@
 import { GetLocalVariablesResponse } from '@figma/rest-api-spec'
+import { vi } from 'vitest'
 import {
   FlattenedTokensByFile,
   generatePostVariablesPayload,
   readJsonFiles,
 } from './token_import.js'
 
-jest.mock('fs', () => {
+vi.mock('fs', () => {
   const MOCK_FILE_INFO: { [fileName: string]: string } = {
     'tokens/collection1.mode1.json': JSON.stringify({
       spacing: {
