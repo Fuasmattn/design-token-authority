@@ -21,7 +21,7 @@ In addition, you must also have a [personal access token](https://www.figma.com/
 
 ## Usage
 
-Before running either of these workflows, you'll need to create an [encrypted secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) in your repository named `GH_ACTION_VARIABLES_SYNC_FIGMA_TOKEN` containing your personal access token.
+Before running either of these workflows, you'll need to create an [encrypted secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) in your repository named `FIGMA_PERSONAL_ACCESS_TOKEN` containing your personal access token.
 
 Both workflows are configured to [run manually](https://docs.github.com/en/actions/using-workflows/manually-running-a-workflow) for demonstration purposes, and are designed to be as conservative as possible in their functionality (see details below).
 
@@ -30,8 +30,8 @@ Both workflows are configured to [run manually](https://docs.github.com/en/actio
 Export the required environment variables
 
 ```bash
-export FILE_KEY=
-export PERSONAL_ACCESS_TOKEN=
+cp .env.example .env
+# fill in FIGMA_FILE_KEY and FIGMA_PERSONAL_ACCESS_TOKEN in .env
 ```
 
 Run this script to fetch the variables from Figma and create the tokens files
