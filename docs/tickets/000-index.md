@@ -18,6 +18,7 @@ Fix correctness issues and security problems before any new features.
 | [005](./005-standardize-ci-secret-names.md) | Standardize env variable names across local and CI | Medium | XS |
 | [006](./006-fix-meta-mode1-naming.md) | Rename default Figma mode name in meta collection | Low | XS |
 | [025](./025-switch-to-vitest.md) | Switch from Jest to Vitest | Medium | S |
+| [027](./027-rename-and-readme.md) | Rename project and replace README | Medium | XS |
 
 **Do 001 + 005 together in one PR.**
 **Do 002 first, then 003 + 004 depend on it.**
