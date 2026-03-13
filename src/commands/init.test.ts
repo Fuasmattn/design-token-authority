@@ -3,23 +3,14 @@
  *
  * The interactive wizard itself requires stdin, so we test the
  * pure utility functions: extractFileKey and generateConfigContent.
- * These are not exported from init.ts, so we duplicate/re-test the
- * extraction logic here and test config generation via a snapshot-style check.
  */
 
 import { describe, it, expect } from 'vitest'
+import { extractFileKey, generateConfigContent, ConfigData } from './init.js'
 
 // ---------------------------------------------------------------------------
-// extractFileKey — duplicated from init.ts for unit testing
-// (the function is internal to init.ts; we test the same logic here)
+// extractFileKey
 // ---------------------------------------------------------------------------
-
-function extractFileKey(input: string): string | null {
-  if (/^[a-zA-Z0-9]{22,}$/.test(input)) return input
-  const urlMatch = input.match(/figma\.com\/(?:file|design)\/([a-zA-Z0-9]+)/)
-  if (urlMatch) return urlMatch[1]
-  return null
-}
 
 describe('extractFileKey', () => {
   it('extracts key from a direct key string', () => {
@@ -52,5 +43,140 @@ describe('extractFileKey', () => {
 
   it('returns null for too-short key', () => {
     expect(extractFileKey('abc123')).toBeNull()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// generateConfigContent
+// ---------------------------------------------------------------------------
+
+describe('generateConfigContent', () => {
+  it('generates minimal config with no layers, brands, or outputs', () => {
+    const data: ConfigData = {
+      fileKey: 'testkey123',
+      layers: {},
+      brands: [],
+      outputs: [],
+    }
+    const result = generateConfigContent(data)
+    expect(result).toContain("import { defineConfig } from 'design-token-farm'")
+    expect(result).toContain('export default defineConfig({')
+    expect(result).toContain('process.env.FIGMA_FILE_KEY!')
+    expect(result).toContain("dir: 'tokens'")
+    expect(result).not.toContain('layers:')
+    expect(result).not.toContain('brands:')
+    expect(result).not.toContain('outputs:')
+  })
+
+  it('includes layer configuration when layers are provided', () => {
+    const data: ConfigData = {
+      fileKey: 'testkey123',
+      layers: { primitives: 'Primitives', brand: 'Brand' },
+      brands: [],
+      outputs: [],
+    }
+    const result = generateConfigContent(data)
+    expect(result).toContain("primitives: 'Primitives'")
+    expect(result).toContain("brand: 'Brand'")
+    expect(result).not.toContain('dimension:')
+  })
+
+  it('includes brands array', () => {
+    const data: ConfigData = {
+      fileKey: 'testkey123',
+      layers: {},
+      brands: ['Acme', 'Globex'],
+      outputs: [],
+    }
+    const result = generateConfigContent(data)
+    expect(result).toContain("brands: ['Acme', 'Globex']")
+  })
+
+  it('includes CSS output', () => {
+    const data: ConfigData = {
+      fileKey: 'testkey123',
+      layers: {},
+      brands: [],
+      outputs: ['css'],
+    }
+    const result = generateConfigContent(data)
+    expect(result).toContain('css: {')
+    expect(result).toContain("outDir: 'build/css'")
+  })
+
+  it('includes Tailwind v4 output', () => {
+    const data: ConfigData = {
+      fileKey: 'testkey123',
+      layers: {},
+      brands: [],
+      outputs: ['tailwind4'],
+    }
+    const result = generateConfigContent(data)
+    expect(result).toContain('tailwind: {')
+    expect(result).toContain('version: 4')
+  })
+
+  it('includes Tailwind v3 output', () => {
+    const data: ConfigData = {
+      fileKey: 'testkey123',
+      layers: {},
+      brands: [],
+      outputs: ['tailwind3'],
+    }
+    const result = generateConfigContent(data)
+    expect(result).toContain('tailwind: {')
+    expect(result).toContain('version: 3')
+  })
+
+  it('includes iOS output', () => {
+    const data: ConfigData = {
+      fileKey: 'testkey123',
+      layers: {},
+      brands: [],
+      outputs: ['ios'],
+    }
+    const result = generateConfigContent(data)
+    expect(result).toContain('ios: {')
+    expect(result).toContain("lang: 'swift'")
+  })
+
+  it('includes Android XML output', () => {
+    const data: ConfigData = {
+      fileKey: 'testkey123',
+      layers: {},
+      brands: [],
+      outputs: ['android-xml'],
+    }
+    const result = generateConfigContent(data)
+    expect(result).toContain('android: {')
+    expect(result).toContain("lang: 'xml'")
+  })
+
+  it('includes Android Compose output', () => {
+    const data: ConfigData = {
+      fileKey: 'testkey123',
+      layers: {},
+      brands: [],
+      outputs: ['android-compose'],
+    }
+    const result = generateConfigContent(data)
+    expect(result).toContain('android: {')
+    expect(result).toContain("lang: 'compose'")
+  })
+
+  it('generates full config with all options', () => {
+    const data: ConfigData = {
+      fileKey: 'testkey123',
+      layers: { primitives: 'Primitives (Global)', brand: 'Brand (Alias)', dimension: 'Screen Type' },
+      brands: ['Bayernwerk', 'LEW'],
+      outputs: ['css', 'tailwind4'],
+    }
+    const result = generateConfigContent(data)
+    expect(result).toContain("primitives: 'Primitives (Global)'")
+    expect(result).toContain("brand: 'Brand (Alias)'")
+    expect(result).toContain("dimension: 'Screen Type'")
+    expect(result).toContain("brands: ['Bayernwerk', 'LEW']")
+    expect(result).toContain('css: {')
+    expect(result).toContain('tailwind: {')
   })
 })

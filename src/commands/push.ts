@@ -6,33 +6,25 @@
  */
 
 import * as fs from 'fs'
-import * as readline from 'readline'
+import * as p from '@clack/prompts'
+import pc from 'picocolors'
 import { Config } from '../config/index.js'
 import FigmaApi from '../figma_api.js'
 import { generatePostVariablesPayload, readJsonFiles } from '../token_import.js'
-import { green, brightRed } from '../utils.js'
 
 export interface PushOptions {
   dryRun?: boolean
   verbose?: boolean
 }
 
-async function confirm(message: string): Promise<boolean> {
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
-  return new Promise((resolve) => {
-    rl.question(message, (answer) => {
-      rl.close()
-      resolve(answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes')
-    })
-  })
-}
-
 export async function runPush(config: Config, options: PushOptions): Promise<void> {
   const tokensDir = config.tokens?.dir ?? 'tokens'
 
+  p.intro(pc.bgCyan(pc.black(' dtf push ')))
+
   if (!fs.existsSync(tokensDir)) {
-    console.error(brightRed(`Tokens directory not found: ${tokensDir}`))
-    console.error('Run "dtf pull" first to export tokens from Figma.')
+    p.log.error(`Tokens directory not found: ${pc.dim(tokensDir)}`)
+    p.log.info(`Run ${pc.cyan('dtf pull')} first to export tokens from Figma.`)
     process.exit(2)
   }
 
@@ -42,74 +34,92 @@ export async function runPush(config: Config, options: PushOptions): Promise<voi
     .map((file: string) => `${tokensDir}/${file}`)
 
   if (tokensFiles.length === 0) {
-    console.error(brightRed(`No token files found in ${tokensDir}/`))
+    p.log.error(`No token files found in ${pc.dim(tokensDir + '/')}`)
     process.exit(2)
   }
 
   const tokensByFile = readJsonFiles(tokensFiles)
 
   if (options.verbose) {
-    console.log('Read token files:', Object.keys(tokensByFile))
+    p.log.message(
+      `${pc.dim('Read')} ${tokensFiles.length} token file${tokensFiles.length !== 1 ? 's' : ''} from ${pc.dim(tokensDir + '/')}`,
+    )
   }
+
+  const s = p.spinner()
+  s.start('Comparing local tokens with Figma...')
 
   const api = new FigmaApi(config.figma.personalAccessToken)
   const localVariables = await api.getLocalVariables(config.figma.fileKey)
-
   const payload = generatePostVariablesPayload(tokensByFile, localVariables)
 
   if (Object.values(payload).every((value) => Array.isArray(value) && value.length === 0)) {
-    console.log(green('Tokens are already up to date with the Figma file.'))
+    s.stop('No changes detected')
+    p.outro('Tokens are already up to date with the Figma file.')
     return
   }
 
   // Summary of changes
-  const summary = [
+  const parts = [
     payload.variableCollections?.length
-      ? `${payload.variableCollections.length} collection(s)`
+      ? `${pc.bold(String(payload.variableCollections.length))} collection(s)`
       : null,
-    payload.variableModes?.length ? `${payload.variableModes.length} mode(s)` : null,
-    payload.variables?.length ? `${payload.variables.length} variable(s)` : null,
+    payload.variableModes?.length
+      ? `${pc.bold(String(payload.variableModes.length))} mode(s)`
+      : null,
+    payload.variables?.length
+      ? `${pc.bold(String(payload.variables.length))} variable(s)`
+      : null,
     payload.variableModeValues?.length
-      ? `${payload.variableModeValues.length} mode value(s)`
+      ? `${pc.bold(String(payload.variableModeValues.length))} mode value(s)`
       : null,
-  ]
-    .filter(Boolean)
-    .join(', ')
+  ].filter(Boolean)
 
-  console.log(`\nChanges to push: ${summary}`)
+  s.stop('Diff computed')
+  p.note(parts.join('\n'), 'Changes to push')
 
   if (options.verbose) {
     if (payload.variableCollections?.length) {
-      console.log('\nCollections:', JSON.stringify(payload.variableCollections, null, 2))
+      p.log.message(`${pc.dim('Collections:')} ${JSON.stringify(payload.variableCollections, null, 2)}`)
     }
     if (payload.variableModes?.length) {
-      console.log('\nModes:', JSON.stringify(payload.variableModes, null, 2))
+      p.log.message(`${pc.dim('Modes:')} ${JSON.stringify(payload.variableModes, null, 2)}`)
     }
     if (payload.variables?.length) {
-      console.log('\nVariables:', JSON.stringify(payload.variables, null, 2))
+      p.log.message(`${pc.dim('Variables:')} ${JSON.stringify(payload.variables, null, 2)}`)
     }
     if (payload.variableModeValues?.length) {
-      console.log('\nMode values:', JSON.stringify(payload.variableModeValues, null, 2))
+      p.log.message(`${pc.dim('Mode values:')} ${JSON.stringify(payload.variableModeValues, null, 2)}`)
     }
   }
 
   if (options.dryRun) {
-    console.log(green('\n[dry-run] No changes were applied to Figma.'))
+    p.outro(`${pc.yellow('Dry run')} — no changes were applied to Figma.`)
     return
   }
 
   // Confirmation — push modifies the Figma file
-  const confirmed = await confirm('\nAre you sure you want to push these changes to Figma? (y/N) ')
-  if (!confirmed) {
-    console.log('Push cancelled.')
-    return
+  const confirmed = await p.confirm({
+    message: 'Push these changes to Figma?',
+    initialValue: false,
+  })
+
+  if (p.isCancel(confirmed) || !confirmed) {
+    p.cancel('Push cancelled.')
+    process.exit(0)
   }
+
+  const pushSpinner = p.spinner()
+  pushSpinner.start('Pushing tokens to Figma...')
 
   const apiResp = await api.postVariables(config.figma.fileKey, payload)
 
   if (options.verbose) {
-    console.log('API response:', apiResp)
+    pushSpinner.stop('Push complete')
+    p.log.message(`${pc.dim('API response:')} ${JSON.stringify(apiResp)}`)
+  } else {
+    pushSpinner.stop('Push complete')
   }
 
-  console.log(green('\nFigma file has been updated with the new tokens.'))
+  p.outro('Figma file has been updated with the new tokens.')
 }

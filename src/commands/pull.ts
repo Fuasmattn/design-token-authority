@@ -6,10 +6,11 @@
  */
 
 import * as fs from 'fs'
+import * as p from '@clack/prompts'
+import pc from 'picocolors'
 import { Config } from '../config/index.js'
 import FigmaApi from '../figma_api.js'
 import { tokenFilesFromLocalVariables } from '../token_export.js'
-import { green } from '../utils.js'
 
 export interface PullOptions {
   output?: string
@@ -19,15 +20,23 @@ export interface PullOptions {
 export async function runPull(config: Config, options: PullOptions): Promise<void> {
   const outputDir = options.output ?? config.tokens?.dir ?? 'tokens'
 
+  p.intro(pc.bgCyan(pc.black(' dtf pull ')))
+
   if (options.verbose) {
-    console.log(`Pulling tokens from Figma file: ${config.figma.fileKey}`)
-    console.log(`Output directory: ${outputDir}`)
+    p.log.message(
+      `${pc.dim('File:')} ${config.figma.fileKey}\n${pc.dim('Output:')} ${outputDir}`,
+    )
   }
+
+  const s = p.spinner()
+  s.start('Fetching variables from Figma...')
 
   const api = new FigmaApi(config.figma.personalAccessToken)
   const localVariables = await api.getLocalVariables(config.figma.fileKey)
-
   const tokensFiles = tokenFilesFromLocalVariables(localVariables)
+
+  const fileCount = Object.keys(tokensFiles).length
+  s.stop(`Received ${fileCount} token file${fileCount !== 1 ? 's' : ''} from Figma`)
 
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true })
@@ -36,8 +45,8 @@ export async function runPull(config: Config, options: PullOptions): Promise<voi
   Object.entries(tokensFiles).forEach(([fileName, fileContent]) => {
     const trimmedFileName = fileName.replace(' ', '')
     fs.writeFileSync(`${outputDir}/${trimmedFileName}`, JSON.stringify(fileContent, null, 2))
-    console.log(`  Wrote ${trimmedFileName}`)
+    p.log.step(`Wrote ${pc.dim(trimmedFileName)}`)
   })
 
-  console.log(green(`\nTokens have been written to ${outputDir}/`))
+  p.outro(`Tokens written to ${pc.cyan(outputDir + '/')}`)
 }

@@ -22,14 +22,12 @@ import { brightRed } from './utils.js'
 // ---------------------------------------------------------------------------
 
 const LOGO = `
-    \\|/
-   --*--    Design Token Farm
-    /|\\     ~~~~~~~~~~~~~~~~~~~~
-   _|||_    Sync Figma variables
-  | . . |   to code, and back.
-  |  ^  |
-  | '-' |
-  |_____|
+   {\u00b7}      Design Token Farm
+  { \u25c8 }     ~~~~~~~~~~~~~~~~~~~~
+   {\u00b7}      Sync Figma variables
+    |       to code, and back.
+   _|_
+  |___|
 `
 
 // ---------------------------------------------------------------------------

@@ -8,19 +8,24 @@
  * Future work (output target tickets) will make this config-driven.
  */
 
+import * as p from '@clack/prompts'
+import pc from 'picocolors'
 import { Config } from '../config/index.js'
-import { green } from '../utils.js'
 
 export interface BuildOptions {
   verbose?: boolean
 }
 
 export async function runBuild(config: Config, options: BuildOptions): Promise<void> {
+  const tokensDir = config.tokens?.dir ?? 'tokens'
+
+  p.intro(pc.bgCyan(pc.black(' dtf build ')))
+
   if (options.verbose) {
-    console.log(`Token source: ${config.tokens?.dir ?? 'tokens'}`)
-    if (config.outputs) {
-      console.log('Configured outputs:', Object.keys(config.outputs).join(', '))
-    }
+    const outputs = config.outputs ? Object.keys(config.outputs).join(', ') : 'default'
+    p.log.message(
+      `${pc.dim('Source:')} ${tokensDir}\n${pc.dim('Outputs:')} ${outputs}`,
+    )
   }
 
   // Dynamic import to avoid loading Style Dictionary until the build command runs.
@@ -114,8 +119,6 @@ export async function runBuild(config: Config, options: BuildOptions): Promise<v
 
   // ---- Build ----
 
-  const tokensDir = config.tokens?.dir ?? 'tokens'
-
   const sd = new StyleDictionary({
     source: [`${tokensDir}/**/*.json`],
     platforms: {
@@ -152,7 +155,18 @@ export async function runBuild(config: Config, options: BuildOptions): Promise<v
     },
   })
 
+  const s = p.spinner()
+  s.start('Running Style Dictionary build...')
+
   await sd.buildAllPlatforms()
 
-  console.log(green('\nBuild complete.'))
+  s.stop('Build complete')
+
+  const targets = ['css/variables.css', 'js/colorpalette.js', 'tailwind/tailwind.tokens.ts', 'tailwind/tailwind.css']
+  p.note(
+    targets.map((t) => pc.dim(`build/${t}`)).join('\n'),
+    'Generated files',
+  )
+
+  p.outro('Build complete!')
 }
