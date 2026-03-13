@@ -125,13 +125,13 @@ CLI usage) will be added as the corresponding tickets are implemented.
 
 ## Acceptance Criteria
 
-- [ ] A name has been decided and recorded in this ticket (update the line below)
-  **Chosen name:** _(fill in before implementing)_
-- [ ] `package.json` `name` field updated
-- [ ] `README.md` replaced with the minimal version above (adjusted for chosen name)
-- [ ] No references to the old name `variables-github-action-example` remain in
+- [x] A name has been decided and recorded in this ticket
+  **Chosen name:** `design-token-farm`
+- [x] `package.json` `name` field updated
+- [x] `README.md` replaced with the minimal version above (adjusted for chosen name)
+- [x] No references to the old name `variables-github-action-example` remain in
       tracked files (check with `git grep variables-github-action-example`)
-- [ ] `npm test` still passes after rename
+- [x] `npm test` still passes after rename
 
 ## Dependencies
 

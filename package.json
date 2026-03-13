@@ -1,5 +1,5 @@
 {
-  "name": "variables-github-action-example",
+  "name": "design-token-farm",
   "type": "module",
   "scripts": {
     "prettier:check": "prettier --check src/",
