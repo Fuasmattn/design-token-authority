@@ -37,7 +37,8 @@ adding a new brand in Figma and re-exporting is all that's needed — no code ch
 - [ ] Build auto-detects brands from `tokens/Brand(Alias).*.json` filenames
 - [ ] Primitives output once to `build/css/base.css` as `:root { ... }`
 - [ ] Each brand outputs a scoped CSS file to `build/css/themes/{brand}.css`
-      with selector `.theme-{brand}`, aliases resolved to `var(--primitives-var)`
+      with selector `[data-brand="{brand}"]` (configurable; class alternative `.theme-{brand}`
+      also supported), aliases resolved to `var(--primitives-var)`
 - [ ] Each brand outputs a resolved Tailwind v3 file to
       `build/tailwind/{brand}/tailwind.tokens.ts` (actual values, no `var()` refs)
 - [ ] Each brand outputs a resolved Tailwind v4 file to
@@ -76,14 +77,14 @@ build/
 
 ## Tailwind integration patterns
 
-### Pattern A — Runtime brand switching (recommended for apps)
+### Pattern A — Runtime `data-brand` attribute switching (recommended)
 
-One Tailwind config, brand set via an `<html>` class at runtime.
-Supports instant brand switching in JavaScript without rebuilding.
+Brand is set as a data attribute on `<html>`. Cleaner than a class because it doesn't
+conflict with Tailwind's own class-based utilities, and the JS API is more ergonomic.
 
 ```html
 <!-- index.html -->
-<html class="theme-bayernwerk">
+<html data-brand="bayernwerk">
 ```
 
 ```ts
@@ -95,19 +96,55 @@ export default { ...tokens }
 ```css
 /* app.css */
 @import './build/css/base.css';
-@import './build/css/themes/bayernwerk.css'; /* swap for lew.css to switch brand */
+@import './build/css/themes/bayernwerk.css';
+@import './build/css/themes/lew.css';
+/* Both theme files are loaded; only the one matching [data-brand] is active. */
+```
+
+Switching brand at runtime:
+```ts
+document.documentElement.dataset.brand = 'lew'
 ```
 
 How it works: Tailwind utility classes like `bg-foundation-brand-default` expand to
-`var(--color-foundation-brand-default)`. That property resolves through the `@theme`
-block to `var(--colors-foundation-brand-default)`. That resolves to the value set by
-`.theme-bayernwerk` on `<html>`, which in turn uses `var(--colors-bw-blue-500)` from
-the shared `base.css`.
+`var(--color-foundation-brand-default)`. That resolves through the `@theme` block to
+`var(--colors-foundation-brand-default)`. That resolves to the value set by
+`[data-brand="bayernwerk"]` on `<html>` (inherited by `:root`), which in turn uses
+`var(--colors-bw-blue-500)` from `base.css`.
 
-### Pattern B — Static per-brand build (for SSG, white-label projects)
+### Pattern B — Runtime class-based switching
+
+Same as Pattern A but via a CSS class. Useful when the consuming framework already
+manages classes on `<html>` (e.g. Tailwind dark mode with `class` strategy).
+
+```html
+<html class="theme-bayernwerk">
+```
+
+```ts
+// tailwind.config.ts — identical to Pattern A
+import { tokens } from './build/tailwind/tailwind.tokens'
+export default { ...tokens }
+```
+
+```css
+/* app.css */
+@import './build/css/base.css';
+@import './build/css/themes/bayernwerk.css';
+@import './build/css/themes/lew.css';
+```
+
+Switching:
+```ts
+document.documentElement.className = 'theme-lew'
+// or alongside dark mode:
+document.documentElement.classList.replace('theme-bayernwerk', 'theme-lew')
+```
+
+### Pattern C — Static per-brand build (for SSG, white-label projects)
 
 A separate Tailwind config per brand with fully resolved values baked in.
-No runtime CSS class switching needed.
+No runtime attribute or class switching needed.
 
 ```ts
 // bayernwerk/tailwind.config.ts
@@ -116,21 +153,24 @@ export default { ...tokens }
 ```
 
 ```css
-/* bayernwerk/app.css — only needs base.css, no theme class required */
+/* bayernwerk/app.css — only needs base.css, no data-brand needed */
 @import '../build/css/base.css';
 ```
 
-### Tailwind v4 variant
+### Tailwind v4 variants
+
+Runtime (data-brand, Patterns A/B):
 
 ```css
 /* app.css (Tailwind v4) */
 @import 'tailwindcss';
 @import './build/css/base.css';
 @import './build/css/themes/bayernwerk.css';
+@import './build/css/themes/lew.css';
 @import './build/tailwind/tailwind.css';      /* @theme with var() refs */
 ```
 
-Or static per-brand:
+Static per-brand (Pattern C):
 
 ```css
 /* bayernwerk/app.css (Tailwind v4, static) */
@@ -196,7 +236,7 @@ for (const brand of brands) {
           destination: `${slug}.css`,
           format: 'css/variables',
           filter: brandOnly,
-          options: { selector: `.theme-${slug}`, outputReferences: true },
+          options: { selector: `[data-brand="${slug}"]`, outputReferences: true },
         }],
       },
       // Tailwind v3 — resolved values (no var() refs for colors)
@@ -256,11 +296,35 @@ and may be kept for backwards compatibility during migration. Once consuming pro
 have migrated to `base.css` + `themes/{brand}.css`, the legacy `variables.css` platform
 can be retired.
 
-### Scoped CSS example
+### Selector strategy
+
+The CSS selector passed to SD's `css/variables` format controls which pattern is used.
+Both are supported — pick one and use it consistently:
+
+| Pattern | SD `selector` value | HTML usage |
+|---|---|---|
+| data-brand (recommended) | `[data-brand="bayernwerk"]` | `<html data-brand="bayernwerk">` |
+| class | `.theme-bayernwerk` | `<html class="theme-bayernwerk">` |
+
+The data-attribute approach is recommended because it doesn't conflict with Tailwind's
+class-based utilities (e.g. dark mode via `class="dark"`), and switching in JS is
+cleaner: `document.documentElement.dataset.brand = 'lew'`.
+
+Implementation — swap out the selector string in the build loop:
+
+```ts
+// data-brand (Pattern A)
+options: { selector: `[data-brand="${slug}"]`, outputReferences: true }
+
+// class (Pattern B)
+options: { selector: `.theme-${slug}`, outputReferences: true }
+```
+
+### Scoped CSS example (data-brand)
 
 ```css
 /* build/css/themes/bayernwerk.css */
-.theme-bayernwerk {
+[data-brand="bayernwerk"] {
   --colors-foundation-neutral-whisper: var(--colors-bw-grey-50);
   --colors-foundation-brand-default: var(--colors-bw-blue-500);
   --colors-foundation-brand-faint: var(--colors-bw-blue-50);
@@ -269,7 +333,7 @@ can be retired.
 }
 
 /* build/css/themes/lew.css */
-.theme-lew {
+[data-brand="lew"] {
   --colors-foundation-neutral-whisper: var(--colors-grey-50);
   --colors-foundation-brand-default: var(--colors-blue-600);
   --colors-foundation-brand-faint: var(--colors-blue-100);
