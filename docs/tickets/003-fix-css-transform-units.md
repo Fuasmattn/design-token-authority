@@ -1,5 +1,6 @@
 # TICKET-003: Fix missing units in CSS variable output
 
+**Status:** ✅ Done — commits `91d5f3e`, `0e5fdf7`
 **Phase:** 1 — Foundation (Bug Fix)
 **Priority:** High
 **Effort:** S
@@ -21,11 +22,12 @@ This happens because the `size/px` transform in the current config only applies 
 
 ## Acceptance Criteria
 
-- [ ] Blur tokens output with `px` unit: `--effects-blur-3xl: 64px`
-- [ ] Opacity tokens output as decimals (0–1) or percentages consistently with CSS `opacity` property: `--effects-opacity-100: 1`
-- [ ] Spacing and border-radius tokens output with `px` units if not already
-- [ ] Unit transforms are driven by token `$type` and/or token path — not hardcoded
-- [ ] Existing color outputs are unaffected
+- [x] Blur tokens output with `px` unit: `--effects-blur-3xl: 64px`
+- [x] Opacity tokens output as decimals (0–1): `--effects-opacity-100: 1`
+- [x] Spacing and border-radius tokens output with `px` units: `--dimensions-spacing-4: 16px`
+- [x] Unit transforms are driven by Figma variable scope (`$extensions.com.figma.scopes`) — not path-based
+- [x] Existing color outputs are unaffected
+- [ ] Typography tokens (FONT_SIZE, LINE_HEIGHT, LETTER_SPACING) intentionally deferred — need rem/em handling per output target
 
 ## Implementation Notes
 

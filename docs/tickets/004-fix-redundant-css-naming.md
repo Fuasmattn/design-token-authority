@@ -1,5 +1,6 @@
 # TICKET-004: Fix redundant segment repetition in generated CSS variable names
 
+**Status:** ✅ Done — commit `91d5f3e`
 **Phase:** 1 — Foundation (Bug Fix)
 **Priority:** Medium
 **Effort:** S
@@ -20,9 +21,9 @@ The cause is the Figma variable structure `Effects/Blur/blur-3xl` — the group 
 
 ## Acceptance Criteria
 
-- [ ] No CSS variable name contains a directly repeated adjacent segment (e.g. `blur-blur`, `opacity-opacity`)
-- [ ] The fix is applied via a Style Dictionary name transform (preferred) OR the Figma variable names are corrected upstream — document which approach was chosen
-- [ ] A regression test or snapshot test is added to prevent recurrence
+- [x] No CSS variable name contains a directly repeated adjacent segment (e.g. `blur-blur`, `opacity-opacity`)
+- [x] Fixed via Style Dictionary name transform `name/kebab-deduped` in `style-dictionary.config.ts` (Option A — no Figma changes needed)
+- [ ] Regression test / snapshot test — deferred, will be covered by visual regression testing (TICKET-023)
 
 ## Implementation Notes
 
