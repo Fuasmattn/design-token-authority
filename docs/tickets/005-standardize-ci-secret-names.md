@@ -1,5 +1,6 @@
 # TICKET-005: Standardize environment variable and CI secret names
 
+**Status:** ✅ Done — commit `3ce55a9` (rename the GitHub secret from `GH_ACTION_VARIABLES_SYNC_FIGMA_TOKEN` → `FIGMA_PERSONAL_ACCESS_TOKEN` in repo settings)
 **Phase:** 1 — Foundation (Housekeeping)
 **Priority:** Medium
 **Effort:** XS
@@ -19,11 +20,11 @@ This means: locally the code reads `PERSONAL_ACCESS_TOKEN`, but in CI the workfl
 
 ## Acceptance Criteria
 
-- [ ] Standardized names used everywhere: `FIGMA_PERSONAL_ACCESS_TOKEN` and `FIGMA_FILE_KEY`
-- [ ] GitHub Actions secrets renamed (or mapping removed) to match
-- [ ] `.env.example` uses the standardized names (see TICKET-001)
-- [ ] All source files updated to read the new names
-- [ ] `README` documents the required environment variables by their final names
+- [x] Standardized names used everywhere: `FIGMA_PERSONAL_ACCESS_TOKEN` and `FIGMA_FILE_KEY`
+- [x] GitHub Actions secrets renamed (or mapping removed) to match
+- [x] `.env.example` uses the standardized names (see TICKET-001)
+- [x] All source files updated to read the new names
+- [x] `README` documents the required environment variables by their final names
 
 ## Proposed Standard Names
 

@@ -1,5 +1,6 @@
 # TICKET-001: Remove committed credentials and secure .env handling
 
+**Status:** ✅ Done — commit `3ce55a9`
 **Phase:** 1 — Foundation (Immediate Fix)
 **Priority:** Critical
 **Effort:** XS
@@ -20,11 +21,11 @@ Even on a private repository, committing secrets is a bad practice — it leaks 
 
 ## Acceptance Criteria
 
-- [ ] `.env` is added to `.gitignore`
-- [ ] An `.env.example` file is committed with placeholder values and comments explaining each variable
-- [ ] The live Figma PAT is rotated in Figma (Settings → Personal Access Tokens)
-- [ ] `README` documents how to set up local credentials (copy `.env.example` → `.env`, fill in values)
-- [ ] CI workflows consistently use the GitHub secret `FIGMA_PERSONAL_ACCESS_TOKEN` (see TICKET-005)
+- [x] `.env` is added to `.gitignore`
+- [x] An `.env.example` file is committed with placeholder values and comments explaining each variable
+- [x] The live Figma PAT is rotated in Figma (Settings → Personal Access Tokens)
+- [x] `README` documents how to set up local credentials (copy `.env.example` → `.env`, fill in values)
+- [x] CI workflows consistently use the GitHub secret `FIGMA_PERSONAL_ACCESS_TOKEN` (see TICKET-005)
 
 ## Implementation Notes
 

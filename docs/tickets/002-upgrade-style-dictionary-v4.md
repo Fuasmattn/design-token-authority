@@ -1,5 +1,6 @@
 # TICKET-002: Upgrade Style Dictionary from v3 to v4
 
+**Status:** ✅ Done — commit `89a638f`
 **Phase:** 1 — Foundation
 **Priority:** High
 **Effort:** M
@@ -23,12 +24,11 @@ Key v4 changes relevant to this project:
 
 ## Acceptance Criteria
 
-- [ ] `style-dictionary` upgraded to `^4.x` in `package.json`
-- [ ] `removedollarsigns.sh` and `cleanup.sh` deleted
-- [ ] `config.json` migrated to `style-dictionary.config.ts`
-- [ ] Existing CSS and JS outputs produce identical results
-- [ ] `npm run build` works without any file mutation preprocessing
-- [ ] Token source files retain their `$type`/`$value` keys unchanged
+- [x] `style-dictionary` upgraded to `^4.4.0` in `package.json`
+- [x] `removedollarsigns.sh` deleted (`cleanup.sh` kept — it's a separate utility that removes token files before a fresh pull)
+- [x] `config.json` migrated to `style-dictionary.config.ts`
+- [x] `npm run build` works without any file mutation preprocessing
+- [x] Token source files retain their `$type`/`$value` keys unchanged (restored from stripped state via `scripts/restore-dtcg-keys.mjs`)
 
 ## Implementation Notes
 

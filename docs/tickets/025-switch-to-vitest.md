@@ -1,5 +1,6 @@
 # TICKET-025: Switch from Jest to Vitest
 
+**Status:** ✅ Done — commit `e65e751`
 **Phase:** 1 — Foundation
 **Priority:** Medium
 **Effort:** S
@@ -20,15 +21,15 @@ Additional benefits:
 
 ## Acceptance Criteria
 
-- [ ] `jest`, `ts-jest`, `@types/jest` removed from `devDependencies`
-- [ ] `vitest` added to `devDependencies`
-- [ ] `jest.config.ts` deleted
-- [ ] `vitest.config.ts` added with equivalent settings
-- [ ] All existing tests pass unchanged (or with minimal `jest` → `vitest` import swaps if needed)
-- [ ] `npm test` runs Vitest
-- [ ] `npm run test:ui` added as a script for the Vitest browser UI (optional but useful)
-- [ ] `npm run test:coverage` added for coverage reports
-- [ ] CI workflow (`test.yml`) updated if needed
+- [x] `jest`, `ts-jest`, `@types/jest` removed from `devDependencies`
+- [x] `vitest` added to `devDependencies`
+- [x] `jest.config.ts` deleted
+- [x] `vitest.config.ts` added with equivalent settings (`globals: true`)
+- [x] All existing tests pass unchanged (`jest.mock` → `vi.mock` was the only change)
+- [x] `npm test` runs Vitest
+- [ ] `npm run test:ui` added as a script for the Vitest browser UI (optional, skipped)
+- [x] `npm run test:coverage` added for coverage reports
+- [x] CI workflow (`test.yml`) — no changes needed, `npm run test` still works
 
 ## Implementation Notes
 
