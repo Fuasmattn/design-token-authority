@@ -1,5 +1,5 @@
 /**
- * TICKET-015: `figma-tokens init` wizard.
+ * TICKET-015: `dtf init` wizard.
  *
  * Interactive setup that:
  *  1. Asks for Figma file key/URL + personal access token
@@ -8,7 +8,7 @@
  *  4. Confirms detected layer roles
  *  5. Confirms detected brand names
  *  6. Selects desired output targets
- *  7. Writes figma-tokens.config.ts + .env.example
+ *  7. Writes dtf.config.ts + .env.example
  *
  * Uses Node readline for interactive prompts since @clack/prompts
  * could not be installed (npm registry unavailable at implementation time).
@@ -85,7 +85,7 @@ interface ConfigData {
 function generateConfigContent(data: ConfigData): string {
   const lines: string[] = []
 
-  lines.push("import { defineConfig } from 'figma-tokens'")
+  lines.push("import { defineConfig } from 'design-token-farm'")
   lines.push('')
   lines.push('export default defineConfig({')
   lines.push('  figma: {')
@@ -184,7 +184,7 @@ const OUTPUT_OPTIONS = [
 // ---------------------------------------------------------------------------
 
 export async function runInit(options: InitOptions): Promise<void> {
-  const configPath = path.resolve('figma-tokens.config.ts')
+  const configPath = path.resolve('dtf.config.ts')
 
   if (fs.existsSync(configPath)) {
     console.error(brightRed(`Config file already exists: ${configPath}`))
@@ -193,7 +193,7 @@ export async function runInit(options: InitOptions): Promise<void> {
   }
 
   console.log('')
-  console.log(green('  figma-tokens init'))
+  console.log(green('  dtf init'))
   console.log(green('  ─────────────────'))
   console.log('  Set up your design token pipeline.\n')
 
@@ -335,8 +335,8 @@ export async function runInit(options: InitOptions): Promise<void> {
     }
 
     console.log('\nNext steps:')
-    console.log('  1. Run "figma-tokens pull" to export tokens from Figma')
-    console.log('  2. Run "figma-tokens build" to generate output files')
+    console.log('  1. Run "dtf pull" to export tokens from Figma')
+    console.log('  2. Run "dtf build" to generate output files')
     console.log('')
   } catch (err) {
     rl.close()

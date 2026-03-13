@@ -2,11 +2,12 @@
   "name": "design-token-farm",
   "type": "module",
   "bin": {
-    "figma-tokens": "./dist/cli.js"
+    "design-token-farm": "./dist/cli.js",
+    "dtf": "./dist/cli.js"
   },
   "scripts": {
     "prettier:check": "prettier --check src/",
-    "figma-tokens": "tsx src/cli.ts",
+    "dtf": "tsx src/cli.ts",
     "sync-tokens-to-figma": "tsx src/sync_tokens_to_figma.ts",
     "sync-figma-to-tokens": "tsx src/sync_figma_to_tokens.ts",
     "test": "vitest run",

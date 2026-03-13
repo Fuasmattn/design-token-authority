@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * TICKET-007: CLI entrypoint for figma-tokens.
+ * TICKET-007: CLI entrypoint for design-token-farm (alias: dtf).
  *
  * Subcommands: pull, push, build, init, analyze
  * Global flags: --config, --verbose
@@ -59,7 +59,7 @@ function handleError(err: unknown): never {
 const program = new Command()
 
 program
-  .name('figma-tokens')
+  .name('design-token-farm')
   .description('Design Token Farm — sync Figma variables to code, and back.')
   .version('0.1.0')
   .addHelpText('before', LOGO)
@@ -134,7 +134,7 @@ program
 
 program
   .command('init')
-  .description('Create a new figma-tokens.config.ts in the current directory')
+  .description('Create a new dtf.config.ts in the current directory')
   .option('-v, --verbose', 'Enable verbose logging')
   .action(async (opts) => {
     try {

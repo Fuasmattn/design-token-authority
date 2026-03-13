@@ -19,8 +19,8 @@ Token changes (especially color, spacing, typography) have visual consequences t
 - [ ] Playwright takes screenshots of each fixture with the current token CSS applied
 - [ ] Screenshots are compared to baseline images stored in `test/visual/baseline/`
 - [ ] CI fails if pixel diff exceeds a configurable threshold (default: 0.1%)
-- [ ] `figma-tokens test:visual` command runs the suite locally
-- [ ] `figma-tokens test:visual --update-baseline` updates baseline images after intentional changes
+- [ ] `dtf test:visual` command runs the suite locally
+- [ ] `dtf test:visual --update-baseline` updates baseline images after intentional changes
 - [ ] Diff images are uploaded as CI artifacts for review
 
 ## Implementation Notes

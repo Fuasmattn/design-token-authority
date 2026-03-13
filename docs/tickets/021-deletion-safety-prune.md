@@ -6,7 +6,7 @@
 
 ## Summary
 
-The current `push` command never deletes variables from Figma, which is safe but causes Figma files to accumulate dead/orphaned tokens over time. Add a `figma-tokens prune` command that identifies orphaned variables and offers to clean them up with explicit confirmation.
+The current `push` command never deletes variables from Figma, which is safe but causes Figma files to accumulate dead/orphaned tokens over time. Add a `dtf prune` command that identifies orphaned variables and offers to clean them up with explicit confirmation.
 
 ## Background
 
@@ -16,7 +16,7 @@ Deletion via the Figma Variables API requires care: variables that are used in d
 
 ## Acceptance Criteria
 
-- [ ] `figma-tokens prune` command that:
+- [ ] `dtf prune` command that:
   1. Fetches all variables from Figma
   2. Compares to the local token files
   3. Lists variables present in Figma but absent from local files (orphans)

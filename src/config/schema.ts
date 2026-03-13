@@ -1,7 +1,7 @@
 /**
  * TICKET-008: Project configuration schema.
  *
- * Defines the shape and validation logic for figma-tokens.config.ts files.
+ * Defines the shape and validation logic for dtf.config.ts files.
  *
  * NOTE: The ticket specifies Zod for validation, but it could not be installed
  * as a dependency at the time of implementation (registry unavailable).

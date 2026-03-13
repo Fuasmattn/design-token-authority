@@ -52,7 +52,7 @@ a short tagline.
 |---|---|
 | `package.json` | `"name"` field |
 | `README.md` | Full replacement (see Step 3) |
-| `CLAUDE.md` | H1 title if it references the old name (currently fine — references `figma-tokens` as the CLI command name, which is intentional) |
+| `CLAUDE.md` | H1 title if it references the old name (currently fine — references `dtf` as the CLI command name, which is intentional) |
 
 The GitHub Actions workflow files (`sync-figma-to-tokens.yml`, `sync-tokens-to-figma.yml`,
 `test.yml`) use descriptive `name:` strings that are already correct — no changes needed.

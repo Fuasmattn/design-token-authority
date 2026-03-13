@@ -1,4 +1,4 @@
-# TICKET-015: `figma-tokens init` wizard
+# TICKET-015: `dtf init` wizard
 
 **Phase:** 4 — Structure Intelligence
 **Priority:** High
@@ -6,18 +6,18 @@
 
 ## Summary
 
-Implement a `figma-tokens init` command that guides a user through connecting to a Figma file, runs autodiscovery (TICKET-014), confirms the detected structure interactively, and writes a `figma-tokens.config.ts` file. This is the primary onboarding experience for new projects.
+Implement a `dtf init` command that guides a user through connecting to a Figma file, runs autodiscovery (TICKET-014), confirms the detected structure interactively, and writes a `dtf.config.ts` file. This is the primary onboarding experience for new projects.
 
 ## Background
 
 Without an init wizard, onboarding a new project requires: manually reading the Figma file, understanding the collection structure, writing a config file from scratch, and wiring up CLI commands. The wizard automates all of this.
 
-The goal is: `npx figma-tokens init` → answer a few questions → working config file.
+The goal is: `npx dtf init` → answer a few questions → working config file.
 
 ## Acceptance Criteria
 
-- [ ] `figma-tokens init` runs an interactive prompt sequence
-- [ ] Prompts:
+- [x] `dtf init` runs an interactive prompt sequence
+- [x] Prompts:
   1. Figma file URL or key (validates format)
   2. Figma Personal Access Token (validates by making a test API call)
   3. Runs autodiscovery (TICKET-014) and displays results
@@ -25,10 +25,10 @@ The goal is: `npx figma-tokens init` → answer a few questions → working conf
   5. Confirms detected brand names (if brand collection found)
   6. Selects desired output targets (multiselect: CSS, Tailwind v3, Tailwind v4, iOS, Android XML, Android Compose)
   7. Output directory names (with defaults)
-- [ ] Writes `figma-tokens.config.ts` to the current directory
-- [ ] Writes `.env.example` if not present
-- [ ] Fails gracefully if the Figma API call fails (bad token, wrong file key)
-- [ ] Skips already-answered prompts if a partial config exists (idempotent re-run)
+- [x] Writes `dtf.config.ts` to the current directory
+- [x] Writes `.env.example` if not present
+- [x] Fails gracefully if the Figma API call fails (bad token, wrong file key)
+- [x] Skips already-answered prompts if a partial config exists (idempotent re-run)
 
 ## Implementation Notes
 
@@ -38,7 +38,7 @@ Use `@clack/prompts` for a polished interactive CLI experience (spinners, confir
 import * as p from '@clack/prompts'
 
 export async function runInit() {
-  p.intro('figma-tokens init')
+  p.intro('dtf init')
 
   const figmaKey = await p.text({
     message: 'Figma file key or URL',
@@ -69,7 +69,7 @@ export async function runInit() {
   })
 
   writeConfig({ figmaKey, token, analysis, outputs })
-  p.outro('Config written to figma-tokens.config.ts')
+  p.outro('Config written to dtf.config.ts')
 }
 ```
 
@@ -95,7 +95,7 @@ export async function runInit() {
   4. Displays analysis table, asks to confirm or manually input layer mapping
   5. Confirms detected brands or allows manual input
   6. Numbered multiselect for output targets (CSS, Tailwind v3/v4, iOS, Android)
-  7. Writes `figma-tokens.config.ts`, `.env.example`, and `.env`
+  7. Writes `dtf.config.ts`, `.env.example`, and `.env`
 - Graceful fallback: if the Figma API call fails (bad token, network), the wizard
   continues with manual layer/brand input instead of aborting.
 - `extractFileKey()` handles both direct keys and `figma.com/file/...` or

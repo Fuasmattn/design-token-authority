@@ -1,7 +1,7 @@
 /**
  * TICKET-008: Config file loader.
  *
- * Loads and validates a figma-tokens.config.ts file at runtime.
+ * Loads and validates a dtf.config.ts file at runtime.
  * The config file is a TypeScript module that default-exports a Config object.
  * We use dynamic import() so tsx handles the TS compilation transparently.
  */
@@ -11,13 +11,13 @@ import * as fs from 'fs'
 import { Config, ConfigValidationError, validateConfig } from './schema.js'
 import { brightRed } from '../utils.js'
 
-export const DEFAULT_CONFIG_PATH = './figma-tokens.config.ts'
+export const DEFAULT_CONFIG_PATH = './dtf.config.ts'
 
 /**
  * Resolve the config file path and load + validate it.
  *
  * @param configPath - Path to the config file (absolute or relative to cwd).
- *                     Defaults to `./figma-tokens.config.ts`.
+ *                     Defaults to `./dtf.config.ts`.
  * @returns The validated Config object.
  * @throws ConfigValidationError if validation fails.
  * @throws Error if the file does not exist or cannot be imported.
@@ -28,7 +28,7 @@ export async function loadConfig(configPath?: string): Promise<Config> {
   if (!fs.existsSync(resolved)) {
     throw new Error(
       `Config file not found: ${resolved}\n` +
-        'Run "figma-tokens init" to create one, or use --config to specify a path.',
+        'Run "dtf init" to create one, or use --config to specify a path.',
     )
   }
 

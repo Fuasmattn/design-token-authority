@@ -1,5 +1,5 @@
 /**
- * TICKET-007: `figma-tokens build` command.
+ * TICKET-007: `dtf build` command.
  *
  * Runs the Style Dictionary build pipeline to generate output targets
  * (CSS, JS, Tailwind, etc.) from local token JSON files.

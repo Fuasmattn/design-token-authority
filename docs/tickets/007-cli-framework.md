@@ -6,7 +6,7 @@
 
 ## Summary
 
-Replace bare `npm run` scripts with a proper CLI (`figma-tokens`) that exposes named subcommands, help text, and flags. This is the prerequisite for the tool to be usable by other projects without forking.
+Replace bare `npm run` scripts with a proper CLI (`dtf`) that exposes named subcommands, help text, and flags. This is the prerequisite for the tool to be usable by other projects without forking.
 
 ## Background
 
@@ -21,17 +21,17 @@ A proper CLI turns this project into a distributable tool rather than a template
 
 ## Acceptance Criteria
 
-- [ ] CLI entrypoint at `src/cli.ts`, compiled to `dist/cli.js` with a `bin` field in `package.json`
-- [ ] Subcommands: `pull`, `push`, `build`, `init` (init stubbed, implemented in TICKET-015)
-- [ ] `--help` works at the root level and per subcommand
-- [ ] `--dry-run` flag on `push` — logs what would change without calling the Figma API
-- [ ] `--output <dir>` flag on `pull` — overrides token output directory (already partially supported)
-- [ ] `--config <path>` flag on all commands — points to project config file (TICKET-008)
-- [ ] `--verbose` flag enables debug-level logging
-- [ ] Exit codes: `0` on success, `1` on error, `2` on validation failure
-- [ ] `push` command validates config and token changes before applying, exits with code `2` if validation fails
-- [ ] `push` command needs additional confirmation from the user as it will modify the Figma file (e.g. "Are you sure you want to push changes to Figma? (y/N)")
-- [ ] cli tool uses ASCII output, a ASCII farm logo (to be designed in pairing when working on this ticket) and colors for better readability (e.g. green for success, red for errors)
+- [x] CLI entrypoint at `src/cli.ts`, compiled to `dist/cli.js` with a `bin` field in `package.json`
+- [x] Subcommands: `pull`, `push`, `build`, `init` (init stubbed, implemented in TICKET-015)
+- [x] `--help` works at the root level and per subcommand
+- [x] `--dry-run` flag on `push` — logs what would change without calling the Figma API
+- [x] `--output <dir>` flag on `pull` — overrides token output directory (already partially supported)
+- [x] `--config <path>` flag on all commands — points to project config file (TICKET-008)
+- [x] `--verbose` flag enables debug-level logging
+- [x] Exit codes: `0` on success, `1` on error, `2` on validation failure
+- [x] `push` command validates config and token changes before applying, exits with code `2` if validation fails
+- [x] `push` command needs additional confirmation from the user as it will modify the Figma file (e.g. "Are you sure you want to push changes to Figma? (y/N)")
+- [x] cli tool uses ASCII output, a ASCII farm logo (to be designed in pairing when working on this ticket) and colors for better readability (e.g. green for success, red for errors)
 
 ## Implementation Notes
 
@@ -63,7 +63,7 @@ runMain(main)
 
 ```json
 {
-  "bin": { "figma-tokens": "./dist/cli.js" }
+  "bin": { "dtf": "./dist/cli.js" }
 }
 ```
 
@@ -81,11 +81,11 @@ runMain(main)
   instead of `citty`. `citty` could not be installed (npm registry unavailable).
   Commander is well-maintained, supports subcommands, auto-generated help, and all
   the flags specified in the acceptance criteria.
-- CLI entrypoint: `src/cli.ts`. During dev, run via `npm run figma-tokens -- <command>`.
+- CLI entrypoint: `src/cli.ts`. During dev, run via `npm run dtf -- <command>`.
   The `bin` field in `package.json` points to `./dist/cli.js` for distribution via npx.
 - **ASCII logo:** A simple farmhouse ASCII art is shown in `--help` output,
   matching the "Design Token Farm" project name. The exact design can be refined later.
-- **`init` is a stub:** Writes a template `figma-tokens.config.ts`. Full wizard
+- **`init` is a stub:** Writes a template `dtf.config.ts`. Full wizard
   implementation is deferred to TICKET-015.
 - **`build` command:** Inlines the Style Dictionary transform registrations from
   `style-dictionary.config.ts` and reads token source / output dirs from config.

@@ -1,5 +1,5 @@
 /**
- * TICKET-007: `figma-tokens push` command.
+ * TICKET-007: `dtf push` command.
  *
  * Pushes local token JSON files to Figma via the Variables API.
  * Wraps the logic previously in sync_tokens_to_figma.ts.
@@ -32,7 +32,7 @@ export async function runPush(config: Config, options: PushOptions): Promise<voi
 
   if (!fs.existsSync(tokensDir)) {
     console.error(brightRed(`Tokens directory not found: ${tokensDir}`))
-    console.error('Run "figma-tokens pull" first to export tokens from Figma.')
+    console.error('Run "dtf pull" first to export tokens from Figma.')
     process.exit(2)
   }
 

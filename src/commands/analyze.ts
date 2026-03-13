@@ -1,5 +1,5 @@
 /**
- * TICKET-014: `figma-tokens analyze` command.
+ * TICKET-014: `dtf analyze` command.
  *
  * Fetches variable collections from Figma and runs structure autodiscovery.
  * Outputs a table of inferred layer roles and a suggested config block.

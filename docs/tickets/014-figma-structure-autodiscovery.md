@@ -20,17 +20,17 @@ Good heuristics for each layer type:
 
 ## Acceptance Criteria
 
-- [ ] New command `figma-tokens analyze` (or part of `figma-tokens init`, see TICKET-015)
-- [ ] Fetches all variable collections from the Figma file
-- [ ] For each collection, computes:
+- [x] New command `dtf analyze` (or part of `dtf init`, see TICKET-015)
+- [x] Fetches all variable collections from the Figma file
+- [x] For each collection, computes:
   - Total variable count
   - Alias ratio (% of values that are `VARIABLE_ALIAS`)
   - Mode count and mode names
   - Inferred layer role: `primitives` | `brand` | `dimension` | `semantic` | `unknown`
   - Confidence score (0–1) for the inferred role
-- [ ] Outputs a structured analysis report to the console (table + summary)
-- [ ] Outputs a candidate `layers` block for the project config
-- [ ] Handles edge cases: collections with mixed alias/value ratios, unusual mode counts
+- [x] Outputs a structured analysis report to the console (table + summary)
+- [x] Outputs a candidate `layers` block for the project config
+- [x] Handles edge cases: collections with mixed alias/value ratios, unusual mode counts
 
 ## Implementation Notes
 
@@ -98,6 +98,6 @@ Suggested layers config:
   name patterns (Desktop/Mobile/Tablet + t-shirt sizes sm/md/lg/xl).
 - Confidence scoring: high for clear signals (>0.9), reduced for small collections
   (<10 vars) or ambiguous alias ratios.
-- `figma-tokens analyze` subcommand added to CLI (`src/commands/analyze.ts`).
+- `dtf analyze` subcommand added to CLI (`src/commands/analyze.ts`).
 - 11 test cases in `src/analyze.test.ts` covering all layer roles, edge cases
   (remote collections, empty files, small collections), and report formatting.

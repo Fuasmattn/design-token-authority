@@ -6,7 +6,7 @@
 
 ## Summary
 
-Build a `figma-tokens lint` command that validates token files against configurable rules. This catches design system violations, naming drift, structural issues, and broken alias references before they propagate to build outputs or back to Figma.
+Build a `dtf lint` command that validates token files against configurable rules. This catches design system violations, naming drift, structural issues, and broken alias references before they propagate to build outputs or back to Figma.
 
 ## Background
 
@@ -20,7 +20,7 @@ Once the token format is settled, a linter enables enforcing invariants automati
 
 ## Acceptance Criteria
 
-- [ ] New command: `figma-tokens lint`
+- [ ] New command: `dtf lint`
 - [ ] Rules are configurable in the project config (TICKET-008) under a `lint` key
 - [ ] Built-in rules (always run):
   - No dangling aliases
@@ -34,13 +34,13 @@ Once the token format is settled, a linter enables enforcing invariants automati
 - [ ] Output: each violation shows token path, rule name, and a human-readable message
 - [ ] Exit code `2` on rule violations (distinct from `1` for errors)
 - [ ] `--fix` flag where auto-fix is possible (e.g. normalizing hex case)
-- [ ] Runs automatically as part of `figma-tokens push` (can be skipped with `--skip-lint`)
+- [ ] Runs automatically as part of `dtf push` (can be skipped with `--skip-lint`)
 
 ## Implementation Notes
 
 **Config example:**
 ```ts
-// figma-tokens.config.ts
+// dtf.config.ts
 export default defineConfig({
   // ...
   lint: {

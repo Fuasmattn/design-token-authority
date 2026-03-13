@@ -1,4 +1,4 @@
-# figma-tokens — Ticket Index
+# design-token-farm — Ticket Index
 
 This index lists all feature tickets for turning this project into a whitelabel design token tool.
 Tickets are grouped by phase and ordered by recommended implementation sequence.
@@ -62,7 +62,7 @@ Make the tool understand and auto-discover Figma variable structure.
 | # | Ticket | Priority | Effort |
 |---|---|---|---|
 | [014](./014-figma-structure-autodiscovery.md) | Figma collection structure autodiscovery | High | L |
-| [015](./015-init-wizard.md) | `figma-tokens init` onboarding wizard | High | M |
+| [015](./015-init-wizard.md) | `dtf init` onboarding wizard | High | M |
 | [016](./016-multi-brand-composition.md) | Multi-brand token composition model | Medium | L |
 | [017](./017-token-dependency-graph.md) | Token alias dependency graph | Low | M |
 
@@ -79,7 +79,7 @@ Plausibility checks, linting, and guardrails.
 | [018](./018-token-linter.md) | Token linter with configurable rules | High | L |
 | [019](./019-naming-convention-enforcement.md) | Naming convention rules (extends linter) | Medium | S |
 | [020](./020-sync-diff-report.md) | Human-readable diff report on push/sync | Medium | S |
-| [021](./021-deletion-safety-prune.md) | `figma-tokens prune` for orphaned variables | Low | M |
+| [021](./021-deletion-safety-prune.md) | `dtf prune` for orphaned variables | Low | M |
 
 **018 first; 019 is an extension of 018. 020 and 021 are independent.**
 

@@ -1,5 +1,5 @@
 /**
- * TICKET-007: `figma-tokens pull` command.
+ * TICKET-007: `dtf pull` command.
  *
  * Exports variables from Figma to local JSON token files.
  * Wraps the logic previously in sync_figma_to_tokens.ts.

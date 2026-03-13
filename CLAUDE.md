@@ -7,10 +7,11 @@ This file provides context and working instructions for Claude Code when working
 ## Project vision
 
 The goal is a **whitelabel design token pipeline tool** that:
+
 - Syncs design tokens bi-directionally between Figma (Variables API) and JSON files
 - Converts tokens to multiple output targets: CSS, Tailwind v3/v4, iOS Swift, Android XML/Compose
 - Auto-discovers the structure of any Figma variable setup (multi-brand, responsive layers)
-- Is configurable per-project via a `figma-tokens.config.ts` file, not hardcoded
+- Is configurable per-project via a `dtf.config.ts` file, not hardcoded
 
 All planned work is tracked as tickets in `docs/tickets/`. Start with `docs/tickets/000-index.md` for an overview and recommended implementation order.
 
@@ -75,15 +76,30 @@ Example: `Brand(Alias).Bayernwerk.json`, `ScreenType.Desktop.json`
 
 ```
 src/
+  cli.ts                CLI entrypoint (design-token-farm / dtf)
+  analyze.ts            Figma structure autodiscovery — analyzeCollections()
   figma_api.ts          Figma REST API wrapper — getLocalVariables(), postVariables()
   token_types.ts        TypeScript interfaces: Token, TokensFile, TokenOrTokenGroup
   token_export.ts       Figma API response → token JSON files (export direction)
   token_import.ts       Token JSON files → Figma API POST payload (import direction)
   color.ts              Color utilities: parseColor(), rgbToHex(), colorApproximatelyEqual()
   utils.ts              Console color helpers, areSetsEqual()
-  sync_figma_to_tokens.ts   CLI entrypoint: pull from Figma
-  sync_tokens_to_figma.ts   CLI entrypoint: push to Figma
-  *.test.ts             Jest tests alongside source files
+  sync_figma_to_tokens.ts   Legacy entrypoint: pull from Figma
+  sync_tokens_to_figma.ts   Legacy entrypoint: push to Figma
+  config/
+    schema.ts           Config type definitions + validation (dtf.config.ts)
+    loader.ts           Runtime config file loader
+    index.ts            Public re-exports
+  commands/
+    pull.ts             dtf pull
+    push.ts             dtf push
+    build.ts            dtf build
+    init.ts             dtf init (wizard)
+    analyze.ts          dtf analyze
+  formatters/
+    tailwind-v3.ts      Tailwind v3 theme.extend formatter
+    tailwind-v4.ts      Tailwind v4 @theme CSS formatter
+  *.test.ts             Vitest tests alongside source files
 ```
 
 ---
@@ -91,17 +107,21 @@ src/
 ## Key conventions
 
 ### Alias format
+
 - **In JSON token files:** `{Group.SubGroup.Token}` (dot-separated)
 - **In Figma:** `Group/SubGroup/Token` (slash-separated)
 - Conversion happens in `token_export.ts` (Figma → JSON) and `token_import.ts` (JSON → Figma)
 
 ### Variable uniqueness assumption
+
 `token_import.ts` assumes variable names are unique across all collections. This assumption enables alias resolution without needing collection-qualified names. Do not break this.
 
 ### Conservative sync
+
 The push direction (`sync_tokens_to_figma.ts`) **never deletes** variables from Figma. It only creates new ones or updates existing ones. Deletion is intentionally out-of-scope for the push command (see TICKET-021 for `prune`).
 
 ### TypeScript imports
+
 Source files use `.js` extensions in imports (e.g. `import { rgbToHex } from './color.js'`) despite being `.ts` files. This is required for ESM compatibility with `tsx`. Do not change this pattern.
 
 ---
@@ -109,22 +129,32 @@ Source files use `.js` extensions in imports (e.g. `import { rgbToHex } from './
 ## Development workflow
 
 ### Environment setup
+
 Copy `.env.example` to `.env` and fill in:
+
 ```
 FIGMA_PERSONAL_ACCESS_TOKEN=   # Generate at figma.com > Settings > Personal access tokens
 FIGMA_FILE_KEY=                # From Figma file URL: figma.com/file/<FILE_KEY>/...
 ```
 
 ### Available commands
+
 ```bash
-npm run sync-figma-to-tokens   # Pull variables from Figma → tokens/
-npm run sync-tokens-to-figma   # Push tokens/ → Figma
-npm run build                  # Generate CSS + JS from tokens/ (see known issues)
-npm test                       # Run Jest test suite
+npm run dtf -- pull            # Pull variables from Figma → tokens/
+npm run dtf -- push            # Push tokens/ → Figma
+npm run dtf -- build           # Generate CSS + JS from tokens/
+npm run dtf -- analyze         # Inspect Figma file structure
+npm run dtf -- init            # Interactive project setup wizard
+npm test                       # Run Vitest test suite
 npm run prettier:check         # Check code formatting
+
+# Legacy scripts (still work)
+npm run sync-figma-to-tokens   # same as dtf pull
+npm run sync-tokens-to-figma   # same as dtf push
 ```
 
 ### Build pipeline (current, pre-v4)
+
 `npm run build` runs `removedollarsigns.sh` (strips `$` from token keys) then `style-dictionary build`.
 ⚠️ This mutates token files. After a build run, token files may have `type`/`value` instead of `$type`/`$value`.
 **This will be fixed by TICKET-002 (upgrade to Style Dictionary v4).**
@@ -135,22 +165,22 @@ npm run prettier:check         # Check code formatting
 
 These are tracked as tickets — do not work around them, fix them at the source:
 
-| Issue | Ticket |
-|---|---|
-| Credentials in `.env` committed to git | TICKET-001 |
-| Style Dictionary v3 (use v4) | TICKET-002 |
-| `removedollarsigns.sh` mutates source files | TICKET-002 (fixed by v4) |
-| CSS blur/opacity values missing units | TICKET-003 |
-| Redundant segment names in CSS vars (`blur-blur-`) | TICKET-004 |
-| Inconsistent env var names across local and CI | TICKET-005 |
-| `meta.Mode1.json` uses Figma default mode name | TICKET-006 |
+| Issue                                              | Ticket                   |
+| -------------------------------------------------- | ------------------------ |
+| Credentials in `.env` committed to git             | TICKET-001               |
+| Style Dictionary v3 (use v4)                       | TICKET-002               |
+| `removedollarsigns.sh` mutates source files        | TICKET-002 (fixed by v4) |
+| CSS blur/opacity values missing units              | TICKET-003               |
+| Redundant segment names in CSS vars (`blur-blur-`) | TICKET-004               |
+| Inconsistent env var names across local and CI     | TICKET-005               |
+| `meta.Mode1.json` uses Figma default mode name     | TICKET-006               |
 
 ---
 
 ## Testing
 
-- Framework: Jest + ts-jest
-- Test files live alongside source: `color.test.ts`, `token_export.test.ts`, `token_import.test.ts`
+- Framework: Vitest
+- Test files live alongside source: `color.test.ts`, `token_export.test.ts`, `token_import.test.ts`, `config/schema.test.ts`, `analyze.test.ts`, `cli.test.ts`, `commands/init.test.ts`
 - Run: `npm test`
 - Coverage: color parsing, export conversion, import payload generation, alias resolution, edge cases
 - When adding new source files, add a corresponding `*.test.ts`
@@ -181,6 +211,7 @@ CI secret name: `FIGMA_PERSONAL_ACCESS_TOKEN` (see TICKET-005 — currently inco
 ## Tickets and planned work
 
 All feature work is documented in `docs/tickets/`. Each ticket has:
+
 - Summary, background, acceptance criteria
 - Concrete implementation notes with code sketches
 - Dependencies on other tickets
@@ -188,6 +219,7 @@ All feature work is documented in `docs/tickets/`. Each ticket has:
 **Always check the index before starting new work:** `docs/tickets/000-index.md`
 
 Recommended starting sequence:
+
 1. TICKET-001 + TICKET-005 (credentials + env names, one PR)
 2. TICKET-002 (Style Dictionary v4 — unblocks most other work)
 3. TICKET-008 → TICKET-007 (config schema then CLI)
