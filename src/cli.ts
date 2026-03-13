@@ -15,6 +15,7 @@ import { runPush } from './commands/push.js'
 import { runBuild } from './commands/build.js'
 import { runInit } from './commands/init.js'
 import { runAnalyze } from './commands/analyze.js'
+import { runGraph } from './commands/graph.js'
 import { brightRed } from './utils.js'
 
 // ---------------------------------------------------------------------------
@@ -123,6 +124,24 @@ program
     try {
       const config = await loadConfig(opts.config)
       await runAnalyze(config, { verbose: opts.verbose })
+    } catch (err) {
+      handleError(err)
+    }
+  })
+
+// ---- graph ----
+
+program
+  .command('graph')
+  .description('Build and visualize the token alias dependency graph')
+  .option('-f, --format <format>', 'Output format: console, dot, markdown, html', 'console')
+  .option('-o, --output <path>', 'Write output to file instead of stdout')
+  .option('-c, --config <path>', 'Path to config file')
+  .option('-v, --verbose', 'Enable verbose logging')
+  .action(async (opts) => {
+    try {
+      const config = await loadConfig(opts.config)
+      await runGraph(config, { format: opts.format, output: opts.output, verbose: opts.verbose })
     } catch (err) {
       handleError(err)
     }
