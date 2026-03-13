@@ -1,4 +1,6 @@
 import StyleDictionary from 'style-dictionary'
+import { tailwindV3Formatter } from './src/formatters/tailwind-v3.js'
+import { tailwindV4Formatter } from './src/formatters/tailwind-v4.js'
 
 /**
  * Style Dictionary v4 build configuration.
@@ -8,14 +10,14 @@ import StyleDictionary from 'style-dictionary'
  *
  * Custom transforms registered below:
  *   - name/kebab-deduped    (TICKET-004) removes adjacent repeated path segments from CSS var names
- *   - value/blur-px         (TICKET-003) adds px unit to EFFECT_FLOAT number tokens
+ *   - value/dimension-px    (TICKET-003) adds px unit to pixel-valued number tokens
  *   - value/opacity-decimal (TICKET-003) converts 0-100 opacity values to 0-1 CSS decimals
  *
- * Current output targets:
- *   - CSS custom properties  → build/css/variables.css
- *   - JavaScript ES6 exports → build/js/colorpalette.js
- *
- * Additional output targets (Tailwind, iOS, Android) are tracked in docs/tickets/.
+ * Output targets:
+ *   - CSS custom properties         → build/css/variables.css
+ *   - JavaScript ES6 exports        → build/js/colorpalette.js
+ *   - Tailwind v3 theme object      → build/tailwind/tailwind.tokens.ts  (TICKET-009)
+ *   - Tailwind v4 @theme CSS block  → build/tailwind/tailwind.css        (TICKET-010)
  */
 
 // Built-in SD v4 CSS transforms — replicated here so we can compose a custom group
@@ -127,6 +129,18 @@ StyleDictionary.registerTransformGroup({
   ],
 })
 
+// TICKET-009: Tailwind v3 theme object formatter
+StyleDictionary.registerFormat({
+  name: 'tailwind/v3',
+  format: tailwindV3Formatter,
+})
+
+// TICKET-010: Tailwind v4 @theme CSS formatter
+StyleDictionary.registerFormat({
+  name: 'tailwind/v4',
+  format: tailwindV4Formatter,
+})
+
 async function build() {
   const sd = new StyleDictionary({
     source: ['tokens/**/*.json'],
@@ -151,6 +165,28 @@ async function build() {
           {
             destination: 'colorpalette.js',
             format: 'javascript/es6',
+          },
+        ],
+      },
+      // TICKET-009: Tailwind v3 theme.extend object
+      'tailwind-v3': {
+        transformGroup: 'design-system/css',
+        buildPath: 'build/tailwind/',
+        files: [
+          {
+            destination: 'tailwind.tokens.ts',
+            format: 'tailwind/v3',
+          },
+        ],
+      },
+      // TICKET-010: Tailwind v4 @theme CSS block
+      'tailwind-v4': {
+        transformGroup: 'design-system/css',
+        buildPath: 'build/tailwind/',
+        files: [
+          {
+            destination: 'tailwind.css',
+            format: 'tailwind/v4',
           },
         ],
       },
