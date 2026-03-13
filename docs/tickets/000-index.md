@@ -45,11 +45,12 @@ Add output formats for web and mobile development.
 |---|---|---|---|
 | [009](./009-tailwind-v3-output.md) | Tailwind v3 theme output | High | M |
 | [010](./010-tailwind-v4-output.md) | Tailwind v4 @theme CSS output | Medium | S |
+| [026](./026-per-brand-build-and-tailwind-theme.md) | Per-brand build output + Tailwind theme integration | High | M |
 | [011](./011-ios-swift-output.md) | iOS Swift output (Color, CGFloat, Font) | Medium | M |
 | [012](./012-android-xml-output.md) | Android XML resources (colors.xml, dimens.xml) | Medium | M |
 | [013](./013-android-compose-output.md) | Android Jetpack Compose output (Kotlin) | Low | M |
 
-**009 and 011 are highest priority. 010 can follow 009. 013 follows 012.**
+**009 and 011 are highest priority. 010 can follow 009. 026 depends on 009+010. 013 follows 012.**
 
 ---
 
@@ -104,13 +105,14 @@ Token visibility for designers and developers.
   └─► 003 ──────────────────────────────── (no deps after 002)
   └─► 004 ──────────────────────────────── (no deps after 002)
   └─► 009/010/011/012/013 (output formatters)
+       └─► 026 (per-brand build extends 009+010)
 006 ──────────────────────────────── (no deps)
 008 ──────────────────────────────── (no deps)
   └─► 007 (CLI loads config)
        └─► 014 (analyze subcommand)
             └─► 015 (init uses analyze)
                  └─► 024 (AI path through init)
-016 ──► 009/010/011/012/013 (brand-aware outputs)
+016 ──► 011/012/013 (brand-aware mobile outputs; CSS+Tailwind covered by 026)
 017 ──► 018 (linter reuses graph)
      └─► 022 (docs site shows alias chains)
 018 ──► 019 (naming rules extend linter)
