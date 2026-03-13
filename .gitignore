@@ -1,4 +1,5 @@
 node_modules
+settings.local.json
 .env
 tokens
 build
