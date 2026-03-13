@@ -125,33 +125,37 @@ StyleDictionary.registerTransformGroup({
   ],
 })
 
-const sd = new StyleDictionary({
-  source: ['tokens/**/*.json'],
-  platforms: {
-    css: {
-      transformGroup: 'design-system/css',
-      buildPath: 'build/css/',
-      files: [
-        {
-          destination: 'variables.css',
-          format: 'css/variables',
-          options: {
-            outputReferences: true,
+async function build() {
+  const sd = new StyleDictionary({
+    source: ['tokens/**/*.json'],
+    platforms: {
+      css: {
+        transformGroup: 'design-system/css',
+        buildPath: 'build/css/',
+        files: [
+          {
+            destination: 'variables.css',
+            format: 'css/variables',
+            options: {
+              outputReferences: true,
+            },
           },
-        },
-      ],
+        ],
+      },
+      js: {
+        transformGroup: 'js',
+        buildPath: 'build/js/',
+        files: [
+          {
+            destination: 'colorpalette.js',
+            format: 'javascript/es6',
+          },
+        ],
+      },
     },
-    js: {
-      transformGroup: 'js',
-      buildPath: 'build/js/',
-      files: [
-        {
-          destination: 'colorpalette.js',
-          format: 'javascript/es6',
-        },
-      ],
-    },
-  },
-})
+  })
 
-await sd.buildAllPlatforms()
+  await sd.buildAllPlatforms()
+}
+
+build()
