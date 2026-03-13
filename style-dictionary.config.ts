@@ -68,17 +68,29 @@ StyleDictionary.registerTransform({
 })
 
 /**
- * TICKET-003: Add px unit to blur tokens (Figma EFFECT_FLOAT scope).
+ * TICKET-003: Add px unit to all Figma "dimension" scopes.
  *
- * Figma exports blur radius values as raw integers (e.g. 64); CSS filter/backdrop-filter
- * functions require explicit units (e.g. 64px).
+ * Figma exports pixel-valued numbers without units. These scopes all represent
+ * pixel values in CSS: spacing (GAP), sizes (WIDTH_HEIGHT), radii (CORNER_RADIUS),
+ * strokes (STROKE_FLOAT), and blur/spread effects (EFFECT_FLOAT).
+ *
+ * Typography-specific scopes (FONT_SIZE, LINE_HEIGHT, LETTER_SPACING, etc.)
+ * are intentionally excluded — they may need rem/em and will be handled per output target.
  */
+const PIXEL_SCOPES = new Set([
+  'GAP',
+  'WIDTH_HEIGHT',
+  'CORNER_RADIUS',
+  'STROKE_FLOAT',
+  'EFFECT_FLOAT',
+])
+
 StyleDictionary.registerTransform({
-  name: 'value/blur-px',
+  name: 'value/dimension-px',
   type: 'value',
   filter: (token) => {
     const scopes: string[] = token.$extensions?.['com.figma']?.scopes ?? []
-    return token.$type === 'number' && scopes.includes('EFFECT_FLOAT')
+    return token.$type === 'number' && scopes.some((s) => PIXEL_SCOPES.has(s))
   },
   transform: (token) => `${token.$value}px`,
 })
@@ -108,7 +120,7 @@ StyleDictionary.registerTransformGroup({
   transforms: [
     ...CSS_BASE_TRANSFORMS,
     'name/kebab-deduped',
-    'value/blur-px',
+    'value/dimension-px',
     'value/opacity-decimal',
   ],
 })
