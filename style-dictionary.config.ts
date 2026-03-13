@@ -57,7 +57,9 @@ StyleDictionary.registerTransform({
       .map((segment: string) =>
         segment
           .toLowerCase()
-          .replace(/[\s()]+/g, '-')
+          // Replace any character that is not a letter, digit, or hyphen with a hyphen.
+          // This covers spaces, parentheses, commas (e.g. European decimals "1,5" → "1-5"), etc.
+          .replace(/[^a-z0-9-]+/g, '-')
           .replace(/-+/g, '-')
           .replace(/^-|-$/g, ''),
       )
