@@ -108,7 +108,7 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
   // Extract brand semantic colors
   const brandColorData: Record<
     string,
-    Record<string, Array<[string[], string, string]>>
+    Record<string, Record<string, Array<[string[], string, string]>>>
   > = {}
   for (const brand of brands) {
     const brandFile = files.find((f) => f.includes(`Brand(Alias).${brand}.json`))
@@ -182,150 +182,215 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
 <title>Design Token Reference</title>
 <style>
   :root {
-    --bg: #f5f5f7;
-    --bg-card: rgba(255, 255, 255, 0.72);
-    --bg-card-hover: rgba(255, 255, 255, 0.85);
-    --text: #1d1d1f;
-    --text-secondary: #6e6e73;
-    --text-tertiary: #aeaeb2;
-    --border: rgba(0, 0, 0, 0.08);
-    --accent: #0071e3;
+    --bg: #161618;
+    --bg-gradient: linear-gradient(135deg, #161618 0%, #1c1c1e 50%, #222224 100%);
+    --surface: rgba(255, 255, 255, 0.08);
+    --surface-hover: rgba(255, 255, 255, 0.12);
+    --glass: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-highlight: rgba(255, 255, 255, 0.18);
+    --glass-shadow: rgba(0, 0, 0, 0.25);
+    --border: rgba(255, 255, 255, 0.1);
+    --text: rgba(255, 255, 255, 0.92);
+    --text-secondary: rgba(255, 255, 255, 0.55);
+    --text-tertiary: rgba(255, 255, 255, 0.35);
+    --accent: rgba(255, 255, 255, 0.72);
+    --accent-glow: rgba(255, 255, 255, 0.15);
+    --accent-subtle: rgba(255, 255, 255, 0.08);
     --radius: 16px;
-    --radius-sm: 10px;
-    --shadow: 0 2px 12px rgba(0, 0, 0, 0.06), 0 0 1px rgba(0, 0, 0, 0.1);
-    --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.1), 0 0 1px rgba(0, 0, 0, 0.12);
+    --radius-sm: 12px;
     --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1d1d1f;
-      --bg-card: rgba(44, 44, 46, 0.72);
-      --bg-card-hover: rgba(44, 44, 46, 0.85);
-      --text: #f5f5f7;
-      --text-secondary: #a1a1a6;
-      --text-tertiary: #636366;
-      --border: rgba(255, 255, 255, 0.1);
-      --shadow: 0 2px 12px rgba(0, 0, 0, 0.3), 0 0 1px rgba(255, 255, 255, 0.1);
-      --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.12);
-    }
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: var(--font);
     background: var(--bg);
+    background-image: var(--bg-gradient);
+    background-attachment: fixed;
     color: var(--text);
     line-height: 1.5;
+    min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
 
   .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 40px 24px;
+    padding: 0 24px 40px;
   }
 
-  header {
+  /* Header */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 48px;
-    flex-wrap: wrap;
     gap: 16px;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(30px) saturate(150%);
+    -webkit-backdrop-filter: blur(30px) saturate(150%);
+    margin-bottom: 40px;
+    flex-wrap: wrap;
   }
 
-  header h1 {
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-  }
-
-  .brand-switcher {
-    display: flex;
-    gap: 4px;
-    background: var(--bg-card);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 12px;
-    padding: 4px;
-    border: 1px solid var(--border);
-  }
-
-  .brand-btn {
-    padding: 8px 20px;
-    border: none;
+  .header .logo {
+    font-family: var(--font-mono);
+    color: var(--accent);
+    font-size: 13px;
+    background: var(--accent-subtle);
+    padding: 4px 10px;
     border-radius: 8px;
-    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+
+  .header .subtitle {
+    font-size: 13px;
     color: var(--text-secondary);
+    margin-left: auto;
+  }
+
+  /* Brand dropdown */
+  .brand-select-wrap {
+    position: relative;
+    margin-left: auto;
+  }
+
+  .brand-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 7px 32px 7px 14px;
+    color: var(--text);
     font-family: var(--font);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    outline: none;
+    transition: border-color 0.2s;
+    box-shadow: inset 0 1px 0 0 var(--glass-highlight);
   }
 
-  .brand-btn:hover { color: var(--text); }
-  .brand-btn.active {
-    background: var(--accent);
-    color: white;
-    box-shadow: 0 2px 8px rgba(0, 113, 227, 0.3);
+  .brand-select:hover { border-color: rgba(255,255,255,0.22); }
+  .brand-select:focus { border-color: var(--accent); }
+
+  .brand-select option {
+    background: #161618;
+    color: rgba(255,255,255,0.92);
   }
 
-  section { margin-bottom: 56px; }
+  /* Chevron */
+  .brand-select-wrap::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid var(--text-secondary);
+    pointer-events: none;
+  }
+
+  section { margin-bottom: 48px; }
 
   section h2 {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
     letter-spacing: -0.01em;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
   section h3 {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--text-secondary);
-    margin: 24px 0 12px;
-    text-transform: capitalize;
+    margin: 24px 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
   }
 
   .section-desc {
     color: var(--text-secondary);
-    font-size: 14px;
-    margin-bottom: 24px;
+    font-size: 13px;
+    margin-bottom: 20px;
   }
 
   /* Color swatches */
   .swatch-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    gap: 12px;
+    gap: 10px;
   }
 
   .swatch {
-    background: var(--bg-card);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border);
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-sm);
     overflow: hidden;
     transition: all 0.2s ease;
-    cursor: default;
+    cursor: pointer;
     position: relative;
+    box-shadow: inset 0 1px 0 0 var(--glass-highlight), 0 2px 12px var(--glass-shadow);
   }
 
   .swatch:hover {
-    background: var(--bg-card-hover);
-    box-shadow: var(--shadow-hover);
+    border-color: var(--accent);
+    box-shadow: inset 0 1px 0 0 var(--glass-highlight), 0 4px 20px var(--glass-shadow), 0 0 0 1px var(--accent-glow);
     transform: translateY(-2px);
   }
 
   .swatch-color {
-    height: 72px;
+    height: 68px;
     width: 100%;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--glass-border);
+    position: relative;
   }
+
+  /* Copy icon overlay on hover */
+  .swatch-color::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    opacity: 0;
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .swatch:hover .swatch-color::after { opacity: 1; }
+
+  .copy-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 22px;
+    height: 22px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .swatch:hover .copy-icon { opacity: 1; }
 
   .swatch-info {
     padding: 8px 10px;
@@ -356,44 +421,51 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
     text-overflow: ellipsis;
   }
 
-  /* Tooltip */
-  .swatch .tooltip {
-    display: none;
-    position: absolute;
-    bottom: calc(100% + 8px);
+  /* Toast notification */
+  .toast {
+    position: fixed;
+    bottom: 32px;
     left: 50%;
-    transform: translateX(-50%);
-    background: var(--text);
-    color: var(--bg);
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 12px;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-size: 13px;
     font-family: var(--font-mono);
-    white-space: nowrap;
-    z-index: 10;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 1000;
+    box-shadow: 0 4px 24px var(--glass-shadow), 0 0 12px var(--accent-glow);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
   }
-  .swatch:hover .tooltip { display: block; }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 
   /* Typography previews */
   .type-grid {
     display: grid;
-    gap: 12px;
+    gap: 10px;
   }
 
   .type-card {
-    background: var(--bg-card);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border);
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius);
     padding: 20px 24px;
-    box-shadow: var(--shadow);
+    box-shadow: inset 0 1px 0 0 var(--glass-highlight), 0 2px 12px var(--glass-shadow);
     transition: all 0.2s ease;
   }
 
   .type-card:hover {
-    box-shadow: var(--shadow-hover);
+    border-color: rgba(255,255,255,0.18);
     transform: translateY(-1px);
   }
 
@@ -405,21 +477,18 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
 
   .type-meta {
     display: flex;
-    gap: 16px;
+    gap: 12px;
     flex-wrap: wrap;
   }
 
   .type-meta span {
-    font-size: 12px;
+    font-size: 11px;
     font-family: var(--font-mono);
     color: var(--text-secondary);
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--surface);
     padding: 4px 10px;
     border-radius: 6px;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .type-meta span { background: rgba(255, 255, 255, 0.06); }
+    border: 1px solid var(--border);
   }
 
   /* Font size scale */
@@ -464,21 +533,23 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
     width: 100%;
     max-width: 400px;
     padding: 10px 16px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-sm);
-    background: var(--bg-card);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     color: var(--text);
     font-family: var(--font);
     font-size: 14px;
     outline: none;
     transition: border-color 0.2s;
     margin-bottom: 24px;
+    box-shadow: inset 0 1px 0 0 var(--glass-highlight);
   }
 
   .search-box:focus {
     border-color: var(--accent);
+    box-shadow: inset 0 1px 0 0 var(--glass-highlight), 0 0 0 2px var(--accent-glow);
   }
 
   .search-box::placeholder { color: var(--text-tertiary); }
@@ -499,50 +570,45 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
     display: flex;
     gap: 4px;
     margin-bottom: 32px;
-    background: var(--bg-card);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 12px;
-    padding: 4px;
-    border: 1px solid var(--border);
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 10px;
+    padding: 3px;
+    border: 1px solid var(--glass-border);
     width: fit-content;
   }
 
   .tab-btn {
-    padding: 8px 20px;
+    padding: 7px 18px;
     border: none;
-    border-radius: 8px;
+    border-radius: 7px;
     background: transparent;
     color: var(--text-secondary);
     font-family: var(--font);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
   }
 
-  .tab-btn:hover { color: var(--text); }
+  .tab-btn:hover { color: var(--text); background: var(--surface); }
   .tab-btn.active {
-    background: white;
+    background: var(--surface-hover);
     color: var(--text);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .tab-btn.active {
-      background: rgba(255, 255, 255, 0.12);
-      color: var(--text);
-    }
+    box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.08);
   }
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <h1>Design Token Reference</h1>
-    <div id="brand-switcher" class="brand-switcher"></div>
-  </header>
+<div class="header">
+  <span class="logo">dtf</span>
+  <h1>Design Token Farm</h1>
+  <span class="subtitle">Token Reference</span>
+  <div class="brand-select-wrap" id="brand-switcher"></div>
+</div>
 
+<div class="container">
   <input type="text" class="search-box" id="search" placeholder="Search tokens...">
 
   <div class="tabs" id="tabs">
@@ -571,26 +637,32 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
 </div>
 
 <footer>
-  Generated by design-token-farm &middot; <span id="gen-date"></span>
+  Generated by <strong>Design Token Farm</strong> &middot; <span id="gen-date"></span>
 </footer>
+
+<div class="toast" id="toast"></div>
 
 <script>
 const DATA = ${jsData};
 
-// ---- Brand switcher ----
+// ---- Brand switcher (dropdown) ----
 const switcherEl = document.getElementById('brand-switcher');
-DATA.brands.forEach((brand, i) => {
-  const btn = document.createElement('button');
-  btn.className = 'brand-btn' + (i === 0 ? ' active' : '');
-  btn.textContent = brand;
-  btn.addEventListener('click', () => {
+if (DATA.brands.length > 0) {
+  const select = document.createElement('select');
+  select.className = 'brand-select';
+  DATA.brands.forEach(brand => {
+    const opt = document.createElement('option');
+    opt.value = brand;
+    opt.textContent = brand;
+    select.appendChild(opt);
+  });
+  select.addEventListener('change', () => {
+    const brand = select.value;
     document.documentElement.setAttribute('data-brand', brand.toLowerCase());
-    switcherEl.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
     renderBrandColors(brand);
   });
-  switcherEl.appendChild(btn);
-});
+  switcherEl.appendChild(select);
+}
 
 // ---- Tabs ----
 const tabBtns = document.querySelectorAll('.tab-btn');
@@ -680,10 +752,21 @@ function renderBrandColors(brand, filter) {
   }
 }
 
+// ---- Toast ----
+let toastTimeout;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => toast.classList.remove('show'), 1800);
+}
+
 // ---- Create swatch element ----
 function createSwatch(tokenPath, value, alias) {
   const swatch = document.createElement('div');
   swatch.className = 'swatch';
+  swatch.title = tokenPath;
 
   const colorDiv = document.createElement('div');
   colorDiv.className = 'swatch-color';
@@ -691,19 +774,22 @@ function createSwatch(tokenPath, value, alias) {
 
   // Check if color is light to add a subtle inner border
   if (isLightColor(value)) {
-    colorDiv.style.borderBottom = '1px solid rgba(0,0,0,0.08)';
-    colorDiv.style.boxShadow = 'inset 0 0 0 1px rgba(0,0,0,0.06)';
+    colorDiv.style.boxShadow = 'inset 0 0 0 1px rgba(0,0,0,0.08)';
   }
+
+  // Copy icon SVG overlay
+  const copyIcon = document.createElement('div');
+  copyIcon.className = 'copy-icon';
+  copyIcon.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  colorDiv.appendChild(copyIcon);
 
   const info = document.createElement('div');
   info.className = 'swatch-info';
 
   const name = document.createElement('div');
   name.className = 'swatch-name';
-  // Show last 2 segments of path for readability
   const parts = tokenPath.split('.');
   name.textContent = parts.slice(-2).join('.');
-  name.title = tokenPath;
 
   const val = document.createElement('div');
   val.className = 'swatch-value';
@@ -720,22 +806,13 @@ function createSwatch(tokenPath, value, alias) {
     info.appendChild(aliasEl);
   }
 
-  // Tooltip with full path
-  const tooltip = document.createElement('div');
-  tooltip.className = 'tooltip';
-  tooltip.textContent = tokenPath;
-
-  swatch.appendChild(tooltip);
   swatch.appendChild(colorDiv);
   swatch.appendChild(info);
 
   // Click to copy hex value
-  swatch.style.cursor = 'pointer';
   swatch.addEventListener('click', () => {
     navigator.clipboard.writeText(value).then(() => {
-      tooltip.textContent = 'Copied ' + value;
-      tooltip.style.display = 'block';
-      setTimeout(() => { tooltip.textContent = tokenPath; tooltip.style.display = ''; }, 1200);
+      showToast('Copied ' + value);
     });
   });
 
@@ -835,8 +912,8 @@ const searchEl = document.getElementById('search');
 searchEl.addEventListener('input', () => {
   const q = searchEl.value;
   renderPrimColors(q);
-  const activeBrand = document.querySelector('.brand-btn.active');
-  if (activeBrand) renderBrandColors(activeBrand.textContent, q);
+  const brandSelect = document.querySelector('.brand-select');
+  if (brandSelect) renderBrandColors(brandSelect.value, q);
 });
 
 // ---- Initial render ----
