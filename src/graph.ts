@@ -1537,8 +1537,14 @@ function initialFit() {
   });
 
   const rangeX = maxX - minX + COL_WIDTH * 0.8;
-  const fitZoom = Math.max(0.05, width / rangeX);
-  const cx = (minX + maxX) / 2;
+  // Ensure labels are visible on load (ZOOM_SHOW_LABELS = 0.5).
+  // Show ~3 columns at a time for readability, but never exceed width-fit.
+  const labelZoom = 0.55;
+  const widthFitZoom = width / rangeX;
+  const fitZoom = Math.max(labelZoom, widthFitZoom);
+  // When zoomed past width-fit, start at the first column instead of centering
+  const viewWorldW = width / fitZoom;
+  const cx = fitZoom > widthFitZoom * 1.2 ? minX + viewWorldW / 2 - COL_WIDTH * 0.1 : (minX + maxX) / 2;
   // Position camera so top of content is at ~10% from viewport top
   const topPad = height * 0.1;
   const cy = minY - GROUP_HEADER_H + (height / 2 - topPad) / fitZoom;
