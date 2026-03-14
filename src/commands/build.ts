@@ -316,6 +316,16 @@ export async function runBuild(config: Config, options: BuildOptions): Promise<v
   )
   s.stop('Shared outputs complete')
 
+  // Phase D — Token documentation HTML
+  s.start('Generating token docs...')
+  const { generateDocsHtml } = await import('../formatters/docs-html.js')
+  const docsPath = 'build/docs/'
+  fs.mkdirSync(docsPath, { recursive: true })
+  const docsHtml = generateDocsHtml(tokensDir, brands)
+  fs.writeFileSync(path.join(docsPath, 'index.html'), docsHtml, 'utf-8')
+  generatedFiles.push(`${docsPath}index.html`)
+  s.stop('Token docs complete')
+
   p.note(generatedFiles.map((t) => pc.dim(t)).join('\n'), 'Generated files')
 
   p.outro('Build complete!')

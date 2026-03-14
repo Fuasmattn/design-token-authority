@@ -290,6 +290,11 @@ async function build() {
     },
   })
   await sdShared.buildAllPlatforms()
+
+  // Phase D — Token documentation HTML
+  const { generateDocsHtml } = await import('./src/formatters/docs-html.js')
+  fs.mkdirSync('build/docs', { recursive: true })
+  fs.writeFileSync('build/docs/index.html', generateDocsHtml(tokensDir, brands), 'utf-8')
 }
 
 build()
