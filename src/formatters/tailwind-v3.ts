@@ -82,12 +82,15 @@ export const tailwindV3Formatter: FormatFn = ({ dictionary, options }) => {
 
     if (!theme[category]) theme[category] = {}
 
-    // Colors always reference the CSS custom property so runtime brand switching works.
-    // All other categories use the transformed value directly.
     // In DTCG mode (usesDtcg), Style Dictionary stores the transformed value in
     // token.$value rather than token.value — mirror the SD v4 built-in format pattern.
     const rawValue = options.usesDtcg ? token.$value : token.value
-    const value = category === 'colors' ? `var(--${token.name})` : String(rawValue)
+
+    // Colors reference the CSS custom property so runtime brand switching works.
+    // When resolvedValues is true (per-brand static builds), use the actual value instead.
+    const resolvedValues = (options as { resolvedValues?: boolean }).resolvedValues ?? false
+    const value =
+      category === 'colors' && !resolvedValues ? `var(--${token.name})` : String(rawValue)
 
     theme[category][key] = value
   }

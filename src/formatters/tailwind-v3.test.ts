@@ -232,6 +232,31 @@ describe('tailwindV3Formatter', () => {
     expect(output).toContain('lineHeight: {')
   })
 
+  it('outputs resolved color values when resolvedValues option is true', () => {
+    const output = tailwindV3Formatter({
+      dictionary: makeDictionary([
+        {
+          path: ['Colors', 'grey', '50'],
+          name: 'colors-grey-50',
+          value: '#f8f8f8',
+          $type: 'color',
+        },
+        {
+          path: ['Colors', 'foundation', 'brand', 'default'],
+          name: 'colors-foundation-brand-default',
+          value: '#003f8a',
+          $type: 'color',
+        },
+      ]),
+      platform: UNUSED,
+      options: { resolvedValues: true },
+      file: UNUSED,
+    })
+    expect(output).toContain("'grey-50': '#f8f8f8'")
+    expect(output).toContain("'foundation-brand-default': '#003f8a'")
+    expect(output).not.toContain('var(--')
+  })
+
   it('skips tokens with unrecognised top-level groups', () => {
     const output = tailwindV3Formatter({
       dictionary: makeDictionary([

@@ -202,6 +202,31 @@ describe('tailwindV4Formatter', () => {
     expect(output).toContain('--leading-body: 24;')
   })
 
+  it('outputs resolved color values when resolvedValues option is true', () => {
+    const output = tailwindV4Formatter({
+      dictionary: makeDictionary([
+        {
+          path: ['Colors', 'grey', '50'],
+          name: 'colors-grey-50',
+          value: '#f8f8f8',
+          $type: 'color',
+        },
+        {
+          path: ['Colors', 'foundation', 'brand', 'default'],
+          name: 'colors-foundation-brand-default',
+          value: '#003f8a',
+          $type: 'color',
+        },
+      ]),
+      platform: UNUSED,
+      options: { resolvedValues: true },
+      file: UNUSED,
+    })
+    expect(output).toContain('--color-grey-50: #f8f8f8;')
+    expect(output).toContain('--color-foundation-brand-default: #003f8a;')
+    expect(output).not.toContain('var(--')
+  })
+
   it('skips Dimensions/sizing/* (no Tailwind v4 equivalent)', () => {
     const output = tailwindV4Formatter({
       dictionary: makeDictionary([

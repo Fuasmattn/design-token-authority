@@ -1,5 +1,6 @@
 # TICKET-026: Per-brand build output and Tailwind theme integration
 
+**Status:** ✅ Done
 **Phase:** 3 — Output Targets
 **Priority:** High
 **Effort:** M
@@ -34,19 +35,19 @@ adding a new brand in Figma and re-exporting is all that's needed — no code ch
 
 ## Acceptance Criteria
 
-- [ ] Build auto-detects brands from `tokens/Brand(Alias).*.json` filenames
-- [ ] Primitives output once to `build/css/base.css` as `:root { ... }`
-- [ ] Each brand outputs a scoped CSS file to `build/css/themes/{brand}.css`
+- [x] Build auto-detects brands from `tokens/Brand(Alias).*.json` filenames
+- [x] Primitives output once to `build/css/base.css` as `:root { ... }`
+- [x] Each brand outputs a scoped CSS file to `build/css/themes/{brand}.css`
       with selector `[data-brand="{brand}"]` (configurable; class alternative `.theme-{brand}`
       also supported), aliases resolved to `var(--primitives-var)`
-- [ ] Each brand outputs a resolved Tailwind v3 file to
+- [x] Each brand outputs a resolved Tailwind v3 file to
       `build/tailwind/{brand}/tailwind.tokens.ts` (actual values, no `var()` refs)
-- [ ] Each brand outputs a resolved Tailwind v4 file to
+- [x] Each brand outputs a resolved Tailwind v4 file to
       `build/tailwind/{brand}/tailwind.css` (actual values, no `var()` refs)
-- [ ] The shared `build/tailwind/tailwind.tokens.ts` and `build/tailwind/tailwind.css`
+- [x] The shared `build/tailwind/tailwind.tokens.ts` and `build/tailwind/tailwind.css`
       continue to use CSS var references (unchanged behaviour from TICKET-009/010)
-- [ ] No SD collision warnings during build
-- [ ] Existing CSS/JS outputs are unaffected
+- [x] No SD collision warnings during build
+- [x] Existing CSS/JS outputs are unaffected
 
 ---
 

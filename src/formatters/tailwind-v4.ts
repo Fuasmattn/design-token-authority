@@ -84,11 +84,15 @@ export const tailwindV4Formatter: FormatFn = ({ dictionary, options }) => {
     const suffix = token.path.slice(keyStart).map(toKebab).join('-')
     const property = `${prefix}${suffix}`
 
-    // Colors reference the existing CSS custom property for runtime brand switching.
     // In DTCG mode (usesDtcg), Style Dictionary stores the transformed value in
     // token.$value rather than token.value — mirror the SD v4 built-in format pattern.
     const rawValue = options.usesDtcg ? token.$value : token.value
-    const value = token.path[0] === 'Colors' ? `var(--${token.name})` : String(rawValue)
+
+    // Colors reference the existing CSS custom property for runtime brand switching.
+    // When resolvedValues is true (per-brand static builds), use the actual value instead.
+    const resolvedValues = (options as { resolvedValues?: boolean }).resolvedValues ?? false
+    const value =
+      token.path[0] === 'Colors' && !resolvedValues ? `var(--${token.name})` : String(rawValue)
 
     lines.push(`  ${property}: ${value};`)
   }

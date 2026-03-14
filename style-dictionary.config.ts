@@ -1,3 +1,5 @@
+import fs from 'node:fs'
+import path from 'node:path'
 import StyleDictionary from 'style-dictionary'
 import { tailwindV3Formatter } from './src/formatters/tailwind-v3.js'
 import { tailwindV4Formatter } from './src/formatters/tailwind-v4.js'
@@ -13,11 +15,15 @@ import { tailwindV4Formatter } from './src/formatters/tailwind-v4.js'
  *   - value/dimension-px    (TICKET-003) adds px unit to pixel-valued number tokens
  *   - value/opacity-decimal (TICKET-003) converts 0-100 opacity values to 0-1 CSS decimals
  *
- * Output targets:
- *   - CSS custom properties         → build/css/variables.css
- *   - JavaScript ES6 exports        → build/js/colorpalette.js
- *   - Tailwind v3 theme object      → build/tailwind/tailwind.tokens.ts  (TICKET-009)
- *   - Tailwind v4 @theme CSS block  → build/tailwind/tailwind.css        (TICKET-010)
+ * Build phases (TICKET-026):
+ *   Phase A — Primitives base        → build/css/base.css
+ *   Phase B — Per-brand semantic     → build/css/themes/{brand}.css
+ *                                      build/tailwind/{brand}/tailwind.tokens.ts
+ *                                      build/tailwind/{brand}/tailwind.css
+ *   Phase C — Shared outputs         → build/css/variables.css (backwards compat)
+ *                                      build/js/colorpalette.js
+ *                                      build/tailwind/tailwind.tokens.ts (var refs)
+ *                                      build/tailwind/tailwind.css (var refs)
  */
 
 // Built-in SD v4 CSS transforms — replicated here so we can compose a custom group
@@ -45,11 +51,6 @@ const CSS_BASE_TRANSFORMS = [
  * Figma groups like "Effects/blur/blur-xs" naively produce "--effects-blur-blur-xs"
  * when the path is joined with hyphens. This transform deduplicates adjacent repeated
  * hyphen-parts to produce "--effects-blur-xs".
- *
- * Examples:
- *   Effects/blur/blur-xs       → effects-blur-xs       (was effects-blur-blur-xs)
- *   Effects/opacity/opacity-50 → effects-opacity-50    (was effects-opacity-opacity-50)
- *   Colors/Brand/Primary       → colors-brand-primary  (unchanged)
  */
 StyleDictionary.registerTransform({
   name: 'name/kebab-deduped',
@@ -59,8 +60,6 @@ StyleDictionary.registerTransform({
       .map((segment: string) =>
         segment
           .toLowerCase()
-          // Replace any character that is not a letter, digit, or hyphen with a hyphen.
-          // This covers spaces, parentheses, commas (e.g. European decimals "1,5" → "1-5"), etc.
           .replace(/[^a-z0-9-]+/g, '-')
           .replace(/-+/g, '-')
           .replace(/^-|-$/g, ''),
@@ -73,13 +72,6 @@ StyleDictionary.registerTransform({
 
 /**
  * TICKET-003: Add px unit to all Figma "dimension" scopes.
- *
- * Figma exports pixel-valued numbers without units. These scopes all represent
- * pixel values in CSS: spacing (GAP), sizes (WIDTH_HEIGHT), radii (CORNER_RADIUS),
- * strokes (STROKE_FLOAT), and blur/spread effects (EFFECT_FLOAT).
- *
- * Typography-specific scopes (FONT_SIZE, LINE_HEIGHT, LETTER_SPACING, etc.)
- * are intentionally excluded — they may need rem/em and will be handled per output target.
  */
 const PIXEL_SCOPES = new Set([
   'GAP',
@@ -101,9 +93,6 @@ StyleDictionary.registerTransform({
 
 /**
  * TICKET-003: Convert opacity from 0–100 integer range to 0–1 CSS decimal.
- *
- * Figma stores opacity as a 0–100 percentage integer; CSS `opacity` property
- * expects a 0–1 float. Identified by the Figma OPACITY variable scope.
  */
 StyleDictionary.registerTransform({
   name: 'value/opacity-decimal',
@@ -117,7 +106,6 @@ StyleDictionary.registerTransform({
 
 /**
  * Custom CSS transform group: standard CSS transforms with our additions.
- * Replaces 'name/kebab' with 'name/kebab-deduped' and adds unit transforms.
  */
 StyleDictionary.registerTransformGroup({
   name: 'design-system/css',
@@ -129,21 +117,149 @@ StyleDictionary.registerTransformGroup({
   ],
 })
 
-// TICKET-009: Tailwind v3 theme object formatter
-StyleDictionary.registerFormat({
-  name: 'tailwind/v3',
-  format: tailwindV3Formatter,
+// Tailwind formatters
+StyleDictionary.registerFormat({ name: 'tailwind/v3', format: tailwindV3Formatter })
+StyleDictionary.registerFormat({ name: 'tailwind/v4', format: tailwindV4Formatter })
+
+/**
+ * TICKET-026: Strip self-referencing aliases that cause circular resolution.
+ *
+ * In Figma's multi-collection model, a Brand token like Typography.font-weight.regular
+ * can alias {Typography.font-weight.regular} because the reference crosses collection
+ * boundaries (Brand → Primitives). In a flat SD run where both collections are loaded
+ * as sources, the Brand token shadows the Primitives token and creates a circular ref
+ * that causes a stack overflow during resolution.
+ *
+ * This preprocessor removes tokens whose $value is a self-referencing alias, allowing
+ * the Primitives definition to take precedence — matching Figma's runtime behaviour.
+ */
+StyleDictionary.registerPreprocessor({
+  name: 'strip-self-refs',
+  preprocessor: (dictionary) => {
+    function walk(
+      obj: Record<string, unknown>,
+      currentPath: string[] = [],
+    ): Record<string, unknown> {
+      const result: Record<string, unknown> = {}
+      for (const [key, value] of Object.entries(obj)) {
+        if (value === null || value === undefined || typeof value !== 'object') {
+          result[key] = value
+          continue
+        }
+        const child = value as Record<string, unknown>
+        if ('$value' in child) {
+          const val = child['$value']
+          if (typeof val === 'string') {
+            const refMatch = val.match(/^\{(.+)\}$/)
+            if (refMatch && refMatch[1] === [...currentPath, key].join('.')) {
+              // Self-referencing alias — skip to let the Primitives definition win
+              continue
+            }
+          }
+          result[key] = child
+        } else {
+          result[key] = walk(child, [...currentPath, key])
+        }
+      }
+      return result
+    }
+    return walk(dictionary as unknown as Record<string, unknown>)
+  },
 })
 
-// TICKET-010: Tailwind v4 @theme CSS formatter
-StyleDictionary.registerFormat({
-  name: 'tailwind/v4',
-  format: tailwindV4Formatter,
-})
+/**
+ * Auto-detect brand names from Brand(Alias).{Brand}.json files.
+ */
+function detectBrands(tokensDir: string): string[] {
+  if (!fs.existsSync(tokensDir)) return []
+  return fs
+    .readdirSync(tokensDir)
+    .filter((f) => /^Brand\(Alias\)\..*\.json$/.test(f))
+    .map((f) => f.replace(/^Brand\(Alias\)\./, '').replace(/\.json$/, ''))
+}
 
 async function build() {
-  const sd = new StyleDictionary({
-    source: ['tokens/**/*.json'],
+  const tokensDir = 'tokens'
+  const brands = detectBrands(tokensDir)
+
+  // Phase A — Primitives base layer
+  const sdBase = new StyleDictionary({
+    source: [`${tokensDir}/Primitives*.json`],
+    platforms: {
+      'css-base': {
+        transformGroup: 'design-system/css',
+        buildPath: 'build/css/',
+        files: [
+          {
+            destination: 'base.css',
+            format: 'css/variables',
+            options: { selector: ':root', outputReferences: false },
+          },
+        ],
+      },
+    },
+  })
+  await sdBase.buildAllPlatforms()
+
+  // Phase B — Per-brand semantic layers
+  for (const brand of brands) {
+    const slug = brand.toLowerCase()
+
+    fs.mkdirSync(path.join('build/css/themes'), { recursive: true })
+    fs.mkdirSync(path.join('build/tailwind', slug), { recursive: true })
+
+    const brandOnly = (token: { filePath?: string }) =>
+      token.filePath?.includes(`Brand(Alias).${brand}.json`) ?? false
+
+    const sdBrand = new StyleDictionary({
+      source: [`${tokensDir}/Primitives*.json`, `${tokensDir}/Brand(Alias).${brand}.json`],
+      preprocessors: ['strip-self-refs'],
+      log: { verbosity: 'silent', errors: { brokenReferences: 'warn' } },
+      platforms: {
+        'css-theme': {
+          transformGroup: 'design-system/css',
+          buildPath: 'build/css/',
+          files: [
+            {
+              destination: `themes/${slug}.css`,
+              format: 'css/variables',
+              filter: brandOnly,
+              options: { selector: `[data-brand="${slug}"]`, outputReferences: true },
+            },
+          ],
+        },
+        'tailwind-v3-brand': {
+          transformGroup: 'design-system/css',
+          buildPath: `build/tailwind/${slug}/`,
+          files: [
+            {
+              destination: 'tailwind.tokens.ts',
+              format: 'tailwind/v3',
+              filter: brandOnly,
+              options: { resolvedValues: true },
+            },
+          ],
+        },
+        'tailwind-v4-brand': {
+          transformGroup: 'design-system/css',
+          buildPath: `build/tailwind/${slug}/`,
+          files: [
+            {
+              destination: 'tailwind.css',
+              format: 'tailwind/v4',
+              filter: brandOnly,
+              options: { resolvedValues: true },
+            },
+          ],
+        },
+      },
+    })
+    await sdBrand.buildAllPlatforms()
+  }
+
+  // Phase C — Shared outputs (primitives-only to avoid brand collisions)
+  const sdShared = new StyleDictionary({
+    source: [`${tokensDir}/Primitives*.json`],
     platforms: {
       css: {
         transformGroup: 'design-system/css',
@@ -152,48 +268,28 @@ async function build() {
           {
             destination: 'variables.css',
             format: 'css/variables',
-            options: {
-              outputReferences: true,
-            },
+            options: { outputReferences: true },
           },
         ],
       },
       js: {
         transformGroup: 'js',
         buildPath: 'build/js/',
-        files: [
-          {
-            destination: 'colorpalette.js',
-            format: 'javascript/es6',
-          },
-        ],
+        files: [{ destination: 'colorpalette.js', format: 'javascript/es6' }],
       },
-      // TICKET-009: Tailwind v3 theme.extend object
       'tailwind-v3': {
         transformGroup: 'design-system/css',
         buildPath: 'build/tailwind/',
-        files: [
-          {
-            destination: 'tailwind.tokens.ts',
-            format: 'tailwind/v3',
-          },
-        ],
+        files: [{ destination: 'tailwind.tokens.ts', format: 'tailwind/v3' }],
       },
-      // TICKET-010: Tailwind v4 @theme CSS block
       'tailwind-v4': {
         transformGroup: 'design-system/css',
         buildPath: 'build/tailwind/',
-        files: [
-          {
-            destination: 'tailwind.css',
-            format: 'tailwind/v4',
-          },
-        ],
+        files: [{ destination: 'tailwind.css', format: 'tailwind/v4' }],
       },
     },
   })
-
-  await sd.buildAllPlatforms()
+  await sdShared.buildAllPlatforms()
 }
 
 build()
