@@ -586,51 +586,94 @@ export function generateHtmlVisualization(graph: TokenGraph, stats: GraphStats):
 <title>Token Dependency Graph — Design Token Farm</title>
 <style>
   :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --border: #30363d;
-    --text: #e6edf3;
-    --text-muted: #8b949e;
-    --accent: #58a6ff;
-    --accent-subtle: #1f6feb33;
-    --danger: #f85149;
-    --warning: #d29922;
-    --success: #3fb950;
-    --info: #58a6ff;
+    --bg: #1a1a2e;
+    --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    --surface: rgba(255, 255, 255, 0.08);
+    --surface-hover: rgba(255, 255, 255, 0.12);
+    --surface-active: rgba(255, 255, 255, 0.16);
+    --glass: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-highlight: rgba(255, 255, 255, 0.18);
+    --glass-shadow: rgba(0, 0, 0, 0.25);
+    --border: rgba(255, 255, 255, 0.1);
+    --text: rgba(255, 255, 255, 0.92);
+    --text-muted: rgba(255, 255, 255, 0.5);
+    --accent: #64b5f6;
+    --accent-glow: rgba(100, 181, 246, 0.3);
+    --accent-subtle: rgba(100, 181, 246, 0.12);
+    --danger: #ef5350;
+    --warning: #ffb74d;
+    --success: #66bb6a;
+    --info: #64b5f6;
+    --glass-blur: 20px;
+    --glass-radius: 16px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background: var(--bg);
+    background-image: var(--bg-gradient);
+    background-attachment: fixed;
     color: var(--text);
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
+
+  /* ---- Liquid Glass mixin via shared properties ---- */
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      inset 0 1px 0 0 var(--glass-highlight),
+      0 4px 24px var(--glass-shadow);
+  }
+
   .header {
     border-bottom: 1px solid var(--border);
-    padding: 16px 24px;
+    padding: 14px 24px;
     display: flex;
     align-items: center;
     gap: 16px;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(30px) saturate(150%);
+    -webkit-backdrop-filter: blur(30px) saturate(150%);
   }
   .header h1 {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
+    letter-spacing: -0.3px;
   }
   .header .logo {
-    font-family: monospace;
+    font-family: 'SF Mono', 'Fira Code', monospace;
     color: var(--accent);
-    font-size: 14px;
+    font-size: 13px;
+    background: var(--accent-subtle);
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(100,181,246,0.15);
   }
   .layout {
     display: grid;
     grid-template-columns: 320px 1fr;
-    height: calc(100vh - 57px);
+    height: calc(100vh - 53px);
   }
   .sidebar {
     border-right: 1px solid var(--border);
     overflow-y: auto;
     padding: 16px;
+    background: rgba(255,255,255,0.02);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
+  .sidebar::-webkit-scrollbar { width: 6px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.12);
+    border-radius: 3px;
+  }
+  .sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
   .main {
     position: relative;
     overflow: hidden;
@@ -642,31 +685,44 @@ export function generateHtmlVisualization(graph: TokenGraph, stats: GraphStats):
     margin-bottom: 16px;
   }
   .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
+    background: var(--glass);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    box-shadow:
+      inset 0 1px 0 0 rgba(255,255,255,0.1),
+      0 2px 12px rgba(0,0,0,0.15);
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  }
+  .stat-card:hover {
+    background: var(--surface-hover);
+    border-color: rgba(255,255,255,0.18);
+    transform: translateY(-1px);
   }
   .stat-card .label {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
+    font-weight: 500;
   }
   .stat-card .value {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 700;
-    margin-top: 2px;
+    margin-top: 4px;
+    letter-spacing: -0.5px;
   }
   .stat-card .value.danger { color: var(--danger); }
   .stat-card .value.warning { color: var(--warning); }
   .stat-card .value.success { color: var(--success); }
   .section-title {
-    font-size: 12px;
+    font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
     color: var(--text-muted);
-    margin: 16px 0 8px;
+    margin: 20px 0 8px;
     font-weight: 600;
   }
   .file-list {
@@ -676,37 +732,54 @@ export function generateHtmlVisualization(graph: TokenGraph, stats: GraphStats):
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 8px;
-    border-radius: 6px;
+    padding: 7px 10px;
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 13px;
-    transition: background 0.15s;
+    font-size: 12.5px;
+    transition: background 0.2s, transform 0.1s;
   }
-  .file-item:hover { background: var(--surface); }
-  .file-item.active { background: var(--accent-subtle); color: var(--accent); }
+  .file-item:hover {
+    background: var(--surface-hover);
+    transform: translateX(2px);
+  }
+  .file-item.active {
+    background: var(--accent-subtle);
+    color: var(--accent);
+    border: 1px solid rgba(100,181,246,0.2);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
   .file-dot {
     width: 10px;
     height: 10px;
     border-radius: 50%;
     flex-shrink: 0;
+    box-shadow: 0 0 6px currentColor;
   }
   .file-count {
     margin-left: auto;
     color: var(--text-muted);
-    font-size: 12px;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
   }
   .search-box {
     width: 100%;
-    padding: 8px 12px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    padding: 10px 14px;
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
     color: var(--text);
     font-size: 13px;
     outline: none;
     margin-bottom: 12px;
+    box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.06);
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .search-box:focus { border-color: var(--accent); }
+  .search-box:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow), inset 0 1px 0 0 rgba(255,255,255,0.06);
+  }
   .search-box::placeholder { color: var(--text-muted); }
 
   /* Canvas */
@@ -717,98 +790,132 @@ export function generateHtmlVisualization(graph: TokenGraph, stats: GraphStats):
   }
   #canvas:active { cursor: grabbing; }
 
-  /* Tooltip */
+  /* Tooltip — Liquid Glass */
   .tooltip {
     display: none;
     position: fixed;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
+    background: rgba(30, 30, 60, 0.7);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--glass-radius);
+    padding: 14px;
     font-size: 12px;
     max-width: 360px;
     z-index: 100;
     pointer-events: none;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255,255,255,0.12),
+      0 12px 40px rgba(0,0,0,0.4);
   }
   .tooltip.visible { display: block; }
-  .tooltip .tt-label { color: var(--text-muted); font-size: 11px; }
-  .tooltip .tt-value { color: var(--text); margin-bottom: 6px; word-break: break-all; }
-  .tooltip .tt-chain { color: var(--accent); font-family: monospace; font-size: 11px; }
+  .tooltip .tt-label { color: var(--text-muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tooltip .tt-value { color: var(--text); margin-bottom: 8px; word-break: break-all; }
+  .tooltip .tt-chain { color: var(--accent); font-family: 'SF Mono', monospace; font-size: 11px; }
 
   /* Issues panel */
   .issues-panel {
     margin-top: 16px;
   }
   .issue-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 8px 10px;
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 10px 12px;
     margin-bottom: 6px;
     font-size: 12px;
     cursor: pointer;
-    transition: border-color 0.15s;
+    transition: border-color 0.2s, background 0.2s;
   }
-  .issue-item:hover { border-color: var(--accent); }
+  .issue-item:hover {
+    border-color: rgba(255,255,255,0.2);
+    background: var(--surface-hover);
+  }
   .issue-item .issue-type {
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
+    font-weight: 600;
   }
   .issue-item .issue-type.dangling { color: var(--warning); }
   .issue-item .issue-type.cycle { color: var(--danger); }
   .issue-item .issue-detail {
     color: var(--text-muted);
-    font-family: monospace;
+    font-family: 'SF Mono', monospace;
     font-size: 11px;
     word-break: break-all;
   }
 
-  /* Controls */
+  /* Controls — Liquid Glass pill */
   .controls {
     position: absolute;
     bottom: 16px;
     right: 16px;
     display: flex;
-    gap: 8px;
+    gap: 6px;
+    background: rgba(30, 30, 60, 0.5);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 4px;
+    box-shadow:
+      inset 0 1px 0 0 rgba(255,255,255,0.1),
+      0 8px 32px rgba(0,0,0,0.3);
   }
   .ctrl-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 10px;
     color: var(--text);
-    padding: 8px 12px;
+    padding: 8px 14px;
     font-size: 12px;
     cursor: pointer;
-    transition: border-color 0.15s;
+    transition: background 0.15s, border-color 0.15s;
+    font-weight: 500;
   }
-  .ctrl-btn:hover { border-color: var(--accent); }
-  .ctrl-btn.active { background: var(--accent-subtle); border-color: var(--accent); }
+  .ctrl-btn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.08);
+  }
+  .ctrl-btn.active {
+    background: var(--accent-subtle);
+    border-color: rgba(100,181,246,0.25);
+    color: var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
+  }
 
-  /* Legend */
+  /* Legend — Liquid Glass */
   .legend {
     position: absolute;
     top: 16px;
     right: 16px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
+    background: rgba(30, 30, 60, 0.5);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--glass-radius);
+    padding: 14px;
     font-size: 11px;
+    box-shadow:
+      inset 0 1px 0 0 rgba(255,255,255,0.1),
+      0 8px 32px rgba(0,0,0,0.3);
   }
   .legend-item {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
   }
   .legend-dot {
     width: 12px;
     height: 12px;
-    border-radius: 3px;
+    border-radius: 4px;
     flex-shrink: 0;
+    box-shadow: 0 0 6px currentColor;
   }
 
   /* Depth bar chart */
@@ -816,27 +923,142 @@ export function generateHtmlVisualization(graph: TokenGraph, stats: GraphStats):
     margin-top: 8px;
   }
   .depth-bar-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 52px 1fr 36px;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 3px;
+    gap: 6px;
+    margin-bottom: 4px;
     font-size: 11px;
   }
   .depth-bar-label {
-    width: 60px;
     color: var(--text-muted);
     text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
   .depth-bar {
-    height: 14px;
-    background: var(--accent);
-    border-radius: 3px;
+    height: 16px;
+    background: linear-gradient(90deg, var(--accent-subtle), var(--accent));
+    border-radius: 8px;
     min-width: 2px;
     transition: width 0.3s;
+    box-shadow: 0 0 8px var(--accent-glow);
   }
   .depth-bar-count {
     color: var(--text-muted);
     font-size: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Section title with info button */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .info-btn {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    background: var(--glass);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    padding: 0;
+    line-height: 1;
+  }
+  .info-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-subtle);
+    box-shadow: 0 0 8px var(--accent-glow);
+  }
+
+  /* Modal — Liquid Glass */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.visible {
+    display: flex;
+  }
+  .modal {
+    background: rgba(30, 30, 60, 0.75);
+    backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 28px;
+    max-width: 480px;
+    width: 90%;
+    box-shadow:
+      inset 0 1px 0 0 rgba(255,255,255,0.15),
+      0 24px 64px rgba(0,0,0,0.5);
+  }
+  .modal h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    color: var(--text);
+    letter-spacing: -0.2px;
+  }
+  .modal p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 10px;
+  }
+  .modal code {
+    background: rgba(255,255,255,0.08);
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--accent);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .modal .example {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 14px;
+    margin: 14px 0;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px;
+    line-height: 1.9;
+    color: var(--text-muted);
+  }
+  .modal .example .arrow { color: var(--accent); }
+  .modal-close {
+    margin-top: 18px;
+    padding: 8px 20px;
+    background: var(--accent-subtle);
+    border: 1px solid rgba(100,181,246,0.25);
+    border-radius: 10px;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .modal-close:hover {
+    background: var(--accent);
+    color: var(--bg);
+    box-shadow: 0 0 16px var(--accent-glow);
   }
 </style>
 </head>
@@ -873,11 +1095,33 @@ export function generateHtmlVisualization(graph: TokenGraph, stats: GraphStats):
     <div class="section-title">Files</div>
     <ul class="file-list" id="file-list"></ul>
 
-    <div class="section-title">Chain depth distribution</div>
+    <div class="section-header">
+      <div class="section-title">Chain depth distribution</div>
+      <button class="info-btn" id="btn-depth-info" title="What is chain depth?">?</button>
+    </div>
     <div class="depth-chart" id="depth-chart"></div>
 
     <div class="issues-panel" id="issues-panel">
       <div class="section-title">Issues</div>
+    </div>
+  </div>
+
+  <!-- Chain depth info modal -->
+  <div class="modal-overlay" id="depth-modal">
+    <div class="modal">
+      <h3>What is chain depth?</h3>
+      <p>Chain depth measures how many alias references a token follows before reaching a concrete value. It shows the indirection layers in your token architecture.</p>
+      <div class="example">
+        <strong>Depth 0</strong> &mdash; raw value, no aliases<br>
+        <code>Primitives/Colors/Blue/500</code> = <code>#3b82f6</code><br><br>
+        <strong>Depth 1</strong> &mdash; one alias hop<br>
+        <code>Brand/Primary</code> <span class="arrow">&rarr;</span> <code>Primitives/Colors/Blue/500</code><br><br>
+        <strong>Depth 2</strong> &mdash; two alias hops<br>
+        <code>Button/Background</code> <span class="arrow">&rarr;</span> <code>Brand/Primary</code> <span class="arrow">&rarr;</span> <code>Blue/500</code><br><br>
+        <strong>Depth 3+</strong> &mdash; deep chains (may indicate over-abstraction)
+      </div>
+      <p>In a healthy 3-layer architecture (Primitives &rarr; Brand &rarr; ScreenType), most tokens are depth 1&ndash;2. Depth 3+ may signal unnecessary indirection.</p>
+      <button class="modal-close" id="btn-depth-close">Got it</button>
     </div>
   </div>
 
@@ -900,8 +1144,8 @@ const DATA = ${JSON.stringify(data)};
 
 // Color palette for files
 const FILE_COLORS = [
-  '#58a6ff', '#f0883e', '#3fb950', '#bc8cff', '#f778ba',
-  '#79c0ff', '#d29922', '#56d4dd',
+  '#64b5f6', '#ffb74d', '#66bb6a', '#ce93d8', '#f48fb1',
+  '#81d4fa', '#ffd54f', '#4dd0e1',
 ];
 
 const fileColorMap = {};
@@ -993,6 +1237,18 @@ Object.keys(depthCounts).sort((a,b) => +a - +b).forEach(d => {
   depthChartEl.appendChild(row);
 });
 
+// ---- Depth info modal ----
+const depthModal = document.getElementById('depth-modal');
+document.getElementById('btn-depth-info').addEventListener('click', () => {
+  depthModal.classList.add('visible');
+});
+document.getElementById('btn-depth-close').addEventListener('click', () => {
+  depthModal.classList.remove('visible');
+});
+depthModal.addEventListener('click', (e) => {
+  if (e.target === depthModal) depthModal.classList.remove('visible');
+});
+
 // ---- Issues ----
 const issuesPanel = document.getElementById('issues-panel');
 if (DATA.dangling.length === 0 && DATA.stats.circularRefs === 0) {
@@ -1018,7 +1274,7 @@ legendEl.innerHTML = legendHtml;
 // ---- Match counter badge ----
 const matchBadge = document.createElement('div');
 matchBadge.id = 'match-badge';
-matchBadge.style.cssText = 'position:absolute;top:16px;left:16px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:12px;color:var(--text-muted);display:none;z-index:10;';
+matchBadge.style.cssText = 'position:absolute;top:16px;left:16px;background:rgba(30,30,60,0.5);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid var(--glass-border);border-radius:12px;padding:6px 14px;font-size:12px;color:var(--text-muted);display:none;z-index:10;box-shadow:inset 0 1px 0 0 rgba(255,255,255,0.1),0 4px 16px rgba(0,0,0,0.2);';
 document.querySelector('.main').appendChild(matchBadge);
 
 // ---- Canvas graph rendering ----
@@ -1422,15 +1678,15 @@ function render() {
       if (isFiltered && !srcVisible && !tgtVisible && !isHighlighted) return;
 
       if (isHighlighted) {
-        ctx.strokeStyle = '#58a6ff';
+        ctx.strokeStyle = '#64b5f6';
         ctx.globalAlpha = 0.9;
         ctx.lineWidth = 2;
       } else if (isFiltered && (srcVisible || tgtVisible)) {
-        ctx.strokeStyle = fileColorMap[DATA.nodes.find(n => n.id === e.source)?.file] || '#58a6ff';
+        ctx.strokeStyle = fileColorMap[DATA.nodes.find(n => n.id === e.source)?.file] || '#64b5f6';
         ctx.globalAlpha = 0.35;
         ctx.lineWidth = 1;
       } else {
-        ctx.strokeStyle = '#30363d';
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
         ctx.globalAlpha = 0.15;
         ctx.lineWidth = 0.5;
       }
@@ -1510,12 +1766,12 @@ function render() {
         const ly = s.y;
 
         // Background pill
-        ctx.fillStyle = 'rgba(13,17,23,0.85)';
+        ctx.fillStyle = 'rgba(26,26,46,0.85)';
         ctx.beginPath();
         ctx.roundRect(lx - 3, ly - fontSize/2 - 2, metrics.width + 6, fontSize + 4, 3);
         ctx.fill();
 
-        ctx.fillStyle = '#e6edf3';
+        ctx.fillStyle = 'rgba(255,255,255,0.92)';
         ctx.textBaseline = 'middle';
         ctx.fillText(label, lx, ly);
       }
