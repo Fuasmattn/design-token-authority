@@ -9,6 +9,7 @@
 - **Push** — reads token files and writes variables back to Figma (with confirmation and dry-run support)
 - **Build** — runs Style Dictionary to produce CSS custom properties, JavaScript exports, and Tailwind v3/v4 theme files
 - **Analyze** — inspects a Figma file's variable collections and infers the design system layer structure (primitives, brand, dimension, semantic)
+- **Graph** — builds a dependency graph of alias references across token files, detects circular references, dangling aliases, and orphaned tokens
 - **Init** — interactive wizard that connects to Figma, auto-detects your variable structure, and generates a project config
 
 ## Token format
@@ -55,6 +56,11 @@ dtf build             # tokens/ → build/
 # Setup & analysis
 dtf init              # interactive project setup wizard
 dtf analyze           # inspect Figma file and infer layer roles
+dtf graph             # show token dependency graph (console summary)
+dtf graph --format dot          # Graphviz DOT output (pipe to dot -Tsvg)
+dtf graph --format markdown     # Markdown table report
+dtf graph --format html         # interactive HTML visualization (opens in browser)
+dtf graph --output graph.md     # write output to file
 
 # Options available on all commands
 dtf <cmd> --config path/to/config.ts   # use a custom config file
@@ -120,3 +126,24 @@ export default defineConfig({
 | `build/js/colorpalette.js`          | ES6 named exports                 |
 | `build/tailwind/tailwind.tokens.ts` | Tailwind v3 `theme.extend` object |
 | `build/tailwind/tailwind.css`       | Tailwind v4 `@theme` block        |
+
+## Token dependency graph
+
+`dtf graph` analyzes alias references across all token files and reports:
+
+- **Total tokens** and percentage that are aliases
+- **Max alias chain depth** (how many hops the longest alias chain takes)
+- **Circular references** — alias loops that would cause infinite resolution
+- **Dangling aliases** — tokens referencing targets that don't exist
+- **Orphaned tokens** — defined tokens that are never referenced by any alias
+
+Four output formats are available via `--format`:
+
+| Format     | Use case                                                  |
+| ---------- | --------------------------------------------------------- |
+| `console`  | Quick terminal summary (default)                          |
+| `dot`      | Graphviz DOT — pipe to `dot -Tsvg` for static diagrams   |
+| `markdown` | Markdown table for PRs, docs, or CI reports               |
+| `html`     | Interactive visualization with zoom, pan, and filtering   |
+
+The HTML format generates a self-contained file with a force-directed graph layout, semantic zoom, color-coded token types, and a sidebar with stats and file filtering. It opens automatically in your default browser.

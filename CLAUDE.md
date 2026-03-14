@@ -90,12 +90,14 @@ src/
     schema.ts           Config type definitions + validation (dtf.config.ts)
     loader.ts           Runtime config file loader
     index.ts            Public re-exports
+  graph.ts              Token dependency graph: build, analyze, detect cycles/dangling/orphans, visualize
   commands/
     pull.ts             dtf pull
     push.ts             dtf push
     build.ts            dtf build
     init.ts             dtf init (wizard)
     analyze.ts          dtf analyze
+    graph.ts            dtf graph (dependency analysis + visualization)
   formatters/
     tailwind-v3.ts      Tailwind v3 theme.extend formatter
     tailwind-v4.ts      Tailwind v4 @theme CSS formatter
@@ -144,6 +146,8 @@ npm run dtf -- pull            # Pull variables from Figma → tokens/
 npm run dtf -- push            # Push tokens/ → Figma
 npm run dtf -- build           # Generate CSS + JS from tokens/
 npm run dtf -- analyze         # Inspect Figma file structure
+npm run dtf -- graph           # Token dependency graph (console summary)
+npm run dtf -- graph --format html   # Interactive HTML visualization
 npm run dtf -- init            # Interactive project setup wizard
 npm test                       # Run Vitest test suite
 npm run prettier:check         # Check code formatting
@@ -180,7 +184,7 @@ These are tracked as tickets — do not work around them, fix them at the source
 ## Testing
 
 - Framework: Vitest
-- Test files live alongside source: `color.test.ts`, `token_export.test.ts`, `token_import.test.ts`, `config/schema.test.ts`, `analyze.test.ts`, `cli.test.ts`, `commands/init.test.ts`
+- Test files live alongside source: `color.test.ts`, `token_export.test.ts`, `token_import.test.ts`, `config/schema.test.ts`, `analyze.test.ts`, `cli.test.ts`, `commands/init.test.ts`, `graph.test.ts`
 - Run: `npm test`
 - Coverage: color parsing, export conversion, import payload generation, alias resolution, edge cases
 - When adding new source files, add a corresponding `*.test.ts`
