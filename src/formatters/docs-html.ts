@@ -118,17 +118,20 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
       ? extractTokens(brandTokens.Colors as TokenGroup)
       : []
 
-    const groups: Record<string, Array<[string[], string, string]>> = {}
+    // Two-level grouping: top group (foundation, surface, ...) → sub group (neutral, brand, ...)
+    const groups: Record<string, Record<string, Array<[string[], string, string]>>> = {}
     for (const [tokenPath, token] of colorTokens) {
       if (token.$type !== 'color') continue
-      const group = tokenPath[0]
-      if (!groups[group]) groups[group] = []
+      const topGroup = tokenPath[0]
+      const subGroup = tokenPath.length > 2 ? tokenPath[1] : '_default'
+      if (!groups[topGroup]) groups[topGroup] = {}
+      if (!groups[topGroup][subGroup]) groups[topGroup][subGroup] = []
       const alias = String(token.$value)
       const resolved =
         typeof token.$value === 'string' && token.$value.startsWith('{')
           ? resolveAlias(token.$value, allData) ?? alias
           : alias
-      groups[group].push([tokenPath, resolved, alias])
+      groups[topGroup][subGroup].push([tokenPath, resolved, alias])
     }
     brandColorData[brand] = groups
   }
@@ -156,9 +159,14 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
       Object.entries(brandColorData).map(([brand, groups]) => [
         brand,
         Object.fromEntries(
-          Object.entries(groups).map(([group, tokens]) => [
-            group,
-            tokens.map(([p, v, a]) => ({ path: p.join('.'), value: v, alias: a })),
+          Object.entries(groups).map(([topGroup, subGroups]) => [
+            topGroup,
+            Object.fromEntries(
+              Object.entries(subGroups).map(([subGroup, tokens]) => [
+                subGroup,
+                tokens.map(([p, v, a]) => ({ path: p.join('.'), value: v, alias: a })),
+              ]),
+            ),
           ]),
         ),
       ]),
@@ -633,24 +641,42 @@ function renderBrandColors(brand, filter) {
   }
   const filterLower = (filter || '').toLowerCase();
 
-  for (const [group, tokens] of Object.entries(data)) {
-    const filtered = tokens.filter(t =>
-      !filterLower || t.path.toLowerCase().includes(filterLower) ||
-      t.value.toLowerCase().includes(filterLower) || t.alias.toLowerCase().includes(filterLower)
-    );
-    if (filtered.length === 0) continue;
+  for (const [topGroup, subGroups] of Object.entries(data)) {
+    // Check if any sub-group has matching tokens
+    let topHasTokens = false;
+    for (const tokens of Object.values(subGroups)) {
+      if (tokens.some(t =>
+        !filterLower || t.path.toLowerCase().includes(filterLower) ||
+        t.value.toLowerCase().includes(filterLower) || t.alias.toLowerCase().includes(filterLower)
+      )) { topHasTokens = true; break; }
+    }
+    if (!topHasTokens) continue;
 
     const h3 = document.createElement('h3');
-    h3.textContent = group;
+    h3.textContent = topGroup;
     container.appendChild(h3);
 
-    const grid = document.createElement('div');
-    grid.className = 'swatch-grid';
-    for (const token of filtered) {
-      const swatch = createSwatch(token.path, token.value, token.alias);
-      grid.appendChild(swatch);
+    for (const [subGroup, tokens] of Object.entries(subGroups)) {
+      const filtered = tokens.filter(t =>
+        !filterLower || t.path.toLowerCase().includes(filterLower) ||
+        t.value.toLowerCase().includes(filterLower) || t.alias.toLowerCase().includes(filterLower)
+      );
+      if (filtered.length === 0) continue;
+
+      if (subGroup !== '_default') {
+        const h4 = document.createElement('h4');
+        h4.textContent = subGroup;
+        h4.style.cssText = 'font-size:13px;font-weight:500;color:var(--text-tertiary);margin:12px 0 8px;text-transform:capitalize';
+        container.appendChild(h4);
+      }
+
+      const grid = document.createElement('div');
+      grid.className = 'swatch-grid';
+      for (const token of filtered) {
+        grid.appendChild(createSwatch(token.path, token.value, token.alias));
+      }
+      container.appendChild(grid);
     }
-    container.appendChild(grid);
   }
 }
 
@@ -703,11 +729,13 @@ function createSwatch(tokenPath, value, alias) {
   swatch.appendChild(colorDiv);
   swatch.appendChild(info);
 
-  // Click to copy
+  // Click to copy hex value
+  swatch.style.cursor = 'pointer';
   swatch.addEventListener('click', () => {
     navigator.clipboard.writeText(value).then(() => {
-      tooltip.textContent = 'Copied!';
-      setTimeout(() => { tooltip.textContent = tokenPath; }, 1200);
+      tooltip.textContent = 'Copied ' + value;
+      tooltip.style.display = 'block';
+      setTimeout(() => { tooltip.textContent = tokenPath; tooltip.style.display = ''; }, 1200);
     });
   });
 
