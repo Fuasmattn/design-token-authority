@@ -69,12 +69,17 @@ program
   .command('pull')
   .description('Export variables from Figma to local token JSON files')
   .option('-o, --output <dir>', 'Output directory (overrides config tokens.dir)')
+  .option('--from-file <path>', 'Import from a plugin-exported JSON file instead of the Figma API')
   .option('-c, --config <path>', 'Path to config file')
   .option('-v, --verbose', 'Enable verbose logging')
   .action(async (opts) => {
     try {
       const config = await loadConfig(opts.config)
-      await runPull(config, { output: opts.output, verbose: opts.verbose })
+      await runPull(config, {
+        output: opts.output,
+        fromFile: opts.fromFile,
+        verbose: opts.verbose,
+      })
     } catch (err) {
       handleError(err)
     }

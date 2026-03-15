@@ -9,18 +9,10 @@
  * that a single Tailwind config works with runtime brand switching. All other
  * token categories use their transformed values directly.
  *
- * Token path → Tailwind v4 CSS property prefix mapping:
- *   Colors/*                   → --color-
- *   Dimensions/spacing/*       → --spacing-
- *   Dimensions/breakpoints/*   → --breakpoint-
- *   Borders/border-radius/*    → --radius-
- *   Borders/border-width/*     → --border-width-
- *   Effects/opacity/*          → --opacity-
- *   Effects/blur/*             → --blur-
- *   Typography/font-family/*   → --font-
- *   Typography/font-size/*     → --font-size-
- *   Typography/font-weight/*   → --font-weight-
- *   Typography/line-height/*   → --leading-
+ * Mapping strategy (in priority order):
+ *   1. Path-based: well-known path prefixes (Colors/*, Dimensions/spacing/*, etc.)
+ *   2. Type+scope: $type and Figma scopes determine the Tailwind namespace
+ *   3. Fallback: unmapped tokens use --{full-path} (available as CSS vars)
  *
  * Consuming project:
  *   @import './build/tailwind/tailwind.css';
@@ -42,9 +34,9 @@ function toKebab(segment: string): string {
 
 /**
  * Maps a token path to a [cssPropertyPrefix, keyStartIndex] pair.
- * Returns null for paths that don't map to a Tailwind v4 @theme property.
+ * Returns null for paths that don't map to a known Tailwind v4 @theme property.
  */
-function getPropertyPrefix(path: string[]): [string, number] | null {
+function getPropertyPrefixByPath(path: string[]): [string, number] | null {
   const [top, sub] = path
   switch (top) {
     case 'Colors':
@@ -52,7 +44,6 @@ function getPropertyPrefix(path: string[]): [string, number] | null {
     case 'Dimensions':
       if (sub === 'spacing') return ['--spacing-', 2]
       if (sub === 'breakpoints') return ['--breakpoint-', 2]
-      // sizing has no direct Tailwind v4 equivalent; omit
       return null
     case 'Borders':
       if (sub === 'border-radius') return ['--radius-', 2]
@@ -73,16 +64,65 @@ function getPropertyPrefix(path: string[]): [string, number] | null {
   }
 }
 
+/**
+ * Determine the Tailwind v4 CSS property prefix from token $type and Figma scopes.
+ * Returns [prefix, category] or null if the token can't be mapped.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getPropertyPrefixByType(token: any): [string, string] | null {
+  const type: string = token.$type ?? token.type
+  const scopes: string[] = token.$extensions?.['com.figma']?.scopes ?? []
+
+  if (type === 'color') return ['--color-', 'color']
+
+  if (type === 'number') {
+    if (scopes.includes('FONT_SIZE')) return ['--font-size-', 'font-size']
+    if (scopes.includes('FONT_WEIGHT')) return ['--font-weight-', 'font-weight']
+    if (scopes.includes('LINE_HEIGHT')) return ['--leading-', 'leading']
+    if (scopes.includes('OPACITY')) return ['--opacity-', 'opacity']
+    if (scopes.includes('CORNER_RADIUS')) return ['--radius-', 'radius']
+    if (scopes.includes('GAP') || scopes.includes('WIDTH_HEIGHT')) return ['--spacing-', 'spacing']
+    if (scopes.includes('STROKE_FLOAT')) return ['--border-width-', 'border-width']
+    if (scopes.includes('EFFECT_FLOAT')) return ['--blur-', 'blur']
+    return null
+  }
+
+  if (type === 'string') {
+    if (scopes.includes('FONT_FAMILY')) return ['--font-', 'font']
+    return null
+  }
+
+  return null
+}
+
 export const tailwindV4Formatter: FormatFn = ({ dictionary, options }) => {
   const lines: string[] = []
 
   for (const token of dictionary.allTokens) {
-    const result = getPropertyPrefix(token.path)
-    if (!result) continue
+    // 1. Try path-based mapping (well-known structures)
+    const pathResult = getPropertyPrefixByPath(token.path)
 
-    const [prefix, keyStart] = result
-    const suffix = token.path.slice(keyStart).map(toKebab).join('-')
-    const property = `${prefix}${suffix}`
+    let property: string
+    let isColor = false
+
+    if (pathResult) {
+      const [prefix, keyStart] = pathResult
+      const suffix = token.path.slice(keyStart).map(toKebab).join('-')
+      property = `${prefix}${suffix}`
+      isColor = prefix === '--color-'
+    } else {
+      // 2. Try type+scope-based mapping
+      const typeResult = getPropertyPrefixByType(token)
+      if (typeResult) {
+        const [prefix, category] = typeResult
+        const fullKey = token.path.map(toKebab).join('-')
+        property = `${prefix}${fullKey}`
+        isColor = category === 'color'
+      } else {
+        // 3. Fallback: generic custom property (no Tailwind utility generation)
+        property = `--${token.path.map(toKebab).join('-')}`
+      }
+    }
 
     // In DTCG mode (usesDtcg), Style Dictionary stores the transformed value in
     // token.$value rather than token.value — mirror the SD v4 built-in format pattern.
@@ -91,8 +131,7 @@ export const tailwindV4Formatter: FormatFn = ({ dictionary, options }) => {
     // Colors reference the existing CSS custom property for runtime brand switching.
     // When resolvedValues is true (per-brand static builds), use the actual value instead.
     const resolvedValues = (options as { resolvedValues?: boolean }).resolvedValues ?? false
-    const value =
-      token.path[0] === 'Colors' && !resolvedValues ? `var(--${token.name})` : String(rawValue)
+    const value = isColor && !resolvedValues ? `var(--${token.name})` : String(rawValue)
 
     lines.push(`  ${property}: ${value};`)
   }

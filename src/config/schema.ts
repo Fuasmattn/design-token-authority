@@ -42,15 +42,15 @@ export interface OutputTargets {
 }
 
 // ---------------------------------------------------------------------------
-// Layer mapping
+// Collections
 // ---------------------------------------------------------------------------
 
+/**
+ * @deprecated Use `collections` (string[]) instead. Kept for backward compatibility.
+ */
 export interface LayerMapping {
-  /** Figma collection name for raw primitive values */
   primitives?: string
-  /** Figma collection name for semantic brand aliases */
   brand?: string
-  /** Figma collection name for responsive/dimension overrides */
   dimension?: string
 }
 
@@ -59,8 +59,10 @@ export interface LayerMapping {
 // ---------------------------------------------------------------------------
 
 export interface FigmaConnection {
-  fileKey: string
-  personalAccessToken: string
+  fileKey?: string
+  personalAccessToken?: string
+  /** How tokens are sourced: 'api' (REST API, Enterprise only) or 'file' (plugin export) */
+  source?: 'api' | 'file'
 }
 
 // ---------------------------------------------------------------------------
@@ -69,9 +71,19 @@ export interface FigmaConnection {
 
 export interface Config {
   figma: FigmaConnection
+  /** Collection names to include in the build (auto-discovered or manually specified) */
+  collections?: string[]
+  /**
+   * @deprecated Use `collections` instead. Kept for backward compatibility.
+   * If both `layers` and `collections` are set, `collections` takes precedence.
+   */
   layers?: LayerMapping
   brands?: string[]
-  tokens?: { dir: string }
+  tokens?: {
+    dir: string
+    /** Strip emoji characters from collection/mode names in filenames (default: false) */
+    stripEmojis?: boolean
+  }
   outputs?: OutputTargets
 }
 
@@ -125,14 +137,30 @@ function requireObject(value: unknown, field: string): Record<string, unknown> {
 export function validateConfig(raw: unknown): Config {
   const obj = requireObject(raw, 'config')
 
-  // figma (required)
+  // figma (required object, but individual fields are optional for file-based import)
   const figmaRaw = requireObject(obj.figma, 'figma')
+  const source = figmaRaw.source as FigmaConnection['source']
+  if (source !== undefined && source !== 'api' && source !== 'file') {
+    throw new ConfigValidationError('figma.source', "must be 'api' or 'file'")
+  }
   const figma: FigmaConnection = {
-    fileKey: requireString(figmaRaw.fileKey, 'figma.fileKey'),
-    personalAccessToken: requireString(figmaRaw.personalAccessToken, 'figma.personalAccessToken'),
+    fileKey: optionalString(figmaRaw.fileKey, 'figma.fileKey'),
+    personalAccessToken: optionalString(figmaRaw.personalAccessToken, 'figma.personalAccessToken'),
+    source,
   }
 
-  // layers (optional)
+  // collections (optional — replaces layers)
+  let collections: string[] | undefined
+  if (obj.collections !== undefined) {
+    if (!Array.isArray(obj.collections)) {
+      throw new ConfigValidationError('collections', 'must be an array of strings')
+    }
+    collections = obj.collections.map((c: unknown, i: number) =>
+      requireString(c, `collections[${i}]`),
+    )
+  }
+
+  // layers (optional, deprecated — kept for backward compatibility)
   let layers: LayerMapping | undefined
   if (obj.layers !== undefined) {
     const layersRaw = requireObject(obj.layers, 'layers')
@@ -154,11 +182,12 @@ export function validateConfig(raw: unknown): Config {
 
   // tokens (optional, defaults applied)
   const tokensRaw = obj.tokens !== undefined ? requireObject(obj.tokens, 'tokens') : {}
-  const tokens = {
+  const tokens: Config['tokens'] = {
     dir:
       typeof tokensRaw.dir === 'string' && tokensRaw.dir.length > 0
         ? tokensRaw.dir
         : DEFAULT_TOKENS_DIR,
+    stripEmojis: tokensRaw.stripEmojis === true,
   }
 
   // outputs (optional)
@@ -212,7 +241,7 @@ export function validateConfig(raw: unknown): Config {
     }
   }
 
-  return { figma, layers, brands, tokens, outputs }
+  return { figma, collections, layers, brands, tokens, outputs }
 }
 
 // ---------------------------------------------------------------------------

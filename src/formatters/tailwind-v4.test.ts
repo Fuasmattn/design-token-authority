@@ -227,7 +227,7 @@ describe('tailwindV4Formatter', () => {
     expect(output).not.toContain('var(--')
   })
 
-  it('skips Dimensions/sizing/* (no Tailwind v4 equivalent)', () => {
+  it('maps Dimensions/sizing/* via type+scope fallback when scopes present', () => {
     const output = tailwindV4Formatter({
       dictionary: makeDictionary([
         {
@@ -235,16 +235,17 @@ describe('tailwindV4Formatter', () => {
           name: 'dimensions-sizing-size-4',
           value: '16px',
           $type: 'number',
+          $extensions: { 'com.figma': { scopes: ['WIDTH_HEIGHT'] } },
         },
       ]),
       platform: UNUSED,
       options: UNUSED,
       file: UNUSED,
     })
-    expect(output).not.toContain('sizing')
+    expect(output).toContain('--spacing-dimensions-sizing-size-4: 16px;')
   })
 
-  it('skips tokens with unrecognised top-level groups', () => {
+  it('maps color tokens with unrecognised paths to --color-* via $type', () => {
     const output = tailwindV4Formatter({
       dictionary: makeDictionary([
         {
@@ -258,6 +259,61 @@ describe('tailwindV4Formatter', () => {
       options: UNUSED,
       file: UNUSED,
     })
-    expect(output).not.toContain('overlays')
+    expect(output).toContain('--color-overlays-white-alpha-5')
+  })
+
+  it('maps number tokens with CORNER_RADIUS scope to --radius-*', () => {
+    const output = tailwindV4Formatter({
+      dictionary: makeDictionary([
+        {
+          path: ['radius', 'fields'],
+          name: 'radius-fields',
+          value: '8px',
+          $type: 'number',
+          $extensions: {
+            'com.figma': { scopes: ['CORNER_RADIUS', 'WIDTH_HEIGHT', 'EFFECT_FLOAT'] },
+          },
+        },
+      ]),
+      platform: UNUSED,
+      options: UNUSED,
+      file: UNUSED,
+    })
+    expect(output).toContain('--radius-radius-fields: 8px;')
+  })
+
+  it('maps number tokens with FONT_SIZE scope to --font-size-*', () => {
+    const output = tailwindV4Formatter({
+      dictionary: makeDictionary([
+        {
+          path: ['tailwind', 'typography', 'size', 'sm'],
+          name: 'tailwind-typography-size-sm',
+          value: '14px',
+          $type: 'number',
+          $extensions: { 'com.figma': { scopes: ['FONT_SIZE'] } },
+        },
+      ]),
+      platform: UNUSED,
+      options: UNUSED,
+      file: UNUSED,
+    })
+    expect(output).toContain('--font-size-tailwind-typography-size-sm: 14px;')
+  })
+
+  it('falls back to generic --path for unmapped tokens', () => {
+    const output = tailwindV4Formatter({
+      dictionary: makeDictionary([
+        {
+          path: ['misc', 'setting'],
+          name: 'misc-setting',
+          value: 'true',
+          $type: 'boolean',
+        },
+      ]),
+      platform: UNUSED,
+      options: UNUSED,
+      file: UNUSED,
+    })
+    expect(output).toContain('--misc-setting: true;')
   })
 })

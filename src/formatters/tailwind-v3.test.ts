@@ -257,7 +257,7 @@ describe('tailwindV3Formatter', () => {
     expect(output).not.toContain('var(--')
   })
 
-  it('skips tokens with unrecognised top-level groups', () => {
+  it('maps color tokens with unrecognised paths to colors via $type', () => {
     const output = tailwindV3Formatter({
       dictionary: makeDictionary([
         {
@@ -271,10 +271,32 @@ describe('tailwindV3Formatter', () => {
       options: UNUSED,
       file: UNUSED,
     })
-    expect(output).not.toContain('overlays')
+    expect(output).toContain('colors')
+    expect(output).toContain("'overlays-white-alpha-5'")
   })
 
-  it('skips Dimensions tokens with unrecognised sub-group', () => {
+  it('maps number tokens with scopes to correct Tailwind category', () => {
+    const output = tailwindV3Formatter({
+      dictionary: makeDictionary([
+        {
+          path: ['radius', 'fields'],
+          name: 'radius-fields',
+          value: '8px',
+          $type: 'number',
+          $extensions: {
+            'com.figma': { scopes: ['CORNER_RADIUS', 'WIDTH_HEIGHT', 'EFFECT_FLOAT'] },
+          },
+        },
+      ]),
+      platform: UNUSED,
+      options: UNUSED,
+      file: UNUSED,
+    })
+    expect(output).toContain('borderRadius')
+    expect(output).toContain("'radius-fields': '8px'")
+  })
+
+  it('falls back to first path segment for unmapped tokens', () => {
     const output = tailwindV3Formatter({
       dictionary: makeDictionary([
         {
@@ -288,6 +310,7 @@ describe('tailwindV3Formatter', () => {
       options: UNUSED,
       file: UNUSED,
     })
-    expect(output).not.toContain('unknown')
+    expect(output).toContain('dimensions')
+    expect(output).toContain("'unknown-foo': '8px'")
   })
 })

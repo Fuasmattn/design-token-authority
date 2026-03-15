@@ -22,6 +22,11 @@ export async function runAnalyze(config: Config, options: AnalyzeOptions): Promi
     p.log.message(`${pc.dim('File:')} ${config.figma.fileKey}`)
   }
 
+  if (!config.figma.personalAccessToken || !config.figma.fileKey) {
+    p.log.error('Figma API credentials are required for analyze.')
+    process.exit(2)
+  }
+
   const api = new FigmaApi(config.figma.personalAccessToken)
 
   const s = p.spinner()
@@ -41,13 +46,8 @@ export async function runAnalyze(config: Config, options: AnalyzeOptions): Promi
 
   p.log.info(formatAnalysisReport(result))
 
-  if (Object.keys(result.suggestedLayers).length > 0) {
-    const sl = result.suggestedLayers
-    const lines: string[] = []
-    if (sl.primitives) lines.push(`${pc.cyan('primitives')}  ${pc.dim('\u2192')}  ${sl.primitives}`)
-    if (sl.brand) lines.push(`${pc.cyan('brand')}       ${pc.dim('\u2192')}  ${sl.brand}`)
-    if (sl.dimension) lines.push(`${pc.cyan('dimension')}   ${pc.dim('\u2192')}  ${sl.dimension}`)
-    p.note(lines.join('\n'), 'Suggested layer mapping')
+  if (result.suggestedCollections.length > 0) {
+    p.note(result.suggestedCollections.join(', '), 'Discovered collections')
   }
 
   if (result.suggestedBrands.length > 0) {

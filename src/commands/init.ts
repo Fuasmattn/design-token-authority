@@ -17,8 +17,15 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as p from '@clack/prompts'
 import pc from 'picocolors'
+import { exec } from 'child_process'
 import FigmaApi from '../figma_api.js'
 import { analyzeCollections, formatAnalysisReport, AnalysisResult } from '../analyze.js'
+import { detectFormat, convertTokenHausExport } from '../importers/index.js'
+import { analyzeTokenFiles } from '../importers/analyze-tokens.js'
+import { sanitizeFileName } from '../utils.js'
+import { loadConfig } from '../config/index.js'
+import { runPull } from './pull.js'
+import { runBuild } from './build.js'
 
 export interface InitOptions {
   verbose?: boolean
@@ -47,12 +54,10 @@ export function extractFileKey(input: string): string | null {
 
 export interface ConfigData {
   fileKey: string
-  layers: {
-    primitives?: string
-    brand?: string
-    dimension?: string
-  }
+  source?: 'api' | 'file'
+  collections: string[]
   brands: string[]
+  stripEmojis: boolean
   outputs: string[]
 }
 
@@ -63,18 +68,18 @@ export function generateConfigContent(data: ConfigData): string {
   lines.push('')
   lines.push('export default defineConfig({')
   lines.push('  figma: {')
-  lines.push('    fileKey: process.env.FIGMA_FILE_KEY!,')
-  lines.push('    personalAccessToken: process.env.FIGMA_PERSONAL_ACCESS_TOKEN!,')
+  if (data.source === 'file') {
+    lines.push("    source: 'file',")
+  } else {
+    lines.push('    fileKey: process.env.FIGMA_FILE_KEY!,')
+    lines.push('    personalAccessToken: process.env.FIGMA_PERSONAL_ACCESS_TOKEN!,')
+  }
   lines.push('  },')
 
-  // Layers
-  if (data.layers.primitives || data.layers.brand || data.layers.dimension) {
+  // Collections
+  if (data.collections.length > 0) {
     lines.push('')
-    lines.push('  layers: {')
-    if (data.layers.primitives) lines.push(`    primitives: '${data.layers.primitives}',`)
-    if (data.layers.brand) lines.push(`    brand: '${data.layers.brand}',`)
-    if (data.layers.dimension) lines.push(`    dimension: '${data.layers.dimension}',`)
-    lines.push('  },')
+    lines.push(`  collections: [${data.collections.map((c) => `'${c}'`).join(', ')}],`)
   }
 
   // Brands
@@ -86,6 +91,9 @@ export function generateConfigContent(data: ConfigData): string {
   lines.push('')
   lines.push('  tokens: {')
   lines.push("    dir: 'tokens',")
+  if (data.stripEmojis) {
+    lines.push('    stripEmojis: true,')
+  }
   lines.push('  },')
 
   // Outputs
@@ -205,176 +213,246 @@ export async function runInit(_options: InitOptions): Promise<void> {
     `This wizard will connect to your Figma file, auto-detect your\nvariable structure, and generate a ${pc.bold('dtf.config.ts')} for your project.`,
   )
 
-  // ---- Step 1: Figma connection ----
-  p.log.step(pc.bold('Figma connection'))
+  // ---- Step 0: Figma plan type ----
+  p.log.step(pc.bold('Figma plan'))
   p.log.message(
     pc.dim(
-      'Paste the URL from your browser when viewing the Figma file,\nor just the file key (the alphanumeric ID in the URL).',
+      'The Figma Variables REST API is only available on Enterprise plans.\n' +
+        'On other plans, you can export tokens via a Figma plugin instead.',
     ),
   )
 
-  const fileKeyInput = exitIfCancelled(
-    await p.text({
-      message: 'Figma file key or URL',
-      placeholder: 'https://figma.com/design/abc123.../My-File',
-      validate(val) {
-        if (!val) return 'Please provide a Figma file key or URL.'
-        if (!extractFileKey(val)) return 'Could not extract a file key. Paste a Figma URL or key.'
-        return undefined
-      },
+  const figmaPlan = exitIfCancelled(
+    await p.select({
+      message: 'Which Figma plan do you have?',
+      options: [
+        {
+          value: 'enterprise',
+          label: 'Enterprise',
+          hint: 'Full REST API access — automated CI/CD',
+        },
+        {
+          value: 'other',
+          label: 'Professional / Organization / other',
+          hint: 'Use a plugin to export tokens as JSON',
+        },
+      ],
     }),
   )
-  const fileKey = extractFileKey(fileKeyInput)!
 
-  // ---- Step 2: Personal access token ----
-  p.log.message(
-    pc.dim(
-      `Generate a token at ${pc.underline('figma.com > Settings > Personal access tokens')}.\nRequired scope: ${pc.cyan('Read and write Variables')}.`,
-    ),
-  )
+  const isEnterprise = figmaPlan === 'enterprise'
+  let fileKey = ''
+  let token = ''
 
-  const token = exitIfCancelled(
-    await p.password({
-      message: 'Figma Personal Access Token',
-      validate(val) {
-        if (!val) return 'Token cannot be empty.'
-        return undefined
-      },
-    }),
-  )
+  if (isEnterprise) {
+    // ---- Step 1: Figma connection ----
+    p.log.step(pc.bold('Figma connection'))
+    p.log.message(
+      pc.dim(
+        'Paste the URL from your browser when viewing the Figma file,\nor just the file key (the alphanumeric ID in the URL).',
+      ),
+    )
+
+    const fileKeyInput = exitIfCancelled(
+      await p.text({
+        message: 'Figma file key or URL',
+        placeholder: 'https://figma.com/design/abc123.../My-File',
+        validate(val) {
+          if (!val) return 'Please provide a Figma file key or URL.'
+          if (!extractFileKey(val)) return 'Could not extract a file key. Paste a Figma URL or key.'
+          return undefined
+        },
+      }),
+    )
+    fileKey = extractFileKey(fileKeyInput)!
+
+    // ---- Step 2: Personal access token ----
+    p.log.message(
+      pc.dim(
+        `Generate a token at ${pc.underline('figma.com > Settings > Personal access tokens')}.\nRequired scope: ${pc.cyan('Read and write Variables')}.`,
+      ),
+    )
+
+    token = exitIfCancelled(
+      await p.password({
+        message: 'Figma Personal Access Token',
+        validate(val) {
+          if (!val) return 'Token cannot be empty.'
+          return undefined
+        },
+      }),
+    )
+  }
 
   // ---- Step 3: Autodiscovery ----
   let analysisResult: AnalysisResult | null = null
+  let importFilePath = ''
 
-  const s = p.spinner()
-  s.start('Connecting to Figma and analyzing variable collections...')
+  if (isEnterprise) {
+    const s = p.spinner()
+    s.start('Connecting to Figma and analyzing variable collections...')
 
-  try {
-    const api = new FigmaApi(token)
-    const localVariables = await api.getLocalVariables(fileKey)
-    analysisResult = analyzeCollections(localVariables)
+    try {
+      const api = new FigmaApi(token)
+      const localVariables = await api.getLocalVariables(fileKey)
+      analysisResult = analyzeCollections(localVariables)
 
-    const count = analysisResult.collections.length
-    s.stop(`Found ${count} variable collection${count !== 1 ? 's' : ''}`)
+      const count = analysisResult.collections.length
+      s.stop(`Found ${count} variable collection${count !== 1 ? 's' : ''}`)
 
-    if (count > 0) {
-      p.log.info(formatAnalysisReport(analysisResult))
-    } else {
-      p.log.warn('No variable collections found in this file.')
+      if (count > 0) {
+        p.log.info(formatAnalysisReport(analysisResult))
+      } else {
+        p.log.warn('No variable collections found in this file.')
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      s.stop('Could not connect to Figma')
+      p.log.warn(`${msg}\nContinuing without autodiscovery — you can configure layers manually.`)
     }
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    s.stop('Could not connect to Figma')
-    p.log.warn(`${msg}\nContinuing without autodiscovery — you can configure layers manually.`)
+  } else {
+    // File-based autodiscovery for non-Enterprise plans
+    p.log.step(pc.bold('Token file'))
+    p.log.message(
+      pc.dim(
+        'Export your Figma variables as a JSON file using a plugin like tokenHaus\n' +
+          'or any tool that exports in W3C DTCG format.\n' +
+          'Provide the path to the exported file for autodiscovery.',
+      ),
+    )
+
+    const tokenFilePath = exitIfCancelled(
+      await p.text({
+        message: 'Path to exported token JSON file (or leave blank to skip)',
+        placeholder: './design-tokens.json',
+        defaultValue: '',
+      }),
+    )
+    importFilePath = tokenFilePath
+
+    if (tokenFilePath) {
+      const resolved = path.resolve(tokenFilePath)
+      if (!fs.existsSync(resolved)) {
+        p.log.warn(`File not found: ${resolved}\nContinuing without autodiscovery.`)
+      } else {
+        const s = p.spinner()
+        s.start('Analyzing token file...')
+
+        try {
+          const raw = fs.readFileSync(resolved, 'utf-8')
+          const data = JSON.parse(raw) as Record<string, unknown>
+          const format = detectFormat(data)
+
+          if (format === 'tokenhaus') {
+            const tokenFiles = convertTokenHausExport(data)
+            analysisResult = analyzeTokenFiles(tokenFiles)
+            const count = analysisResult.collections.length
+            s.stop(`Found ${count} collection${count !== 1 ? 's' : ''} in tokenHaus export`)
+          } else if (format === 'dtcg-per-mode') {
+            // Single per-mode file — limited autodiscovery
+            s.stop('Detected single DTCG per-mode file')
+            p.log.message(
+              pc.dim(
+                'For full autodiscovery, export all collections in a single file\n' +
+                  'using a plugin like tokenHaus.',
+              ),
+            )
+          } else {
+            s.stop('Could not detect token format')
+            p.log.warn('Continuing without autodiscovery — you can configure layers manually.')
+          }
+
+          if (analysisResult && analysisResult.collections.length > 0) {
+            p.log.info(formatAnalysisReport(analysisResult))
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err)
+          s.stop('Could not analyze file')
+          p.log.warn(`${msg}\nContinuing without autodiscovery.`)
+        }
+      }
+    }
   }
 
-  // ---- Step 4: Layer mapping ----
-  p.log.step(pc.bold('Layer mapping'))
-  p.log.message(
-    pc.dim(
-      'dtf uses a three-layer model: Primitives (raw values),\nBrand (semantic aliases per brand), and Dimension (responsive overrides).\nEach layer maps to a Figma variable collection.',
-    ),
-  )
+  // ---- Step 3b: Emoji handling ----
+  // Check if any discovered collection names contain emojis
+  const hasEmojis =
+    analysisResult?.suggestedCollections.some((name) => sanitizeFileName(name, true) !== name) ??
+    false
 
-  let layers: ConfigData['layers'] = {}
+  let stripEmojis = false
+  if (hasEmojis) {
+    p.log.step(pc.bold('Filenames'))
+    p.log.message(
+      pc.dim(
+        'Some collection names contain emoji characters (e.g. "🎨 theme").\n' +
+          'You can strip emojis from token filenames for cleaner file paths.',
+      ),
+    )
 
-  if (analysisResult && Object.keys(analysisResult.suggestedLayers).length > 0) {
-    const sl = analysisResult.suggestedLayers
-
-    const mappingLines: string[] = []
-    if (sl.primitives)
-      mappingLines.push(`${pc.cyan('primitives')}  ${pc.dim('\u2192')}  ${sl.primitives}`)
-    if (sl.brand) mappingLines.push(`${pc.cyan('brand')}       ${pc.dim('\u2192')}  ${sl.brand}`)
-    if (sl.dimension)
-      mappingLines.push(`${pc.cyan('dimension')}   ${pc.dim('\u2192')}  ${sl.dimension}`)
-
-    p.note(mappingLines.join('\n'), 'Detected layers')
-
-    const useDetected = exitIfCancelled(
+    stripEmojis = exitIfCancelled(
       await p.confirm({
-        message: 'Use detected layer mapping?',
+        message: 'Strip emojis from token filenames?',
         initialValue: true,
       }),
     )
+  }
 
-    if (useDetected) {
-      layers = { ...sl }
-    } else {
-      p.log.message(pc.dim('Enter the exact Figma collection name for each layer.'))
-      const group = await p.group(
-        {
-          primitives: () =>
-            p.text({
-              message: 'Primitives collection name',
-              placeholder: 'Leave blank to skip',
-              defaultValue: '',
-            }),
-          brand: () =>
-            p.text({
-              message: 'Brand collection name',
-              placeholder: 'Leave blank to skip',
-              defaultValue: '',
-            }),
-          dimension: () =>
-            p.text({
-              message: 'Dimension/responsive collection name',
-              placeholder: 'Leave blank to skip',
-              defaultValue: '',
-            }),
-        },
-        {
-          onCancel: () => {
-            p.cancel('Setup cancelled.')
-            process.exit(0)
-          },
-        },
-      )
-      if (group.primitives) layers.primitives = group.primitives
-      if (group.brand) layers.brand = group.brand
-      if (group.dimension) layers.dimension = group.dimension
-    }
-  } else if (!analysisResult) {
-    p.log.message(pc.dim('Enter the exact Figma collection name for each layer.'))
-    const group = await p.group(
-      {
-        primitives: () =>
-          p.text({
-            message: 'Primitives collection name',
-            placeholder: 'Leave blank to skip',
-            defaultValue: '',
-          }),
-        brand: () =>
-          p.text({
-            message: 'Brand collection name',
-            placeholder: 'Leave blank to skip',
-            defaultValue: '',
-          }),
-        dimension: () =>
-          p.text({
-            message: 'Dimension/responsive collection name',
-            placeholder: 'Leave blank to skip',
-            defaultValue: '',
-          }),
-      },
-      {
-        onCancel: () => {
-          p.cancel('Setup cancelled.')
-          process.exit(0)
-        },
-      },
+  // ---- Step 4: Collections ----
+  p.log.step(pc.bold('Collections'))
+  p.log.message(
+    pc.dim(
+      'Select which Figma variable collections to include in the build.\nEach collection maps to one or more token files.',
+    ),
+  )
+
+  let selectedCollections: string[] = []
+
+  if (analysisResult && analysisResult.suggestedCollections.length > 0) {
+    const collectionOptions = analysisResult.collections.map((c) => {
+      const modeInfo = c.modeCount > 1 ? ` (${c.modeCount} modes: ${c.modeNames.join(', ')})` : ''
+      const roleHint = c.inferredRole !== 'unknown' ? ` [${c.inferredRole}]` : ''
+      return {
+        value: c.name,
+        label: c.name,
+        hint: `${c.variableCount} tokens${modeInfo}${roleHint}`,
+      }
+    })
+
+    const chosen = exitIfCancelled(
+      await p.multiselect({
+        message: 'Which collections should be included in the build?',
+        options: collectionOptions,
+        initialValues: analysisResult.suggestedCollections,
+        required: false,
+      }),
     )
-    if (group.primitives) layers.primitives = group.primitives
-    if (group.brand) layers.brand = group.brand
-    if (group.dimension) layers.dimension = group.dimension
+    selectedCollections = chosen
+  } else if (!analysisResult) {
+    p.log.message(pc.dim('No collections were auto-detected. Enter collection names manually.'))
+    const input = exitIfCancelled(
+      await p.text({
+        message: 'Collection names (comma-separated, or blank to skip)',
+        placeholder: 'Primitives, Brand, ScreenType',
+        defaultValue: '',
+      }),
+    )
+    selectedCollections = input
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
   }
 
   // ---- Step 5: Brand names ----
+  // Detect multi-mode collections among the selected ones as potential brand sources
   let brands: string[] = []
 
   if (analysisResult && analysisResult.suggestedBrands.length > 0) {
     p.log.step(pc.bold('Brands'))
     p.log.message(
-      pc.dim('Each brand corresponds to a mode in your Brand collection.\nTokens are resolved per-brand during build.'),
+      pc.dim(
+        'Multi-mode collections can generate per-brand outputs.\nEach brand corresponds to a mode in such a collection.',
+      ),
     )
 
     p.note(analysisResult.suggestedBrands.join(', '), 'Detected brands')
@@ -400,28 +478,40 @@ export async function runInit(_options: InitOptions): Promise<void> {
         .map((s) => s.trim())
         .filter(Boolean)
     }
-  } else if (layers.brand) {
-    p.log.step(pc.bold('Brands'))
-    p.log.message(
-      pc.dim('Each brand corresponds to a mode in your Brand collection.\nTokens are resolved per-brand during build.'),
+  } else if (analysisResult) {
+    // Check if any selected collection has multiple modes
+    const multiModeCollections = analysisResult.collections.filter(
+      (c) => selectedCollections.includes(c.name) && c.modeCount > 1,
     )
-
-    const input = exitIfCancelled(
-      await p.text({
-        message: 'Brand names (comma-separated, or blank to skip)',
-        defaultValue: '',
-      }),
-    )
-    brands = input
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
+    if (multiModeCollections.length > 0) {
+      p.log.step(pc.bold('Brands'))
+      const modeNames = multiModeCollections.flatMap((c) => c.modeNames)
+      p.log.message(
+        pc.dim(
+          `Found multi-mode collections: ${multiModeCollections.map((c) => c.name).join(', ')}.\n` +
+            'Their modes can be used as brand names for per-brand output.',
+        ),
+      )
+      const input = exitIfCancelled(
+        await p.text({
+          message: `Brand names (comma-separated, or blank to skip)`,
+          placeholder: modeNames.join(', '),
+          defaultValue: modeNames.join(', '),
+        }),
+      )
+      brands = input
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+    }
   }
 
   // ---- Step 6: Output targets ----
   p.log.step(pc.bold('Output targets'))
   p.log.message(
-    pc.dim('Select the formats you want dtf to generate.\nYou can change these later in dtf.config.ts.'),
+    pc.dim(
+      'Select the formats you want dtf to generate.\nYou can change these later in dtf.config.ts.',
+    ),
   )
 
   const selectedOutputs = exitIfCancelled(
@@ -437,36 +527,134 @@ export async function runInit(_options: InitOptions): Promise<void> {
 
   const configContent = generateConfigContent({
     fileKey,
-    layers,
-    brands,
+    source: isEnterprise ? undefined : 'file',
+    collections: selectedCollections.map((c) => sanitizeFileName(c, stripEmojis)),
+    brands: brands.map((b) => sanitizeFileName(b, stripEmojis)),
+    stripEmojis,
     outputs: selectedOutputs,
   })
 
   fs.writeFileSync(configPath, configContent, 'utf-8')
   p.log.success(`Created ${pc.bold('dtf.config.ts')}`)
 
-  // Write .env.example if not present
-  const envExamplePath = path.resolve('.env.example')
-  if (!fs.existsSync(envExamplePath)) {
-    fs.writeFileSync(envExamplePath, ENV_EXAMPLE, 'utf-8')
-    p.log.success(`Created ${pc.bold('.env.example')}`)
+  if (isEnterprise) {
+    // Write .env.example if not present
+    const envExamplePath = path.resolve('.env.example')
+    if (!fs.existsSync(envExamplePath)) {
+      fs.writeFileSync(envExamplePath, ENV_EXAMPLE, 'utf-8')
+      p.log.success(`Created ${pc.bold('.env.example')}`)
+    }
+
+    // Write or update .env with the actual values
+    const envPath = path.resolve('.env')
+    const envVars: Record<string, string> = {
+      FIGMA_FILE_KEY: fileKey,
+      FIGMA_PERSONAL_ACCESS_TOKEN: token,
+    }
+
+    if (fs.existsSync(envPath)) {
+      let envContent = fs.readFileSync(envPath, 'utf-8')
+      for (const [key, value] of Object.entries(envVars)) {
+        const regex = new RegExp(`^${key}=.*$`, 'm')
+        if (regex.test(envContent)) {
+          envContent = envContent.replace(regex, `${key}=${value}`)
+        } else {
+          envContent = envContent.trimEnd() + `\n${key}=${value}\n`
+        }
+      }
+      fs.writeFileSync(envPath, envContent, 'utf-8')
+      p.log.success(`Updated ${pc.bold('.env')} ${pc.dim('(do not commit this file)')}`)
+    } else {
+      fs.writeFileSync(
+        envPath,
+        `FIGMA_FILE_KEY=${fileKey}\nFIGMA_PERSONAL_ACCESS_TOKEN=${token}\n`,
+        'utf-8',
+      )
+      p.log.success(`Created ${pc.bold('.env')} ${pc.dim('(do not commit this file)')}`)
+    }
   }
 
-  // Write .env with the actual values if not present
-  const envPath = path.resolve('.env')
-  if (!fs.existsSync(envPath)) {
-    fs.writeFileSync(
-      envPath,
-      `FIGMA_FILE_KEY=${fileKey}\nFIGMA_PERSONAL_ACCESS_TOKEN=${token}\n`,
-      'utf-8',
+  // ---- Post-setup: run pull + build ----
+
+  const pullCmd = isEnterprise
+    ? pc.cyan('dtf pull')
+    : importFilePath
+      ? pc.cyan(`dtf pull --from-file ${importFilePath}`)
+      : pc.cyan('dtf pull --from-file <exported.json>')
+
+  const canRunPull = isEnterprise || !!importFilePath
+  let pullSucceeded = false
+  let buildSucceeded = false
+
+  if (canRunPull) {
+    const shouldPull = exitIfCancelled(
+      await p.confirm({
+        message: `Run ${pullCmd} now?`,
+        initialValue: true,
+      }),
     )
-    p.log.success(`Created ${pc.bold('.env')} ${pc.dim('(do not commit this file)')}`)
+
+    if (shouldPull) {
+      try {
+        const config = await loadConfig(configPath)
+        await runPull(config, {
+          fromFile: isEnterprise ? undefined : importFilePath,
+        })
+        pullSucceeded = true
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err)
+        p.log.error(`Pull failed: ${msg}`)
+      }
+    }
+  } else {
+    p.note(
+      `Export variables from Figma using ${pc.bold('tokenHaus')} or another DTCG-compatible plugin,\n` +
+        `then run ${pc.cyan('dtf pull --from-file <exported.json>')} to import tokens.`,
+      'Next step',
+    )
   }
 
-  p.note(
-    `1. Run ${pc.cyan('dtf pull')} to export tokens from Figma\n2. Run ${pc.cyan('dtf build')} to generate output files`,
-    'Next steps',
-  )
+  if (pullSucceeded) {
+    const shouldBuild = exitIfCancelled(
+      await p.confirm({
+        message: `Run ${pc.cyan('dtf build')} now?`,
+        initialValue: true,
+      }),
+    )
+
+    if (shouldBuild) {
+      try {
+        const config = await loadConfig(configPath)
+        await runBuild(config, {})
+        buildSucceeded = true
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err)
+        p.log.error(`Build failed: ${msg}`)
+      }
+    }
+  }
+
+  if (buildSucceeded) {
+    const docsPath = path.resolve('build/docs/index.html')
+    if (fs.existsSync(docsPath)) {
+      const shouldOpen = exitIfCancelled(
+        await p.confirm({
+          message: 'Open token documentation in your browser?',
+          initialValue: true,
+        }),
+      )
+
+      if (shouldOpen) {
+        const openCmd =
+          process.platform === 'darwin'
+            ? 'open'
+            : process.platform === 'win32'
+              ? 'start'
+              : 'xdg-open'
+        exec(`${openCmd} ${docsPath}`)
+      }
+    }
+  }
 
   p.outro("You're all set!")
 }

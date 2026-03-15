@@ -98,6 +98,10 @@ src/
     init.ts             dtf init (wizard)
     analyze.ts          dtf analyze
     graph.ts            dtf graph (dependency analysis + visualization)
+  importers/
+    tokenhaus.ts        tokenHaus plugin export → per-mode token files
+    detect.ts           Auto-detect import file format (tokenhaus vs dtcg-per-mode)
+    index.ts            Public re-exports
   formatters/
     tailwind-v3.ts      Tailwind v3 theme.extend formatter
     tailwind-v4.ts      Tailwind v4 @theme CSS formatter
@@ -156,6 +160,26 @@ npm run prettier:check         # Check code formatting
 npm run sync-figma-to-tokens   # same as dtf pull
 npm run sync-tokens-to-figma   # same as dtf push
 ```
+
+### Figma plan requirements
+
+The Figma Variables **REST API** (`/v1/files/:key/variables/local`) is **only available on Enterprise plans**. Professional and Organization plans receive a 403 error.
+
+**For non-Enterprise plans**, use the `--from-file` flag to import tokens exported from Figma via a plugin:
+
+```bash
+npm run dtf -- pull --from-file <exported.json>
+```
+
+**Compatible Figma plugins:**
+
+- [tokenHaus - Variable Import/Export with Links](https://www.figma.com/community/plugin/1578065513743190845/tokenhaus-variable-import-export-with-links) — tested, exports DTCG format with alias preservation and multi-mode support
+- [Design Tokens (W3C) Export](https://www.figma.com/community/plugin/1377982390646186215/design-tokens-w3c-export) — exports variable collections as DTCG-format JSON
+- [Design Token Exporter](https://www.figma.com/community/plugin/1590704268871516927/design-token-exporter) — W3C DTCG spec-compliant export
+
+**Outlook:** Figma announced native variable export/import aligned with the [W3C Design Tokens Community Group spec](https://tr.designtokens.org/format/) at [Schema 2025](https://figma.obra.studio/design-tokens-community-group-w3c-release/). This is gradually rolling out and expected to be fully available by late 2026. Once available, `dtf pull --from-file` will work directly with Figma's native export.
+
+The `dtf init` wizard asks which Figma plan you have and adjusts the setup flow accordingly.
 
 ### Build pipeline (current, pre-v4)
 

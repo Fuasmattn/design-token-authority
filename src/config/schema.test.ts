@@ -13,6 +13,7 @@ const FULL_CONFIG = {
     fileKey: 'abc123',
     personalAccessToken: 'figd_xxx',
   },
+  collections: ['Primitives(Global)', 'Brand(Alias)', 'ScreenType'],
   layers: {
     primitives: 'Primitives(Global)',
     brand: 'Brand(Alias)',
@@ -43,6 +44,7 @@ describe('validateConfig', () => {
   it('accepts and preserves a full config', () => {
     const result = validateConfig(FULL_CONFIG)
     expect(result.figma.fileKey).toBe('abc123')
+    expect(result.collections).toEqual(['Primitives(Global)', 'Brand(Alias)', 'ScreenType'])
     expect(result.layers?.primitives).toBe('Primitives(Global)')
     expect(result.layers?.brand).toBe('Brand(Alias)')
     expect(result.layers?.dimension).toBe('ScreenType')
@@ -53,6 +55,20 @@ describe('validateConfig', () => {
     expect(result.outputs?.tailwind?.version).toBe(3)
     expect(result.outputs?.ios?.lang).toBe('swift')
     expect(result.outputs?.android?.lang).toBe('compose')
+  })
+
+  it('validates collections as an array of strings', () => {
+    const result = validateConfig({
+      ...MINIMAL_CONFIG,
+      collections: ['Primitives', 'Brand'],
+    })
+    expect(result.collections).toEqual(['Primitives', 'Brand'])
+  })
+
+  it('throws on non-array collections', () => {
+    expect(() => validateConfig({ ...MINIMAL_CONFIG, collections: 'Primitives' })).toThrow(
+      /collections/,
+    )
   })
 
   it('applies default tailwind version 4 when not specified', () => {
@@ -89,8 +105,9 @@ describe('validateConfig', () => {
     expect(() => validateConfig({})).toThrow(/figma/)
   })
 
-  it('throws on missing figma.fileKey', () => {
-    expect(() => validateConfig({ figma: { personalAccessToken: 'x' } })).toThrow(/figma\.fileKey/)
+  it('allows missing figma.fileKey (optional for file-based import)', () => {
+    const config = validateConfig({ figma: { personalAccessToken: 'x' } })
+    expect(config.figma.fileKey).toBeUndefined()
   })
 
   it('throws on empty figma.fileKey', () => {
@@ -99,10 +116,20 @@ describe('validateConfig', () => {
     )
   })
 
-  it('throws on missing figma.personalAccessToken', () => {
-    expect(() => validateConfig({ figma: { fileKey: 'abc' } })).toThrow(
-      /figma\.personalAccessToken/,
-    )
+  it('allows missing figma.personalAccessToken (optional for file-based import)', () => {
+    const config = validateConfig({ figma: { fileKey: 'abc' } })
+    expect(config.figma.personalAccessToken).toBeUndefined()
+  })
+
+  it('allows figma.source to be api or file', () => {
+    const apiConfig = validateConfig({ figma: { source: 'api' } })
+    expect(apiConfig.figma.source).toBe('api')
+    const fileConfig = validateConfig({ figma: { source: 'file' } })
+    expect(fileConfig.figma.source).toBe('file')
+  })
+
+  it('throws on invalid figma.source', () => {
+    expect(() => validateConfig({ figma: { source: 'invalid' } })).toThrow(/figma\.source/)
   })
 
   it('throws on non-array brands', () => {

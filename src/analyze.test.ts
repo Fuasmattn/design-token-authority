@@ -303,7 +303,7 @@ describe('formatAnalysisReport', () => {
     expect(report).toContain('Brand')
     expect(report).toContain('primitives')
     expect(report).toContain('brand')
-    expect(report).toContain('Suggested layers config')
+    expect(report).toContain('Suggested config')
   })
 
   it('includes warning markers for low-confidence collections', () => {

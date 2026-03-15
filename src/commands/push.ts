@@ -49,6 +49,11 @@ export async function runPush(config: Config, options: PushOptions): Promise<voi
   const s = p.spinner()
   s.start('Comparing local tokens with Figma...')
 
+  if (!config.figma.personalAccessToken || !config.figma.fileKey) {
+    p.log.error('Figma API credentials are required for push.')
+    process.exit(2)
+  }
+
   const api = new FigmaApi(config.figma.personalAccessToken)
   const localVariables = await api.getLocalVariables(config.figma.fileKey)
   const payload = generatePostVariablesPayload(tokensByFile, localVariables)
@@ -112,7 +117,7 @@ export async function runPush(config: Config, options: PushOptions): Promise<voi
   const pushSpinner = p.spinner()
   pushSpinner.start('Pushing tokens to Figma...')
 
-  const apiResp = await api.postVariables(config.figma.fileKey, payload)
+  const apiResp = await api.postVariables(config.figma.fileKey!, payload)
 
   if (options.verbose) {
     pushSpinner.stop('Push complete')

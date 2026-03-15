@@ -31,6 +31,12 @@ export interface CollectionAnalysis {
 
 export interface AnalysisResult {
   collections: CollectionAnalysis[]
+  /** All discovered collection names */
+  suggestedCollections: string[]
+  /**
+   * @deprecated Use suggestedCollections instead.
+   * Maps fixed role names to collection names (for backward compatibility).
+   */
   suggestedLayers: {
     primitives?: string
     brand?: string
@@ -197,7 +203,9 @@ export function analyzeCollections(response: GetLocalVariablesResponse): Analysi
   }
   if (dimensionCollection) suggestedLayers.dimension = dimensionCollection.name
 
-  return { collections: analyses, suggestedLayers, suggestedBrands }
+  const suggestedCollections = analyses.map((a) => a.name)
+
+  return { collections: analyses, suggestedCollections, suggestedLayers, suggestedBrands }
 }
 
 // ---------------------------------------------------------------------------
@@ -252,20 +260,10 @@ export function formatAnalysisReport(result: AnalysisResult): string {
   }
 
   // Suggested config
-  if (Object.keys(result.suggestedLayers).length > 0) {
+  if (result.suggestedCollections.length > 0) {
     lines.push('')
-    lines.push('Suggested layers config:')
-    lines.push('  layers: {')
-    if (result.suggestedLayers.primitives) {
-      lines.push(`    primitives: '${result.suggestedLayers.primitives}',`)
-    }
-    if (result.suggestedLayers.brand) {
-      lines.push(`    brand: '${result.suggestedLayers.brand}',`)
-    }
-    if (result.suggestedLayers.dimension) {
-      lines.push(`    dimension: '${result.suggestedLayers.dimension}',`)
-    }
-    lines.push('  }')
+    lines.push('Suggested config:')
+    lines.push(`  collections: [${result.suggestedCollections.map((c) => `'${c}'`).join(', ')}]`)
 
     if (result.suggestedBrands.length > 0) {
       lines.push(`  brands: [${result.suggestedBrands.map((b) => `'${b}'`).join(', ')}]`)

@@ -2,12 +2,12 @@
  * Token documentation HTML generator.
  *
  * Reads raw token JSON files and generates a self-contained HTML page with:
- *   - Color swatches grouped by category (primitives + semantic per brand)
+ *   - Color swatches grouped by collection and category
  *   - Typography previews (font family, size, weight, line height)
  *   - Brand switcher for comparing brand-specific semantic tokens
  *
- * The page uses the same data-brand CSS variable mechanism from TICKET-026
- * for live brand switching.
+ * Works with any token file structure — auto-discovers collections and modes
+ * from filenames ({Collection}.{Mode}.json).
  */
 
 import fs from 'node:fs'
@@ -27,12 +27,10 @@ interface TokenGroup {
 /**
  * Recursively extract leaf tokens from a token group, returning [path, token] pairs.
  */
-function extractTokens(
-  obj: TokenGroup,
-  prefix: string[] = [],
-): Array<[string[], TokenValue]> {
+function extractTokens(obj: TokenGroup, prefix: string[] = []): Array<[string[], TokenValue]> {
   const result: Array<[string[], TokenValue]> = []
   for (const [key, value] of Object.entries(obj)) {
+    if (key.startsWith('$')) continue
     if (value && typeof value === 'object' && '$value' in value) {
       result.push([[...prefix, key], value as TokenValue])
     } else if (value && typeof value === 'object') {
@@ -43,33 +41,63 @@ function extractTokens(
 }
 
 /**
- * Resolve an alias reference like {Colors.grey.50} to its final value
- * by walking the token data.
+ * Resolve an alias reference like {path.to.token} to its final value
+ * by walking all loaded token data.
  */
 function resolveAlias(
   ref: string,
   allData: Record<string, TokenGroup>,
+  visited: Set<string> = new Set(),
 ): string | null {
+  if (visited.has(ref)) return null // circular reference
+  visited.add(ref)
+
   const refPath = ref.replace(/^\{|\}$/g, '').split('.')
   for (const data of Object.values(allData)) {
     let current: unknown = data
     for (const segment of refPath) {
-      if (current && typeof current === 'object' && segment in (current as Record<string, unknown>)) {
+      if (
+        current &&
+        typeof current === 'object' &&
+        segment in (current as Record<string, unknown>)
+      ) {
         current = (current as Record<string, unknown>)[segment]
       } else {
         current = undefined
         break
       }
     }
-    if (current && typeof current === 'object' && '$value' in (current as Record<string, unknown>)) {
+    if (
+      current &&
+      typeof current === 'object' &&
+      '$value' in (current as Record<string, unknown>)
+    ) {
       const val = (current as TokenValue).$value
       if (typeof val === 'string' && val.startsWith('{')) {
-        return resolveAlias(val, allData)
+        return resolveAlias(val, allData, visited)
       }
       return String(val)
     }
   }
   return null
+}
+
+/**
+ * Discover collections and modes from token filenames.
+ */
+function discoverFiles(tokensDir: string): Map<string, string[]> {
+  const collections = new Map<string, string[]>()
+  for (const f of fs.readdirSync(tokensDir)) {
+    if (!f.endsWith('.json')) continue
+    const base = f.replace(/\.json$/, '')
+    const dotIdx = base.indexOf('.')
+    if (dotIdx === -1) continue
+    const collectionName = base.substring(0, dotIdx)
+    const modeName = base.substring(dotIdx + 1)
+    if (!collections.has(collectionName)) collections.set(collectionName, [])
+    collections.get(collectionName)!.push(modeName)
+  }
+  return collections
 }
 
 /**
@@ -83,99 +111,119 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
     allData[file] = JSON.parse(fs.readFileSync(path.join(tokensDir, file), 'utf-8'))
   }
 
-  // Extract primitives
-  const primFile = files.find((f) => f.startsWith('Primitives'))
-  const primitives = primFile ? allData[primFile] : {}
-
-  // Extract primitive colors
-  const primColorTokens = primitives.Colors
-    ? extractTokens(primitives.Colors as TokenGroup)
-    : []
-
-  // Group primitive colors by first path segment
-  const primColorGroups: Record<string, Array<[string[], string]>> = {}
-  for (const [tokenPath, token] of primColorTokens) {
-    if (token.$type !== 'color') continue
-    const group = tokenPath[0]
-    if (!primColorGroups[group]) primColorGroups[group] = []
-    const value =
-      typeof token.$value === 'string' && token.$value.startsWith('{')
-        ? resolveAlias(token.$value, allData) ?? String(token.$value)
-        : String(token.$value)
-    primColorGroups[group].push([tokenPath, value])
-  }
-
-  // Extract brand semantic colors
-  const brandColorData: Record<
-    string,
-    Record<string, Record<string, Array<[string[], string, string]>>>
-  > = {}
-  for (const brand of brands) {
-    const brandFile = files.find((f) => f.includes(`Brand(Alias).${brand}.json`))
-    if (!brandFile) continue
-    const brandTokens = allData[brandFile]
-    const colorTokens = brandTokens.Colors
-      ? extractTokens(brandTokens.Colors as TokenGroup)
-      : []
-
-    // Two-level grouping: top group (foundation, surface, ...) → sub group (neutral, brand, ...)
-    const groups: Record<string, Record<string, Array<[string[], string, string]>>> = {}
-    for (const [tokenPath, token] of colorTokens) {
-      if (token.$type !== 'color') continue
-      const topGroup = tokenPath[0]
-      const subGroup = tokenPath.length > 2 ? tokenPath[1] : '_default'
-      if (!groups[topGroup]) groups[topGroup] = {}
-      if (!groups[topGroup][subGroup]) groups[topGroup][subGroup] = []
-      const alias = String(token.$value)
-      const resolved =
-        typeof token.$value === 'string' && token.$value.startsWith('{')
-          ? resolveAlias(token.$value, allData) ?? alias
-          : alias
-      groups[topGroup][subGroup].push([tokenPath, resolved, alias])
+  // Discover collections and classify into single-mode vs multi-mode
+  const collections = discoverFiles(tokensDir)
+  const singleModeCollections: string[] = []
+  const multiModeCollections = new Map<string, string[]>()
+  for (const [name, modes] of collections) {
+    if (modes.length === 1) {
+      singleModeCollections.push(name)
+    } else {
+      multiModeCollections.set(name, modes)
     }
-    brandColorData[brand] = groups
   }
 
-  // Extract typography tokens from primitives
+  // Extract color tokens from single-mode collections (base/shared colors)
+  // Each token carries its collection name, full path segments, and resolved value
+  const baseColorTokens: Array<{
+    collection: string
+    segments: string[]
+    name: string
+    value: string
+  }> = []
+  for (const collName of singleModeCollections) {
+    const modes = collections.get(collName)!
+    const fileName = `${collName}.${modes[0]}.json`
+    const data = allData[fileName]
+    if (!data) continue
+    const tokens = extractTokens(data)
+    for (const [tokenPath, token] of tokens) {
+      if (token.$type !== 'color') continue
+      const value =
+        typeof token.$value === 'string' && token.$value.startsWith('{')
+          ? (resolveAlias(token.$value, allData) ?? String(token.$value))
+          : String(token.$value)
+      baseColorTokens.push({
+        collection: collName,
+        segments: tokenPath,
+        name: tokenPath[tokenPath.length - 1],
+        value,
+      })
+    }
+  }
+
+  // Extract color tokens from multi-mode collections (brand/theme colors)
+  // Determine which modes to show as "brands"
+  const brandModes =
+    brands.length > 0
+      ? brands
+      : multiModeCollections.size > 0
+        ? [...multiModeCollections.values()][0]
+        : []
+
+  const brandColorTokens: Record<
+    string,
+    Array<{ collection: string; segments: string[]; name: string; value: string; alias: string }>
+  > = {}
+  for (const brand of brandModes) {
+    brandColorTokens[brand] = []
+    for (const [collName, modes] of multiModeCollections) {
+      if (!modes.includes(brand)) continue
+      const fileName = `${collName}.${brand}.json`
+      const data = allData[fileName]
+      if (!data) continue
+      const tokens = extractTokens(data)
+      for (const [tokenPath, token] of tokens) {
+        if (token.$type !== 'color') continue
+        const alias = String(token.$value)
+        const resolved =
+          typeof token.$value === 'string' && token.$value.startsWith('{')
+            ? (resolveAlias(token.$value, allData) ?? alias)
+            : alias
+        brandColorTokens[brand].push({
+          collection: collName,
+          segments: tokenPath,
+          name: tokenPath[tokenPath.length - 1],
+          value: resolved,
+          alias,
+        })
+      }
+    }
+  }
+
+  // Extract typography tokens from all single-mode collections
   const typographyData: Record<string, Array<[string, string]>> = {}
-  if (primitives.Typography) {
-    for (const [category, group] of Object.entries(primitives.Typography as TokenGroup)) {
-      if (typeof group !== 'object' || '$value' in group) continue
-      const tokens = extractTokens(group as TokenGroup)
-      typographyData[category] = tokens.map(([p, t]) => [p.join('.'), String(t.$value)])
+  for (const collName of singleModeCollections) {
+    const modes = collections.get(collName)!
+    const fileName = `${collName}.${modes[0]}.json`
+    const data = allData[fileName]
+    if (!data) continue
+    const tokens = extractTokens(data)
+    for (const [tokenPath, token] of tokens) {
+      if (token.$type !== 'number' && token.$type !== 'string') continue
+      const scopes: string[] =
+        (token.$extensions?.['com.figma']?.scopes as string[] | undefined) ?? []
+      let category: string | null = null
+      if (scopes.includes('FONT_SIZE')) category = 'font-size'
+      else if (scopes.includes('FONT_WEIGHT')) category = 'font-weight'
+      else if (scopes.includes('FONT_FAMILY')) category = 'font-family'
+      else if (scopes.includes('LINE_HEIGHT')) category = 'line-height'
+      if (!category) continue
+      if (!typographyData[category]) typographyData[category] = []
+      typographyData[category].push([tokenPath.join('.'), String(token.$value)])
     }
   }
 
   // Serialize data for JS
   const jsData = JSON.stringify({
-    brands,
-    primColorGroups: Object.fromEntries(
-      Object.entries(primColorGroups).map(([group, tokens]) => [
-        group,
-        tokens.map(([p, v]) => ({ path: p.join('.'), value: v })),
-      ]),
-    ),
-    brandColorData: Object.fromEntries(
-      Object.entries(brandColorData).map(([brand, groups]) => [
-        brand,
-        Object.fromEntries(
-          Object.entries(groups).map(([topGroup, subGroups]) => [
-            topGroup,
-            Object.fromEntries(
-              Object.entries(subGroups).map(([subGroup, tokens]) => [
-                subGroup,
-                tokens.map(([p, v, a]) => ({ path: p.join('.'), value: v, alias: a })),
-              ]),
-            ),
-          ]),
-        ),
-      ]),
-    ),
+    brands: brandModes,
+    baseColorTokens,
+    brandColorTokens,
     typography: typographyData,
   })
 
   return `<!DOCTYPE html>
-<html lang="en" data-brand="${brands[0]?.toLowerCase() ?? ''}">
+<html lang="en" data-brand="${brandModes[0]?.toLowerCase() ?? ''}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -612,26 +660,26 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
   <input type="text" class="search-box" id="search" placeholder="Search tokens...">
 
   <div class="tabs" id="tabs">
-    <button class="tab-btn active" data-tab="primitives">Primitives</button>
-    <button class="tab-btn" data-tab="semantic">Semantic</button>
+    <button class="tab-btn active" data-tab="base">Base Colors</button>
+    <button class="tab-btn" data-tab="brand">Brand Colors</button>
     <button class="tab-btn" data-tab="typography">Typography</button>
   </div>
 
-  <section id="section-primitives">
-    <h2>Primitive Colors</h2>
-    <p class="section-desc">Raw color values from the global palette. These are referenced by semantic tokens.</p>
-    <div id="prim-colors"></div>
+  <section id="section-base">
+    <h2>Base Colors</h2>
+    <p class="section-desc">Color tokens from single-mode collections. Click to copy the hex value.</p>
+    <div id="base-colors"></div>
   </section>
 
-  <section id="section-semantic" class="hidden">
-    <h2>Semantic Colors</h2>
-    <p class="section-desc">Brand-specific color tokens. Switch brands to compare values.</p>
+  <section id="section-brand" class="hidden">
+    <h2>Brand Colors</h2>
+    <p class="section-desc">Color tokens from multi-mode collections. Switch brands to compare values.</p>
     <div id="brand-colors"></div>
   </section>
 
   <section id="section-typography" class="hidden">
     <h2>Typography</h2>
-    <p class="section-desc">Font families, sizes, weights, and line heights.</p>
+    <p class="section-desc">Font sizes, weights, and families detected from token scopes.</p>
     <div id="typography"></div>
   </section>
 </div>
@@ -671,34 +719,67 @@ tabBtns.forEach(btn => {
     tabBtns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const tab = btn.getAttribute('data-tab');
-    document.getElementById('section-primitives').classList.toggle('hidden', tab !== 'primitives');
-    document.getElementById('section-semantic').classList.toggle('hidden', tab !== 'semantic');
+    document.getElementById('section-base').classList.toggle('hidden', tab !== 'base');
+    document.getElementById('section-brand').classList.toggle('hidden', tab !== 'brand');
     document.getElementById('section-typography').classList.toggle('hidden', tab !== 'typography');
   });
 });
 
-// ---- Render primitive colors ----
-function renderPrimColors(filter) {
-  const container = document.getElementById('prim-colors');
+/**
+ * Group tokens by collection, then dynamically by all-but-last path segments.
+ * Returns a nested structure: { collectionName: { groupPath: [tokens] } }
+ */
+function groupTokens(tokens, filterLower) {
+  const byCollection = {};
+  for (const t of tokens) {
+    const fullPath = t.segments.join('.');
+    const matchesFilter = !filterLower ||
+      fullPath.toLowerCase().includes(filterLower) ||
+      t.value.toLowerCase().includes(filterLower) ||
+      (t.alias || '').toLowerCase().includes(filterLower);
+    if (!matchesFilter) continue;
+
+    if (!byCollection[t.collection]) byCollection[t.collection] = {};
+    // Group key: all segments except the last (the leaf token name)
+    const groupSegments = t.segments.slice(0, -1);
+    const groupKey = groupSegments.length > 0 ? groupSegments.join(' / ') : '_root';
+    if (!byCollection[t.collection][groupKey]) byCollection[t.collection][groupKey] = [];
+    byCollection[t.collection][groupKey].push(t);
+  }
+  return byCollection;
+}
+
+// ---- Render base colors ----
+function renderBaseColors(filter) {
+  const container = document.getElementById('base-colors');
   container.innerHTML = '';
   const filterLower = (filter || '').toLowerCase();
+  const grouped = groupTokens(DATA.baseColorTokens, filterLower);
 
-  for (const [group, tokens] of Object.entries(DATA.primColorGroups)) {
-    const filtered = tokens.filter(t =>
-      !filterLower || t.path.toLowerCase().includes(filterLower) || t.value.toLowerCase().includes(filterLower)
-    );
-    if (filtered.length === 0) continue;
+  for (const [collection, groups] of Object.entries(grouped)) {
+    const collH2 = document.createElement('h3');
+    collH2.textContent = collection;
+    collH2.style.cssText = 'font-size:15px;margin-top:32px;margin-bottom:4px;color:var(--text);text-transform:none;letter-spacing:0';
+    container.appendChild(collH2);
 
-    const h3 = document.createElement('h3');
-    h3.textContent = group;
-    container.appendChild(h3);
+    for (const [groupPath, tokens] of Object.entries(groups)) {
+      if (groupPath !== '_root') {
+        const h4 = document.createElement('h3');
+        h4.textContent = groupPath;
+        container.appendChild(h4);
+      }
 
-    const grid = document.createElement('div');
-    grid.className = 'swatch-grid';
-    for (const token of filtered) {
-      grid.appendChild(createSwatch(token.path, token.value));
+      const grid = document.createElement('div');
+      grid.className = 'swatch-grid';
+      for (const token of tokens) {
+        grid.appendChild(createSwatch(token.segments.join('.'), token.value));
+      }
+      container.appendChild(grid);
     }
-    container.appendChild(grid);
+  }
+
+  if (container.children.length === 0) {
+    container.innerHTML = '<p style="color: var(--text-secondary)">No base color tokens found.</p>';
   }
 }
 
@@ -706,46 +787,31 @@ function renderPrimColors(filter) {
 function renderBrandColors(brand, filter) {
   const container = document.getElementById('brand-colors');
   container.innerHTML = '';
-  const data = DATA.brandColorData[brand];
-  if (!data) {
-    container.innerHTML = '<p style="color: var(--text-secondary)">No brand data found.</p>';
+  const tokens = DATA.brandColorTokens[brand];
+  if (!tokens || tokens.length === 0) {
+    container.innerHTML = '<p style="color: var(--text-secondary)">No brand color data found.</p>';
     return;
   }
   const filterLower = (filter || '').toLowerCase();
+  const grouped = groupTokens(tokens, filterLower);
 
-  for (const [topGroup, subGroups] of Object.entries(data)) {
-    // Check if any sub-group has matching tokens
-    let topHasTokens = false;
-    for (const tokens of Object.values(subGroups)) {
-      if (tokens.some(t =>
-        !filterLower || t.path.toLowerCase().includes(filterLower) ||
-        t.value.toLowerCase().includes(filterLower) || t.alias.toLowerCase().includes(filterLower)
-      )) { topHasTokens = true; break; }
-    }
-    if (!topHasTokens) continue;
+  for (const [collection, groups] of Object.entries(grouped)) {
+    const collH2 = document.createElement('h3');
+    collH2.textContent = collection;
+    collH2.style.cssText = 'font-size:15px;margin-top:32px;margin-bottom:4px;color:var(--text);text-transform:none;letter-spacing:0';
+    container.appendChild(collH2);
 
-    const h3 = document.createElement('h3');
-    h3.textContent = topGroup;
-    container.appendChild(h3);
-
-    for (const [subGroup, tokens] of Object.entries(subGroups)) {
-      const filtered = tokens.filter(t =>
-        !filterLower || t.path.toLowerCase().includes(filterLower) ||
-        t.value.toLowerCase().includes(filterLower) || t.alias.toLowerCase().includes(filterLower)
-      );
-      if (filtered.length === 0) continue;
-
-      if (subGroup !== '_default') {
-        const h4 = document.createElement('h4');
-        h4.textContent = subGroup;
-        h4.style.cssText = 'font-size:13px;font-weight:500;color:var(--text-tertiary);margin:12px 0 8px;text-transform:capitalize';
+    for (const [groupPath, tokens] of Object.entries(groups)) {
+      if (groupPath !== '_root') {
+        const h4 = document.createElement('h3');
+        h4.textContent = groupPath;
         container.appendChild(h4);
       }
 
       const grid = document.createElement('div');
       grid.className = 'swatch-grid';
-      for (const token of filtered) {
-        grid.appendChild(createSwatch(token.path, token.value, token.alias));
+      for (const token of tokens) {
+        grid.appendChild(createSwatch(token.segments.join('.'), token.value, token.alias));
       }
       container.appendChild(grid);
     }
@@ -835,6 +901,11 @@ function renderTypography() {
   container.innerHTML = '';
   const typo = DATA.typography;
 
+  if (Object.keys(typo).length === 0) {
+    container.innerHTML = '<p style="color: var(--text-secondary)">No typography tokens found (tokens need FONT_SIZE, FONT_WEIGHT, or FONT_FAMILY scopes).</p>';
+    return;
+  }
+
   // Font families
   if (typo['font-family']) {
     const h3 = document.createElement('h3');
@@ -911,13 +982,13 @@ function escapeHtml(str) {
 const searchEl = document.getElementById('search');
 searchEl.addEventListener('input', () => {
   const q = searchEl.value;
-  renderPrimColors(q);
+  renderBaseColors(q);
   const brandSelect = document.querySelector('.brand-select');
   if (brandSelect) renderBrandColors(brandSelect.value, q);
 });
 
 // ---- Initial render ----
-renderPrimColors();
+renderBaseColors();
 if (DATA.brands.length > 0) renderBrandColors(DATA.brands[0]);
 renderTypography();
 document.getElementById('gen-date').textContent = new Date().toLocaleDateString();

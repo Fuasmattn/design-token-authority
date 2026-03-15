@@ -4,17 +4,16 @@
  * Runs the Style Dictionary build pipeline to generate output targets
  * (CSS, JS, Tailwind, etc.) from local token JSON files.
  *
- * The build is split into three phases to avoid token collisions when
- * multiple brands exist:
+ * Collections are auto-discovered from token files ({Collection}.{Mode}.json).
+ * The build is split into phases to avoid token collisions:
  *
- *   Phase A — Primitives base layer  → build/css/base.css
- *   Phase B — Per-brand semantic     → build/css/themes/{brand}.css
- *                                      build/tailwind/{brand}/tailwind.tokens.ts
- *                                      build/tailwind/{brand}/tailwind.css
- *   Phase C — Shared outputs         → build/css/variables.css (backwards compat)
- *                                      build/js/colorpalette.js
- *                                      build/tailwind/tailwind.tokens.ts (var refs)
- *                                      build/tailwind/tailwind.css (var refs)
+ *   Phase A — Base layer (single-mode collections)  → build/css/base.css
+ *   Phase B — Per-brand (multi-mode collections)    → build/css/themes/{brand}.css
+ *                                                      build/tailwind/{brand}/...
+ *   Phase C — Shared outputs (single-mode only)     → build/css/variables.css
+ *                                                      build/js/colorpalette.js
+ *                                                      build/tailwind/...
+ *   Phase D — Token documentation HTML              → build/docs/index.html
  */
 
 import fs from 'node:fs'
@@ -28,14 +27,25 @@ export interface BuildOptions {
 }
 
 /**
- * Auto-detect brand names from Brand(Alias).{Brand}.json files in the tokens directory.
+ * Discover all collections and their modes from token files in the directory.
+ * Returns a map of collection name → mode names.
  */
-function detectBrands(tokensDir: string): string[] {
-  if (!fs.existsSync(tokensDir)) return []
-  return fs
-    .readdirSync(tokensDir)
-    .filter((f) => /^Brand\(Alias\)\..*\.json$/.test(f))
-    .map((f) => f.replace(/^Brand\(Alias\)\./, '').replace(/\.json$/, ''))
+function discoverCollections(tokensDir: string): Map<string, string[]> {
+  if (!fs.existsSync(tokensDir)) return new Map()
+  const collections = new Map<string, string[]>()
+  for (const f of fs.readdirSync(tokensDir)) {
+    if (!f.endsWith('.json')) continue
+    const base = f.replace(/\.json$/, '')
+    const dotIdx = base.indexOf('.')
+    if (dotIdx === -1) continue
+    const collectionName = base.substring(0, dotIdx)
+    const modeName = base.substring(dotIdx + 1)
+    if (!collections.has(collectionName)) {
+      collections.set(collectionName, [])
+    }
+    collections.get(collectionName)!.push(modeName)
+  }
+  return collections
 }
 
 export async function runBuild(config: Config, options: BuildOptions): Promise<void> {
@@ -47,12 +57,33 @@ export async function runBuild(config: Config, options: BuildOptions): Promise<v
 
   p.intro(pc.bgCyan(pc.black(' dtf build ')))
 
-  const brands = detectBrands(tokensDir)
+  // Discover collections from token files
+  const allCollections = discoverCollections(tokensDir)
+
+  // Filter to configured collections (if specified), otherwise use all
+  const activeCollections = config.collections
+    ? new Map([...allCollections].filter(([name]) => config.collections!.includes(name)))
+    : allCollections
+
+  // Determine brands: config.brands, or auto-detect from multi-mode collections
+  const brands = config.brands ?? []
+
+  // Classify collections: single-mode (base) vs multi-mode (per-brand/mode)
+  const singleModeCollections: string[] = []
+  const multiModeCollections = new Map<string, string[]>()
+  for (const [name, modes] of activeCollections) {
+    if (modes.length === 1) {
+      singleModeCollections.push(name)
+    } else {
+      multiModeCollections.set(name, modes)
+    }
+  }
 
   if (options.verbose) {
     const outputs = config.outputs ? Object.keys(config.outputs).join(', ') : 'default'
+    const collectionNames = [...activeCollections.keys()].join(', ') || 'none'
     p.log.message(
-      `${pc.dim('Source:')} ${tokensDir}\n${pc.dim('Outputs:')} ${outputs}\n${pc.dim('Brands:')} ${brands.length ? brands.join(', ') : 'none detected'}`,
+      `${pc.dim('Source:')} ${tokensDir}\n${pc.dim('Outputs:')} ${outputs}\n${pc.dim('Collections:')} ${collectionNames}\n${pc.dim('Brands:')} ${brands.length ? brands.join(', ') : 'none'}`,
     )
   }
 
@@ -185,30 +216,53 @@ export async function runBuild(config: Config, options: BuildOptions): Promise<v
   const s = p.spinner()
   const generatedFiles: string[] = []
 
-  // Phase A — Primitives base layer
-  s.start('Building primitives base layer...')
-  const sdBase = new StyleDictionary({
-    source: [`${tokensDir}/Primitives*.json`],
-    platforms: {
-      'css-base': {
-        transformGroup: 'design-system/css',
-        buildPath: cssBuildPath,
-        files: [
-          {
-            destination: 'base.css',
-            format: 'css/variables',
-            options: { selector: ':root', outputReferences: false },
-          },
-        ],
-      },
-    },
-  })
-  await sdBase.buildAllPlatforms()
-  generatedFiles.push(`${cssBuildPath}base.css`)
-  s.stop('Primitives base layer complete')
+  // Build source globs from active collections
+  const singleModeGlobs = singleModeCollections.map((name) => `${tokensDir}/${name}.*.json`)
 
-  // Phase B — Per-brand semantic layers
-  if (brands.length > 0) {
+  // For reference context: include one mode from each multi-mode collection so cross-collection
+  // references can resolve. Pick the first mode alphabetically to be deterministic.
+  const multiModeRefGlobs: string[] = []
+  for (const [name, modes] of multiModeCollections) {
+    const firstMode = [...modes].sort()[0]
+    multiModeRefGlobs.push(`${tokensDir}/${name}.${firstMode}.json`)
+  }
+  const allSourceGlobs = [...singleModeGlobs, ...multiModeRefGlobs]
+
+  // Filter: only tokens from single-mode collection files
+  const singleModeFilePatterns = singleModeCollections.map((name) => `${name}.`)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const singleModeOnly = (token: any) =>
+    singleModeFilePatterns.some((p) => token.filePath?.includes(`/${p}`)) ?? false
+
+  // Phase A — Base layer (all single-mode collections, with multi-mode as reference context)
+  if (singleModeGlobs.length > 0) {
+    s.start('Building base layer...')
+    const sdBase = new StyleDictionary({
+      source: allSourceGlobs,
+      preprocessors: ['strip-self-refs'],
+      log: { verbosity: 'silent', errors: { brokenReferences: 'warn' } },
+      platforms: {
+        'css-base': {
+          transformGroup: 'design-system/css',
+          buildPath: cssBuildPath,
+          files: [
+            {
+              destination: 'base.css',
+              format: 'css/variables',
+              filter: singleModeOnly,
+              options: { selector: ':root', outputReferences: false },
+            },
+          ],
+        },
+      },
+    })
+    await sdBase.buildAllPlatforms()
+    generatedFiles.push(`${cssBuildPath}base.css`)
+    s.stop('Base layer complete')
+  }
+
+  // Phase B — Per-brand/mode builds for multi-mode collections
+  if (brands.length > 0 && multiModeCollections.size > 0) {
     for (const brand of brands) {
       const slug = brand.toLowerCase()
       s.start(`Building brand: ${brand}...`)
@@ -217,12 +271,21 @@ export async function runBuild(config: Config, options: BuildOptions): Promise<v
       fs.mkdirSync(path.join(cssBuildPath, 'themes'), { recursive: true })
       fs.mkdirSync(path.join(twBuildPath, slug), { recursive: true })
 
+      // Gather source files: all single-mode + matching brand mode files
+      const brandSourceGlobs = [...singleModeGlobs]
+      const brandFilePatterns: string[] = []
+      for (const [collName] of multiModeCollections) {
+        const pattern = `${tokensDir}/${collName}.${brand}.json`
+        brandSourceGlobs.push(pattern)
+        brandFilePatterns.push(`${collName}.${brand}.json`)
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const brandOnly = (token: any) =>
-        token.filePath?.includes(`Brand(Alias).${brand}.json`) ?? false
+        brandFilePatterns.some((p) => token.filePath?.includes(p)) ?? false
 
       const sdBrand = new StyleDictionary({
-        source: [`${tokensDir}/Primitives*.json`, `${tokensDir}/Brand(Alias).${brand}.json`],
+        source: brandSourceGlobs,
         preprocessors: ['strip-self-refs'],
         log: { verbosity: 'silent', errors: { brokenReferences: 'warn' } },
         platforms: {
@@ -274,47 +337,56 @@ export async function runBuild(config: Config, options: BuildOptions): Promise<v
     }
   }
 
-  // Phase C — Shared outputs (primitives-only source to avoid brand collisions)
-  s.start('Building shared outputs...')
-  const sdShared = new StyleDictionary({
-    source: [`${tokensDir}/Primitives*.json`],
-    platforms: {
-      css: {
-        transformGroup: 'design-system/css',
-        buildPath: cssBuildPath,
-        files: [
-          {
-            destination: 'variables.css',
-            format: 'css/variables',
-            options: { outputReferences: true },
-          },
-        ],
+  // Phase C — Shared outputs (single-mode collections, with multi-mode as reference context)
+  if (singleModeGlobs.length > 0) {
+    s.start('Building shared outputs...')
+    const sdShared = new StyleDictionary({
+      source: allSourceGlobs,
+      preprocessors: ['strip-self-refs'],
+      log: { verbosity: 'silent', errors: { brokenReferences: 'warn' } },
+      platforms: {
+        css: {
+          transformGroup: 'design-system/css',
+          buildPath: cssBuildPath,
+          files: [
+            {
+              destination: 'variables.css',
+              format: 'css/variables',
+              filter: singleModeOnly,
+              options: { outputReferences: true },
+            },
+          ],
+        },
+        js: {
+          transformGroup: 'js',
+          buildPath: 'build/js/',
+          files: [
+            { destination: 'colorpalette.js', format: 'javascript/es6', filter: singleModeOnly },
+          ],
+        },
+        'tailwind-v3': {
+          transformGroup: 'design-system/css',
+          buildPath: twBuildPath,
+          files: [
+            { destination: 'tailwind.tokens.ts', format: 'tailwind/v3', filter: singleModeOnly },
+          ],
+        },
+        'tailwind-v4': {
+          transformGroup: 'design-system/css',
+          buildPath: twBuildPath,
+          files: [{ destination: 'tailwind.css', format: 'tailwind/v4', filter: singleModeOnly }],
+        },
       },
-      js: {
-        transformGroup: 'js',
-        buildPath: 'build/js/',
-        files: [{ destination: 'colorpalette.js', format: 'javascript/es6' }],
-      },
-      'tailwind-v3': {
-        transformGroup: 'design-system/css',
-        buildPath: twBuildPath,
-        files: [{ destination: 'tailwind.tokens.ts', format: 'tailwind/v3' }],
-      },
-      'tailwind-v4': {
-        transformGroup: 'design-system/css',
-        buildPath: twBuildPath,
-        files: [{ destination: 'tailwind.css', format: 'tailwind/v4' }],
-      },
-    },
-  })
-  await sdShared.buildAllPlatforms()
-  generatedFiles.push(
-    `${cssBuildPath}variables.css`,
-    'build/js/colorpalette.js',
-    `${twBuildPath}tailwind.tokens.ts`,
-    `${twBuildPath}tailwind.css`,
-  )
-  s.stop('Shared outputs complete')
+    })
+    await sdShared.buildAllPlatforms()
+    generatedFiles.push(
+      `${cssBuildPath}variables.css`,
+      'build/js/colorpalette.js',
+      `${twBuildPath}tailwind.tokens.ts`,
+      `${twBuildPath}tailwind.css`,
+    )
+    s.stop('Shared outputs complete')
+  }
 
   // Phase D — Token documentation HTML
   s.start('Generating token docs...')
