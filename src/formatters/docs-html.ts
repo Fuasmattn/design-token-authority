@@ -4,6 +4,10 @@
  * Reads raw token JSON files and generates a self-contained HTML page with:
  *   - Color swatches grouped by collection and category
  *   - Typography previews (font family, size, weight, line height)
+ *   - Spacing scale with visual bars
+ *   - Effects previews (blur, opacity)
+ *   - Searchable all-tokens table
+ *   - Full alias chain display on brand color swatches
  *   - Brand switcher for comparing brand-specific semantic tokens
  *
  * Works with any token file structure — auto-discovers collections and modes
@@ -83,6 +87,48 @@ function resolveAlias(
 }
 
 /**
+ * Build the full alias resolution chain for a token value.
+ * Returns an array of steps, e.g. ["{Colors.Brand.Primary}", "{Colors.Foundation.Blue.700}", "#003f8a"]
+ */
+function buildAliasChain(
+  value: string | number,
+  allData: Record<string, TokenGroup>,
+): string[] {
+  const chain: string[] = []
+  let current = value
+  const visited = new Set<string>()
+
+  while (typeof current === 'string' && current.startsWith('{')) {
+    if (visited.has(current)) break
+    visited.add(current)
+    chain.push(current.replace(/^\{|\}$/g, ''))
+
+    const refPath = current.replace(/^\{|\}$/g, '').split('.')
+    let found = false
+    for (const data of Object.values(allData)) {
+      let node: unknown = data
+      for (const segment of refPath) {
+        if (node && typeof node === 'object' && segment in (node as Record<string, unknown>)) {
+          node = (node as Record<string, unknown>)[segment]
+        } else {
+          node = undefined
+          break
+        }
+      }
+      if (node && typeof node === 'object' && '$value' in (node as Record<string, unknown>)) {
+        current = (node as TokenValue).$value
+        found = true
+        break
+      }
+    }
+    if (!found) break
+  }
+
+  chain.push(String(current))
+  return chain
+}
+
+/**
  * Discover collections and modes from token filenames.
  */
 function discoverFiles(tokensDir: string): Map<string, string[]> {
@@ -124,7 +170,6 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
   }
 
   // Extract color tokens from single-mode collections (base/shared colors)
-  // Each token carries its collection name, full path segments, and resolved value
   const baseColorTokens: Array<{
     collection: string
     segments: string[]
@@ -153,7 +198,6 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
   }
 
   // Extract color tokens from multi-mode collections (brand/theme colors)
-  // Determine which modes to show as "brands"
   const brandModes =
     brands.length > 0
       ? brands
@@ -163,7 +207,14 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
 
   const brandColorTokens: Record<
     string,
-    Array<{ collection: string; segments: string[]; name: string; value: string; alias: string }>
+    Array<{
+      collection: string
+      segments: string[]
+      name: string
+      value: string
+      alias: string
+      chain: string[]
+    }>
   > = {}
   for (const brand of brandModes) {
     brandColorTokens[brand] = []
@@ -180,12 +231,14 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
           typeof token.$value === 'string' && token.$value.startsWith('{')
             ? (resolveAlias(token.$value, allData) ?? alias)
             : alias
+        const chain = buildAliasChain(token.$value, allData)
         brandColorTokens[brand].push({
           collection: collName,
           segments: tokenPath,
           name: tokenPath[tokenPath.length - 1],
           value: resolved,
           alias,
+          chain,
         })
       }
     }
@@ -193,6 +246,38 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
 
   // Extract typography tokens from all single-mode collections
   const typographyData: Record<string, Array<[string, string]>> = {}
+
+  // Scopes that indicate typography tokens (exclude from spacing/effects)
+  const TYPO_SCOPES = new Set([
+    'FONT_SIZE',
+    'FONT_WEIGHT',
+    'FONT_FAMILY',
+    'LINE_HEIGHT',
+    'LETTER_SPACING',
+    'PARAGRAPH_SPACING',
+    'PARAGRAPH_INDENT',
+  ])
+
+  // Scopes that indicate spacing tokens
+  const SPACING_SCOPES = new Set(['GAP', 'WIDTH_HEIGHT'])
+
+  // Extract spacing tokens
+  const spacingTokens: Array<{ name: string; value: number }> = []
+
+  // Extract effects tokens
+  const effectsData: { blur: Array<[string, number]>; opacity: Array<[string, number]> } = {
+    blur: [],
+    opacity: [],
+  }
+
+  // Extract all tokens for the table
+  const allTokensList: Array<{
+    path: string
+    type: string
+    value: string
+    collection: string
+  }> = []
+
   for (const collName of singleModeCollections) {
     const modes = collections.get(collName)!
     const fileName = `${collName}.${modes[0]}.json`
@@ -200,19 +285,93 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
     if (!data) continue
     const tokens = extractTokens(data)
     for (const [tokenPath, token] of tokens) {
-      if (token.$type !== 'number' && token.$type !== 'string') continue
       const scopes: string[] =
         (token.$extensions?.['com.figma']?.scopes as string[] | undefined) ?? []
-      let category: string | null = null
-      if (scopes.includes('FONT_SIZE')) category = 'font-size'
-      else if (scopes.includes('FONT_WEIGHT')) category = 'font-weight'
-      else if (scopes.includes('FONT_FAMILY')) category = 'font-family'
-      else if (scopes.includes('LINE_HEIGHT')) category = 'line-height'
-      if (!category) continue
-      if (!typographyData[category]) typographyData[category] = []
-      typographyData[category].push([tokenPath.join('.'), String(token.$value)])
+
+      // All tokens table
+      const resolvedValue =
+        typeof token.$value === 'string' && token.$value.startsWith('{')
+          ? (resolveAlias(token.$value, allData) ?? String(token.$value))
+          : String(token.$value)
+      allTokensList.push({
+        path: tokenPath.join('.'),
+        type: token.$type,
+        value: resolvedValue,
+        collection: collName,
+      })
+
+      // Typography
+      if (token.$type === 'number' || token.$type === 'string') {
+        let typoCategory: string | null = null
+        if (scopes.includes('FONT_SIZE')) typoCategory = 'font-size'
+        else if (scopes.includes('FONT_WEIGHT')) typoCategory = 'font-weight'
+        else if (scopes.includes('FONT_FAMILY')) typoCategory = 'font-family'
+        else if (scopes.includes('LINE_HEIGHT')) typoCategory = 'line-height'
+        if (typoCategory) {
+          if (!typographyData[typoCategory]) typographyData[typoCategory] = []
+          typographyData[typoCategory].push([tokenPath.join('.'), String(token.$value)])
+          continue
+        }
+      }
+
+      // Spacing: number tokens with GAP or WIDTH_HEIGHT scopes, but NOT typography scopes
+      if (token.$type === 'number') {
+        const hasTypoScope = scopes.some((s) => TYPO_SCOPES.has(s))
+        const hasSpacingScope = scopes.some((s) => SPACING_SCOPES.has(s))
+
+        if (!hasTypoScope && hasSpacingScope) {
+          const val =
+            typeof token.$value === 'string' && token.$value.startsWith('{')
+              ? Number(resolveAlias(token.$value, allData) ?? 0)
+              : Number(token.$value)
+          if (!isNaN(val)) {
+            spacingTokens.push({ name: tokenPath.join('.'), value: val })
+          }
+        }
+
+        // Effects: blur (EFFECT_FLOAT) and opacity (OPACITY)
+        if (scopes.includes('EFFECT_FLOAT')) {
+          const val = Number(token.$value)
+          if (!isNaN(val)) {
+            effectsData.blur.push([tokenPath.join('.'), val])
+          }
+        }
+        if (scopes.includes('OPACITY')) {
+          const val = Number(token.$value)
+          if (!isNaN(val)) {
+            effectsData.opacity.push([tokenPath.join('.'), val])
+          }
+        }
+      }
     }
   }
+
+  // Also collect tokens from multi-mode collections for the all-tokens table
+  for (const [collName, modes] of multiModeCollections) {
+    for (const mode of modes) {
+      const fileName = `${collName}.${mode}.json`
+      const data = allData[fileName]
+      if (!data) continue
+      const tokens = extractTokens(data)
+      for (const [tokenPath, token] of tokens) {
+        const resolvedValue =
+          typeof token.$value === 'string' && token.$value.startsWith('{')
+            ? (resolveAlias(token.$value, allData) ?? String(token.$value))
+            : String(token.$value)
+        allTokensList.push({
+          path: tokenPath.join('.'),
+          type: token.$type,
+          value: resolvedValue,
+          collection: `${collName} (${mode})`,
+        })
+      }
+    }
+  }
+
+  // Sort spacing tokens by value
+  spacingTokens.sort((a, b) => a.value - b.value)
+  effectsData.blur.sort((a, b) => a[1] - b[1])
+  effectsData.opacity.sort((a, b) => a[1] - b[1])
 
   // Serialize data for JS
   const jsData = JSON.stringify({
@@ -220,6 +379,9 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
     baseColorTokens,
     brandColorTokens,
     typography: typographyData,
+    spacing: spacingTokens,
+    effects: effectsData,
+    allTokens: allTokensList,
   })
 
   return `<!DOCTYPE html>
@@ -469,6 +631,34 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
     text-overflow: ellipsis;
   }
 
+  /* Alias chain popover */
+  .alias-chain {
+    margin-top: 6px;
+    padding: 6px 8px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    line-height: 1.6;
+    display: none;
+  }
+
+  .alias-chain.show { display: block; }
+
+  .alias-chain-step {
+    color: var(--text-secondary);
+  }
+
+  .alias-chain-arrow {
+    color: var(--text-tertiary);
+    margin: 0 2px;
+  }
+
+  .alias-chain-final {
+    color: var(--text);
+    font-weight: 600;
+  }
+
   /* Toast notification */
   .toast {
     position: fixed;
@@ -576,6 +766,177 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
     flex-shrink: 0;
   }
 
+  /* Spacing scale */
+  .spacing-scale {
+    display: grid;
+    gap: 6px;
+  }
+
+  .spacing-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .spacing-row:last-child { border-bottom: none; }
+
+  .spacing-label {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    min-width: 180px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .spacing-bar-wrap {
+    flex: 1;
+    height: 20px;
+    position: relative;
+  }
+
+  .spacing-bar {
+    height: 100%;
+    background: linear-gradient(90deg, rgba(120,180,255,0.5), rgba(120,180,255,0.25));
+    border-radius: 4px;
+    min-width: 2px;
+    transition: width 0.3s ease;
+  }
+
+  .spacing-val {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    min-width: 50px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* Effects */
+  .effects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  .effect-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .effect-card:hover {
+    border-color: rgba(255,255,255,0.18);
+    transform: translateY(-1px);
+  }
+
+  .blur-preview {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+  }
+
+  .opacity-preview {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 10px;
+    border-radius: 8px;
+    background: #6366f1;
+  }
+
+  .effect-name {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+  }
+
+  .effect-value {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* All tokens table */
+  .tokens-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    background: var(--glass);
+  }
+
+  .tokens-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .tokens-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(22,22,24,0.95);
+    backdrop-filter: blur(10px);
+  }
+
+  .tokens-table td {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+  }
+
+  .tokens-table tr:hover td {
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  .tokens-table .td-path { color: var(--text); font-weight: 500; }
+
+  .tokens-table .type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-right: 6px;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+
+  .table-count {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-bottom: 12px;
+  }
+
   /* Search */
   .search-box {
     width: 100%;
@@ -625,6 +986,7 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
     padding: 3px;
     border: 1px solid var(--glass-border);
     width: fit-content;
+    flex-wrap: wrap;
   }
 
   .tab-btn {
@@ -663,6 +1025,9 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
     <button class="tab-btn active" data-tab="base">Base Colors</button>
     <button class="tab-btn" data-tab="brand">Brand Colors</button>
     <button class="tab-btn" data-tab="typography">Typography</button>
+    <button class="tab-btn" data-tab="spacing">Spacing</button>
+    <button class="tab-btn" data-tab="effects">Effects</button>
+    <button class="tab-btn" data-tab="all">All Tokens</button>
   </div>
 
   <section id="section-base">
@@ -673,7 +1038,7 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
 
   <section id="section-brand" class="hidden">
     <h2>Brand Colors</h2>
-    <p class="section-desc">Color tokens from multi-mode collections. Switch brands to compare values.</p>
+    <p class="section-desc">Color tokens from multi-mode collections. Click a swatch to see its alias chain.</p>
     <div id="brand-colors"></div>
   </section>
 
@@ -681,6 +1046,25 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
     <h2>Typography</h2>
     <p class="section-desc">Font sizes, weights, and families detected from token scopes.</p>
     <div id="typography"></div>
+  </section>
+
+  <section id="section-spacing" class="hidden">
+    <h2>Spacing</h2>
+    <p class="section-desc">Spacing scale tokens. Bar width is proportional to the token value.</p>
+    <div id="spacing"></div>
+  </section>
+
+  <section id="section-effects" class="hidden">
+    <h2>Effects</h2>
+    <p class="section-desc">Blur and opacity tokens with live previews.</p>
+    <div id="effects"></div>
+  </section>
+
+  <section id="section-all" class="hidden">
+    <h2>All Tokens</h2>
+    <p class="section-desc">Every token across all collections. Use the search box to filter.</p>
+    <div id="table-count" class="table-count"></div>
+    <div id="all-tokens"></div>
   </section>
 </div>
 
@@ -692,6 +1076,7 @@ export function generateDocsHtml(tokensDir: string, brands: string[]): string {
 
 <script>
 const DATA = ${jsData};
+const TAB_IDS = ['base', 'brand', 'typography', 'spacing', 'effects', 'all'];
 
 // ---- Brand switcher (dropdown) ----
 const switcherEl = document.getElementById('brand-switcher');
@@ -719,15 +1104,14 @@ tabBtns.forEach(btn => {
     tabBtns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const tab = btn.getAttribute('data-tab');
-    document.getElementById('section-base').classList.toggle('hidden', tab !== 'base');
-    document.getElementById('section-brand').classList.toggle('hidden', tab !== 'brand');
-    document.getElementById('section-typography').classList.toggle('hidden', tab !== 'typography');
+    TAB_IDS.forEach(id => {
+      document.getElementById('section-' + id).classList.toggle('hidden', tab !== id);
+    });
   });
 });
 
 /**
  * Group tokens by collection, then dynamically by all-but-last path segments.
- * Returns a nested structure: { collectionName: { groupPath: [tokens] } }
  */
 function groupTokens(tokens, filterLower) {
   const byCollection = {};
@@ -740,7 +1124,6 @@ function groupTokens(tokens, filterLower) {
     if (!matchesFilter) continue;
 
     if (!byCollection[t.collection]) byCollection[t.collection] = {};
-    // Group key: all segments except the last (the leaf token name)
     const groupSegments = t.segments.slice(0, -1);
     const groupKey = groupSegments.length > 0 ? groupSegments.join(' / ') : '_root';
     if (!byCollection[t.collection][groupKey]) byCollection[t.collection][groupKey] = [];
@@ -811,7 +1194,7 @@ function renderBrandColors(brand, filter) {
       const grid = document.createElement('div');
       grid.className = 'swatch-grid';
       for (const token of tokens) {
-        grid.appendChild(createSwatch(token.segments.join('.'), token.value, token.alias));
+        grid.appendChild(createSwatch(token.segments.join('.'), token.value, token.alias, token.chain));
       }
       container.appendChild(grid);
     }
@@ -829,7 +1212,7 @@ function showToast(msg) {
 }
 
 // ---- Create swatch element ----
-function createSwatch(tokenPath, value, alias) {
+function createSwatch(tokenPath, value, alias, chain) {
   const swatch = document.createElement('div');
   swatch.className = 'swatch';
   swatch.title = tokenPath;
@@ -838,12 +1221,10 @@ function createSwatch(tokenPath, value, alias) {
   colorDiv.className = 'swatch-color';
   colorDiv.style.background = value;
 
-  // Check if color is light to add a subtle inner border
   if (isLightColor(value)) {
     colorDiv.style.boxShadow = 'inset 0 0 0 1px rgba(0,0,0,0.08)';
   }
 
-  // Copy icon SVG overlay
   const copyIcon = document.createElement('div');
   copyIcon.className = 'copy-icon';
   copyIcon.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
@@ -872,11 +1253,29 @@ function createSwatch(tokenPath, value, alias) {
     info.appendChild(aliasEl);
   }
 
+  // Alias chain (expandable)
+  if (chain && chain.length > 1) {
+    const chainEl = document.createElement('div');
+    chainEl.className = 'alias-chain';
+    const chainHtml = chain.map((step, i) => {
+      if (i === chain.length - 1) {
+        return '<span class="alias-chain-final">' + escapeHtml(step) + '</span>';
+      }
+      return '<span class="alias-chain-step">' + escapeHtml(step) + '</span>';
+    }).join('<span class="alias-chain-arrow"> &rarr; </span>');
+    chainEl.innerHTML = chainHtml;
+    info.appendChild(chainEl);
+  }
+
   swatch.appendChild(colorDiv);
   swatch.appendChild(info);
 
-  // Click to copy hex value
-  swatch.addEventListener('click', () => {
+  swatch.addEventListener('click', (e) => {
+    // Toggle alias chain if it exists
+    const chainEl = swatch.querySelector('.alias-chain');
+    if (chainEl) {
+      chainEl.classList.toggle('show');
+    }
     navigator.clipboard.writeText(value).then(() => {
       showToast('Copied ' + value);
     });
@@ -906,7 +1305,6 @@ function renderTypography() {
     return;
   }
 
-  // Font families
   if (typo['font-family']) {
     const h3 = document.createElement('h3');
     h3.textContent = 'Font Families';
@@ -927,7 +1325,6 @@ function renderTypography() {
     container.appendChild(grid);
   }
 
-  // Font sizes
   if (typo['font-size']) {
     const h3 = document.createElement('h3');
     h3.textContent = 'Font Sizes';
@@ -951,7 +1348,6 @@ function renderTypography() {
     container.appendChild(card);
   }
 
-  // Font weights
   if (typo['font-weight']) {
     const h3 = document.createElement('h3');
     h3.textContent = 'Font Weights';
@@ -972,6 +1368,142 @@ function renderTypography() {
   }
 }
 
+// ---- Render spacing ----
+function renderSpacing() {
+  const container = document.getElementById('spacing');
+  container.innerHTML = '';
+  const tokens = DATA.spacing;
+
+  if (!tokens || tokens.length === 0) {
+    container.innerHTML = '<p style="color: var(--text-secondary)">No spacing tokens found.</p>';
+    return;
+  }
+
+  const maxVal = Math.max(...tokens.map(t => t.value), 1);
+  const card = document.createElement('div');
+  card.className = 'type-card';
+  const scale = document.createElement('div');
+  scale.className = 'spacing-scale';
+
+  for (const token of tokens) {
+    const row = document.createElement('div');
+    row.className = 'spacing-row';
+    const pct = Math.min((token.value / maxVal) * 100, 100);
+    row.innerHTML =
+      '<span class="spacing-label" title="' + escapeHtml(token.name) + '">' + escapeHtml(token.name.split('.').slice(-2).join('.')) + '</span>' +
+      '<div class="spacing-bar-wrap"><div class="spacing-bar" style="width: ' + pct + '%"></div></div>' +
+      '<span class="spacing-val">' + token.value + 'px</span>';
+    scale.appendChild(row);
+  }
+
+  card.appendChild(scale);
+  container.appendChild(card);
+}
+
+// ---- Render effects ----
+function renderEffects() {
+  const container = document.getElementById('effects');
+  container.innerHTML = '';
+  const fx = DATA.effects;
+
+  if ((!fx.blur || fx.blur.length === 0) && (!fx.opacity || fx.opacity.length === 0)) {
+    container.innerHTML = '<p style="color: var(--text-secondary)">No effects tokens found.</p>';
+    return;
+  }
+
+  if (fx.blur && fx.blur.length > 0) {
+    const h3 = document.createElement('h3');
+    h3.textContent = 'Blur';
+    container.appendChild(h3);
+
+    const grid = document.createElement('div');
+    grid.className = 'effects-grid';
+    for (const [name, value] of fx.blur) {
+      const card = document.createElement('div');
+      card.className = 'effect-card';
+      const shortName = name.split('.').slice(-1)[0];
+      card.innerHTML =
+        '<div class="blur-preview" style="filter: blur(' + value + 'px)"></div>' +
+        '<div class="effect-name">' + escapeHtml(shortName) + '</div>' +
+        '<div class="effect-value">' + value + 'px</div>';
+      grid.appendChild(card);
+    }
+    container.appendChild(grid);
+  }
+
+  if (fx.opacity && fx.opacity.length > 0) {
+    const h3 = document.createElement('h3');
+    h3.textContent = 'Opacity';
+    container.appendChild(h3);
+
+    const grid = document.createElement('div');
+    grid.className = 'effects-grid';
+    for (const [name, value] of fx.opacity) {
+      const card = document.createElement('div');
+      card.className = 'effect-card';
+      const shortName = name.split('.').slice(-1)[0];
+      const cssOpacity = value / 100;
+      card.innerHTML =
+        '<div class="opacity-preview" style="opacity: ' + cssOpacity + '"></div>' +
+        '<div class="effect-name">' + escapeHtml(shortName) + '</div>' +
+        '<div class="effect-value">' + value + '%</div>';
+      grid.appendChild(card);
+    }
+    container.appendChild(grid);
+  }
+}
+
+// ---- Render all tokens table ----
+function renderAllTokens(filter) {
+  const container = document.getElementById('all-tokens');
+  const countEl = document.getElementById('table-count');
+  container.innerHTML = '';
+  const filterLower = (filter || '').toLowerCase();
+
+  const filtered = filterLower
+    ? DATA.allTokens.filter(t =>
+        t.path.toLowerCase().includes(filterLower) ||
+        t.type.toLowerCase().includes(filterLower) ||
+        t.value.toLowerCase().includes(filterLower) ||
+        t.collection.toLowerCase().includes(filterLower))
+    : DATA.allTokens;
+
+  countEl.textContent = filtered.length + ' of ' + DATA.allTokens.length + ' tokens';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'tokens-table-wrap';
+  wrap.style.maxHeight = '600px';
+  wrap.style.overflowY = 'auto';
+
+  const table = document.createElement('table');
+  table.className = 'tokens-table';
+  table.innerHTML = '<thead><tr><th>Token Path</th><th>Type</th><th>Value</th><th>Collection</th></tr></thead>';
+
+  const tbody = document.createElement('tbody');
+  const limit = Math.min(filtered.length, 500);
+  for (let i = 0; i < limit; i++) {
+    const t = filtered[i];
+    const tr = document.createElement('tr');
+    const valueCellContent = t.type === 'color' && t.value.startsWith('#')
+      ? '<span class="color-dot" style="background:' + escapeHtml(t.value) + '"></span>' + escapeHtml(t.value)
+      : escapeHtml(t.value);
+    tr.innerHTML =
+      '<td class="td-path">' + escapeHtml(t.path) + '</td>' +
+      '<td><span class="type-badge">' + escapeHtml(t.type) + '</span></td>' +
+      '<td>' + valueCellContent + '</td>' +
+      '<td>' + escapeHtml(t.collection) + '</td>';
+    tbody.appendChild(tr);
+  }
+  if (filtered.length > 500) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td colspan="4" style="text-align:center;color:var(--text-tertiary)">Showing first 500 of ' + filtered.length + ' tokens. Use search to narrow results.</td>';
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+  container.appendChild(wrap);
+}
+
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = String(str);
@@ -985,12 +1517,16 @@ searchEl.addEventListener('input', () => {
   renderBaseColors(q);
   const brandSelect = document.querySelector('.brand-select');
   if (brandSelect) renderBrandColors(brandSelect.value, q);
+  renderAllTokens(q);
 });
 
 // ---- Initial render ----
 renderBaseColors();
 if (DATA.brands.length > 0) renderBrandColors(DATA.brands[0]);
 renderTypography();
+renderSpacing();
+renderEffects();
+renderAllTokens();
 document.getElementById('gen-date').textContent = new Date().toLocaleDateString();
 </script>
 </body>
