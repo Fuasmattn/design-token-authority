@@ -92,12 +92,13 @@ program
   .command('push')
   .description('Push local token JSON files to Figma')
   .option('--dry-run', 'Show what would change without modifying Figma')
+  .option('--format <format>', 'Diff output format: console, markdown, json', 'console')
   .option('-c, --config <path>', 'Path to config file')
   .option('-v, --verbose', 'Enable verbose logging')
   .action(async (opts) => {
     try {
       const config = await loadConfig(opts.config)
-      await runPush(config, { dryRun: opts.dryRun, verbose: opts.verbose })
+      await runPush(config, { dryRun: opts.dryRun, verbose: opts.verbose, format: opts.format })
     } catch (err) {
       handleError(err)
     }

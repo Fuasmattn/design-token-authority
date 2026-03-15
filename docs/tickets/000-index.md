@@ -69,7 +69,7 @@ Plausibility checks, linting, and guardrails.
 |---|---|---|---|---|
 | [018](./018-token-linter.md) | Token linter with configurable rules | High | L | Open |
 | [019](./019-naming-convention-enforcement.md) | Naming convention rules (extends linter) | Medium | S | Open |
-| [020](./020-sync-diff-report.md) | Human-readable diff report on push/sync | Medium | S | Partial |
+| [020](./020-sync-diff-report.md) | Human-readable diff report on push/sync | Medium | S | **Done** |
 | [021](./021-deletion-safety-prune.md) | `dtf prune` for orphaned variables | Low | M | Open |
 
 **018 first; 019 is an extension of 018. 020 and 021 are independent.**
@@ -82,7 +82,7 @@ Token visibility for designers and developers.
 
 | # | Ticket | Priority | Effort | Status |
 |---|---|---|---|---|
-| [022](./022-token-docs-site.md) | Static token documentation site generator | Medium | L | Partial |
+| [022](./022-token-docs-site.md) | Static token documentation site generator | Medium | L | **Done** |
 | [023](./023-visual-regression-testing.md) | Visual regression testing with Playwright | Low | L | Open |
 | [024](./024-ai-config-generation.md) | AI-assisted config generation (Claude API) | Low | L | Open |
 
