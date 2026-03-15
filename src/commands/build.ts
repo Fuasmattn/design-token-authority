@@ -7,13 +7,13 @@
  * Collections are auto-discovered from token files ({Collection}.{Mode}.json).
  * The build is split into phases to avoid token collisions:
  *
- *   Phase A — Base layer (single-mode collections)  → build/css/base.css
- *   Phase B — Per-brand (multi-mode collections)    → build/css/themes/{brand}.css
- *                                                      build/tailwind/{brand}/...
- *   Phase C — Shared outputs (single-mode only)     → build/css/variables.css
- *                                                      build/js/colorpalette.js
- *                                                      build/tailwind/...
- *   Phase D — Token documentation HTML              → build/docs/index.html
+ *   Phase A — Base layer (single-mode collections)  → output/css/base.css
+ *   Phase B — Per-brand (multi-mode collections)    → output/css/themes/{brand}.css
+ *                                                      output/tailwind/{brand}/...
+ *   Phase C — Shared outputs (single-mode only)     → output/css/variables.css
+ *                                                      output/js/colorpalette.js
+ *                                                      output/tailwind/...
+ *   Phase D — Token documentation HTML              → output/docs/index.html
  */
 
 import fs from 'node:fs'
@@ -50,10 +50,10 @@ function discoverCollections(tokensDir: string): Map<string, string[]> {
 
 export async function runBuild(config: Config, options: BuildOptions): Promise<void> {
   const tokensDir = config.tokens?.dir ?? 'tokens'
-  const cssBuildPath = config.outputs?.css?.outDir ? `${config.outputs.css.outDir}/` : 'build/css/'
+  const cssBuildPath = config.outputs?.css?.outDir ? `${config.outputs.css.outDir}/` : 'output/css/'
   const twBuildPath = config.outputs?.tailwind?.outDir
     ? `${config.outputs.tailwind.outDir}/`
-    : 'build/tailwind/'
+    : 'output/tailwind/'
 
   p.intro(pc.bgCyan(pc.black(' dtf build ')))
 
@@ -359,7 +359,7 @@ export async function runBuild(config: Config, options: BuildOptions): Promise<v
         },
         js: {
           transformGroup: 'js',
-          buildPath: 'build/js/',
+          buildPath: 'output/js/',
           files: [
             { destination: 'colorpalette.js', format: 'javascript/es6', filter: singleModeOnly },
           ],
@@ -391,7 +391,7 @@ export async function runBuild(config: Config, options: BuildOptions): Promise<v
   // Phase D — Token documentation HTML
   s.start('Generating token docs...')
   const { generateDocsHtml } = await import('../formatters/docs-html.js')
-  const docsPath = 'build/docs/'
+  const docsPath = 'output/docs/'
   fs.mkdirSync(docsPath, { recursive: true })
   const docsHtml = generateDocsHtml(tokensDir, brands)
   fs.writeFileSync(path.join(docsPath, 'index.html'), docsHtml, 'utf-8')

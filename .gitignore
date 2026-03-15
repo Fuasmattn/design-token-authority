@@ -2,7 +2,7 @@ node_modules
 settings.local.json
 .env
 tokens
-build
+output
 dist
 token-graph.html
 dtf.config.ts

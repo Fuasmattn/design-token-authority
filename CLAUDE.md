@@ -95,6 +95,7 @@ src/
     pull.ts             dtf pull
     push.ts             dtf push
     build.ts            dtf build
+    clean.ts            dtf clean (remove tokens + output)
     init.ts             dtf init (wizard)
     analyze.ts          dtf analyze
     graph.ts            dtf graph (dependency analysis + visualization)
@@ -149,6 +150,7 @@ FIGMA_FILE_KEY=                # From Figma file URL: figma.com/file/<FILE_KEY>/
 npm run dtf -- pull            # Pull variables from Figma → tokens/
 npm run dtf -- push            # Push tokens/ → Figma
 npm run dtf -- build           # Generate CSS + JS from tokens/
+npm run dtf -- clean           # Remove all token files and build output
 npm run dtf -- analyze         # Inspect Figma file structure
 npm run dtf -- graph           # Token dependency graph (console summary)
 npm run dtf -- graph --format html   # Interactive HTML visualization

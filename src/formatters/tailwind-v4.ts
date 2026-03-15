@@ -15,7 +15,7 @@
  *   3. Fallback: unmapped tokens use --{full-path} (available as CSS vars)
  *
  * Consuming project:
- *   @import './build/tailwind/tailwind.css';
+ *   @import './output/tailwind/tailwind.css';
  */
 
 import type { FormatFn } from 'style-dictionary/types'

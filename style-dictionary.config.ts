@@ -188,7 +188,7 @@ async function build() {
     platforms: {
       'css-base': {
         transformGroup: 'design-system/css',
-        buildPath: 'build/css/',
+        buildPath: 'output/css/',
         files: [
           {
             destination: 'base.css',
@@ -205,8 +205,8 @@ async function build() {
   for (const brand of brands) {
     const slug = brand.toLowerCase()
 
-    fs.mkdirSync(path.join('build/css/themes'), { recursive: true })
-    fs.mkdirSync(path.join('build/tailwind', slug), { recursive: true })
+    fs.mkdirSync(path.join('output/css/themes'), { recursive: true })
+    fs.mkdirSync(path.join('output/tailwind', slug), { recursive: true })
 
     const brandOnly = (token: { filePath?: string }) =>
       token.filePath?.includes(`Brand(Alias).${brand}.json`) ?? false
@@ -218,7 +218,7 @@ async function build() {
       platforms: {
         'css-theme': {
           transformGroup: 'design-system/css',
-          buildPath: 'build/css/',
+          buildPath: 'output/css/',
           files: [
             {
               destination: `themes/${slug}.css`,
@@ -263,7 +263,7 @@ async function build() {
     platforms: {
       css: {
         transformGroup: 'design-system/css',
-        buildPath: 'build/css/',
+        buildPath: 'output/css/',
         files: [
           {
             destination: 'variables.css',
@@ -274,17 +274,17 @@ async function build() {
       },
       js: {
         transformGroup: 'js',
-        buildPath: 'build/js/',
+        buildPath: 'output/js/',
         files: [{ destination: 'colorpalette.js', format: 'javascript/es6' }],
       },
       'tailwind-v3': {
         transformGroup: 'design-system/css',
-        buildPath: 'build/tailwind/',
+        buildPath: 'output/tailwind/',
         files: [{ destination: 'tailwind.tokens.ts', format: 'tailwind/v3' }],
       },
       'tailwind-v4': {
         transformGroup: 'design-system/css',
-        buildPath: 'build/tailwind/',
+        buildPath: 'output/tailwind/',
         files: [{ destination: 'tailwind.css', format: 'tailwind/v4' }],
       },
     },
@@ -293,8 +293,8 @@ async function build() {
 
   // Phase D — Token documentation HTML
   const { generateDocsHtml } = await import('./src/formatters/docs-html.js')
-  fs.mkdirSync('build/docs', { recursive: true })
-  fs.writeFileSync('build/docs/index.html', generateDocsHtml(tokensDir, brands), 'utf-8')
+  fs.mkdirSync('output/docs', { recursive: true })
+  fs.writeFileSync('output/docs/index.html', generateDocsHtml(tokensDir, brands), 'utf-8')
 }
 
 build()

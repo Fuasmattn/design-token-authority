@@ -16,6 +16,7 @@ import { runBuild } from './commands/build.js'
 import { runInit } from './commands/init.js'
 import { runAnalyze } from './commands/analyze.js'
 import { runGraph } from './commands/graph.js'
+import { runClean } from './commands/clean.js'
 import { brightRed } from './utils.js'
 
 // ---------------------------------------------------------------------------
@@ -147,6 +148,22 @@ program
     try {
       const config = await loadConfig(opts.config)
       await runGraph(config, { format: opts.format, output: opts.output, verbose: opts.verbose })
+    } catch (err) {
+      handleError(err)
+    }
+  })
+
+// ---- clean ----
+
+program
+  .command('clean')
+  .description('Remove all token files and build output')
+  .option('-c, --config <path>', 'Path to config file')
+  .option('-v, --verbose', 'Enable verbose logging')
+  .action(async (opts) => {
+    try {
+      const config = await loadConfig(opts.config)
+      await runClean(config, { verbose: opts.verbose })
     } catch (err) {
       handleError(err)
     }
