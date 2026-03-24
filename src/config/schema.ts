@@ -66,6 +66,47 @@ export interface FigmaConnection {
 }
 
 // ---------------------------------------------------------------------------
+// Lint config
+// ---------------------------------------------------------------------------
+
+export type LintSeverity = 'error' | 'warn' | 'off'
+
+export interface LintRuleSemanticMustAlias {
+  severity?: LintSeverity
+  /** Collection names whose tokens must all be aliases (no raw values). */
+  collections?: string[]
+}
+
+export interface LintRuleNamingPattern {
+  severity?: LintSeverity
+  /** Map of collection name → regex pattern that token names must match. */
+  patterns?: Record<string, string>
+}
+
+export interface LintRuleColorContrast {
+  severity?: LintSeverity
+  /** Minimum WCAG contrast ratio (default: 4.5 for AA). */
+  minRatio?: number
+  /** Pairs of token paths to check contrast between: [[foreground, background], ...] */
+  pairs?: Array<[string, string]>
+}
+
+export interface LintRuleNoDuplicateValues {
+  severity?: LintSeverity
+}
+
+export interface LintRules {
+  'semantic-must-alias'?: LintRuleSemanticMustAlias
+  'naming-pattern'?: LintRuleNamingPattern
+  'color-contrast'?: LintRuleColorContrast
+  'no-duplicate-values'?: LintRuleNoDuplicateValues
+}
+
+export interface LintConfig {
+  rules?: LintRules
+}
+
+// ---------------------------------------------------------------------------
 // Full config
 // ---------------------------------------------------------------------------
 
@@ -85,6 +126,7 @@ export interface Config {
     stripEmojis?: boolean
   }
   outputs?: OutputTargets
+  lint?: LintConfig
 }
 
 // ---------------------------------------------------------------------------
@@ -241,7 +283,104 @@ export function validateConfig(raw: unknown): Config {
     }
   }
 
-  return { figma, collections, layers, brands, tokens, outputs }
+  // lint (optional)
+  let lint: LintConfig | undefined
+  if (obj.lint !== undefined) {
+    const lintRaw = requireObject(obj.lint, 'lint')
+    lint = {}
+
+    if (lintRaw.rules !== undefined) {
+      const rulesRaw = requireObject(lintRaw.rules, 'lint.rules')
+      const rules: LintRules = {}
+
+      const validSeverities: LintSeverity[] = ['error', 'warn', 'off']
+      function validateSeverity(value: unknown, field: string): LintSeverity | undefined {
+        if (value === undefined) return undefined
+        if (typeof value !== 'string' || !validSeverities.includes(value as LintSeverity)) {
+          throw new ConfigValidationError(field, "must be 'error', 'warn', or 'off'")
+        }
+        return value as LintSeverity
+      }
+
+      if (rulesRaw['semantic-must-alias'] !== undefined) {
+        const ruleRaw = requireObject(
+          rulesRaw['semantic-must-alias'],
+          'lint.rules.semantic-must-alias',
+        )
+        const ruleCollections = ruleRaw.collections
+        if (ruleCollections !== undefined && !Array.isArray(ruleCollections)) {
+          throw new ConfigValidationError(
+            'lint.rules.semantic-must-alias.collections',
+            'must be an array of strings',
+          )
+        }
+        rules['semantic-must-alias'] = {
+          severity: validateSeverity(ruleRaw.severity, 'lint.rules.semantic-must-alias.severity'),
+          collections: ruleCollections as string[] | undefined,
+        }
+      }
+
+      if (rulesRaw['naming-pattern'] !== undefined) {
+        const ruleRaw = requireObject(rulesRaw['naming-pattern'], 'lint.rules.naming-pattern')
+        if (ruleRaw.patterns !== undefined) {
+          const patternsRaw = requireObject(ruleRaw.patterns, 'lint.rules.naming-pattern.patterns')
+          // Validate each pattern is a valid regex
+          for (const [key, val] of Object.entries(patternsRaw)) {
+            if (typeof val !== 'string') {
+              throw new ConfigValidationError(
+                `lint.rules.naming-pattern.patterns.${key}`,
+                'must be a regex string',
+              )
+            }
+            try {
+              new RegExp(val as string)
+            } catch {
+              throw new ConfigValidationError(
+                `lint.rules.naming-pattern.patterns.${key}`,
+                'must be a valid regex',
+              )
+            }
+          }
+        }
+        rules['naming-pattern'] = {
+          severity: validateSeverity(ruleRaw.severity, 'lint.rules.naming-pattern.severity'),
+          patterns: ruleRaw.patterns as Record<string, string> | undefined,
+        }
+      }
+
+      if (rulesRaw['color-contrast'] !== undefined) {
+        const ruleRaw = requireObject(rulesRaw['color-contrast'], 'lint.rules.color-contrast')
+        if (ruleRaw.minRatio !== undefined && typeof ruleRaw.minRatio !== 'number') {
+          throw new ConfigValidationError('lint.rules.color-contrast.minRatio', 'must be a number')
+        }
+        if (ruleRaw.pairs !== undefined && !Array.isArray(ruleRaw.pairs)) {
+          throw new ConfigValidationError(
+            'lint.rules.color-contrast.pairs',
+            'must be an array of [foreground, background] pairs',
+          )
+        }
+        rules['color-contrast'] = {
+          severity: validateSeverity(ruleRaw.severity, 'lint.rules.color-contrast.severity'),
+          minRatio: ruleRaw.minRatio as number | undefined,
+          pairs: ruleRaw.pairs as Array<[string, string]> | undefined,
+        }
+      }
+
+      if (rulesRaw['no-duplicate-values'] !== undefined) {
+        const ruleRaw = requireObject(
+          rulesRaw['no-duplicate-values'],
+          'lint.rules.no-duplicate-values',
+        )
+        rules['no-duplicate-values'] = {
+          severity: validateSeverity(ruleRaw.severity, 'lint.rules.no-duplicate-values.severity'),
+        }
+      }
+
+      lint.rules = rules
+    }
+  }
+
+  return { figma, collections, layers, brands, tokens, outputs, lint }
 }
 
 // ---------------------------------------------------------------------------

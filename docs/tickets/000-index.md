@@ -67,7 +67,7 @@ Plausibility checks, linting, and guardrails.
 
 | # | Ticket | Priority | Effort | Status |
 |---|---|---|---|---|
-| [018](./018-token-linter.md) | Token linter with configurable rules | High | L | Open |
+| [018](./018-token-linter.md) | Token linter with configurable rules | High | L | **Done** |
 | [019](./019-naming-convention-enforcement.md) | Naming convention rules (extends linter) | Medium | S | Open |
 | [020](./020-sync-diff-report.md) | Human-readable diff report on push/sync | Medium | S | **Done** |
 | [021](./021-deletion-safety-prune.md) | `dtf prune` for orphaned variables | Low | M | Open |

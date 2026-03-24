@@ -10,6 +10,7 @@ import * as p from '@clack/prompts'
 import pc from 'picocolors'
 import { Config } from '../config/index.js'
 import FigmaApi from '../figma_api.js'
+import { lintTokens } from '../linter.js'
 import { generatePostVariablesPayload, readJsonFiles } from '../token_import.js'
 import type { PostVariablesRequestBody } from '@figma/rest-api-spec'
 
@@ -19,6 +20,7 @@ export interface PushOptions {
   dryRun?: boolean
   verbose?: boolean
   format?: DiffFormat
+  skipLint?: boolean
 }
 
 interface DiffEntry {
@@ -55,9 +57,10 @@ function buildDiffReport(payload: PostVariablesRequestBody): DiffReport {
   }
 
   for (const mode of payload.variableModes ?? []) {
+    if (mode.action === 'DELETE') continue
     report.modes.push({
       action: mode.action === 'CREATE' ? 'added' : 'renamed',
-      name: mode.name ?? mode.id,
+      name: ('name' in mode && mode.name) || mode.id || '(unnamed)',
       collection: 'variableCollectionId' in mode ? String(mode.variableCollectionId) : '',
     })
   }
@@ -88,9 +91,7 @@ function buildDiffReport(payload: PostVariablesRequestBody): DiffReport {
   }
 
   // Count value changes that aren't already tracked as added variables
-  const addedPaths = new Set(
-    report.changes.filter((c) => c.action === 'added').map((c) => c.path),
-  )
+  const addedPaths = new Set(report.changes.filter((c) => c.action === 'added').map((c) => c.path))
   const valueChangeCount = (payload.variableModeValues ?? []).filter(
     (v) => !addedPaths.has(v.variableId),
   ).length
@@ -261,6 +262,27 @@ export async function runPush(config: Config, options: PushOptions): Promise<voi
   if (tokensFiles.length === 0) {
     p.log.error(`No token files found in ${pc.dim(tokensDir + '/')}`)
     process.exit(2)
+  }
+
+  // Run lint check before push (unless skipped)
+  if (!options.skipLint) {
+    const lintResult = lintTokens(tokensDir, config.lint)
+
+    if (lintResult.warningCount > 0) {
+      p.log.warn(
+        `${lintResult.warningCount} lint warning${lintResult.warningCount === 1 ? '' : 's'} found.`,
+      )
+    }
+
+    if (lintResult.errorCount > 0) {
+      for (const v of lintResult.violations.filter((v) => v.severity === 'error')) {
+        p.log.error(`[${v.rule}] ${v.message}`)
+      }
+      p.log.error(
+        `${lintResult.errorCount} lint error${lintResult.errorCount === 1 ? '' : 's'} found. Fix them or use ${pc.cyan('--skip-lint')} to bypass.`,
+      )
+      process.exit(2)
+    }
   }
 
   const tokensByFile = readJsonFiles(tokensFiles)

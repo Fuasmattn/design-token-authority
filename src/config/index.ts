@@ -14,6 +14,13 @@ export type {
   OutputTargetTailwind,
   OutputTargetIOS,
   OutputTargetAndroid,
+  LintConfig,
+  LintRules,
+  LintSeverity,
+  LintRuleSemanticMustAlias,
+  LintRuleNamingPattern,
+  LintRuleColorContrast,
+  LintRuleNoDuplicateValues,
 } from './schema.js'
 
 export { loadConfig, DEFAULT_CONFIG_PATH } from './loader.js'

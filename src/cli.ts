@@ -17,6 +17,7 @@ import { runInit } from './commands/init.js'
 import { runAnalyze } from './commands/analyze.js'
 import { runGraph } from './commands/graph.js'
 import { runClean } from './commands/clean.js'
+import { runLint } from './commands/lint.js'
 import { brightRed } from './utils.js'
 
 // ---------------------------------------------------------------------------
@@ -93,12 +94,18 @@ program
   .description('Push local token JSON files to Figma')
   .option('--dry-run', 'Show what would change without modifying Figma')
   .option('--format <format>', 'Diff output format: console, markdown, json', 'console')
+  .option('--skip-lint', 'Skip lint check before pushing')
   .option('-c, --config <path>', 'Path to config file')
   .option('-v, --verbose', 'Enable verbose logging')
   .action(async (opts) => {
     try {
       const config = await loadConfig(opts.config)
-      await runPush(config, { dryRun: opts.dryRun, verbose: opts.verbose, format: opts.format })
+      await runPush(config, {
+        dryRun: opts.dryRun,
+        verbose: opts.verbose,
+        format: opts.format,
+        skipLint: opts.skipLint,
+      })
     } catch (err) {
       handleError(err)
     }
@@ -165,6 +172,26 @@ program
     try {
       const config = await loadConfig(opts.config)
       await runClean(config, { verbose: opts.verbose })
+    } catch (err) {
+      handleError(err)
+    }
+  })
+
+// ---- lint ----
+
+program
+  .command('lint')
+  .description('Validate token files against linting rules')
+  .option('--fix', 'Auto-fix violations where possible')
+  .option('-c, --config <path>', 'Path to config file')
+  .option('-v, --verbose', 'Enable verbose logging')
+  .action(async (opts) => {
+    try {
+      const config = await loadConfig(opts.config)
+      const result = await runLint(config, { fix: opts.fix, verbose: opts.verbose })
+      if (result.errorCount > 0) {
+        process.exit(2)
+      }
     } catch (err) {
       handleError(err)
     }
