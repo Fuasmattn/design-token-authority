@@ -22,6 +22,7 @@ export interface PushOptions {
   verbose?: boolean
   format?: DiffFormat
   skipLint?: boolean
+  yes?: boolean
 }
 
 interface DiffEntry {
@@ -350,14 +351,29 @@ export async function runPush(config: Config, options: PushOptions): Promise<voi
   }
 
   // Confirmation — push modifies the Figma file
-  const confirmed = await p.confirm({
-    message: 'Push these changes to Figma?',
-    initialValue: false,
-  })
+  const CONFIRMATION_PHRASE = 'push variables to figma'
+  const skipConfirmation = options.yes || config.push?.skipConfirmation === true
 
-  if (p.isCancel(confirmed) || !confirmed) {
-    p.cancel('Push cancelled.')
-    process.exit(0)
+  if (!skipConfirmation) {
+    p.log.warn(
+      `This will modify variables in the Figma file. To confirm, type: ${pc.bold(pc.cyan(CONFIRMATION_PHRASE))}`,
+    )
+
+    const answer = await p.text({
+      message: 'Confirm push:',
+      placeholder: CONFIRMATION_PHRASE,
+      validate(value) {
+        if (!value || value.trim().toLowerCase() !== CONFIRMATION_PHRASE) {
+          return `Type "${CONFIRMATION_PHRASE}" to confirm, or press Ctrl+C to cancel.`
+        }
+        return undefined
+      },
+    })
+
+    if (p.isCancel(answer)) {
+      p.cancel('Push cancelled.')
+      process.exit(0)
+    }
   }
 
   const pushSpinner = p.spinner()

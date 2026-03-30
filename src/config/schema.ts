@@ -112,6 +112,19 @@ export interface LintConfig {
 }
 
 // ---------------------------------------------------------------------------
+// Push config
+// ---------------------------------------------------------------------------
+
+export interface PushConfig {
+  /**
+   * Skip the typed confirmation prompt before pushing to Figma.
+   * When false (default), users must type "push variables to figma" to confirm.
+   * Set to true for CI pipelines or automation where interactive prompts are not possible.
+   */
+  skipConfirmation?: boolean
+}
+
+// ---------------------------------------------------------------------------
 // Full config
 // ---------------------------------------------------------------------------
 
@@ -132,6 +145,7 @@ export interface Config {
   }
   outputs?: OutputTargets
   lint?: LintConfig
+  push?: PushConfig
 }
 
 // ---------------------------------------------------------------------------
@@ -392,7 +406,20 @@ export function validateConfig(raw: unknown): Config {
     }
   }
 
-  return { figma, collections, layers, brands, tokens, outputs, lint }
+  // push (optional)
+  let push: PushConfig | undefined
+  if (obj.push !== undefined) {
+    const pushRaw = requireObject(obj.push, 'push')
+    push = {}
+    if (pushRaw.skipConfirmation !== undefined) {
+      if (typeof pushRaw.skipConfirmation !== 'boolean') {
+        throw new ConfigValidationError('push.skipConfirmation', 'must be a boolean')
+      }
+      push.skipConfirmation = pushRaw.skipConfirmation
+    }
+  }
+
+  return { figma, collections, layers, brands, tokens, outputs, lint, push }
 }
 
 // ---------------------------------------------------------------------------

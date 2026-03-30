@@ -127,6 +127,10 @@ src/
 
 The push direction (`sync_tokens_to_figma.ts`) **never deletes** variables from Figma. It only creates new ones or updates existing ones. Deletion is intentionally out-of-scope for the push command (see TICKET-021 for `prune`).
 
+### Push confirmation
+
+`dta push` requires users to type `push variables to figma` to confirm before modifying the Figma file. This can be bypassed with `--yes` on the CLI or `push.skipConfirmation: true` in `dta.config.ts`.
+
 ### TypeScript imports
 
 Source files use `.js` extensions in imports (e.g. `import { rgbToHex } from './color.js'`) despite being `.ts` files. This is required for ESM compatibility with `tsx`. Do not change this pattern.
@@ -148,7 +152,8 @@ FIGMA_FILE_KEY=                # From Figma file URL: figma.com/file/<FILE_KEY>/
 
 ```bash
 npm run dta -- pull            # Pull variables from Figma → tokens/
-npm run dta -- push            # Push tokens/ → Figma
+npm run dta -- push            # Push tokens/ → Figma (typed confirmation required)
+npm run dta -- push --yes      # Push without confirmation (CI/automation)
 npm run dta -- build           # Generate CSS + JS from tokens/
 npm run dta -- clean           # Remove all token files and build output
 npm run dta -- analyze         # Inspect Figma file structure

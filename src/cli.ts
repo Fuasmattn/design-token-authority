@@ -84,6 +84,7 @@ program
   .option('--dry-run', 'Show what would change without modifying Figma')
   .option('--format <format>', 'Diff output format: console, markdown, json', 'console')
   .option('--skip-lint', 'Skip lint check before pushing')
+  .option('-y, --yes', 'Skip confirmation prompt (use in CI/automation)')
   .option('-c, --config <path>', 'Path to config file')
   .option('-v, --verbose', 'Enable verbose logging')
   .action(async (opts) => {
@@ -94,6 +95,7 @@ program
         verbose: opts.verbose,
         format: opts.format,
         skipLint: opts.skipLint,
+        yes: opts.yes,
       })
     } catch (err) {
       handleError(err)

@@ -49,8 +49,9 @@ The CLI is available as `design-token-authority` or its shorter alias `dta`. Bot
 ```bash
 # Core workflow
 dta pull              # Figma → tokens/
-dta push              # tokens/ → Figma (prompts for confirmation)
+dta push              # tokens/ → Figma (requires typed confirmation)
 dta push --dry-run    # show what would change without modifying Figma
+dta push --yes        # skip confirmation prompt (CI/automation)
 dta build             # tokens/ → build/
 
 # Setup & analysis
@@ -115,6 +116,8 @@ export default defineConfig({
     css: { outDir: 'build/css', prefix: '--ds' },
     tailwind: { outDir: 'build/tailwind', version: 4 },
   },
+  // Skip the typed confirmation prompt on push (default: false)
+  // push: { skipConfirmation: true },
 })
 ```
 
