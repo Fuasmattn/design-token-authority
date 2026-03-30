@@ -1,5 +1,5 @@
 /**
- * TICKET-018: `dtf lint` command.
+ * TICKET-018: `dta lint` command.
  *
  * Validates token files against built-in and configurable linting rules.
  */
@@ -7,6 +7,7 @@
 import * as p from '@clack/prompts'
 import pc from 'picocolors'
 import { Config } from '../config/index.js'
+import { banner } from '../theme.js'
 import { lintTokens, LintResult, LintViolation } from '../linter.js'
 
 export interface LintOptions {
@@ -21,7 +22,7 @@ function formatViolation(v: LintViolation): string {
 }
 
 export async function runLint(config: Config, options: LintOptions): Promise<LintResult> {
-  p.intro(pc.bgCyan(pc.black(' dtf lint ')))
+  p.intro(banner('lint'))
 
   const tokensDir = config.tokens?.dir ?? 'tokens'
 

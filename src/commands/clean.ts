@@ -1,5 +1,5 @@
 /**
- * `dtf clean` command.
+ * `dta clean` command.
  *
  * Removes all token JSON files and build output directories so the project
  * can be rebuilt from scratch.
@@ -10,13 +10,14 @@ import path from 'node:path'
 import * as p from '@clack/prompts'
 import pc from 'picocolors'
 import { Config } from '../config/index.js'
+import { banner } from '../theme.js'
 
 export interface CleanOptions {
   verbose?: boolean
 }
 
 export async function runClean(config: Config, options: CleanOptions): Promise<void> {
-  p.intro(pc.bgCyan(pc.black(' dtf clean ')))
+  p.intro(banner('clean'))
 
   const removed: string[] = []
   const tokensDir = config.tokens?.dir ?? 'tokens'

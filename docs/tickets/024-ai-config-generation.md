@@ -16,10 +16,10 @@ An AI assistant can handle these edge cases by understanding intent from a descr
 
 ## Acceptance Criteria
 
-- [ ] `dtf ai` subcommand (or `dtf init --ai`)
+- [ ] `dta ai` subcommand (or `dta init --ai`)
 - [ ] Sends the Figma file analysis (collection names, mode names, alias ratios, sample token names) to a Claude API call
 - [ ] User can describe their needs in natural language: "I need iOS output with a ThemeManager class, and the brand should be selectable at runtime"
-- [ ] AI returns: a complete `dtf.config.ts`, any needed custom transforms, any needed custom formatters
+- [ ] AI returns: a complete `dta.config.ts`, any needed custom transforms, any needed custom formatters
 - [ ] Output is shown to the user for review before writing to disk
 - [ ] `ANTHROPIC_API_KEY` environment variable required; graceful error if absent
 - [ ] The prompt engineering is well-documented so it can be improved iteratively
@@ -34,8 +34,8 @@ import Anthropic from '@anthropic-ai/sdk'
 const client = new Anthropic()
 
 async function generateConfig(analysis: CollectionAnalysis[], userDescription: string) {
-  const systemPrompt = `You are an expert in design systems and the design-token-farm CLI tool.
-Given a Figma file structure analysis and a user's requirements, generate a valid dtf.config.ts file.
+  const systemPrompt = `You are an expert in design systems and the design-token-authority CLI tool.
+Given a Figma file structure analysis and a user's requirements, generate a valid dta.config.ts file.
 Include any custom Style Dictionary transforms or formatters if the standard ones are insufficient.
 Return only valid TypeScript code with no explanation.`
 

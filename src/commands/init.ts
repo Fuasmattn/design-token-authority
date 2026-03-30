@@ -1,5 +1,5 @@
 /**
- * TICKET-015: `dtf init` wizard.
+ * TICKET-015: `dta init` wizard.
  *
  * Interactive setup that:
  *  1. Asks for Figma file key/URL + personal access token
@@ -8,7 +8,7 @@
  *  4. Confirms detected layer roles
  *  5. Confirms detected brand names
  *  6. Selects desired output targets
- *  7. Writes dtf.config.ts + .env.example
+ *  7. Writes dta.config.ts + .env.example
  *
  * Uses @clack/prompts for a polished CLI experience.
  */
@@ -18,6 +18,7 @@ import * as path from 'path'
 import * as p from '@clack/prompts'
 import pc from 'picocolors'
 import { exec } from 'child_process'
+import { banner } from '../theme.js'
 import FigmaApi from '../figma_api.js'
 import { analyzeCollections, formatAnalysisReport, AnalysisResult } from '../analyze.js'
 import { detectFormat, convertTokenHausExport } from '../importers/index.js'
@@ -64,7 +65,7 @@ export interface ConfigData {
 export function generateConfigContent(data: ConfigData): string {
   const lines: string[] = []
 
-  lines.push("import { defineConfig } from 'design-token-farm'")
+  lines.push("import { defineConfig } from 'design-token-authority'")
   lines.push('')
   lines.push('export default defineConfig({')
   lines.push('  figma: {')
@@ -162,23 +163,77 @@ const OUTPUT_OPTIONS: { value: string; label: string }[] = [
 ]
 
 // ---------------------------------------------------------------------------
-// ASCII logo
+// ASCII logo + background token animation
 // ---------------------------------------------------------------------------
 
-function printLogo(): void {
-  const g = pc.green
-  const y = pc.yellow
-  const c = pc.cyan
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/** Terminal title escape: \x1b]0;...\x07 sets the tab/window title */
+const TITLE_FRAMES = [
+  'dta init \u25c6 \u25cf \u25aa',
+  'dta init \u25aa \u25c6 \u25cf',
+  'dta init \u25cf \u25aa \u25c6',
+]
+
+let titleInterval: ReturnType<typeof setInterval> | null = null
+let titleFrame = 0
+
+function startTitleAnimation(): void {
+  titleFrame = 0
+  titleInterval = setInterval(() => {
+    const frame = TITLE_FRAMES[titleFrame % TITLE_FRAMES.length]
+    process.stdout.write(`\x1b]0;${frame}\x07`)
+    titleFrame++
+  }, 400)
+}
+
+function stopTitleAnimation(): void {
+  if (titleInterval) {
+    clearInterval(titleInterval)
+    titleInterval = null
+    // Reset terminal title
+    process.stdout.write('\x1b]0;\x07')
+  }
+}
+
+async function printLogo(): Promise<void> {
   const d = pc.dim
+  const tokenFrames = [
+    [pc.magenta('\u25c6'), pc.cyan('\u25cf'), pc.yellow('\u25aa')],
+    [pc.yellow('\u25aa'), pc.magenta('\u25c6'), pc.cyan('\u25cf')],
+    [pc.cyan('\u25cf'), pc.yellow('\u25aa'), pc.magenta('\u25c6')],
+  ]
+
+  const top = `          ${d('\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510')}`
+  const bot = `   ${d('/|\\')}    ${d('\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518')}   ${d('Sync Figma variables to code, and back.')}`
+  const feet = `   ${d('\u2575 \u2575')}`
 
   console.log('')
-  console.log(`   ${g('{')}${y('\u00b7')}${g('}')}      ${c('Design Token Farm')}`)
-  console.log(`  ${g('{')} ${y('\u25c8')} ${g('}')}     ${d('~~~~~~~~~~~~~~~~~~~~')}`)
-  console.log(`   ${g('{')}${y('\u00b7')}${g('}')}      ${d('Sync Figma variables')}`)
-  console.log(`    ${g('|')}       ${d('to code, and back.')}`)
-  console.log(`   ${g('_|_')}`)
-  console.log(`  ${g('|___|')}`)
+  console.log(top)
+
+  // Animate token rotation in the logo
+  for (let frame = 0; frame < 6; frame++) {
+    const tokens = tokenFrames[frame % tokenFrames.length]
+    const mid =
+      `  ${pc.cyan('[')}\u2022\u203f\u2022${pc.cyan(']')} ${d('\u2500\u2500\u2524')} ${tokens[0]}  ${tokens[1]}  ${tokens[2]} ${d('\u2502')}   ${pc.cyan('Design Token Authority')}`
+    process.stdout.write(`\r${mid}`)
+    await sleep(200)
+  }
+
+  // Final frame
+  const tokens = tokenFrames[0]
+  const mid =
+    `  ${pc.cyan('[')}\u2022\u203f\u2022${pc.cyan(']')} ${d('\u2500\u2500\u2524')} ${tokens[0]}  ${tokens[1]}  ${tokens[2]} ${d('\u2502')}   ${pc.cyan('Design Token Authority')}`
+  process.stdout.write(`\r${mid}\n`)
+
+  console.log(bot)
+  console.log(feet)
   console.log('')
+
+  // Start background animation in terminal title
+  startTitleAnimation()
 }
 
 // ---------------------------------------------------------------------------
@@ -187,6 +242,7 @@ function printLogo(): void {
 
 function exitIfCancelled<T>(value: T | symbol): T {
   if (p.isCancel(value)) {
+    stopTitleAnimation()
     p.cancel('Setup cancelled.')
     process.exit(0)
   }
@@ -198,7 +254,7 @@ function exitIfCancelled<T>(value: T | symbol): T {
 // ---------------------------------------------------------------------------
 
 export async function runInit(_options: InitOptions): Promise<void> {
-  const configPath = path.resolve('dtf.config.ts')
+  const configPath = path.resolve('dta.config.ts')
 
   if (fs.existsSync(configPath)) {
     p.log.error(`Config file already exists: ${pc.dim(configPath)}`)
@@ -206,11 +262,11 @@ export async function runInit(_options: InitOptions): Promise<void> {
     process.exit(2)
   }
 
-  printLogo()
-  p.intro(pc.bgCyan(pc.black(' dtf init ')))
+  await printLogo()
+  p.intro(banner('init'))
 
   p.log.message(
-    `This wizard will connect to your Figma file, auto-detect your\nvariable structure, and generate a ${pc.bold('dtf.config.ts')} for your project.`,
+    `This wizard will connect to your Figma file, auto-detect your\nvariable structure, and generate a ${pc.bold('dta.config.ts')} for your project.`,
   )
 
   // ---- Step 0: Figma plan type ----
@@ -510,13 +566,13 @@ export async function runInit(_options: InitOptions): Promise<void> {
   p.log.step(pc.bold('Output targets'))
   p.log.message(
     pc.dim(
-      'Select the formats you want dtf to generate.\nYou can change these later in dtf.config.ts.',
+      'Select the formats you want dta to generate.\nYou can change these later in dta.config.ts.',
     ),
   )
 
   const selectedOutputs = exitIfCancelled(
     await p.multiselect({
-      message: 'Which formats should dtf generate?',
+      message: 'Which formats should dta generate?',
       options: OUTPUT_OPTIONS,
       required: false,
     }),
@@ -535,7 +591,7 @@ export async function runInit(_options: InitOptions): Promise<void> {
   })
 
   fs.writeFileSync(configPath, configContent, 'utf-8')
-  p.log.success(`Created ${pc.bold('dtf.config.ts')}`)
+  p.log.success(`Created ${pc.bold('dta.config.ts')}`)
 
   if (isEnterprise) {
     // Write .env.example if not present
@@ -577,10 +633,10 @@ export async function runInit(_options: InitOptions): Promise<void> {
   // ---- Post-setup: run pull + build ----
 
   const pullCmd = isEnterprise
-    ? pc.cyan('dtf pull')
+    ? pc.cyan('dta pull')
     : importFilePath
-      ? pc.cyan(`dtf pull --from-file ${importFilePath}`)
-      : pc.cyan('dtf pull --from-file <exported.json>')
+      ? pc.cyan(`dta pull --from-file ${importFilePath}`)
+      : pc.cyan('dta pull --from-file <exported.json>')
 
   const canRunPull = isEnterprise || !!importFilePath
   let pullSucceeded = false
@@ -609,7 +665,7 @@ export async function runInit(_options: InitOptions): Promise<void> {
   } else {
     p.note(
       `Export variables from Figma using ${pc.bold('tokenHaus')} or another DTCG-compatible plugin,\n` +
-        `then run ${pc.cyan('dtf pull --from-file <exported.json>')} to import tokens.`,
+        `then run ${pc.cyan('dta pull --from-file <exported.json>')} to import tokens.`,
       'Next step',
     )
   }
@@ -617,7 +673,7 @@ export async function runInit(_options: InitOptions): Promise<void> {
   if (pullSucceeded) {
     const shouldBuild = exitIfCancelled(
       await p.confirm({
-        message: `Run ${pc.cyan('dtf build')} now?`,
+        message: `Run ${pc.cyan('dta build')} now?`,
         initialValue: true,
       }),
     )
@@ -656,5 +712,6 @@ export async function runInit(_options: InitOptions): Promise<void> {
     }
   }
 
+  stopTitleAnimation()
   p.outro("You're all set!")
 }

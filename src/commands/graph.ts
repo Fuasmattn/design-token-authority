@@ -1,5 +1,5 @@
 /**
- * TICKET-017: `dtf graph` command.
+ * TICKET-017: `dta graph` command.
  *
  * Builds and visualizes the token alias dependency graph.
  * Detects circular references, dangling aliases, and orphaned tokens.
@@ -16,6 +16,7 @@ import * as path from 'path'
 import * as p from '@clack/prompts'
 import pc from 'picocolors'
 import { Config } from '../config/index.js'
+import { banner, cmd, filePath } from '../theme.js'
 import {
   readTokenFilesForGraph,
   buildGraph,
@@ -36,14 +37,14 @@ export async function runGraph(config: Config, options: GraphOptions): Promise<v
   const tokensDir = config.tokens?.dir ?? 'tokens'
   const format = options.format ?? 'console'
 
-  p.intro(pc.bgCyan(pc.black(' dtf graph ')))
+  p.intro(banner('graph'))
 
   // Validate tokens dir exists
   if (!fs.existsSync(tokensDir)) {
     p.log.error(
       `Tokens directory "${tokensDir}" not found.\n` +
         pc.dim('Run ') +
-        pc.cyan('dtf pull') +
+        cmd('pull') +
         pc.dim(' to export tokens from Figma first.'),
     )
     process.exit(1)
@@ -89,7 +90,7 @@ export async function runGraph(config: Config, options: GraphOptions): Promise<v
       const dot = formatDotGraph(graph)
       if (options.output) {
         fs.writeFileSync(options.output, dot, 'utf-8')
-        p.log.success(`DOT file written to ${pc.cyan(options.output)}`)
+        p.log.success(`DOT file written to ${filePath(options.output)}`)
       } else {
         console.log(dot)
       }
@@ -100,7 +101,7 @@ export async function runGraph(config: Config, options: GraphOptions): Promise<v
       const md = formatMarkdownReport(graph, stats)
       if (options.output) {
         fs.writeFileSync(options.output, md, 'utf-8')
-        p.log.success(`Markdown report written to ${pc.cyan(options.output)}`)
+        p.log.success(`Markdown report written to ${filePath(options.output)}`)
       } else {
         console.log('\n' + md)
       }
@@ -111,7 +112,7 @@ export async function runGraph(config: Config, options: GraphOptions): Promise<v
       const html = generateHtmlVisualization(graph, stats)
       const outFile = options.output ?? path.join(tokensDir, '..', 'token-graph.html')
       fs.writeFileSync(outFile, html, 'utf-8')
-      p.log.success(`HTML visualization written to ${pc.cyan(outFile)}`)
+      p.log.success(`HTML visualization written to ${filePath(outFile)}`)
 
       // Try to open in browser
       const { exec } = await import('child_process')

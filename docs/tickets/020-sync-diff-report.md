@@ -14,7 +14,7 @@ The existing `sync_tokens_to_figma.ts` already logs changes (new collections, mo
 
 ## Acceptance Criteria
 
-- [ ] `dtf push --dry-run` outputs a full diff without making any API calls
+- [ ] `dta push --dry-run` outputs a full diff without making any API calls
 - [ ] Diff categorizes changes: Added / Removed (if deletion is later supported) / Modified / Unchanged
 - [ ] Per-variable diff shows: token path, old value → new value, which collection and mode
 - [ ] Summary counts at the top: `+12 added, ~5 modified, 0 removed`

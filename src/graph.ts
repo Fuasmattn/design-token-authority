@@ -583,7 +583,7 @@ export function generateHtmlVisualization(graph: TokenGraph, stats: GraphStats):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Token Dependency Graph — Design Token Farm</title>
+<title>Token Dependency Graph — Design Token Authority</title>
 <style>
   :root {
     --bg: #1a1a2e;
@@ -1065,7 +1065,7 @@ export function generateHtmlVisualization(graph: TokenGraph, stats: GraphStats):
 <body>
 
 <div class="header">
-  <span class="logo">{·} dtf</span>
+  <span class="logo">{·} dta</span>
   <h1>Token Dependency Graph</h1>
 </div>
 

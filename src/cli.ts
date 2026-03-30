@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * TICKET-007: CLI entrypoint for design-token-farm (alias: dtf).
+ * TICKET-007: CLI entrypoint for design-token-authority (alias: dta).
  *
  * Subcommands: pull, push, build, init, analyze
  * Global flags: --config, --verbose
  */
 
 import 'dotenv/config'
+import pc from 'picocolors'
 import { Command } from 'commander'
 import { loadConfig, ConfigValidationError } from './config/index.js'
 import { runPull } from './commands/pull.js'
@@ -18,20 +19,8 @@ import { runAnalyze } from './commands/analyze.js'
 import { runGraph } from './commands/graph.js'
 import { runClean } from './commands/clean.js'
 import { runLint } from './commands/lint.js'
-import { brightRed } from './utils.js'
-
-// ---------------------------------------------------------------------------
-// ASCII logo
-// ---------------------------------------------------------------------------
-
-const LOGO = `
-   {\u00b7}      Design Token Farm
-  { \u25c8 }     ~~~~~~~~~~~~~~~~~~~~
-   {\u00b7}      Sync Figma variables
-    |       to code, and back.
-   _|_
-  |___|
-`
+import { runTestVisual } from './commands/test-visual.js'
+import { logo } from './theme.js'
 
 // ---------------------------------------------------------------------------
 // Error handling
@@ -39,16 +28,16 @@ const LOGO = `
 
 function handleError(err: unknown): never {
   if (err instanceof ConfigValidationError) {
-    console.error(brightRed(`\nValidation error: ${err.message}`))
+    console.error(pc.red(`\nValidation error: ${err.message}`))
     process.exit(2)
   }
   if (err instanceof Error) {
-    console.error(brightRed(`\nError: ${err.message}`))
+    console.error(pc.red(`\nError: ${err.message}`))
     if (process.env.DEBUG) {
       console.error(err.stack)
     }
   } else {
-    console.error(brightRed(`\nUnexpected error: ${err}`))
+    console.error(pc.red(`\nUnexpected error: ${err}`))
   }
   process.exit(1)
 }
@@ -60,10 +49,10 @@ function handleError(err: unknown): never {
 const program = new Command()
 
 program
-  .name('design-token-farm')
-  .description('Design Token Farm — sync Figma variables to code, and back.')
+  .name('design-token-authority')
+  .description('Design Token Authority — sync Figma variables to code, and back.')
   .version('0.1.0')
-  .addHelpText('before', LOGO)
+  .addHelpText('before', logo())
 
 // ---- pull ----
 
@@ -197,11 +186,26 @@ program
     }
   })
 
+// ---- test:visual ----
+
+program
+  .command('test:visual')
+  .description('Run visual regression tests against build output')
+  .option('--update-baseline', 'Update baseline screenshots after intentional changes')
+  .option('-v, --verbose', 'Enable verbose logging')
+  .action(async (opts) => {
+    try {
+      await runTestVisual({ updateBaseline: opts.updateBaseline, verbose: opts.verbose })
+    } catch (err) {
+      handleError(err)
+    }
+  })
+
 // ---- init ----
 
 program
   .command('init')
-  .description('Create a new dtf.config.ts in the current directory')
+  .description('Create a new dta.config.ts in the current directory')
   .option('-v, --verbose', 'Enable verbose logging')
   .action(async (opts) => {
     try {

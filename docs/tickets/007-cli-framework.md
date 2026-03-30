@@ -6,7 +6,7 @@
 
 ## Summary
 
-Replace bare `npm run` scripts with a proper CLI (`dtf`) that exposes named subcommands, help text, and flags. This is the prerequisite for the tool to be usable by other projects without forking.
+Replace bare `npm run` scripts with a proper CLI (`dta`) that exposes named subcommands, help text, and flags. This is the prerequisite for the tool to be usable by other projects without forking.
 
 ## Background
 
@@ -63,7 +63,7 @@ runMain(main)
 
 ```json
 {
-  "bin": { "dtf": "./dist/cli.js" }
+  "bin": { "dta": "./dist/cli.js" }
 }
 ```
 
@@ -81,11 +81,11 @@ runMain(main)
   instead of `citty`. `citty` could not be installed (npm registry unavailable).
   Commander is well-maintained, supports subcommands, auto-generated help, and all
   the flags specified in the acceptance criteria.
-- CLI entrypoint: `src/cli.ts`. During dev, run via `npm run dtf -- <command>`.
+- CLI entrypoint: `src/cli.ts`. During dev, run via `npm run dta -- <command>`.
   The `bin` field in `package.json` points to `./dist/cli.js` for distribution via npx.
 - **ASCII logo:** A simple farmhouse ASCII art is shown in `--help` output,
-  matching the "Design Token Farm" project name. The exact design can be refined later.
-- **`init` is a stub:** Writes a template `dtf.config.ts`. Full wizard
+  matching the "Design Token Authority" project name. The exact design can be refined later.
+- **`init` is a stub:** Writes a template `dta.config.ts`. Full wizard
   implementation is deferred to TICKET-015.
 - **`build` command:** Inlines the Style Dictionary transform registrations from
   `style-dictionary.config.ts` and reads token source / output dirs from config.

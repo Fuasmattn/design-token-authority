@@ -6,7 +6,7 @@
 
 ## Summary
 
-Add a `dtf docs` command that generates a static HTML documentation site from the token files, providing a visual reference for designers and developers. The site shows all tokens, their values, alias chains, and usage examples.
+Add a `dta docs` command that generates a static HTML documentation site from the token files, providing a visual reference for designers and developers. The site shows all tokens, their values, alias chains, and usage examples.
 
 ## Background
 
@@ -14,7 +14,7 @@ Design token documentation is a common pain point: tokens live in JSON files or 
 
 ## Acceptance Criteria
 
-- [ ] `dtf docs` generates a static site to `build/docs/` (configurable)
+- [ ] `dta docs` generates a static site to `build/docs/` (configurable)
 - [ ] Site sections:
   - **Color palette** — all color tokens rendered as swatches with hex value, token name, and alias chain
   - **Typography** — font size, weight, line height tokens with live text previews
@@ -51,7 +51,7 @@ Design token documentation is a common pain point: tokens live in JSON files or 
 
 **GitHub Pages deployment:**
 
-Add a workflow that runs `dtf docs` and pushes to `gh-pages` branch on every merge to main that changes token files.
+Add a workflow that runs `dta docs` and pushes to `gh-pages` branch on every merge to main that changes token files.
 
 ## Dependencies
 

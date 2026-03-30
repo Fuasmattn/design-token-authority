@@ -1,4 +1,4 @@
-# design-token-farm — Ticket Index
+# design-token-authority — Ticket Index
 
 This index lists all feature tickets for turning this project into a whitelabel design token tool.
 Tickets are grouped by phase and ordered by recommended implementation sequence.
@@ -55,7 +55,7 @@ Make the tool understand and auto-discover Figma variable structure.
 | # | Ticket | Priority | Effort | Status |
 |---|---|---|---|---|
 | [014](./014-figma-structure-autodiscovery.md) | Figma collection structure autodiscovery | High | L | **Done** |
-| [015](./015-init-wizard.md) | `dtf init` onboarding wizard | High | M | **Done** |
+| [015](./015-init-wizard.md) | `dta init` onboarding wizard | High | M | **Done** |
 | [016](./016-multi-brand-composition.md) | Multi-brand token composition model | Medium | L | **Done** |
 | [017](./017-token-dependency-graph.md) | Token alias dependency graph | Low | M | **Done** |
 
@@ -70,7 +70,7 @@ Plausibility checks, linting, and guardrails.
 | [018](./018-token-linter.md) | Token linter with configurable rules | High | L | **Done** |
 | [019](./019-naming-convention-enforcement.md) | Naming convention rules (extends linter) | Medium | S | Open |
 | [020](./020-sync-diff-report.md) | Human-readable diff report on push/sync | Medium | S | **Done** |
-| [021](./021-deletion-safety-prune.md) | `dtf prune` for orphaned variables | Low | M | Open |
+| [021](./021-deletion-safety-prune.md) | `dta prune` for orphaned variables | Low | M | Open |
 
 **018 first; 019 is an extension of 018. 020 and 021 are independent.**
 
@@ -83,7 +83,7 @@ Token visibility for designers and developers.
 | # | Ticket | Priority | Effort | Status |
 |---|---|---|---|---|
 | [022](./022-token-docs-site.md) | Static token documentation site generator | Medium | L | **Done** |
-| [023](./023-visual-regression-testing.md) | Visual regression testing with Playwright | Low | L | Open |
+| [023](./023-visual-regression-testing.md) | Visual regression testing with Playwright | Low | L | **Done** |
 | [024](./024-ai-config-generation.md) | AI-assisted config generation (Claude API) | Low | L | Open |
 
 ---

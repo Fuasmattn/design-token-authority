@@ -2,18 +2,18 @@
 
 ## What was built
 
-### `dtf graph` command
+### `dta graph` command
 
 New CLI command that reads all token JSON files, builds a directed dependency graph of alias references, and outputs diagnostics + visualizations.
 
 **Usage:**
 
 ```bash
-dtf graph                           # Console summary (default)
-dtf graph --format dot              # Graphviz DOT format (pipe to `dot -Tsvg`)
-dtf graph --format markdown         # Markdown report table
-dtf graph --format html             # Interactive browser visualization
-dtf graph --format dot -o graph.dot # Write to file instead of stdout
+dta graph                           # Console summary (default)
+dta graph --format dot              # Graphviz DOT format (pipe to `dot -Tsvg`)
+dta graph --format markdown         # Markdown report table
+dta graph --format html             # Interactive browser visualization
+dta graph --format dot -o graph.dot # Write to file instead of stdout
 ```
 
 ### Files added
@@ -75,7 +75,7 @@ Running against the project's actual Figma export (7 files, 1,537 tokens):
 
 ### For designers working in Figma
 
-- **Use `dtf graph` before publishing** to catch dangling aliases early. If you rename a primitive in Figma but forget to update the alias, the graph will flag it as a dangling reference.
+- **Use `dta graph` before publishing** to catch dangling aliases early. If you rename a primitive in Figma but forget to update the alias, the graph will flag it as a dangling reference.
 
 - **Check the orphaned tokens list** periodically. If a primitive is never referenced, it might be safe to remove — or it might be intended for future use. The graph gives you visibility.
 
@@ -85,10 +85,10 @@ Running against the project's actual Figma export (7 files, 1,537 tokens):
 
 - **The DOT output integrates with Graphviz** and CI. You can generate SVG diagrams automatically:
   ```bash
-  dtf graph --format dot | dot -Tsvg > token-deps.svg
+  dta graph --format dot | dot -Tsvg > token-deps.svg
   ```
 
-- **The markdown output works in PRs.** On a `dtf pull` workflow, generate the markdown report and post it as a PR comment to review token changes in context.
+- **The markdown output works in PRs.** On a `dta pull` workflow, generate the markdown report and post it as a PR comment to review token changes in context.
 
 - **The HTML visualization is self-contained** (single file, no dependencies). Drop it into a docs site or share with the team for interactive exploration.
 

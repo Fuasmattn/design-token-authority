@@ -1,5 +1,5 @@
 /**
- * TICKET-007: `dtf pull` command.
+ * TICKET-007: `dta pull` command.
  *
  * Exports variables from Figma to local JSON token files.
  * Supports two sources:
@@ -12,6 +12,7 @@ import * as path from 'path'
 import * as p from '@clack/prompts'
 import pc from 'picocolors'
 import { Config } from '../config/index.js'
+import { banner, filePath, count } from '../theme.js'
 import FigmaApi from '../figma_api.js'
 import { tokenFilesFromLocalVariables } from '../token_export.js'
 import { detectFormat, convertTokenHausExport } from '../importers/index.js'
@@ -26,7 +27,7 @@ export interface PullOptions {
 export async function runPull(config: Config, options: PullOptions): Promise<void> {
   const outputDir = options.output ?? config.tokens?.dir ?? 'tokens'
 
-  p.intro(pc.bgCyan(pc.black(' dtf pull ')))
+  p.intro(banner('pull'))
 
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true })
@@ -40,7 +41,7 @@ export async function runPull(config: Config, options: PullOptions): Promise<voi
     await pullFromApi(config, outputDir, stripEmojis, options)
   }
 
-  p.outro(`Tokens written to ${pc.cyan(outputDir + '/')}`)
+  p.outro(`Tokens written to ${filePath(outputDir + '/')}`)
 }
 
 // ---------------------------------------------------------------------------
@@ -57,7 +58,7 @@ async function pullFromApi(
     p.log.error(
       'Figma API credentials are required for API-based pull.\n' +
         pc.dim(
-          'Set figma.fileKey and figma.personalAccessToken in dtf.config.ts,\n' +
+          'Set figma.fileKey and figma.personalAccessToken in dta.config.ts,\n' +
             'or use --from-file to import from a plugin-exported JSON file.',
         ),
     )
@@ -76,7 +77,7 @@ async function pullFromApi(
   const tokensFiles = tokenFilesFromLocalVariables(localVariables)
 
   const fileCount = Object.keys(tokensFiles).length
-  s.stop(`Received ${fileCount} token file${fileCount !== 1 ? 's' : ''} from Figma`)
+  s.stop(`Received ${count(fileCount, 'token file')} from Figma`)
 
   writeTokenFiles(tokensFiles, outputDir, stripEmojis)
 }
@@ -129,7 +130,7 @@ async function pullFromFile(
   if (format === 'tokenhaus') {
     const tokensFiles = convertTokenHausExport(data)
     const fileCount = Object.keys(tokensFiles).length
-    s.stop(`Converted tokenHaus export into ${fileCount} token file${fileCount !== 1 ? 's' : ''}`)
+    s.stop(`Converted tokenHaus export into ${count(fileCount, 'token file')}`)
     writeTokenFiles(tokensFiles, outputDir, stripEmojis)
   } else {
     // dtcg-per-mode: copy file as-is using the original filename

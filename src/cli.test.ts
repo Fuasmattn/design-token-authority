@@ -24,7 +24,7 @@ describe('CLI', () => {
   it('prints help with --help', () => {
     const result = run('--help')
     expect(result.exitCode).toBe(0)
-    expect(result.stdout).toContain('Design Token Farm')
+    expect(result.stdout).toContain('Design Token Authority')
     expect(result.stdout).toContain('pull')
     expect(result.stdout).toContain('push')
     expect(result.stdout).toContain('build')

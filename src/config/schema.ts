@@ -1,7 +1,7 @@
 /**
  * TICKET-008: Project configuration schema.
  *
- * Defines the shape and validation logic for dtf.config.ts files.
+ * Defines the shape and validation logic for dta.config.ts files.
  *
  * NOTE: The ticket specifies Zod for validation, but it could not be installed
  * as a dependency at the time of implementation (registry unavailable).
@@ -34,11 +34,16 @@ export interface OutputTargetAndroid {
   lang?: 'xml' | 'compose'
 }
 
+export interface OutputTargetDocs {
+  outDir: string
+}
+
 export interface OutputTargets {
   css?: OutputTargetCSS
   tailwind?: OutputTargetTailwind
   ios?: OutputTargetIOS
   android?: OutputTargetAndroid
+  docs?: OutputTargetDocs
 }
 
 // ---------------------------------------------------------------------------
@@ -279,6 +284,13 @@ export function validateConfig(raw: unknown): Config {
       outputs.android = {
         outDir: requireString(androidRaw.outDir, 'outputs.android.outDir'),
         lang,
+      }
+    }
+
+    if (outputsRaw.docs !== undefined) {
+      const docsRaw = requireObject(outputsRaw.docs, 'outputs.docs')
+      outputs.docs = {
+        outDir: requireString(docsRaw.outDir, 'outputs.docs.outDir'),
       }
     }
   }

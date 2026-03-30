@@ -1,5 +1,5 @@
 {
-  "name": "design-token-farm",
+  "name": "design-token-authority",
   "version": "0.1.0",
   "description": "Bi-directional sync between Figma Variables and design token JSON files, with multi-target output (CSS, Tailwind, iOS, Android)",
   "license": "MIT",
@@ -18,20 +18,22 @@
     ".": "./dist/config/index.js"
   },
   "bin": {
-    "design-token-farm": "./dist/cli.js",
-    "dtf": "./dist/cli.js"
+    "design-token-authority": "./dist/cli.js",
+    "dta": "./dist/cli.js"
   },
   "files": [
     "dist"
   ],
   "scripts": {
     "prettier:check": "prettier --check src/",
-    "dtf": "tsx src/cli.ts",
+    "dta": "tsx src/cli.ts",
     "sync-tokens-to-figma": "tsx src/sync_tokens_to_figma.ts",
     "sync-figma-to-tokens": "tsx src/sync_figma_to_tokens.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:visual": "npx playwright test --config test/visual/playwright.config.ts",
+    "test:visual:update": "npx playwright test --config test/visual/playwright.config.ts --update-snapshots",
     "build": "tsx style-dictionary.config.ts",
     "build:cli": "tsc && chmod +x dist/cli.js",
     "prepare": "npm run build:cli"
@@ -39,15 +41,16 @@
   "dependencies": {
     "@clack/prompts": "^1.1.0",
     "axios": "^1.12.0",
-    "picocolors": "^1.1.0",
     "commander": "^12.1.0",
     "dotenv": "^16.3.1",
+    "picocolors": "^1.1.0",
     "style-dictionary": "^4.4.0",
     "tsx": "^4.19.3",
     "typescript": "^5.1.6"
   },
   "devDependencies": {
     "@figma/rest-api-spec": "^0.10.0",
+    "@playwright/test": "^1.58.2",
     "@types/node": "^20.19.37",
     "@vitest/coverage-v8": "^4.1.0",
     "prettier": "^3.8.1",

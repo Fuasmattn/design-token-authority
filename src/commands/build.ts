@@ -1,5 +1,5 @@
 /**
- * TICKET-007 / TICKET-026: `dtf build` command.
+ * TICKET-007 / TICKET-026: `dta build` command.
  *
  * Runs the Style Dictionary build pipeline to generate output targets
  * (CSS, JS, Tailwind, etc.) from local token JSON files.
@@ -21,6 +21,7 @@ import path from 'node:path'
 import * as p from '@clack/prompts'
 import pc from 'picocolors'
 import { Config } from '../config/index.js'
+import { banner } from '../theme.js'
 
 export interface BuildOptions {
   verbose?: boolean
@@ -54,8 +55,11 @@ export async function runBuild(config: Config, options: BuildOptions): Promise<v
   const twBuildPath = config.outputs?.tailwind?.outDir
     ? `${config.outputs.tailwind.outDir}/`
     : 'output/tailwind/'
+  const docsBuildPath = config.outputs?.docs?.outDir
+    ? `${config.outputs.docs.outDir}/`
+    : 'output/docs/'
 
-  p.intro(pc.bgCyan(pc.black(' dtf build ')))
+  p.intro(banner('build'))
 
   // Discover collections from token files
   const allCollections = discoverCollections(tokensDir)
@@ -391,14 +395,13 @@ export async function runBuild(config: Config, options: BuildOptions): Promise<v
   // Phase D — Token documentation HTML
   s.start('Generating token docs...')
   const { generateDocsHtml } = await import('../formatters/docs-html.js')
-  const docsPath = 'output/docs/'
-  fs.mkdirSync(docsPath, { recursive: true })
+  fs.mkdirSync(docsBuildPath, { recursive: true })
   const docsHtml = generateDocsHtml(tokensDir, brands)
-  fs.writeFileSync(path.join(docsPath, 'index.html'), docsHtml, 'utf-8')
-  generatedFiles.push(`${docsPath}index.html`)
+  fs.writeFileSync(path.join(docsBuildPath, 'index.html'), docsHtml, 'utf-8')
+  generatedFiles.push(`${docsBuildPath}index.html`)
   s.stop('Token docs complete')
 
   p.note(generatedFiles.map((t) => pc.dim(t)).join('\n'), 'Generated files')
 
-  p.outro('Build complete!')
+  p.outro(pc.green('Build complete!'))
 }

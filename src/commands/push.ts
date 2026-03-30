@@ -1,5 +1,5 @@
 /**
- * TICKET-007 / TICKET-020: `dtf push` command.
+ * TICKET-007 / TICKET-020: `dta push` command.
  *
  * Pushes local token JSON files to Figma via the Variables API.
  * Produces a structured diff report in console, markdown, or JSON format.
@@ -9,6 +9,7 @@ import * as fs from 'fs'
 import * as p from '@clack/prompts'
 import pc from 'picocolors'
 import { Config } from '../config/index.js'
+import { banner, cmd, filePath } from '../theme.js'
 import FigmaApi from '../figma_api.js'
 import { lintTokens } from '../linter.js'
 import { generatePostVariablesPayload, readJsonFiles } from '../token_import.js'
@@ -246,11 +247,11 @@ export async function runPush(config: Config, options: PushOptions): Promise<voi
   const tokensDir = config.tokens?.dir ?? 'tokens'
   const format: DiffFormat = options.format ?? 'console'
 
-  p.intro(pc.bgCyan(pc.black(' dtf push ')))
+  p.intro(banner('push'))
 
   if (!fs.existsSync(tokensDir)) {
     p.log.error(`Tokens directory not found: ${pc.dim(tokensDir)}`)
-    p.log.info(`Run ${pc.cyan('dtf pull')} first to export tokens from Figma.`)
+    p.log.info(`Run ${cmd('pull')} first to export tokens from Figma.`)
     process.exit(2)
   }
 
@@ -260,7 +261,7 @@ export async function runPush(config: Config, options: PushOptions): Promise<voi
     .map((file: string) => `${tokensDir}/${file}`)
 
   if (tokensFiles.length === 0) {
-    p.log.error(`No token files found in ${pc.dim(tokensDir + '/')}`)
+    p.log.error(`No token files found in ${filePath(tokensDir + '/')}`)
     process.exit(2)
   }
 

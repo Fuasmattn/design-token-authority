@@ -3,6 +3,9 @@ settings.local.json
 .env
 tokens
 output
+build
 dist
 token-graph.html
-dtf.config.ts
+dta.config.ts
+test/visual/report
+test/visual/test-results

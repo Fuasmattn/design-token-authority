@@ -1,5 +1,5 @@
 /**
- * TICKET-014: `dtf analyze` command.
+ * TICKET-014: `dta analyze` command.
  *
  * Fetches variable collections from Figma and runs structure autodiscovery.
  * Outputs a table of inferred layer roles and a suggested config block.
@@ -8,6 +8,7 @@
 import * as p from '@clack/prompts'
 import pc from 'picocolors'
 import { Config } from '../config/index.js'
+import { banner, count } from '../theme.js'
 import FigmaApi from '../figma_api.js'
 import { analyzeCollections, formatAnalysisReport } from '../analyze.js'
 
@@ -16,7 +17,7 @@ export interface AnalyzeOptions {
 }
 
 export async function runAnalyze(config: Config, options: AnalyzeOptions): Promise<void> {
-  p.intro(pc.bgCyan(pc.black(' dtf analyze ')))
+  p.intro(banner('analyze'))
 
   if (options.verbose) {
     p.log.message(`${pc.dim('File:')} ${config.figma.fileKey}`)
@@ -35,10 +36,10 @@ export async function runAnalyze(config: Config, options: AnalyzeOptions): Promi
   const localVariables = await api.getLocalVariables(config.figma.fileKey)
   const result = analyzeCollections(localVariables)
 
-  const count = result.collections.length
-  s.stop(`Found ${count} variable collection${count !== 1 ? 's' : ''}`)
+  const collCount = result.collections.length
+  s.stop(`Found ${count(collCount, 'variable collection')}`)
 
-  if (count === 0) {
+  if (collCount === 0) {
     p.log.warn('No local variable collections found in this file.')
     p.outro('Nothing to analyze.')
     return

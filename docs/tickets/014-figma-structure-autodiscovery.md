@@ -20,7 +20,7 @@ Good heuristics for each layer type:
 
 ## Acceptance Criteria
 
-- [x] New command `dtf analyze` (or part of `dtf init`, see TICKET-015)
+- [x] New command `dta analyze` (or part of `dta init`, see TICKET-015)
 - [x] Fetches all variable collections from the Figma file
 - [x] For each collection, computes:
   - Total variable count
@@ -98,6 +98,6 @@ Suggested layers config:
   name patterns (Desktop/Mobile/Tablet + t-shirt sizes sm/md/lg/xl).
 - Confidence scoring: high for clear signals (>0.9), reduced for small collections
   (<10 vars) or ambiguous alias ratios.
-- `dtf analyze` subcommand added to CLI (`src/commands/analyze.ts`).
+- `dta analyze` subcommand added to CLI (`src/commands/analyze.ts`).
 - 11 test cases in `src/analyze.test.ts` covering all layer roles, edge cases
   (remote collections, empty files, small collections), and report formatting.

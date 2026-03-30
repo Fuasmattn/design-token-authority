@@ -60,7 +60,7 @@ describe('generateConfigContent', () => {
       outputs: [],
     }
     const result = generateConfigContent(data)
-    expect(result).toContain("import { defineConfig } from 'design-token-farm'")
+    expect(result).toContain("import { defineConfig } from 'design-token-authority'")
     expect(result).toContain('export default defineConfig({')
     expect(result).toContain('process.env.FIGMA_FILE_KEY!')
     expect(result).toContain("dir: 'tokens'")

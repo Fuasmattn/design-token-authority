@@ -52,7 +52,7 @@ a short tagline.
 |---|---|
 | `package.json` | `"name"` field |
 | `README.md` | Full replacement (see Step 3) |
-| `CLAUDE.md` | H1 title if it references the old name (currently fine — references `dtf` as the CLI command name, which is intentional) |
+| `CLAUDE.md` | H1 title if it references the old name (currently fine — references `dta` as the CLI command name, which is intentional) |
 
 The GitHub Actions workflow files (`sync-figma-to-tokens.yml`, `sync-tokens-to-figma.yml`,
 `test.yml`) use descriptive `name:` strings that are already correct — no changes needed.
@@ -126,7 +126,7 @@ CLI usage) will be added as the corresponding tickets are implemented.
 ## Acceptance Criteria
 
 - [x] A name has been decided and recorded in this ticket
-  **Chosen name:** `design-token-farm`
+  **Chosen name:** `design-token-authority`
 - [x] `package.json` `name` field updated
 - [x] `README.md` replaced with the minimal version above (adjusted for chosen name)
 - [x] No references to the old name `variables-github-action-example` remain in

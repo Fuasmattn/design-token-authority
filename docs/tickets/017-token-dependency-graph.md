@@ -16,7 +16,7 @@ This is primarily a diagnostic and documentation tool, but also forms the basis 
 
 ## Acceptance Criteria
 
-- [ ] New command: `dtf graph` (or `dtf analyze --graph`)
+- [ ] New command: `dta graph` (or `dta analyze --graph`)
 - [ ] Reads all token files from the configured tokens directory
 - [ ] Builds a directed graph of all alias references
 - [ ] Detects and reports: circular references, dangling aliases (pointing to non-existent tokens), orphaned tokens (defined but never referenced)

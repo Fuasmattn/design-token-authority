@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typography Scale — Visual Regression</title>
+  <link rel="stylesheet" href="../../../build/css/base.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; padding: 24px; }
+    h2 { font-size: 14px; color: #666; margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .type-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+    .type-label { font-size: 12px; color: #999; width: 40px; text-align: right; flex-shrink: 0; }
+    .type-sample { color: var(--colors-grey-800, #262626); white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <h2>Font Size Scale</h2>
+  <div class="type-row"><span class="type-label">xxs</span><span class="type-sample" style="font-size: calc(var(--typography-font-size-text-xxs) * 1px)">The quick brown fox jumps</span></div>
+  <div class="type-row"><span class="type-label">xs</span><span class="type-sample" style="font-size: calc(var(--typography-font-size-text-xs) * 1px)">The quick brown fox jumps</span></div>
+  <div class="type-row"><span class="type-label">sm</span><span class="type-sample" style="font-size: calc(var(--typography-font-size-text-sm) * 1px)">The quick brown fox jumps</span></div>
+  <div class="type-row"><span class="type-label">base</span><span class="type-sample" style="font-size: calc(var(--typography-font-size-text-base) * 1px)">The quick brown fox jumps</span></div>
+  <div class="type-row"><span class="type-label">lg</span><span class="type-sample" style="font-size: calc(var(--typography-font-size-text-lg) * 1px)">The quick brown fox jumps</span></div>
+  <div class="type-row"><span class="type-label">xl</span><span class="type-sample" style="font-size: calc(var(--typography-font-size-text-xl) * 1px)">The quick brown fox jumps</span></div>
+  <div class="type-row"><span class="type-label">2xl</span><span class="type-sample" style="font-size: calc(var(--typography-font-size-text-2xl) * 1px)">The quick brown fox jumps</span></div>
+  <div class="type-row"><span class="type-label">3xl</span><span class="type-sample" style="font-size: calc(var(--typography-font-size-text-3xl) * 1px)">The quick brown fox jumps</span></div>
+  <div class="type-row"><span class="type-label">4xl</span><span class="type-sample" style="font-size: calc(var(--typography-font-size-text-4xl) * 1px)">The quick brown fox jumps</span></div>
+  <div class="type-row"><span class="type-label">5xl</span><span class="type-sample" style="font-size: calc(var(--typography-font-size-text-5xl) * 1px)">The quick brown fox</span></div>
+  <div class="type-row"><span class="type-label">6xl</span><span class="type-sample" style="font-size: calc(var(--typography-font-size-text-6xl) * 1px)">The quick brown</span></div>
+  <div class="type-row"><span class="type-label">7xl</span><span class="type-sample" style="font-size: calc(var(--typography-font-size-text-7xl) * 1px)">The quick brown</span></div>
+</body>
+</html>
