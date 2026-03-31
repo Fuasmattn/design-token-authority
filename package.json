@@ -51,7 +51,7 @@
     "typescript": "^5.1.6"
   },
   "devDependencies": {
-    "@figma/rest-api-spec": "^0.10.0",
+    "@figma/rest-api-spec": "^0.37.0",
     "@playwright/test": "^1.58.2",
     "@release-it/conventional-changelog": "^10.0.6",
     "@types/node": "^20.19.37",
