@@ -43,21 +43,21 @@
   "dependencies": {
     "@clack/prompts": "^1.1.0",
     "axios": "^1.12.0",
-    "commander": "^12.1.0",
-    "dotenv": "^16.3.1",
+    "commander": "^14.0.3",
+    "dotenv": "^17.3.1",
     "picocolors": "^1.1.0",
     "style-dictionary": "^4.4.0",
     "tsx": "^4.19.3",
     "typescript": "^5.1.6"
   },
   "devDependencies": {
-    "@figma/rest-api-spec": "^0.10.0",
+    "@figma/rest-api-spec": "^0.37.0",
     "@playwright/test": "^1.58.2",
     "@release-it/conventional-changelog": "^10.0.6",
     "@types/node": "^20.19.37",
-    "@vitest/coverage-v8": "^4.1.0",
+    "@vitest/coverage-v8": "^4.1.2",
     "prettier": "^3.8.1",
     "release-it": "^19.2.4",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.2"
   }
 }
