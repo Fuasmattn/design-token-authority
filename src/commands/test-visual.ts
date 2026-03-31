@@ -66,7 +66,9 @@ export async function runTestVisual(options: TestVisualOptions): Promise<void> {
     if (!options.verbose && err && typeof err === 'object' && 'stdout' in err) {
       const stdout = (err as { stdout: string }).stdout
       // Extract failure lines
-      const lines = stdout.split('\n').filter((l: string) => l.includes('FAIL') || l.includes('Error'))
+      const lines = stdout
+        .split('\n')
+        .filter((l: string) => l.includes('FAIL') || l.includes('Error'))
       if (lines.length > 0) {
         for (const line of lines.slice(0, 10)) {
           p.log.error(line.trim())

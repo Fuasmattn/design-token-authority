@@ -55,7 +55,11 @@ const PRIMITIVES_TOKEN = {
         $type: 'number',
         $value: 16,
         $extensions: {
-          'com.figma': { hiddenFromPublishing: false, scopes: ['GAP', 'WIDTH_HEIGHT'], codeSyntax: {} },
+          'com.figma': {
+            hiddenFromPublishing: false,
+            scopes: ['GAP', 'WIDTH_HEIGHT'],
+            codeSyntax: {},
+          },
         },
       },
     },
@@ -230,10 +234,7 @@ describe('runBuild', () => {
     writeToken('Brand.BrandA.json', BRAND_A_TOKEN)
     writeToken('Brand.BrandB.json', BRAND_B_TOKEN)
 
-    await runBuild(
-      makeConfig({ brands: ['BrandA', 'BrandB'] }),
-      { verbose: false },
-    )
+    await runBuild(makeConfig({ brands: ['BrandA', 'BrandB'] }), { verbose: false })
 
     // Phase B — brand theme CSS
     const brandACss = fs.readFileSync(`${OUTPUT_DIR}/css/themes/branda.css`, 'utf-8')
@@ -309,10 +310,7 @@ describe('runBuild', () => {
       },
     })
 
-    await runBuild(
-      makeConfig({ collections: ['Primitives'] }),
-      { verbose: false },
-    )
+    await runBuild(makeConfig({ collections: ['Primitives'] }), { verbose: false })
 
     const css = fs.readFileSync(`${OUTPUT_DIR}/css/variables.css`, 'utf-8')
     expect(css).toContain('#003f8a')
@@ -322,9 +320,7 @@ describe('runBuild', () => {
   it('exits gracefully when tokens directory is empty', async () => {
     // No token files, but directory exists — SD phases are skipped,
     // Phase D (docs) still runs and produces an HTML page.
-    await expect(
-      runBuild(makeConfig(), { verbose: false }),
-    ).resolves.not.toThrow()
+    await expect(runBuild(makeConfig(), { verbose: false })).resolves.not.toThrow()
 
     expect(fs.existsSync(`${OUTPUT_DIR}/docs/index.html`)).toBe(true)
   }, 30_000)
@@ -332,10 +328,7 @@ describe('runBuild', () => {
   it('uses default output paths when config.outputs is not set', async () => {
     writeToken('Primitives.Value.json', PRIMITIVES_TOKEN)
 
-    await runBuild(
-      { figma: {}, tokens: { dir: TOKENS_DIR } },
-      { verbose: false },
-    )
+    await runBuild({ figma: {}, tokens: { dir: TOKENS_DIR } }, { verbose: false })
 
     // Default paths: output/css/, output/tailwind/, output/docs/
     expect(fs.existsSync('output/css/base.css')).toBe(true)

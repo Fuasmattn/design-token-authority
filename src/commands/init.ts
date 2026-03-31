@@ -216,16 +216,14 @@ async function printLogo(): Promise<void> {
   // Animate token rotation in the logo
   for (let frame = 0; frame < 6; frame++) {
     const tokens = tokenFrames[frame % tokenFrames.length]
-    const mid =
-      `  ${pc.cyan('[')}\u2022\u203f\u2022${pc.cyan(']')} ${d('\u2500\u2500\u2524')} ${tokens[0]}  ${tokens[1]}  ${tokens[2]} ${d('\u2502')}   ${pc.cyan('Design Token Authority')}`
+    const mid = `  ${pc.cyan('[')}\u2022\u203f\u2022${pc.cyan(']')} ${d('\u2500\u2500\u2524')} ${tokens[0]}  ${tokens[1]}  ${tokens[2]} ${d('\u2502')}   ${pc.cyan('Design Token Authority')}`
     process.stdout.write(`\r${mid}`)
     await sleep(200)
   }
 
   // Final frame
   const tokens = tokenFrames[0]
-  const mid =
-    `  ${pc.cyan('[')}\u2022\u203f\u2022${pc.cyan(']')} ${d('\u2500\u2500\u2524')} ${tokens[0]}  ${tokens[1]}  ${tokens[2]} ${d('\u2502')}   ${pc.cyan('Design Token Authority')}`
+  const mid = `  ${pc.cyan('[')}\u2022\u203f\u2022${pc.cyan(']')} ${d('\u2500\u2500\u2524')} ${tokens[0]}  ${tokens[1]}  ${tokens[2]} ${d('\u2502')}   ${pc.cyan('Design Token Authority')}`
   process.stdout.write(`\r${mid}\n`)
 
   console.log(bot)

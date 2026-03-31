@@ -90,10 +90,7 @@ function resolveAlias(
  * Build the full alias resolution chain for a token value.
  * Returns an array of steps, e.g. ["{Colors.Brand.Primary}", "{Colors.Foundation.Blue.700}", "#003f8a"]
  */
-function buildAliasChain(
-  value: string | number,
-  allData: Record<string, TokenGroup>,
-): string[] {
+function buildAliasChain(value: string | number, allData: Record<string, TokenGroup>): string[] {
   const chain: string[] = []
   let current = value
   const visited = new Set<string>()

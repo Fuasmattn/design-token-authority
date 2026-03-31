@@ -55,8 +55,7 @@ function buildDiffReport(payload: PostVariablesRequestBody): DiffReport {
       report.changes.push({
         action: 'added',
         path: variable.name!,
-        collection:
-          'variableCollectionId' in variable ? String(variable.variableCollectionId) : '',
+        collection: 'variableCollectionId' in variable ? String(variable.variableCollectionId) : '',
       })
     } else if (variable.action === 'UPDATE') {
       report.summary.modified++
@@ -69,9 +68,7 @@ function buildDiffReport(payload: PostVariablesRequestBody): DiffReport {
     }
   }
 
-  const addedPaths = new Set(
-    report.changes.filter((c) => c.action === 'added').map((c) => c.path),
-  )
+  const addedPaths = new Set(report.changes.filter((c) => c.action === 'added').map((c) => c.path))
   const modifiedPaths = new Set(
     report.changes.filter((c) => c.action === 'modified').map((c) => c.path),
   )
@@ -181,9 +178,7 @@ describe('push diff report', () => {
       variableCollections: [],
       variableModes: [],
       variables: [],
-      variableModeValues: [
-        { variableId: 'existingVar', modeId: 'mode1', value: 42 },
-      ],
+      variableModeValues: [{ variableId: 'existingVar', modeId: 'mode1', value: 42 }],
     }
     const report = buildDiffReport(payload)
     expect(report.summary.modified).toBe(1)

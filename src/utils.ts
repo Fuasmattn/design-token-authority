@@ -27,10 +27,7 @@ const EMOJI_REGEX =
  */
 export function sanitizeFileName(name: string, stripEmojis: boolean): string {
   if (stripEmojis) {
-    return name
-      .replace(EMOJI_REGEX, '')
-      .replace(/\s+/g, ' ')
-      .trim()
+    return name.replace(EMOJI_REGEX, '').replace(/\s+/g, ' ').trim()
   }
   return name
 }

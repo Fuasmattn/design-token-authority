@@ -8,7 +8,9 @@ import { generatePostVariablesPayload, readJsonFiles } from './token_import.js'
 
 async function main() {
   if (!process.env.FIGMA_PERSONAL_ACCESS_TOKEN || !process.env.FIGMA_FILE_KEY) {
-    throw new Error('FIGMA_PERSONAL_ACCESS_TOKEN and FIGMA_FILE_KEY environment variables are required')
+    throw new Error(
+      'FIGMA_PERSONAL_ACCESS_TOKEN and FIGMA_FILE_KEY environment variables are required',
+    )
   }
   const fileKey = process.env.FIGMA_FILE_KEY
 
