@@ -155,7 +155,7 @@ function variableValueFromToken(
 }
 
 function compareVariableValues(a: VariableValue, b: VariableValue) {
-  if (typeof a === 'object' && typeof b === 'object') {
+  if (typeof a === 'object' && a !== null && typeof b === 'object' && b !== null) {
     if ('type' in a && 'type' in b && a.type === 'VARIABLE_ALIAS' && b.type === 'VARIABLE_ALIAS') {
       return a.id === b.id
     } else if ('r' in a && 'r' in b) {
