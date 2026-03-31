@@ -1,4 +1,5 @@
 node_modules
+.gitconfig
 settings.local.json
 .env
 tokens
