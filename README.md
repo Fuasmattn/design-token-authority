@@ -1,3 +1,10 @@
+```
+          ┌─────────┐
+  [•‿•] ──┤ ◆  ●  ▪ │   Design Token Authority
+   /|\    └─────────┘   Sync Figma variables to code, and back.
+   ╵ ╵
+```
+
 # design-token-authority
 
 > Bi-directional sync between Figma Variables and design token JSON files,
@@ -6,94 +13,87 @@
 ## What it does
 
 - **Pull** — fetches variable collections from the Figma Variables API and writes them as W3C DTCG-format JSON files
-- **Push** — reads token files and writes variables back to Figma (with confirmation and dry-run support)
+- **Push** — reads token files and writes variables back to Figma (with typed confirmation and dry-run support)
 - **Build** — runs Style Dictionary to produce CSS custom properties, JavaScript exports, and Tailwind v3/v4 theme files
 - **Analyze** — inspects a Figma file's variable collections and infers the design system layer structure (primitives, brand, dimension, semantic)
 - **Graph** — builds a dependency graph of alias references across token files, detects circular references, dangling aliases, and orphaned tokens
+- **Lint** — validates token files against configurable rules (naming patterns, alias requirements, color contrast, duplicates)
+- **Clean** — removes all generated token files and build output
 - **Init** — interactive wizard that connects to Figma, auto-detects your variable structure, and generates a project config
 
-## Token format
+## Quick start
 
-Files follow the W3C Design Token Community Group (DTCG) draft spec with Figma extensions. One file per Figma variable collection + mode:
-
-```
-tokens/Primitives(Global).Value.json
-tokens/Brand(Alias).BrandA.json
-tokens/Brand(Alias).BrandB.json
-tokens/ScreenType.Desktop.json
-```
-
-## Setup
-
-The quickest way to get started is the init wizard:
+The fastest path is the init wizard:
 
 ```bash
 npm install
 npx dta init
 ```
 
-The wizard will ask for your Figma file URL and personal access token, auto-detect your variable structure, and write a `dta.config.ts` and `.env` file.
+The wizard asks for your Figma file URL and personal access token, auto-detects your variable structure, and writes a `dta.config.ts` and `.env` file.
 
-Alternatively, set up manually:
+To set up manually instead, copy `.env.example` to `.env`, fill in `FIGMA_FILE_KEY` and `FIGMA_PERSONAL_ACCESS_TOKEN`, then run `npm install`.
+
+### Figma plan requirements
+
+The Figma Variables REST API is only available on **Enterprise plans**. Professional and Organization plans receive a 403 error.
+
+For non-Enterprise plans, use the `--from-file` flag to import tokens exported from a Figma plugin:
 
 ```bash
-cp .env.example .env
-# fill in FIGMA_FILE_KEY and FIGMA_PERSONAL_ACCESS_TOKEN
-npm install
+dta pull --from-file <exported.json>
 ```
+
+Compatible plugins include [tokenHaus](https://www.figma.com/community/plugin/1578065513743190845/tokenhaus-variable-import-export-with-links) (tested, recommended), [Design Tokens (W3C) Export](https://www.figma.com/community/plugin/1377982390646186215/design-tokens-w3c-export), and [Design Token Exporter](https://www.figma.com/community/plugin/1590704268871516927/design-token-exporter).
 
 ## CLI
 
-The CLI is available as `design-token-authority` or its shorter alias `dta`. Both are identical.
+The CLI is available as `dta` (or its full name `design-token-authority`). During development without a global install, use `npm run dta --`.
 
 ```bash
 # Core workflow
-dta pull              # Figma → tokens/
-dta push              # tokens/ → Figma (requires typed confirmation)
-dta push --dry-run    # show what would change without modifying Figma
-dta push --yes        # skip confirmation prompt (CI/automation)
-dta build             # tokens/ → build/
+dta pull                        # Figma → tokens/
+dta push                        # tokens/ → Figma (requires typed confirmation)
+dta push --dry-run              # show what would change without modifying Figma
+dta push --yes                  # skip confirmation prompt (CI/automation)
+dta build                       # tokens/ → build/
 
-# Setup & analysis
-dta init              # interactive project setup wizard
-dta analyze           # inspect Figma file and infer layer roles
-dta graph             # show token dependency graph (console summary)
-dta graph --format dot          # Graphviz DOT output (pipe to dot -Tsvg)
-dta graph --format markdown     # Markdown table report
-dta graph --format html         # interactive HTML visualization (opens in browser)
-dta graph --output graph.md     # write output to file
+# Analysis & validation
+dta analyze                     # inspect Figma file and infer layer roles
+dta graph                       # token dependency graph (console summary)
+dta graph --format html         # interactive HTML visualization
+dta graph --format dot          # Graphviz DOT (pipe to dot -Tsvg)
+dta graph --format markdown     # markdown table report
+dta lint                        # validate tokens against configured rules
+dta lint --fix                  # auto-fix violations where possible
 
-# Options available on all commands
-dta <cmd> --config path/to/config.ts   # use a custom config file
-dta <cmd> --verbose                     # enable detailed logging
-dta --help                              # show all commands
+# Housekeeping
+dta init                        # interactive project setup wizard
+dta clean                       # remove all token files and build output
+
+# Global options (available on all commands)
+dta <cmd> -c path/to/config.ts  # custom config file
+dta <cmd> -v                    # verbose logging
 ```
 
-The full name `design-token-authority` works everywhere `dta` does:
+### Push confirmation
 
-```bash
-design-token-authority pull
-design-token-authority push --dry-run
-```
+`dta push` modifies the Figma file, so it requires you to type `push variables to figma` to confirm. This can be bypassed in two ways:
 
-During development (without global install):
+- **CLI flag:** `dta push --yes` (one-off, useful for CI)
+- **Config:** `push: { skipConfirmation: true }` in `dta.config.ts` (permanent)
 
-```bash
-npm run dta -- pull
-npm run dta -- push --dry-run
-npm run dta -- analyze --verbose
-```
+### Legacy npm scripts
 
-The legacy npm scripts still work too:
+The older npm scripts still work:
 
 ```bash
 npm run sync-figma-to-tokens   # same as dta pull
 npm run sync-tokens-to-figma   # same as dta push
 npm run build                  # same as dta build
-npm test                       # run test suite
 ```
 
-## Project config
+## Configuration
 
 The CLI reads a `dta.config.ts` file (generated by `dta init` or written manually):
 
@@ -105,20 +105,33 @@ export default defineConfig({
     fileKey: process.env.FIGMA_FILE_KEY!,
     personalAccessToken: process.env.FIGMA_PERSONAL_ACCESS_TOKEN!,
   },
-  layers: {
-    primitives: 'Primitives(Global)',
-    brand: 'Brand(Alias)',
-    dimension: 'ScreenType',
-  },
+  collections: ['Primitives(Global)', 'Brand(Alias)', 'ScreenType'],
   brands: ['BrandA', 'BrandB'],
   tokens: { dir: 'tokens' },
   outputs: {
     css: { outDir: 'build/css', prefix: '--ds' },
     tailwind: { outDir: 'build/tailwind', version: 4 },
   },
-  // Skip the typed confirmation prompt on push (default: false)
-  // push: { skipConfirmation: true },
+  push: {
+    skipConfirmation: false, // set to true for CI/automation
+  },
+  lint: {
+    rules: {
+      'semantic-must-alias': { severity: 'error', collections: ['Brand(Alias)'] },
+    },
+  },
 })
+```
+
+## Token format
+
+Files follow the [W3C Design Token Community Group (DTCG)](https://tr.designtokens.org/format/) draft spec with Figma extensions. One file per variable collection + mode:
+
+```
+tokens/Primitives(Global).Value.json
+tokens/Brand(Alias).BrandA.json
+tokens/Brand(Alias).BrandB.json
+tokens/ScreenType.Desktop.json
 ```
 
 ## Build outputs
@@ -132,15 +145,7 @@ export default defineConfig({
 
 ## Token dependency graph
 
-`dta graph` analyzes alias references across all token files and reports:
-
-- **Total tokens** and percentage that are aliases
-- **Max alias chain depth** (how many hops the longest alias chain takes)
-- **Circular references** — alias loops that would cause infinite resolution
-- **Dangling aliases** — tokens referencing targets that don't exist
-- **Orphaned tokens** — defined tokens that are never referenced by any alias
-
-Four output formats are available via `--format`:
+`dta graph` analyzes alias references across all token files and reports total tokens, alias percentage, max chain depth, circular references, dangling aliases, and orphaned tokens.
 
 | Format     | Use case                                                  |
 | ---------- | --------------------------------------------------------- |
@@ -149,4 +154,4 @@ Four output formats are available via `--format`:
 | `markdown` | Markdown table for PRs, docs, or CI reports               |
 | `html`     | Interactive visualization with zoom, pan, and filtering   |
 
-The HTML format generates a self-contained file with a force-directed graph layout, semantic zoom, color-coded token types, and a sidebar with stats and file filtering. It opens automatically in your default browser.
+The HTML format generates a self-contained file with a force-directed graph layout, semantic zoom, color-coded token types, and a sidebar with stats and file filtering.

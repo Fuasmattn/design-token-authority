@@ -31,7 +31,7 @@ export interface BuildOptions {
  * Discover all collections and their modes from token files in the directory.
  * Returns a map of collection name → mode names.
  */
-function discoverCollections(tokensDir: string): Map<string, string[]> {
+export function discoverCollections(tokensDir: string): Map<string, string[]> {
   if (!fs.existsSync(tokensDir)) return new Map()
   const collections = new Map<string, string[]>()
   for (const f of fs.readdirSync(tokensDir)) {
