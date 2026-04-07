@@ -41,7 +41,7 @@
     "release:dry": "release-it --dry-run"
   },
   "dependencies": {
-    "@clack/prompts": "^1.1.0",
+    "@clack/prompts": "^1.2.0",
     "axios": "^1.12.0",
     "commander": "^14.0.3",
     "dotenv": "^17.3.1",
