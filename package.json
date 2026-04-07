@@ -38,7 +38,7 @@
     "test:visual": "npx playwright test --config test/visual/playwright.config.ts",
     "test:visual:update": "npx playwright test --config test/visual/playwright.config.ts --update-snapshots",
     "build": "tsx style-dictionary.config.ts",
-    "build:cli": "tsc && chmod +x dist/cli.js",
+    "build:cli": "npx tsc && chmod +x dist/cli.js",
     "prepare": "npm run build:cli",
     "release": "release-it",
     "release:dry": "release-it --dry-run"
