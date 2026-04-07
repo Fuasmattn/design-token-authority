@@ -1,6 +1,6 @@
 {
   "name": "design-token-authority",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Bi-directional sync between Figma Variables and design token JSON files, with multi-target output (CSS, Tailwind, iOS, Android)",
   "license": "MIT",
   "author": "Martin Preciado Prinz",
