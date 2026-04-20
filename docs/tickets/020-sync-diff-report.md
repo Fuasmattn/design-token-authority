@@ -33,13 +33,13 @@ The existing `sync_tokens_to_figma.ts` already logs changes (new collections, mo
 ### Modified
 | Token | Old Value | New Value | Collection | Mode |
 |---|---|---|---|---|
-| Colors.Brand.Primary | `#003f8a` | `#0044aa` | Brand(Alias) | Bayernwerk |
+| Colors.Brand.Primary | `#003f8a` | `#0044aa` | Brand(Alias) | BrandA |
 | Spacing.Base | `16` | `20` | ScreenType | Desktop |
 
 ### Added
 | Token | Value | Collection | Mode |
 |---|---|---|---|
-| Colors.Interactive.Focus | `#0077ff` | Brand(Alias) | Bayernwerk |
+| Colors.Interactive.Focus | `#0077ff` | Brand(Alias) | BrandA |
 ```
 
 **JSON format:**

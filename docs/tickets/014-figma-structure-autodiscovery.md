@@ -77,7 +77,7 @@ Suggested layers config:
     brand: 'Brand(Alias)',
     dimension: 'ScreenType',
   }
-  brands: ['Bayernwerk', 'LEW']
+  brands: ['BrandA', 'BrandB']
 ```
 
 ## Dependencies

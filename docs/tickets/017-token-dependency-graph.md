@@ -52,10 +52,10 @@ Circular refs:      0
 Dangling aliases:   2  ⚠
 
 ⚠ Dangling aliases:
-  Brand(Alias).Bayernwerk > Colors.Interactive.Focus
+  Brand(Alias).BrandA > Colors.Interactive.Focus
     → {Colors.Foundation.Focus.Default} — not found in any token file
 
-  Brand(Alias).LEW > Colors.Interactive.Focus
+  Brand(Alias).BrandB > Colors.Interactive.Focus
     → {Colors.Foundation.Focus.Default} — not found in any token file
 ```
 

@@ -24,7 +24,7 @@ This project uses a layered design token architecture. Each layer is a Figma var
 ```
 Primitives (Global)       raw values only — colors, sizes, no aliases
         ↓  aliased by
-Brand (Alias)             semantic tokens — one mode per brand (Bayernwerk, LEW)
+Brand (Alias)             semantic tokens — one mode per brand (BrandA, BrandB, …)
         ↓  overridden by
 ScreenType                responsive overrides — one mode per breakpoint (Desktop, Tablet, Mobile)
 ```
@@ -68,7 +68,7 @@ Files follow the **W3C Design Token Community Group (DTCG) draft spec** with Fig
 - Token types: `color`, `number`, `string`, `boolean`.
 
 **One file per collection + mode.** Filename format: `{CollectionName}.{ModeName}.json`
-Example: `Brand(Alias).Bayernwerk.json`, `ScreenType.Desktop.json`
+Example: `Brand(Alias).BrandA.json`, `ScreenType.Desktop.json`
 
 ---
 

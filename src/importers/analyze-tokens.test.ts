@@ -26,13 +26,13 @@ describe('analyzeTokenFiles', () => {
 
   it('detects brand collection (multiple modes, high alias ratio)', () => {
     const files = {
-      'Brand.Bayernwerk.json': {
+      'Brand.BrandA.json': {
         color: {
           primary: { $type: 'color', $value: '{Primitives.Colors.blue}' },
           secondary: { $type: 'color', $value: '{Primitives.Colors.red}' },
         },
       },
-      'Brand.LEW.json': {
+      'Brand.BrandB.json': {
         color: {
           primary: { $type: 'color', $value: '{Primitives.Colors.red}' },
           secondary: { $type: 'color', $value: '{Primitives.Colors.blue}' },
@@ -44,7 +44,7 @@ describe('analyzeTokenFiles', () => {
     expect(result.collections).toHaveLength(1)
     expect(result.collections[0].inferredRole).toBe('brand')
     expect(result.suggestedLayers.brand).toBe('Brand')
-    expect(result.suggestedBrands).toEqual(['Bayernwerk', 'LEW'])
+    expect(result.suggestedBrands).toEqual(['BrandA', 'BrandB'])
   })
 
   it('detects dimension collection (responsive mode names)', () => {

@@ -193,13 +193,13 @@ describe('generateConfigContent', () => {
     const data: ConfigData = {
       fileKey: 'testkey123',
       collections: ['Primitives (Global)', 'Brand (Alias)', 'Screen Type'],
-      brands: ['Bayernwerk', 'LEW'],
+      brands: ['BrandA', 'BrandB'],
       stripEmojis: false,
       outputs: ['css', 'tailwind4'],
     }
     const result = generateConfigContent(data)
     expect(result).toContain("collections: ['Primitives (Global)', 'Brand (Alias)', 'Screen Type']")
-    expect(result).toContain("brands: ['Bayernwerk', 'LEW']")
+    expect(result).toContain("brands: ['BrandA', 'BrandB']")
     expect(result).toContain('css: {')
     expect(result).toContain('tailwind: {')
   })

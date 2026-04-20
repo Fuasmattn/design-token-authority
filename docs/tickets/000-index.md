@@ -88,6 +88,24 @@ Token visibility for designers and developers.
 
 ---
 
+## Phase 7 — AI Interop
+
+Position the tool as the governance and context layer for AI-era design and
+coding workflows. These tickets target the parts of the value chain that
+Figma and the design/coding AI tools will not build themselves.
+
+| # | Ticket | Priority | Effort | Status |
+|---|---|---|---|---|
+| [028](./028-design-md-generator.md) | `DESIGN.md` / `AGENTS.md` generator for AI coding agents | **High** | M | Open |
+| [029](./029-mcp-server.md) | MCP server exposing token graph to AI tools | **High** | M | Open |
+| [030](./030-ai-code-audit.md) | `dta audit` — detect hardcoded values in AI-generated code | **High** | M | Open |
+| [031](./031-ai-design-brief-export.md) | Brand brief export for AI design generators (Stitch, v0, …) | Medium | S | Open |
+| [032](./032-native-figma-dtcg-migration.md) | Migrate to Figma's native W3C DTCG export/import | Medium | M | Open |
+
+**Recommended order:** 028 first (static context is the cheapest win and unblocks 031). 029 next (biggest leverage; turns the tool into a live authority). 030 alongside or after 029 — they reinforce each other. 031 is light and can slot in any time. 032 is a tracking/long-running ticket paced by Figma.
+
+---
+
 ## Dependency Map
 
 ```
@@ -112,6 +130,12 @@ Token visibility for designers and developers.
 021 ──────────────────────────────── (new prune command)
 022 ──────────────────────────────── (docs formatter)
 023 ──► 003 (units must be correct first)
+
+028 ──► 017, 022, 009/010 (DESIGN.md reuses graph + docs enumeration + formatter identifiers)
+029 ──► 017, 018, 028 (MCP server reuses graph, lint, and serves DESIGN.md as a resource)
+030 ──► 017, 018 (audit reuses graph + lint primitives)
+031 ──► 016 (per-brand briefs)
+032 ──► 014, 015 (autodiscovery + wizard branches update when native export lands)
 ```
 
 ---

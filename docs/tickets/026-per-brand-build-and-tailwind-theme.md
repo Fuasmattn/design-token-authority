@@ -7,7 +7,7 @@
 
 ## Summary
 
-Split the Style Dictionary build so each brand (Bayernwerk, LEW, …) gets its own
+Split the Style Dictionary build so each brand (BrandA, BrandB, …) gets its own
 output artifacts, eliminating the current token-collision problem. Define a concrete
 Tailwind integration pattern that supports both runtime class-based brand switching and
 static per-brand builds.
@@ -15,7 +15,7 @@ static per-brand builds.
 ## Background
 
 The current build loads all token files in a single SD run. Because both
-`Brand(Alias).Bayernwerk.json` and `Brand(Alias).LEW.json` export the same semantic
+`Brand(Alias).BrandA.json` and `Brand(Alias).BrandB.json` export the same semantic
 token paths (e.g. `Colors.foundation.brand.default`), SD reports 4 606 collisions and
 silently picks one brand's values for the output. The Tailwind files produced by
 TICKET-009/010 therefore only reflect whichever brand happened to win — not both.
@@ -58,18 +58,18 @@ build/
   css/
     base.css                              :root { all primitive raw values }
     themes/
-      bayernwerk.css                      .theme-bayernwerk { semantic aliases }
-      lew.css                             .theme-lew { semantic aliases }
+      brand-a.css                      .theme-brand-a { semantic aliases }
+      brand-b.css                             .theme-brand-b { semantic aliases }
     variables.css                         (unchanged — kept for backwards compat)
   tailwind/
     tailwind.tokens.ts                    shared, CSS var refs (TICKET-009)
     tailwind.css                          @theme { CSS var refs } (TICKET-010)
-    bayernwerk/
-      tailwind.tokens.ts                  resolved BW values
-      tailwind.css                        @theme with resolved BW values
-    lew/
-      tailwind.tokens.ts                  resolved LEW values
-      tailwind.css                        @theme with resolved LEW values
+    brand-a/
+      tailwind.tokens.ts                  resolved BrandA values
+      tailwind.css                        @theme with resolved BrandA values
+    brand-b/
+      tailwind.tokens.ts                  resolved BrandB values
+      tailwind.css                        @theme with resolved BrandB values
   js/
     colorpalette.js                       (unchanged)
 ```
@@ -85,7 +85,7 @@ conflict with Tailwind's own class-based utilities, and the JS API is more ergon
 
 ```html
 <!-- index.html -->
-<html data-brand="bayernwerk">
+<html data-brand="brand-a">
 ```
 
 ```ts
@@ -97,20 +97,20 @@ export default { ...tokens }
 ```css
 /* app.css */
 @import './build/css/base.css';
-@import './build/css/themes/bayernwerk.css';
-@import './build/css/themes/lew.css';
+@import './build/css/themes/brand-a.css';
+@import './build/css/themes/brand-b.css';
 /* Both theme files are loaded; only the one matching [data-brand] is active. */
 ```
 
 Switching brand at runtime:
 ```ts
-document.documentElement.dataset.brand = 'lew'
+document.documentElement.dataset.brand = 'brand-b'
 ```
 
 How it works: Tailwind utility classes like `bg-foundation-brand-default` expand to
 `var(--color-foundation-brand-default)`. That resolves through the `@theme` block to
 `var(--colors-foundation-brand-default)`. That resolves to the value set by
-`[data-brand="bayernwerk"]` on `<html>` (inherited by `:root`), which in turn uses
+`[data-brand="brand-a"]` on `<html>` (inherited by `:root`), which in turn uses
 `var(--colors-bw-blue-500)` from `base.css`.
 
 ### Pattern B — Runtime class-based switching
@@ -119,7 +119,7 @@ Same as Pattern A but via a CSS class. Useful when the consuming framework alrea
 manages classes on `<html>` (e.g. Tailwind dark mode with `class` strategy).
 
 ```html
-<html class="theme-bayernwerk">
+<html class="theme-brand-a">
 ```
 
 ```ts
@@ -131,15 +131,15 @@ export default { ...tokens }
 ```css
 /* app.css */
 @import './build/css/base.css';
-@import './build/css/themes/bayernwerk.css';
-@import './build/css/themes/lew.css';
+@import './build/css/themes/brand-a.css';
+@import './build/css/themes/brand-b.css';
 ```
 
 Switching:
 ```ts
-document.documentElement.className = 'theme-lew'
+document.documentElement.className = 'theme-brand-b'
 // or alongside dark mode:
-document.documentElement.classList.replace('theme-bayernwerk', 'theme-lew')
+document.documentElement.classList.replace('theme-brand-a', 'theme-brand-b')
 ```
 
 ### Pattern C — Static per-brand build (for SSG, white-label projects)
@@ -148,13 +148,13 @@ A separate Tailwind config per brand with fully resolved values baked in.
 No runtime attribute or class switching needed.
 
 ```ts
-// bayernwerk/tailwind.config.ts
-import { tokens } from '../build/tailwind/bayernwerk/tailwind.tokens'
+// brand-a/tailwind.config.ts
+import { tokens } from '../build/tailwind/brand-a/tailwind.tokens'
 export default { ...tokens }
 ```
 
 ```css
-/* bayernwerk/app.css — only needs base.css, no data-brand needed */
+/* brand-a/app.css — only needs base.css, no data-brand needed */
 @import '../build/css/base.css';
 ```
 
@@ -166,18 +166,18 @@ Runtime (data-brand, Patterns A/B):
 /* app.css (Tailwind v4) */
 @import 'tailwindcss';
 @import './build/css/base.css';
-@import './build/css/themes/bayernwerk.css';
-@import './build/css/themes/lew.css';
+@import './build/css/themes/brand-a.css';
+@import './build/css/themes/brand-b.css';
 @import './build/tailwind/tailwind.css';      /* @theme with var() refs */
 ```
 
 Static per-brand (Pattern C):
 
 ```css
-/* bayernwerk/app.css (Tailwind v4, static) */
+/* brand-a/app.css (Tailwind v4, static) */
 @import 'tailwindcss';
 @import './build/css/base.css';
-@import './build/tailwind/bayernwerk/tailwind.css';   /* @theme with resolved values */
+@import './build/tailwind/brand-a/tailwind.css';   /* @theme with resolved values */
 ```
 
 ---
@@ -191,7 +191,7 @@ import { glob } from 'node:fs'
 // or simply filter readdir output
 const brandFiles = fs.readdirSync('tokens').filter(f => /^Brand\(Alias\)\./.test(f))
 const brands = brandFiles.map(f => f.replace(/^Brand\(Alias\)\./, '').replace(/\.json$/, ''))
-// → ['Bayernwerk', 'LEW']
+// → ['BrandA', 'BrandB']
 ```
 
 ### Build structure in `style-dictionary.config.ts`
@@ -304,12 +304,12 @@ Both are supported — pick one and use it consistently:
 
 | Pattern | SD `selector` value | HTML usage |
 |---|---|---|
-| data-brand (recommended) | `[data-brand="bayernwerk"]` | `<html data-brand="bayernwerk">` |
-| class | `.theme-bayernwerk` | `<html class="theme-bayernwerk">` |
+| data-brand (recommended) | `[data-brand="brand-a"]` | `<html data-brand="brand-a">` |
+| class | `.theme-brand-a` | `<html class="theme-brand-a">` |
 
 The data-attribute approach is recommended because it doesn't conflict with Tailwind's
 class-based utilities (e.g. dark mode via `class="dark"`), and switching in JS is
-cleaner: `document.documentElement.dataset.brand = 'lew'`.
+cleaner: `document.documentElement.dataset.brand = 'brand-b'`.
 
 Implementation — swap out the selector string in the build loop:
 
@@ -324,39 +324,39 @@ options: { selector: `.theme-${slug}`, outputReferences: true }
 ### Scoped CSS example (data-brand)
 
 ```css
-/* build/css/themes/bayernwerk.css */
-[data-brand="bayernwerk"] {
+/* build/css/themes/brand-a.css */
+[data-brand="brand-a"] {
   --colors-foundation-neutral-whisper: var(--colors-bw-grey-50);
   --colors-foundation-brand-default: var(--colors-bw-blue-500);
   --colors-foundation-brand-faint: var(--colors-bw-blue-50);
   /* … all Brand(Alias) tokens with outputReferences: true */
-  --typography-font-family-heading: var(--typography-font-family-bayernwerk);
+  --typography-font-family-heading: var(--typography-font-family-brand-a);
 }
 
-/* build/css/themes/lew.css */
-[data-brand="lew"] {
+/* build/css/themes/brand-b.css */
+[data-brand="brand-b"] {
   --colors-foundation-neutral-whisper: var(--colors-grey-50);
   --colors-foundation-brand-default: var(--colors-blue-600);
   --colors-foundation-brand-faint: var(--colors-blue-100);
   /* … */
-  --typography-font-family-heading: var(--typography-font-family-lechwerke);
+  --typography-font-family-heading: var(--typography-font-family-brand-b);
 }
 ```
 
 ### Resolved Tailwind v3 example
 
 ```ts
-/* build/tailwind/bayernwerk/tailwind.tokens.ts */
+/* build/tailwind/brand-a/tailwind.tokens.ts */
 export const tokens = {
   theme: {
     extend: {
       colors: {
-        'foundation-brand-default': '#0091bb',   // resolved BW value
+        'foundation-brand-default': '#0091bb',   // resolved BrandA value
         'foundation-brand-faint':   '#e5f4f8',
         /* … */
       },
       fontFamily: {
-        heading: 'Polo 11',
+        heading: 'Heading Sans',
       },
     },
   },

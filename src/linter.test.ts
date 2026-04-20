@@ -45,8 +45,8 @@ describe('no-dangling-aliases', () => {
     const graph = emptyGraph(nodes)
     graph.danglingAliases = [
       {
-        sourceId: 'Brand.BW/Colors/Primary',
-        sourceFile: 'Brand.BW',
+        sourceId: 'Brand.BrandA/Colors/Primary',
+        sourceFile: 'Brand.BrandA',
         rawAlias: '{Colors.Missing}',
         targetId: 'Colors/Missing',
       },
@@ -110,8 +110,8 @@ describe('no-default-mode-names', () => {
   it('does not flag custom mode names', () => {
     const nodes = makeNodes([
       {
-        id: 'Brand.Bayernwerk/Colors/Red',
-        file: 'Brand.Bayernwerk',
+        id: 'Brand.BrandA/Colors/Red',
+        file: 'Brand.BrandA',
         path: ['Colors', 'Red'],
       },
     ])
@@ -143,15 +143,15 @@ describe('semantic-must-alias', () => {
   it('flags raw values in specified collections', () => {
     const nodes = makeNodes([
       {
-        id: 'Brand.BW/Colors/Primary',
-        file: 'Brand.BW',
+        id: 'Brand.BrandA/Colors/Primary',
+        file: 'Brand.BrandA',
         path: ['Colors', 'Primary'],
         value: '#003f8a',
         aliasTarget: null,
       },
       {
-        id: 'Brand.BW/Colors/Secondary',
-        file: 'Brand.BW',
+        id: 'Brand.BrandA/Colors/Secondary',
+        file: 'Brand.BrandA',
         path: ['Colors', 'Secondary'],
         value: '{Colors.Blue.500}',
         aliasTarget: 'Primitives.Default/Colors/Blue/500',
@@ -166,7 +166,7 @@ describe('semantic-must-alias', () => {
     const violations = result.violations.filter((v) => v.rule === 'semantic-must-alias')
     expect(violations).toHaveLength(1)
     expect(violations[0].severity).toBe('warn')
-    expect(violations[0].tokenPath).toBe('Brand.BW/Colors/Primary')
+    expect(violations[0].tokenPath).toBe('Brand.BrandA/Colors/Primary')
   })
 
   it('does not flag tokens in unspecified collections', () => {
@@ -192,8 +192,8 @@ describe('semantic-must-alias', () => {
   it('respects severity: off', () => {
     const nodes = makeNodes([
       {
-        id: 'Brand.BW/Colors/Primary',
-        file: 'Brand.BW',
+        id: 'Brand.BrandA/Colors/Primary',
+        file: 'Brand.BrandA',
         path: ['Colors', 'Primary'],
         value: '#003f8a',
         aliasTarget: null,
@@ -212,8 +212,8 @@ describe('semantic-must-alias', () => {
   it('respects severity: error', () => {
     const nodes = makeNodes([
       {
-        id: 'Brand.BW/Colors/Primary',
-        file: 'Brand.BW',
+        id: 'Brand.BrandA/Colors/Primary',
+        file: 'Brand.BrandA',
         path: ['Colors', 'Primary'],
         value: '#003f8a',
         aliasTarget: null,
@@ -371,16 +371,16 @@ describe('no-duplicate-values', () => {
   it('does not flag aliases', () => {
     const nodes = makeNodes([
       {
-        id: 'Brand.BW/Colors/Primary',
-        file: 'Brand.BW',
+        id: 'Brand.BrandA/Colors/Primary',
+        file: 'Brand.BrandA',
         path: ['Colors', 'Primary'],
         type: 'color',
         value: '{Colors.Red}',
         aliasTarget: 'Primitives.Default/Colors/Red',
       },
       {
-        id: 'Brand.BW/Colors/Accent',
-        file: 'Brand.BW',
+        id: 'Brand.BrandA/Colors/Accent',
+        file: 'Brand.BrandA',
         path: ['Colors', 'Accent'],
         type: 'color',
         value: '{Colors.Red}',
@@ -451,8 +451,8 @@ describe('lintGraph result', () => {
   it('returns correct error and warning counts', () => {
     const nodes = makeNodes([
       {
-        id: 'Brand.BW/Colors/Primary',
-        file: 'Brand.BW',
+        id: 'Brand.BrandA/Colors/Primary',
+        file: 'Brand.BrandA',
         path: ['Colors', 'Primary'],
         value: '#003f8a',
         aliasTarget: null,
@@ -461,8 +461,8 @@ describe('lintGraph result', () => {
     const graph = emptyGraph(nodes)
     graph.danglingAliases = [
       {
-        sourceId: 'Brand.BW/Colors/X',
-        sourceFile: 'Brand.BW',
+        sourceId: 'Brand.BrandA/Colors/X',
+        sourceFile: 'Brand.BrandA',
         rawAlias: '{Missing}',
         targetId: 'Missing',
       },

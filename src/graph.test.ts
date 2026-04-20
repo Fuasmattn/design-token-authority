@@ -64,7 +64,7 @@ describe('readTokenFilesForGraph', () => {
   it('reads and flattens token files into graph nodes', () => {
     vi.mocked(fs.readdirSync).mockReturnValue([
       'Primitives.Value.json' as unknown as fs.Dirent,
-      'Brand.Bayernwerk.json' as unknown as fs.Dirent,
+      'Brand.BrandA.json' as unknown as fs.Dirent,
     ])
 
     vi.mocked(fs.readFileSync).mockImplementation((filePath: fs.PathOrFileDescriptor) => {
@@ -75,7 +75,7 @@ describe('readTokenFilesForGraph', () => {
           'Colors.blue.500': { $type: 'color', $value: '#0000ff' },
         })
       }
-      if (p.includes('Brand.Bayernwerk.json')) {
+      if (p.includes('Brand.BrandA.json')) {
         return tokenFile({
           'Colors.primary': { $type: 'color', $value: '{Colors.red.500}' },
         })
@@ -88,9 +88,9 @@ describe('readTokenFilesForGraph', () => {
     expect(nodes.size).toBe(3)
     expect(nodes.has('Primitives.Value/Colors/red/500')).toBe(true)
     expect(nodes.has('Primitives.Value/Colors/blue/500')).toBe(true)
-    expect(nodes.has('Brand.Bayernwerk/Colors/primary')).toBe(true)
+    expect(nodes.has('Brand.BrandA/Colors/primary')).toBe(true)
 
-    const aliasNode = nodes.get('Brand.Bayernwerk/Colors/primary')!
+    const aliasNode = nodes.get('Brand.BrandA/Colors/primary')!
     expect(aliasNode.aliasTarget).toBe('Colors.red.500')
     expect(aliasNode.type).toBe('color')
   })
@@ -128,8 +128,8 @@ describe('buildGraph', () => {
     const nodes = makeNodes([
       { id: 'Prim.Value/Colors/red/500', file: 'Prim.Value', value: '#ff0000' },
       {
-        id: 'Brand.BW/Colors/primary',
-        file: 'Brand.BW',
+        id: 'Brand.BrandA/Colors/primary',
+        file: 'Brand.BrandA',
         value: '{Colors.red.500}',
         aliasTarget: 'Colors.red.500',
       },
@@ -138,7 +138,7 @@ describe('buildGraph', () => {
     const graph = buildGraph(nodes)
     expect(graph.edges).toHaveLength(1)
     expect(graph.edges[0]).toEqual({
-      from: 'Brand.BW/Colors/primary',
+      from: 'Brand.BrandA/Colors/primary',
       to: 'Prim.Value/Colors/red/500',
     })
     expect(graph.danglingAliases).toHaveLength(0)
@@ -147,8 +147,8 @@ describe('buildGraph', () => {
   it('detects dangling aliases', () => {
     const nodes = makeNodes([
       {
-        id: 'Brand.BW/Colors/focus',
-        file: 'Brand.BW',
+        id: 'Brand.BrandA/Colors/focus',
+        file: 'Brand.BrandA',
         value: '{Colors.Foundation.Focus}',
         aliasTarget: 'Colors.Foundation.Focus',
       },
@@ -182,15 +182,15 @@ describe('buildGraph', () => {
       { id: 'Prim.V/Colors/red', file: 'Prim.V', value: '#ff0000' },
       { id: 'Prim.V/Colors/blue', file: 'Prim.V', value: '#0000ff' },
       {
-        id: 'Brand.BW/primary',
-        file: 'Brand.BW',
+        id: 'Brand.BrandA/primary',
+        file: 'Brand.BrandA',
         value: '{Colors.red}',
         aliasTarget: 'Colors.red',
       },
     ])
 
     const graph = buildGraph(nodes)
-    // red is referenced by Brand.BW/primary, blue is orphaned
+    // red is referenced by Brand.BrandA/primary, blue is orphaned
     expect(graph.orphanedTokens).toContain('Prim.V/Colors/blue')
     expect(graph.orphanedTokens).not.toContain('Prim.V/Colors/red')
   })
@@ -239,8 +239,8 @@ describe('computeStats', () => {
       { id: 'Prim.V/Colors/red', file: 'Prim.V', value: '#ff0000', type: 'color' },
       { id: 'Prim.V/Spacing/sm', file: 'Prim.V', value: 8, type: 'number' },
       {
-        id: 'Brand.BW/primary',
-        file: 'Brand.BW',
+        id: 'Brand.BrandA/primary',
+        file: 'Brand.BrandA',
         value: '{Colors.red}',
         aliasTarget: 'Colors.red',
         type: 'color',
@@ -255,7 +255,7 @@ describe('computeStats', () => {
     expect(stats.aliasPercentage).toBe(33)
     expect(stats.fileCount).toBe(2)
     expect(stats.tokensByFile.get('Prim.V')).toBe(2)
-    expect(stats.tokensByFile.get('Brand.BW')).toBe(1)
+    expect(stats.tokensByFile.get('Brand.BrandA')).toBe(1)
     expect(stats.tokensByType.get('color')).toBe(2)
     expect(stats.tokensByType.get('number')).toBe(1)
   })
@@ -270,8 +270,8 @@ describe('formatConsoleReport', () => {
     const nodes = makeNodes([
       { id: 'Prim.V/Colors/red', file: 'Prim.V', value: '#ff0000' },
       {
-        id: 'Brand.BW/primary',
-        file: 'Brand.BW',
+        id: 'Brand.BrandA/primary',
+        file: 'Brand.BrandA',
         value: '{Colors.red}',
         aliasTarget: 'Colors.red',
       },
@@ -289,8 +289,8 @@ describe('formatConsoleReport', () => {
   it('includes dangling alias details when present', () => {
     const nodes = makeNodes([
       {
-        id: 'Brand.BW/focus',
-        file: 'Brand.BW',
+        id: 'Brand.BrandA/focus',
+        file: 'Brand.BrandA',
         value: '{Missing.Token}',
         aliasTarget: 'Missing.Token',
       },
@@ -308,7 +308,7 @@ describe('formatDotGraph', () => {
   it('generates valid DOT format', () => {
     const nodes = makeNodes([
       { id: 'Prim.V/red', file: 'Prim.V', value: '#ff0000' },
-      { id: 'Brand.BW/primary', file: 'Brand.BW', value: '{red}', aliasTarget: 'red' },
+      { id: 'Brand.BrandA/primary', file: 'Brand.BrandA', value: '{red}', aliasTarget: 'red' },
     ])
     const graph = buildGraph(nodes)
     const dot = formatDotGraph(graph)
@@ -316,7 +316,7 @@ describe('formatDotGraph', () => {
     expect(dot).toContain('digraph TokenDependencies')
     expect(dot).toContain('rankdir=LR')
     expect(dot).toContain('cluster_Prim_V')
-    expect(dot).toContain('cluster_Brand_BW')
+    expect(dot).toContain('cluster_Brand_BrandA')
     expect(dot).toContain('->')
   })
 })
@@ -338,7 +338,7 @@ describe('generateHtmlVisualization', () => {
   it('generates HTML with embedded data', () => {
     const nodes = makeNodes([
       { id: 'Prim.V/red', file: 'Prim.V', value: '#ff0000' },
-      { id: 'Brand.BW/primary', file: 'Brand.BW', value: '{red}', aliasTarget: 'red' },
+      { id: 'Brand.BrandA/primary', file: 'Brand.BrandA', value: '{red}', aliasTarget: 'red' },
     ])
     const graph = buildGraph(nodes)
     const stats = computeStats(graph)
@@ -348,7 +348,7 @@ describe('generateHtmlVisualization', () => {
     expect(html).toContain('Token Dependency Graph')
     expect(html).toContain('const DATA =')
     expect(html).toContain('Prim.V/red')
-    expect(html).toContain('Brand.BW/primary')
+    expect(html).toContain('Brand.BrandA/primary')
   })
 })
 
@@ -390,8 +390,8 @@ describe('edge cases', () => {
       { id: 'Prim.V/Colors/red/500', file: 'Prim.V', value: '#ff0000' },
       { id: 'Prim.V/Colors/red/600', file: 'Prim.V', value: '#cc0000' },
       {
-        id: 'Brand.BW/Colors/primary',
-        file: 'Brand.BW',
+        id: 'Brand.BrandA/Colors/primary',
+        file: 'Brand.BrandA',
         value: '{Colors.red.500}',
         aliasTarget: 'Colors.red.500',
       },

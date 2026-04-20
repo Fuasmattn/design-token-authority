@@ -87,8 +87,8 @@ Files follow the W3C Design Token Community Group (DTCG) draft spec with Figma
 extensions. One file per Figma variable collection + mode:
 
     tokens/Primitives(Global).Value.json
-    tokens/Brand(Alias).Bayernwerk.json
-    tokens/Brand(Alias).LEW.json
+    tokens/Brand(Alias).BrandA.json
+    tokens/Brand(Alias).BrandB.json
     tokens/ScreenType.Desktop.json
 
 ## Setup

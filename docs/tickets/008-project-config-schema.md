@@ -43,7 +43,7 @@ export default defineConfig({
   },
 
   // Brand names = mode names in the brand collection
-  brands: ['Bayernwerk', 'LEW'],
+  brands: ['BrandA', 'BrandB'],
 
   tokens: {
     dir: 'tokens',   // where pull writes and build reads from

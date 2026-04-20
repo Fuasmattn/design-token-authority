@@ -24,7 +24,7 @@ beforeEach(() => {
   fs.mkdirSync(`${OUTPUT_DIR}/css`, { recursive: true })
   fs.mkdirSync(`${OUTPUT_DIR}/tailwind`, { recursive: true })
   fs.writeFileSync(path.join(TOKENS_DIR, 'Primitives.Global.json'), '{}')
-  fs.writeFileSync(path.join(TOKENS_DIR, 'Brand.LEW.json'), '{}')
+  fs.writeFileSync(path.join(TOKENS_DIR, 'Brand.BrandB.json'), '{}')
   fs.writeFileSync(`${OUTPUT_DIR}/css/variables.css`, ':root {}')
   fs.writeFileSync(`${OUTPUT_DIR}/tailwind/tailwind.css`, '@theme {}')
 })

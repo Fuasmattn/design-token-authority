@@ -65,7 +65,7 @@ Running against the project's actual Figma export (7 files, 1,537 tokens):
 
 4. **No circular references or dangling aliases** — the token architecture is clean. The alias resolution chain always terminates at a raw value.
 
-5. **Brand files are identical in structure.** Both Brand(Alias).Bayernwerk and Brand(Alias).LEW have exactly 570 tokens each, confirming the multi-brand model uses the same semantic structure per brand (just different primitive targets).
+5. **Brand files are identical in structure.** Both Brand(Alias).BrandA and Brand(Alias).BrandB have exactly 570 tokens each, confirming the multi-brand model uses the same semantic structure per brand (just different primitive targets).
 
 6. **ScreenType files are symmetrical too** — Desktop, Mobile, Tablet each have 29 tokens. These are responsive overrides (likely spacing/typography) that alias back into the system.
 

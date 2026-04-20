@@ -38,7 +38,7 @@ test.describe('Typography', () => {
 })
 
 test.describe('Brand themes', () => {
-  test('Bayernwerk and LEW brand colors side by side', async ({ page }) => {
+  test('BrandA and BrandB brand colors side by side', async ({ page }) => {
     await page.goto(`file://${path.join(FIXTURES_DIR, 'brand-theme.html')}`)
     await expect(page).toHaveScreenshot('brand-themes.png')
   })

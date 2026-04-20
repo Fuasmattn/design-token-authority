@@ -63,7 +63,7 @@ describe('runLint', () => {
   })
 
   it('reports dangling aliases as errors', async () => {
-    writeTokenFile('Brand.BW.json', {
+    writeTokenFile('Brand.BrandA.json', {
       Colors: {
         Primary: { $type: 'color', $value: '{Colors.NonExistent}' },
       },
@@ -86,7 +86,7 @@ describe('runLint', () => {
   })
 
   it('applies configurable rules from config', async () => {
-    writeTokenFile('Brand.BW.json', {
+    writeTokenFile('Brand.BrandA.json', {
       Colors: {
         Primary: { $type: 'color', $value: '#003f8a' },
       },

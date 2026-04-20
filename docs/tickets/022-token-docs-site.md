@@ -22,7 +22,7 @@ Design token documentation is a common pain point: tokens live in JSON files or 
   - **Effects** — blur and opacity tokens
   - **All tokens** — searchable table of every token with type, value, and source
 - [ ] Multi-brand: a brand switcher toggles between brand token sets
-- [ ] Alias chain shown on hover/click: `Colors.Text.Default → Colors.Brand.Bayernwerk.Primary → Colors.Foundation.Blue.700 → #003f8a`
+- [ ] Alias chain shown on hover/click: `Colors.Text.Default → Colors.Brand.BrandA.Primary → Colors.Foundation.Blue.700 → #003f8a`
 - [ ] Site is a single-page static HTML file (or minimal multi-file) — no server required
 - [ ] Output is deployable to GitHub Pages or any static host
 - [ ] Optional: link from PR comments (TICKET-020) to a preview deployment

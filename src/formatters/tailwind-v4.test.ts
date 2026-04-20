@@ -168,9 +168,9 @@ describe('tailwindV4Formatter', () => {
     const output = tailwindV4Formatter({
       dictionary: makeDictionary([
         {
-          path: ['Typography', 'font-family', 'bayernwerk'],
-          name: 'typography-font-family-bayernwerk',
-          value: 'Polo 11',
+          path: ['Typography', 'font-family', 'brand-a'],
+          name: 'typography-font-family-brand-a',
+          value: 'Heading Sans',
           $type: 'string',
         },
         {
@@ -196,7 +196,7 @@ describe('tailwindV4Formatter', () => {
       options: UNUSED,
       file: UNUSED,
     })
-    expect(output).toContain('--font-bayernwerk: Polo 11;')
+    expect(output).toContain('--font-brand-a: Heading Sans;')
     expect(output).toContain('--font-size-text-base: 16;')
     expect(output).toContain('--font-weight-regular: Regular;')
     expect(output).toContain('--leading-body: 24;')
