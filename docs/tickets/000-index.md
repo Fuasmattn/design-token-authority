@@ -125,7 +125,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 | # | Ticket | Priority | Effort | Blocked by | Status |
 |---|---|---|---|---|---|
-| [040](./040-core-model-parse-serialize.md) | Token model, DTCG parse/serialize, diagnostics | High | M | 033 | Open |
+| [040](./040-core-model-parse-serialize.md) | Token model, DTCG parse/serialize, diagnostics | High | M | 033 | Done |
 | [041](./041-core-color-utils.md) | Color utilities | High | S | 033 | Open |
 | [042](./042-core-uniqueness-alias-resolution.md) | Name uniqueness and alias resolution with mode selection | High | M | 040 | Open |
 | [043](./043-core-graph-analysis.md) | Graph analysis | High | M | 040, 042 | Open |

@@ -1,17 +1,17 @@
-const ALIAS_PATTERN = /^\{([^{}]+)\}$/
-
-/**
- * Parses a DTCG alias reference like `{Colors.Foundation.Blue.700}` into its
- * path segments. Returns `null` for anything that is not a well-formed alias.
- */
-export function parseAlias(value: unknown): string[] | null {
-  if (typeof value !== 'string') return null
-
-  const match = ALIAS_PATTERN.exec(value)
-  if (!match) return null
-
-  const segments = match[1].split('.')
-  if (segments.some((segment) => segment.trim() === '')) return null
-
-  return segments
-}
+export { parseAlias } from './alias.js'
+export { nameToDot, nameToSlash } from './names.js'
+export { parseTokenFiles } from './parse.js'
+export { serializeTokenFiles } from './serialize.js'
+export type {
+  Collection,
+  Diagnostic,
+  DiagnosticSeverity,
+  FileSource,
+  ParseResult,
+  Token,
+  TokenFileInput,
+  TokenModel,
+  TokenName,
+  TokenType,
+  TokenValue,
+} from './types.js'
