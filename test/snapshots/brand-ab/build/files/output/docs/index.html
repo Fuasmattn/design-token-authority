@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en" data-brand="branda">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Token Reference</title>
+<style>
+  :root {
+    --bg: #161618;
+    --bg-gradient: linear-gradient(135deg, #161618 0%, #1c1c1e 50%, #222224 100%);
+    --surface: rgba(255, 255, 255, 0.08);
+    --surface-hover: rgba(255, 255, 255, 0.12);
+    --glass: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-highlight: rgba(255, 255, 255, 0.18);
+    --glass-shadow: rgba(0, 0, 0, 0.25);
+    --border: rgba(255, 255, 255, 0.1);
+    --text: rgba(255, 255, 255, 0.92);
+    --text-secondary: rgba(255, 255, 255, 0.55);
+    --text-tertiary: rgba(255, 255, 255, 0.35);
+    --accent: rgba(255, 255, 255, 0.72);
+    --accent-glow: rgba(255, 255, 255, 0.15);
+    --accent-subtle: rgba(255, 255, 255, 0.08);
+    --radius: 16px;
+    --radius-sm: 12px;
+    --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    background-image: var(--bg-gradient);
+    background-attachment: fixed;
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+  }
+
+  /* Header */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(30px) saturate(150%);
+    -webkit-backdrop-filter: blur(30px) saturate(150%);
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+
+  .header .logo {
+    font-family: var(--font-mono);
+    color: var(--accent);
+    font-size: 13px;
+    background: var(--accent-subtle);
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.15);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+
+  .header .subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-left: auto;
+  }
+
+  /* Brand dropdown */
+  .brand-select-wrap {
+    position: relative;
+    margin-left: auto;
+  }
+
+  .brand-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 7px 32px 7px 14px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+    box-shadow: inset 0 1px 0 0 var(--glass-highlight);
+  }
+
+  .brand-select:hover { border-color: rgba(255,255,255,0.22); }
+  .brand-select:focus { border-color: var(--accent); }
+
+  .brand-select option {
+    background: #161618;
+    color: rgba(255,255,255,0.92);
+  }
+
+  /* Chevron */
+  .brand-select-wrap::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid var(--text-secondary);
+    pointer-events: none;
+  }
+
+  section { margin-bottom: 48px; }
+
+  section h2 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+
+  section h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 24px 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .section-desc {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  /* Color swatches */
+  .swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 10px;
+  }
+
+  .swatch {
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    box-shadow: inset 0 1px 0 0 var(--glass-highlight), 0 2px 12px var(--glass-shadow);
+  }
+
+  .swatch:hover {
+    border-color: var(--accent);
+    box-shadow: inset 0 1px 0 0 var(--glass-highlight), 0 4px 20px var(--glass-shadow), 0 0 0 1px var(--accent-glow);
+    transform: translateY(-2px);
+  }
+
+  .swatch-color {
+    height: 68px;
+    width: 100%;
+    border-bottom: 1px solid var(--glass-border);
+    position: relative;
+  }
+
+  /* Copy icon overlay on hover */
+  .swatch-color::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    opacity: 0;
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .swatch:hover .swatch-color::after { opacity: 1; }
+
+  .copy-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 22px;
+    height: 22px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .swatch:hover .copy-icon { opacity: 1; }
+
+  .swatch-info {
+    padding: 8px 10px;
+  }
+
+  .swatch-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .swatch-value {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .swatch-alias {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Alias chain popover */
+  .alias-chain {
+    margin-top: 6px;
+    padding: 6px 8px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    line-height: 1.6;
+    display: none;
+  }
+
+  .alias-chain.show { display: block; }
+
+  .alias-chain-step {
+    color: var(--text-secondary);
+  }
+
+  .alias-chain-arrow {
+    color: var(--text-tertiary);
+    margin: 0 2px;
+  }
+
+  .alias-chain-final {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Toast notification */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-family: var(--font-mono);
+    z-index: 1000;
+    box-shadow: 0 4px 24px var(--glass-shadow), 0 0 12px var(--accent-glow);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Typography previews */
+  .type-grid {
+    display: grid;
+    gap: 10px;
+  }
+
+  .type-card {
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: inset 0 1px 0 0 var(--glass-highlight), 0 2px 12px var(--glass-shadow);
+    transition: all 0.2s ease;
+  }
+
+  .type-card:hover {
+    border-color: rgba(255,255,255,0.18);
+    transform: translateY(-1px);
+  }
+
+  .type-preview {
+    font-size: 24px;
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+
+  .type-meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .type-meta span {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    background: var(--surface);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+
+  /* Font size scale */
+  .font-size-scale {
+    display: grid;
+    gap: 8px;
+  }
+
+  .font-size-row {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .font-size-row:last-child { border-bottom: none; }
+
+  .font-size-label {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    min-width: 90px;
+    flex-shrink: 0;
+  }
+
+  .font-size-sample {
+    line-height: 1.2;
+    color: var(--text);
+  }
+
+  .font-size-value {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  /* Spacing scale */
+  .spacing-scale {
+    display: grid;
+    gap: 6px;
+  }
+
+  .spacing-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .spacing-row:last-child { border-bottom: none; }
+
+  .spacing-label {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    min-width: 180px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .spacing-bar-wrap {
+    flex: 1;
+    height: 20px;
+    position: relative;
+  }
+
+  .spacing-bar {
+    height: 100%;
+    background: linear-gradient(90deg, rgba(120,180,255,0.5), rgba(120,180,255,0.25));
+    border-radius: 4px;
+    min-width: 2px;
+    transition: width 0.3s ease;
+  }
+
+  .spacing-val {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    min-width: 50px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* Effects */
+  .effects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  .effect-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .effect-card:hover {
+    border-color: rgba(255,255,255,0.18);
+    transform: translateY(-1px);
+  }
+
+  .blur-preview {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+  }
+
+  .opacity-preview {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 10px;
+    border-radius: 8px;
+    background: #6366f1;
+  }
+
+  .effect-name {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+  }
+
+  .effect-value {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* All tokens table */
+  .tokens-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    background: var(--glass);
+  }
+
+  .tokens-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .tokens-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(22,22,24,0.95);
+    backdrop-filter: blur(10px);
+  }
+
+  .tokens-table td {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+  }
+
+  .tokens-table tr:hover td {
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  .tokens-table .td-path { color: var(--text); font-weight: 500; }
+
+  .tokens-table .type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-right: 6px;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+
+  .table-count {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-bottom: 12px;
+  }
+
+  /* Search */
+  .search-box {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 16px;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 24px;
+    box-shadow: inset 0 1px 0 0 var(--glass-highlight);
+  }
+
+  .search-box:focus {
+    border-color: var(--accent);
+    box-shadow: inset 0 1px 0 0 var(--glass-highlight), 0 0 0 2px var(--accent-glow);
+  }
+
+  .search-box::placeholder { color: var(--text-tertiary); }
+
+  footer {
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 12px;
+    padding: 24px;
+    border-top: 1px solid var(--border);
+    margin-top: 48px;
+  }
+
+  .hidden { display: none !important; }
+
+  /* Tab navigation */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 32px;
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 10px;
+    padding: 3px;
+    border: 1px solid var(--glass-border);
+    width: fit-content;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 7px 18px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .tab-btn:hover { color: var(--text); background: var(--surface); }
+  .tab-btn.active {
+    background: var(--surface-hover);
+    color: var(--text);
+    box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.08);
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="logo">dta</span>
+  <h1>Design Token Authority</h1>
+  <span class="subtitle">Token Reference</span>
+  <div class="brand-select-wrap" id="brand-switcher"></div>
+</div>
+
+<div class="container">
+  <input type="text" class="search-box" id="search" placeholder="Search tokens...">
+
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="base">Base Colors</button>
+    <button class="tab-btn" data-tab="brand">Brand Colors</button>
+    <button class="tab-btn" data-tab="typography">Typography</button>
+    <button class="tab-btn" data-tab="spacing">Spacing</button>
+    <button class="tab-btn" data-tab="effects">Effects</button>
+    <button class="tab-btn" data-tab="all">All Tokens</button>
+  </div>
+
+  <section id="section-base">
+    <h2>Base Colors</h2>
+    <p class="section-desc">Color tokens from single-mode collections. Click to copy the hex value.</p>
+    <div id="base-colors"></div>
+  </section>
+
+  <section id="section-brand" class="hidden">
+    <h2>Brand Colors</h2>
+    <p class="section-desc">Color tokens from multi-mode collections. Click a swatch to see its alias chain.</p>
+    <div id="brand-colors"></div>
+  </section>
+
+  <section id="section-typography" class="hidden">
+    <h2>Typography</h2>
+    <p class="section-desc">Font sizes, weights, and families detected from token scopes.</p>
+    <div id="typography"></div>
+  </section>
+
+  <section id="section-spacing" class="hidden">
+    <h2>Spacing</h2>
+    <p class="section-desc">Spacing scale tokens. Bar width is proportional to the token value.</p>
+    <div id="spacing"></div>
+  </section>
+
+  <section id="section-effects" class="hidden">
+    <h2>Effects</h2>
+    <p class="section-desc">Blur and opacity tokens with live previews.</p>
+    <div id="effects"></div>
+  </section>
+
+  <section id="section-all" class="hidden">
+    <h2>All Tokens</h2>
+    <p class="section-desc">Every token across all collections. Use the search box to filter.</p>
+    <div id="table-count" class="table-count"></div>
+    <div id="all-tokens"></div>
+  </section>
+</div>
+
+<footer>
+  Generated by <strong>Design Token Authority</strong> &middot; <span id="gen-date"></span>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = {"brands":["BrandA","BrandB"],"baseColorTokens":[{"collection":"Primitives","segments":["Colors","Foundation","Blue","500"],"name":"500","value":"#0057b8"},{"collection":"Primitives","segments":["Colors","Foundation","Blue","700"],"name":"700","value":"#003f8a"},{"collection":"Primitives","segments":["Colors","Foundation","Green","500"],"name":"500","value":"#2e9e5b"},{"collection":"Primitives","segments":["Colors","Foundation","Green","700"],"name":"700","value":"#1f7a43"},{"collection":"Primitives","segments":["Colors","Foundation","Orange","500"],"name":"500","value":"#e8731a"},{"collection":"Primitives","segments":["Colors","Foundation","Gray","100"],"name":"100","value":"#f3f4f6"},{"collection":"Primitives","segments":["Colors","Foundation","Gray","500"],"name":"500","value":"#6b7280"},{"collection":"Primitives","segments":["Colors","Foundation","Gray","900"],"name":"900","value":"#111827"},{"collection":"Primitives","segments":["Colors","Foundation","White"],"name":"White","value":"#ffffff"}],"brandColorTokens":{"BrandA":[{"collection":"Brand(Alias)","segments":["Colors","Brand","Primary"],"name":"Primary","value":"#0057b8","alias":"{Colors.Foundation.Blue.500}","chain":["Colors.Foundation.Blue.500","#0057b8"]},{"collection":"Brand(Alias)","segments":["Colors","Brand","Primary Dark"],"name":"Primary Dark","value":"#003f8a","alias":"{Colors.Foundation.Blue.700}","chain":["Colors.Foundation.Blue.700","#003f8a"]},{"collection":"Brand(Alias)","segments":["Colors","Brand","Accent"],"name":"Accent","value":"#e8731a","alias":"{Colors.Foundation.Orange.500}","chain":["Colors.Foundation.Orange.500","#e8731a"]},{"collection":"Brand(Alias)","segments":["Colors","Surface","Default"],"name":"Default","value":"#ffffff","alias":"{Colors.Foundation.White}","chain":["Colors.Foundation.White","#ffffff"]},{"collection":"Brand(Alias)","segments":["Colors","Surface","Muted"],"name":"Muted","value":"#f3f4f6","alias":"{Colors.Foundation.Gray.100}","chain":["Colors.Foundation.Gray.100","#f3f4f6"]},{"collection":"Brand(Alias)","segments":["Colors","Text","Default"],"name":"Default","value":"#111827","alias":"{Colors.Foundation.Gray.900}","chain":["Colors.Foundation.Gray.900","#111827"]},{"collection":"Brand(Alias)","segments":["Colors","Text","Muted"],"name":"Muted","value":"#6b7280","alias":"{Colors.Foundation.Gray.500}","chain":["Colors.Foundation.Gray.500","#6b7280"]},{"collection":"Brand(Alias)","segments":["Colors","Text","On Primary"],"name":"On Primary","value":"#ffffff","alias":"{Colors.Foundation.White}","chain":["Colors.Foundation.White","#ffffff"]}],"BrandB":[{"collection":"Brand(Alias)","segments":["Colors","Brand","Primary"],"name":"Primary","value":"#2e9e5b","alias":"{Colors.Foundation.Green.500}","chain":["Colors.Foundation.Green.500","#2e9e5b"]},{"collection":"Brand(Alias)","segments":["Colors","Brand","Primary Dark"],"name":"Primary Dark","value":"#1f7a43","alias":"{Colors.Foundation.Green.700}","chain":["Colors.Foundation.Green.700","#1f7a43"]},{"collection":"Brand(Alias)","segments":["Colors","Brand","Accent"],"name":"Accent","value":"#e8731a","alias":"{Colors.Foundation.Orange.500}","chain":["Colors.Foundation.Orange.500","#e8731a"]},{"collection":"Brand(Alias)","segments":["Colors","Surface","Default"],"name":"Default","value":"#ffffff","alias":"{Colors.Foundation.White}","chain":["Colors.Foundation.White","#ffffff"]},{"collection":"Brand(Alias)","segments":["Colors","Surface","Muted"],"name":"Muted","value":"#f3f4f6","alias":"{Colors.Foundation.Gray.100}","chain":["Colors.Foundation.Gray.100","#f3f4f6"]},{"collection":"Brand(Alias)","segments":["Colors","Text","Default"],"name":"Default","value":"#111827","alias":"{Colors.Foundation.Gray.900}","chain":["Colors.Foundation.Gray.900","#111827"]},{"collection":"Brand(Alias)","segments":["Colors","Text","Muted"],"name":"Muted","value":"#6b7280","alias":"{Colors.Foundation.Gray.500}","chain":["Colors.Foundation.Gray.500","#6b7280"]},{"collection":"Brand(Alias)","segments":["Colors","Text","On Primary"],"name":"On Primary","value":"#ffffff","alias":"{Colors.Foundation.White}","chain":["Colors.Foundation.White","#ffffff"]}]},"typography":{"font-family":[["Typography.FontFamily.Sans","Inter"],["Typography.FontFamily.Serif","Source Serif 4"]],"font-size":[["Typography.FontSize.sm","14"],["Typography.FontSize.md","16"],["Typography.FontSize.lg","20"],["Typography.FontSize.xl","28"]]},"spacing":[{"name":"Dimensions.spacing.1","value":4},{"name":"Dimensions.spacing.2","value":8},{"name":"Dimensions.spacing.4","value":16},{"name":"Dimensions.spacing.8","value":32}],"effects":{"blur":[["Effects.blur.sm",4],["Effects.blur.md",12]],"opacity":[["Effects.opacity.50",50],["Effects.opacity.80",80]]},"allTokens":[{"path":"Colors.Foundation.Blue.500","type":"color","value":"#0057b8","collection":"Primitives"},{"path":"Colors.Foundation.Blue.700","type":"color","value":"#003f8a","collection":"Primitives"},{"path":"Colors.Foundation.Green.500","type":"color","value":"#2e9e5b","collection":"Primitives"},{"path":"Colors.Foundation.Green.700","type":"color","value":"#1f7a43","collection":"Primitives"},{"path":"Colors.Foundation.Orange.500","type":"color","value":"#e8731a","collection":"Primitives"},{"path":"Colors.Foundation.Gray.100","type":"color","value":"#f3f4f6","collection":"Primitives"},{"path":"Colors.Foundation.Gray.500","type":"color","value":"#6b7280","collection":"Primitives"},{"path":"Colors.Foundation.Gray.900","type":"color","value":"#111827","collection":"Primitives"},{"path":"Colors.Foundation.White","type":"color","value":"#ffffff","collection":"Primitives"},{"path":"Dimensions.spacing.1","type":"number","value":"4","collection":"Primitives"},{"path":"Dimensions.spacing.2","type":"number","value":"8","collection":"Primitives"},{"path":"Dimensions.spacing.4","type":"number","value":"16","collection":"Primitives"},{"path":"Dimensions.spacing.8","type":"number","value":"32","collection":"Primitives"},{"path":"Dimensions.radius.sm","type":"number","value":"4","collection":"Primitives"},{"path":"Dimensions.radius.md","type":"number","value":"8","collection":"Primitives"},{"path":"Dimensions.radius.pill","type":"number","value":"999","collection":"Primitives"},{"path":"Effects.opacity.50","type":"number","value":"50","collection":"Primitives"},{"path":"Effects.opacity.80","type":"number","value":"80","collection":"Primitives"},{"path":"Effects.blur.sm","type":"number","value":"4","collection":"Primitives"},{"path":"Effects.blur.md","type":"number","value":"12","collection":"Primitives"},{"path":"Typography.FontFamily.Sans","type":"string","value":"Inter","collection":"Primitives"},{"path":"Typography.FontFamily.Serif","type":"string","value":"Source Serif 4","collection":"Primitives"},{"path":"Typography.FontSize.sm","type":"number","value":"14","collection":"Primitives"},{"path":"Typography.FontSize.md","type":"number","value":"16","collection":"Primitives"},{"path":"Typography.FontSize.lg","type":"number","value":"20","collection":"Primitives"},{"path":"Typography.FontSize.xl","type":"number","value":"28","collection":"Primitives"},{"path":"Colors.Brand.Primary","type":"color","value":"#0057b8","collection":"Brand(Alias) (BrandA)"},{"path":"Colors.Brand.Primary Dark","type":"color","value":"#003f8a","collection":"Brand(Alias) (BrandA)"},{"path":"Colors.Brand.Accent","type":"color","value":"#e8731a","collection":"Brand(Alias) (BrandA)"},{"path":"Colors.Surface.Default","type":"color","value":"#ffffff","collection":"Brand(Alias) (BrandA)"},{"path":"Colors.Surface.Muted","type":"color","value":"#f3f4f6","collection":"Brand(Alias) (BrandA)"},{"path":"Colors.Text.Default","type":"color","value":"#111827","collection":"Brand(Alias) (BrandA)"},{"path":"Colors.Text.Muted","type":"color","value":"#6b7280","collection":"Brand(Alias) (BrandA)"},{"path":"Colors.Text.On Primary","type":"color","value":"#ffffff","collection":"Brand(Alias) (BrandA)"},{"path":"Typography.Body.Family","type":"string","value":"Inter","collection":"Brand(Alias) (BrandA)"},{"path":"Effects.overlay.Opacity","type":"number","value":"50","collection":"Brand(Alias) (BrandA)"},{"path":"Effects.shadow.Blur","type":"number","value":"12","collection":"Brand(Alias) (BrandA)"},{"path":"Colors.Brand.Primary","type":"color","value":"#2e9e5b","collection":"Brand(Alias) (BrandB)"},{"path":"Colors.Brand.Primary Dark","type":"color","value":"#1f7a43","collection":"Brand(Alias) (BrandB)"},{"path":"Colors.Brand.Accent","type":"color","value":"#e8731a","collection":"Brand(Alias) (BrandB)"},{"path":"Colors.Surface.Default","type":"color","value":"#ffffff","collection":"Brand(Alias) (BrandB)"},{"path":"Colors.Surface.Muted","type":"color","value":"#f3f4f6","collection":"Brand(Alias) (BrandB)"},{"path":"Colors.Text.Default","type":"color","value":"#111827","collection":"Brand(Alias) (BrandB)"},{"path":"Colors.Text.Muted","type":"color","value":"#6b7280","collection":"Brand(Alias) (BrandB)"},{"path":"Colors.Text.On Primary","type":"color","value":"#ffffff","collection":"Brand(Alias) (BrandB)"},{"path":"Typography.Body.Family","type":"string","value":"Source Serif 4","collection":"Brand(Alias) (BrandB)"},{"path":"Effects.overlay.Opacity","type":"number","value":"50","collection":"Brand(Alias) (BrandB)"},{"path":"Effects.shadow.Blur","type":"number","value":"12","collection":"Brand(Alias) (BrandB)"},{"path":"Spacing.Gap","type":"number","value":"16","collection":"ScreenType (Desktop)"},{"path":"Spacing.Padding","type":"number","value":"32","collection":"ScreenType (Desktop)"},{"path":"Typography.Body.Size","type":"number","value":"16","collection":"ScreenType (Desktop)"},{"path":"Typography.Heading.Size","type":"number","value":"28","collection":"ScreenType (Desktop)"},{"path":"Radius.Card","type":"number","value":"8","collection":"ScreenType (Desktop)"},{"path":"Spacing.Gap","type":"number","value":"8","collection":"ScreenType (Mobile)"},{"path":"Spacing.Padding","type":"number","value":"8","collection":"ScreenType (Mobile)"},{"path":"Typography.Body.Size","type":"number","value":"14","collection":"ScreenType (Mobile)"},{"path":"Typography.Heading.Size","type":"number","value":"20","collection":"ScreenType (Mobile)"},{"path":"Radius.Card","type":"number","value":"4","collection":"ScreenType (Mobile)"},{"path":"Spacing.Gap","type":"number","value":"8","collection":"ScreenType (Tablet)"},{"path":"Spacing.Padding","type":"number","value":"16","collection":"ScreenType (Tablet)"},{"path":"Typography.Body.Size","type":"number","value":"16","collection":"ScreenType (Tablet)"},{"path":"Typography.Heading.Size","type":"number","value":"20","collection":"ScreenType (Tablet)"},{"path":"Radius.Card","type":"number","value":"8","collection":"ScreenType (Tablet)"}]};
+const TAB_IDS = ['base', 'brand', 'typography', 'spacing', 'effects', 'all'];
+
+// ---- Brand switcher (dropdown) ----
+const switcherEl = document.getElementById('brand-switcher');
+if (DATA.brands.length > 0) {
+  const select = document.createElement('select');
+  select.className = 'brand-select';
+  DATA.brands.forEach(brand => {
+    const opt = document.createElement('option');
+    opt.value = brand;
+    opt.textContent = brand;
+    select.appendChild(opt);
+  });
+  select.addEventListener('change', () => {
+    const brand = select.value;
+    document.documentElement.setAttribute('data-brand', brand.toLowerCase());
+    renderBrandColors(brand);
+  });
+  switcherEl.appendChild(select);
+}
+
+// ---- Tabs ----
+const tabBtns = document.querySelectorAll('.tab-btn');
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.getAttribute('data-tab');
+    TAB_IDS.forEach(id => {
+      document.getElementById('section-' + id).classList.toggle('hidden', tab !== id);
+    });
+  });
+});
+
+/**
+ * Group tokens by collection, then dynamically by all-but-last path segments.
+ */
+function groupTokens(tokens, filterLower) {
+  const byCollection = {};
+  for (const t of tokens) {
+    const fullPath = t.segments.join('.');
+    const matchesFilter = !filterLower ||
+      fullPath.toLowerCase().includes(filterLower) ||
+      t.value.toLowerCase().includes(filterLower) ||
+      (t.alias || '').toLowerCase().includes(filterLower);
+    if (!matchesFilter) continue;
+
+    if (!byCollection[t.collection]) byCollection[t.collection] = {};
+    const groupSegments = t.segments.slice(0, -1);
+    const groupKey = groupSegments.length > 0 ? groupSegments.join(' / ') : '_root';
+    if (!byCollection[t.collection][groupKey]) byCollection[t.collection][groupKey] = [];
+    byCollection[t.collection][groupKey].push(t);
+  }
+  return byCollection;
+}
+
+// ---- Render base colors ----
+function renderBaseColors(filter) {
+  const container = document.getElementById('base-colors');
+  container.innerHTML = '';
+  const filterLower = (filter || '').toLowerCase();
+  const grouped = groupTokens(DATA.baseColorTokens, filterLower);
+
+  for (const [collection, groups] of Object.entries(grouped)) {
+    const collH2 = document.createElement('h3');
+    collH2.textContent = collection;
+    collH2.style.cssText = 'font-size:15px;margin-top:32px;margin-bottom:4px;color:var(--text);text-transform:none;letter-spacing:0';
+    container.appendChild(collH2);
+
+    for (const [groupPath, tokens] of Object.entries(groups)) {
+      if (groupPath !== '_root') {
+        const h4 = document.createElement('h3');
+        h4.textContent = groupPath;
+        container.appendChild(h4);
+      }
+
+      const grid = document.createElement('div');
+      grid.className = 'swatch-grid';
+      for (const token of tokens) {
+        grid.appendChild(createSwatch(token.segments.join('.'), token.value));
+      }
+      container.appendChild(grid);
+    }
+  }
+
+  if (container.children.length === 0) {
+    container.innerHTML = '<p style="color: var(--text-secondary)">No base color tokens found.</p>';
+  }
+}
+
+// ---- Render brand colors ----
+function renderBrandColors(brand, filter) {
+  const container = document.getElementById('brand-colors');
+  container.innerHTML = '';
+  const tokens = DATA.brandColorTokens[brand];
+  if (!tokens || tokens.length === 0) {
+    container.innerHTML = '<p style="color: var(--text-secondary)">No brand color data found.</p>';
+    return;
+  }
+  const filterLower = (filter || '').toLowerCase();
+  const grouped = groupTokens(tokens, filterLower);
+
+  for (const [collection, groups] of Object.entries(grouped)) {
+    const collH2 = document.createElement('h3');
+    collH2.textContent = collection;
+    collH2.style.cssText = 'font-size:15px;margin-top:32px;margin-bottom:4px;color:var(--text);text-transform:none;letter-spacing:0';
+    container.appendChild(collH2);
+
+    for (const [groupPath, tokens] of Object.entries(groups)) {
+      if (groupPath !== '_root') {
+        const h4 = document.createElement('h3');
+        h4.textContent = groupPath;
+        container.appendChild(h4);
+      }
+
+      const grid = document.createElement('div');
+      grid.className = 'swatch-grid';
+      for (const token of tokens) {
+        grid.appendChild(createSwatch(token.segments.join('.'), token.value, token.alias, token.chain));
+      }
+      container.appendChild(grid);
+    }
+  }
+}
+
+// ---- Toast ----
+let toastTimeout;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => toast.classList.remove('show'), 1800);
+}
+
+// ---- Create swatch element ----
+function createSwatch(tokenPath, value, alias, chain) {
+  const swatch = document.createElement('div');
+  swatch.className = 'swatch';
+  swatch.title = tokenPath;
+
+  const colorDiv = document.createElement('div');
+  colorDiv.className = 'swatch-color';
+  colorDiv.style.background = value;
+
+  if (isLightColor(value)) {
+    colorDiv.style.boxShadow = 'inset 0 0 0 1px rgba(0,0,0,0.08)';
+  }
+
+  const copyIcon = document.createElement('div');
+  copyIcon.className = 'copy-icon';
+  copyIcon.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  colorDiv.appendChild(copyIcon);
+
+  const info = document.createElement('div');
+  info.className = 'swatch-info';
+
+  const name = document.createElement('div');
+  name.className = 'swatch-name';
+  const parts = tokenPath.split('.');
+  name.textContent = parts.slice(-2).join('.');
+
+  const val = document.createElement('div');
+  val.className = 'swatch-value';
+  val.textContent = value;
+
+  info.appendChild(name);
+  info.appendChild(val);
+
+  if (alias && alias.startsWith('{')) {
+    const aliasEl = document.createElement('div');
+    aliasEl.className = 'swatch-alias';
+    aliasEl.textContent = alias.replace(/[{}]/g, '');
+    aliasEl.title = alias;
+    info.appendChild(aliasEl);
+  }
+
+  // Alias chain (expandable)
+  if (chain && chain.length > 1) {
+    const chainEl = document.createElement('div');
+    chainEl.className = 'alias-chain';
+    const chainHtml = chain.map((step, i) => {
+      if (i === chain.length - 1) {
+        return '<span class="alias-chain-final">' + escapeHtml(step) + '</span>';
+      }
+      return '<span class="alias-chain-step">' + escapeHtml(step) + '</span>';
+    }).join('<span class="alias-chain-arrow"> &rarr; </span>');
+    chainEl.innerHTML = chainHtml;
+    info.appendChild(chainEl);
+  }
+
+  swatch.appendChild(colorDiv);
+  swatch.appendChild(info);
+
+  swatch.addEventListener('click', (e) => {
+    // Toggle alias chain if it exists
+    const chainEl = swatch.querySelector('.alias-chain');
+    if (chainEl) {
+      chainEl.classList.toggle('show');
+    }
+    navigator.clipboard.writeText(value).then(() => {
+      showToast('Copied ' + value);
+    });
+  });
+
+  return swatch;
+}
+
+function isLightColor(hex) {
+  if (!hex || !hex.startsWith('#')) return false;
+  const c = hex.replace('#', '');
+  if (c.length < 6) return false;
+  const r = parseInt(c.substr(0, 2), 16);
+  const g = parseInt(c.substr(2, 2), 16);
+  const b = parseInt(c.substr(4, 2), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 200;
+}
+
+// ---- Render typography ----
+function renderTypography() {
+  const container = document.getElementById('typography');
+  container.innerHTML = '';
+  const typo = DATA.typography;
+
+  if (Object.keys(typo).length === 0) {
+    container.innerHTML = '<p style="color: var(--text-secondary)">No typography tokens found (tokens need FONT_SIZE, FONT_WEIGHT, or FONT_FAMILY scopes).</p>';
+    return;
+  }
+
+  if (typo['font-family']) {
+    const h3 = document.createElement('h3');
+    h3.textContent = 'Font Families';
+    container.appendChild(h3);
+
+    const grid = document.createElement('div');
+    grid.className = 'type-grid';
+    for (const [name, value] of typo['font-family']) {
+      const card = document.createElement('div');
+      card.className = 'type-card';
+      card.innerHTML =
+        '<div class="type-preview" style="font-family: \'' + escapeHtml(value) + '\', sans-serif">' +
+        escapeHtml(value) + ' — The quick brown fox jumps over the lazy dog</div>' +
+        '<div class="type-meta"><span>' + escapeHtml(name) + '</span>' +
+        '<span>font-family: ' + escapeHtml(value) + '</span></div>';
+      grid.appendChild(card);
+    }
+    container.appendChild(grid);
+  }
+
+  if (typo['font-size']) {
+    const h3 = document.createElement('h3');
+    h3.textContent = 'Font Sizes';
+    container.appendChild(h3);
+
+    const card = document.createElement('div');
+    card.className = 'type-card';
+    const scale = document.createElement('div');
+    scale.className = 'font-size-scale';
+
+    for (const [name, value] of typo['font-size']) {
+      const row = document.createElement('div');
+      row.className = 'font-size-row';
+      row.innerHTML =
+        '<span class="font-size-label">' + escapeHtml(name) + '</span>' +
+        '<span class="font-size-sample" style="font-size: ' + escapeHtml(value) + 'px">The quick brown fox</span>' +
+        '<span class="font-size-value">' + escapeHtml(value) + 'px</span>';
+      scale.appendChild(row);
+    }
+    card.appendChild(scale);
+    container.appendChild(card);
+  }
+
+  if (typo['font-weight']) {
+    const h3 = document.createElement('h3');
+    h3.textContent = 'Font Weights';
+    container.appendChild(h3);
+
+    const grid = document.createElement('div');
+    grid.className = 'type-grid';
+    for (const [name, value] of typo['font-weight']) {
+      const card = document.createElement('div');
+      card.className = 'type-card';
+      card.innerHTML =
+        '<div class="type-preview" style="font-weight: ' + escapeHtml(value) + '">' +
+        escapeHtml(value) + '</div>' +
+        '<div class="type-meta"><span>' + escapeHtml(name) + '</span></div>';
+      grid.appendChild(card);
+    }
+    container.appendChild(grid);
+  }
+}
+
+// ---- Render spacing ----
+function renderSpacing() {
+  const container = document.getElementById('spacing');
+  container.innerHTML = '';
+  const tokens = DATA.spacing;
+
+  if (!tokens || tokens.length === 0) {
+    container.innerHTML = '<p style="color: var(--text-secondary)">No spacing tokens found.</p>';
+    return;
+  }
+
+  const maxVal = Math.max(...tokens.map(t => t.value), 1);
+  const card = document.createElement('div');
+  card.className = 'type-card';
+  const scale = document.createElement('div');
+  scale.className = 'spacing-scale';
+
+  for (const token of tokens) {
+    const row = document.createElement('div');
+    row.className = 'spacing-row';
+    const pct = Math.min((token.value / maxVal) * 100, 100);
+    row.innerHTML =
+      '<span class="spacing-label" title="' + escapeHtml(token.name) + '">' + escapeHtml(token.name.split('.').slice(-2).join('.')) + '</span>' +
+      '<div class="spacing-bar-wrap"><div class="spacing-bar" style="width: ' + pct + '%"></div></div>' +
+      '<span class="spacing-val">' + token.value + 'px</span>';
+    scale.appendChild(row);
+  }
+
+  card.appendChild(scale);
+  container.appendChild(card);
+}
+
+// ---- Render effects ----
+function renderEffects() {
+  const container = document.getElementById('effects');
+  container.innerHTML = '';
+  const fx = DATA.effects;
+
+  if ((!fx.blur || fx.blur.length === 0) && (!fx.opacity || fx.opacity.length === 0)) {
+    container.innerHTML = '<p style="color: var(--text-secondary)">No effects tokens found.</p>';
+    return;
+  }
+
+  if (fx.blur && fx.blur.length > 0) {
+    const h3 = document.createElement('h3');
+    h3.textContent = 'Blur';
+    container.appendChild(h3);
+
+    const grid = document.createElement('div');
+    grid.className = 'effects-grid';
+    for (const [name, value] of fx.blur) {
+      const card = document.createElement('div');
+      card.className = 'effect-card';
+      const shortName = name.split('.').slice(-1)[0];
+      card.innerHTML =
+        '<div class="blur-preview" style="filter: blur(' + value + 'px)"></div>' +
+        '<div class="effect-name">' + escapeHtml(shortName) + '</div>' +
+        '<div class="effect-value">' + value + 'px</div>';
+      grid.appendChild(card);
+    }
+    container.appendChild(grid);
+  }
+
+  if (fx.opacity && fx.opacity.length > 0) {
+    const h3 = document.createElement('h3');
+    h3.textContent = 'Opacity';
+    container.appendChild(h3);
+
+    const grid = document.createElement('div');
+    grid.className = 'effects-grid';
+    for (const [name, value] of fx.opacity) {
+      const card = document.createElement('div');
+      card.className = 'effect-card';
+      const shortName = name.split('.').slice(-1)[0];
+      const cssOpacity = value / 100;
+      card.innerHTML =
+        '<div class="opacity-preview" style="opacity: ' + cssOpacity + '"></div>' +
+        '<div class="effect-name">' + escapeHtml(shortName) + '</div>' +
+        '<div class="effect-value">' + value + '%</div>';
+      grid.appendChild(card);
+    }
+    container.appendChild(grid);
+  }
+}
+
+// ---- Render all tokens table ----
+function renderAllTokens(filter) {
+  const container = document.getElementById('all-tokens');
+  const countEl = document.getElementById('table-count');
+  container.innerHTML = '';
+  const filterLower = (filter || '').toLowerCase();
+
+  const filtered = filterLower
+    ? DATA.allTokens.filter(t =>
+        t.path.toLowerCase().includes(filterLower) ||
+        t.type.toLowerCase().includes(filterLower) ||
+        t.value.toLowerCase().includes(filterLower) ||
+        t.collection.toLowerCase().includes(filterLower))
+    : DATA.allTokens;
+
+  countEl.textContent = filtered.length + ' of ' + DATA.allTokens.length + ' tokens';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'tokens-table-wrap';
+  wrap.style.maxHeight = '600px';
+  wrap.style.overflowY = 'auto';
+
+  const table = document.createElement('table');
+  table.className = 'tokens-table';
+  table.innerHTML = '<thead><tr><th>Token Path</th><th>Type</th><th>Value</th><th>Collection</th></tr></thead>';
+
+  const tbody = document.createElement('tbody');
+  const limit = Math.min(filtered.length, 500);
+  for (let i = 0; i < limit; i++) {
+    const t = filtered[i];
+    const tr = document.createElement('tr');
+    const valueCellContent = t.type === 'color' && t.value.startsWith('#')
+      ? '<span class="color-dot" style="background:' + escapeHtml(t.value) + '"></span>' + escapeHtml(t.value)
+      : escapeHtml(t.value);
+    tr.innerHTML =
+      '<td class="td-path">' + escapeHtml(t.path) + '</td>' +
+      '<td><span class="type-badge">' + escapeHtml(t.type) + '</span></td>' +
+      '<td>' + valueCellContent + '</td>' +
+      '<td>' + escapeHtml(t.collection) + '</td>';
+    tbody.appendChild(tr);
+  }
+  if (filtered.length > 500) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td colspan="4" style="text-align:center;color:var(--text-tertiary)">Showing first 500 of ' + filtered.length + ' tokens. Use search to narrow results.</td>';
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+  container.appendChild(wrap);
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = String(str);
+  return div.innerHTML;
+}
+
+// ---- Search ----
+const searchEl = document.getElementById('search');
+searchEl.addEventListener('input', () => {
+  const q = searchEl.value;
+  renderBaseColors(q);
+  const brandSelect = document.querySelector('.brand-select');
+  if (brandSelect) renderBrandColors(brandSelect.value, q);
+  renderAllTokens(q);
+});
+
+// ---- Initial render ----
+renderBaseColors();
+if (DATA.brands.length > 0) renderBrandColors(DATA.brands[0]);
+renderTypography();
+renderSpacing();
+renderEffects();
+renderAllTokens();
+document.getElementById('gen-date').textContent = new Date().toLocaleDateString();
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --colors-foundation-blue-500: #0057b8;
+  --colors-foundation-blue-700: #003f8a; /** Deep blue */
+  --colors-foundation-green-500: #2e9e5b;
+  --colors-foundation-green-700: #1f7a43;
+  --colors-foundation-orange-500: #e8731a;
+  --colors-foundation-gray-100: #f3f4f6;
+  --colors-foundation-gray-500: #6b7280;
+  --colors-foundation-gray-900: #111827;
+  --colors-foundation-white: #ffffff;
+  --dimensions-spacing-1: 4px;
+  --dimensions-spacing-2: 8px;
+  --dimensions-spacing-4: 16px;
+  --dimensions-spacing-8: 32px;
+  --dimensions-radius-sm: 4px;
+  --dimensions-radius-md: 8px;
+  --dimensions-radius-pill: 999px;
+  --effects-opacity-50: 0.5;
+  --effects-opacity-80: 0.8;
+  --effects-blur-sm: 4px;
+  --effects-blur-md: 12px;
+  --typography-fontfamily-sans: Inter;
+  --typography-fontfamily-serif: Source Serif 4;
+  --typography-fontsize-sm: 14;
+  --typography-fontsize-md: 16;
+  --typography-fontsize-lg: 20;
+  --typography-fontsize-xl: 28;
+}

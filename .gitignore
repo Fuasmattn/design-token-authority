@@ -13,3 +13,5 @@ test/visual/test-results
 # Parity fixtures are committed on purpose (see test/fixtures/README.md)
 !test/fixtures/**/tokens
 !test/fixtures/**/dta.config.ts
+# Reference snapshots are committed on purpose, including build/, output/ and tokens/ inside them
+!test/snapshots/**

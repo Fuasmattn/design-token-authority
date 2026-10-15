@@ -1,0 +1,21 @@
+T   ⚒  dta build 
+|
+o  Base layer complete
+|
+o  Shared outputs complete
+|
+o  Token docs complete
+|
+o  Generated files --------------------+
+|                                      |
+|  output/css/base.css                 |
+|  output/css/variables.css            |
+|  build/js/colorpalette.js            |
+|  output/tailwind/tailwind.tokens.ts  |
+|  output/tailwind/tailwind.css        |
+|  output/docs/index.html              |
+|                                      |
++--------------------------------------+
+|
+—  Build complete!
+
