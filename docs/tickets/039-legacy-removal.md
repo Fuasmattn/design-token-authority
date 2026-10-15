@@ -17,7 +17,7 @@ Every legacy command, module and behaviour needs an owner and a proof. "Dropped"
 
 | Legacy | New home | Proof of parity | Status |
 |---|---|---|---|
-| `build` (CSS, JS, Tailwind v3/v4, per-brand) | `@dta/build` (TICKETs 049–054) | Package parity against `test/snapshots/*/build/files/output/{css,js,tailwind}`; CLI snapshot `build` once wired (Epic 6) | open |
+| `build` (CSS, JS, Tailwind v3/v4, per-brand) | `@dta/build` (TICKETs 049–054) | Package parity against `test/snapshots/*/build/files/output/{css,js,tailwind}`; CLI snapshot `build` once wired (Epic 6) | package done; CLI wiring in Epic 6 (scenario stays PENDING); legacy `commands/build.ts`, `style-dictionary.config.ts` deleted with the CLI port |
 | `formatters/tailwind-v4.ts` | `@dta/build` (TICKET-052) | Snapshot parity (brand-ab, daisyui) and legacy formatter cases re-expressed through `buildOutputs` | build side done; legacy file deleted with the legacy build command |
 | `formatters/tailwind-v3.ts` | `@dta/build` (TICKET-053) | Same, for v3 | build side done; legacy file deleted with the legacy build command |
 | `lint` | `@dta/lint` | CLI snapshot `lint` | open |
@@ -48,10 +48,12 @@ Each legacy quirk is either copied (snapshot stays) or fixed (reviewed snapshot 
 
 | Quirk | Decision |
 |---|---|
-| Build summary prints `build/js/colorpalette.js` but writes `output/js/…` | open |
+| Build summary prints `build/js/colorpalette.js` but writes `output/js/…` | `@dta/build` returns the real path (`output/js/colorpalette.js`); the summary is fixed in the CLI port as a reviewed snapshot diff |
+| JS palette directory is hardcoded to `output/js/` | copied for now (not configurable); revisit after parity |
+| A brand token aliasing its own path is dropped together with the primitive it shadows | copied (covered by a test in `@dta/build`); revisit after parity |
 | Version hardcoded as `0.1.0` in `theme.ts` / `cli.ts` | open |
-| Legacy export always writes `$description` (empty string if none) | open |
-| Legacy payload omits the alpha channel when it is 1 | open |
+| Legacy export always writes `$description` (empty string if none) | copied (`variablesToModel`, TICKET-045) |
+| Legacy payload omits the alpha channel when it is 1 | copied (`planPush`, TICKET-046) |
 | Other quirks listed in `test/snapshots/README.md` | open |
 
 ## Removal checklist

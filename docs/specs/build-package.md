@@ -1,6 +1,6 @@
 # Spec: @dta/build — token model to CSS, JS and Tailwind output files
 
-**Status:** ready-for-review
+**Status:** implemented (TICKETs 049–054)
 **Part of:** [Token Engine Overhaul](./token-engine-overhaul.md), Epic 4
 **Depends on:** [@dta/core](./core-token-model.md) (Epic 2)
 **Related:** ADR 0001, TICKET-039 (parity table), the `build` snapshots in `test/snapshots/*/build`
