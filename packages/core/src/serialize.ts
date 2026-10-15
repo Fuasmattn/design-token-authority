@@ -72,7 +72,8 @@ function applyMetadata(
   token: Token,
   original: { description?: string; extensions?: Json } | undefined,
 ) {
-  if (token.description !== original?.description) {
+  // An empty description means the same as none (Figma reports '' for variables without one).
+  if ((token.description || undefined) !== (original?.description || undefined)) {
     if (token.description === undefined) delete node.$description
     else node.$description = token.description
   }

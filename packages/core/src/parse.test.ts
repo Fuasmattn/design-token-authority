@@ -277,6 +277,13 @@ describe('serializeTokenFiles: applying model changes', () => {
     expect(out.find((f) => f.fileName === 'A.Three.json')?.content.endsWith('\n')).toBe(true)
   })
 
+  it('treats an empty description as no description', () => {
+    const input = base()
+    const { model } = parseTokenFiles(input)
+    model.collections[0].tokens[0].description = ''
+    expect(serializeTokenFiles(model)).toEqual(input)
+  })
+
   it('applies a changed description to the existing entries', () => {
     const { model } = parseTokenFiles(base())
     model.collections[0].tokens[0].description = 'edited'
