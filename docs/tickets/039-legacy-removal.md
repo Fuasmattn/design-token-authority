@@ -28,7 +28,8 @@ Every legacy command, module and behaviour needs an owner and a proof. "Dropped"
 | docs site generator (`formatters/docs-html.ts`) | `@dta/build` or Epic 7 | Snapshot or explicit "replaced by Epic 7" decision | open |
 | `test:visual` (Playwright) | Epic 8 visual-diff | Explicit "replaced by Epic 8" decision | open |
 | `token_types.ts` | `@dta/core` (model, parse/serialize; TICKET-040) | Core tests incl. byte-identical round trip of both fixtures | core done; legacy file deleted when figma/build no longer import it |
-| `color.ts`, `token_export.ts`, `token_import.ts`, `utils.ts` | `@dta/core` / `@dta/figma` | Ported unit tests (legacy tests re-expressed through the new public APIs) | open |
+| `color.ts` (and `contrastRatio` in `linter.ts`) | `@dta/core` (TICKET-041) | Legacy color tests re-expressed through the core API | core done; legacy deleted with its last importer (`token_import`, `token_export`, `linter`) |
+| `token_export.ts`, `token_import.ts`, `utils.ts` | `@dta/figma` / `@dta/cli` | Ported unit tests (legacy tests re-expressed through the new public APIs) | open |
 | Legacy entrypoints `sync_*`, `dta.config.ts` loader | `@dta/cli` | Config tests (036) | open |
 
 ## Delete as you go
