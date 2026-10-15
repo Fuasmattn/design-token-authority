@@ -126,15 +126,18 @@ describe('captureScenario', () => {
     expect((await capture(`process.stdout.write('a\\r\\nb\\r\\n')`)).stdout).toBe('a\nb\n')
   })
 
-  it('pins locale, timezone and color settings and hides Figma credentials', async () => {
+  it('pins locale, timezone, color and terminal settings and hides Figma credentials', async () => {
+    const originalTerm = process.env.TERM
+    process.env.TERM = 'xterm-256color'
     process.env.FIGMA_FILE_KEY = 'secret-key'
     process.env.FIGMA_PERSONAL_ACCESS_TOKEN = 'secret-token'
     try {
       const result = await capture(
-        `const e = process.env; console.log([e.LC_ALL, e.LANG, e.TZ, e.NO_COLOR, e.FORCE_COLOR, e.CI, e.FIGMA_FILE_KEY, e.FIGMA_PERSONAL_ACCESS_TOKEN].join('|'))`,
+        `const e = process.env; console.log([e.LC_ALL, e.LANG, e.TZ, e.NO_COLOR, e.FORCE_COLOR, e.CI, e.FIGMA_FILE_KEY, e.FIGMA_PERSONAL_ACCESS_TOKEN, e.TERM].join('|'))`,
       )
-      expect(result.stdout).toBe('en_US.UTF-8|en_US.UTF-8|UTC|1|0|1||\n')
+      expect(result.stdout).toBe('en_US.UTF-8|en_US.UTF-8|UTC|1|0|1|||linux\n')
     } finally {
+      process.env.TERM = originalTerm
       delete process.env.FIGMA_FILE_KEY
       delete process.env.FIGMA_PERSONAL_ACCESS_TOKEN
     }

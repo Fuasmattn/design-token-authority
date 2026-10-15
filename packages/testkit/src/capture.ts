@@ -102,6 +102,9 @@ export async function captureScenario(options: CaptureOptions): Promise<Scenario
       NO_COLOR: '1',
       FORCE_COLOR: '0',
       CI: '1',
+      // Terminal UI libraries pick unicode or ASCII symbols from TERM (`linux` means ASCII).
+      // The recorded snapshots use the ASCII form, so pin it for every machine.
+      TERM: 'linux',
     }
     delete env.FIGMA_PERSONAL_ACCESS_TOKEN
     delete env.FIGMA_FILE_KEY

@@ -28,7 +28,7 @@ Re-capturing produces no diff (verified across repeated runs, including under CP
 - runs every scenario in a **fresh copy** of the fixture, so scenarios cannot affect each other
 - strips ANSI codes and **emulates spinner redraws**: piped, the spinner library prints extra intermediate frames only when a phase is slow, which would make stdout timing-dependent
 - replaces absolute paths with `<cwd>` / `<repo>` and normalizes line endings
-- pins `LC_ALL`/`LANG` (`toLocaleString()` number formatting), `TZ=UTC`, `NO_COLOR`, and removes `FIGMA_*` variables
+- pins `LC_ALL`/`LANG` (`toLocaleString()` number formatting), `TZ=UTC`, `NO_COLOR`, `TERM=linux` (the prompt library draws ASCII symbols for `linux` and unicode box characters otherwise, so an unpinned `TERM` made CI and other machines differ from the recording), and removes `FIGMA_*` variables
 - stubs `open` / `xdg-open` so `graph --format html` cannot launch a browser
 
 ## Known legacy quirks (captured as-is, not fixed)
