@@ -121,6 +121,15 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [037](./037-figma-fake.md) | Figma API fake with recorded responses | Medium | M | 033, 034 | Done |
 | [038](./038-agent-guardrails.md) | Agent guardrails for the overhaul | High | XS | 033 | Done |
 
+**Epic 2 — @dta/core** ([spec](../specs/core-token-model.md))
+
+| # | Ticket | Priority | Effort | Blocked by | Status |
+|---|---|---|---|---|---|
+| [040](./040-core-model-parse-serialize.md) | Token model, DTCG parse/serialize, diagnostics | High | M | 033 | Open |
+| [041](./041-core-color-utils.md) | Color utilities | High | S | 033 | Open |
+| [042](./042-core-uniqueness-alias-resolution.md) | Name uniqueness and alias resolution with mode selection | High | M | 040 | Open |
+| [043](./043-core-graph-analysis.md) | Graph analysis | High | M | 040, 042 | Open |
+
 **Epic 6 — exit plan (written early on purpose)**
 
 | # | Ticket | Priority | Effort | Blocked by | Status |
