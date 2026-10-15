@@ -1,7 +1,8 @@
-import { spawnSync } from 'node:child_process'
+import { spawn } from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { normalizeOutput } from './normalize.js'
 import { listFiles } from './store.js'
 import type { CaptureOptions, Scenario, ScenarioResult } from './types.js'
@@ -16,6 +17,11 @@ export const SCENARIOS: readonly Scenario[] = [
   { name: 'graph-html', args: ['graph', '--format', 'html', '--output', 'graph.html'] },
 ]
 
+/** Preload that redirects requests for api.figma.com to the fake (see figma-redirect.mjs). */
+const FIGMA_REDIRECT_URL = pathToFileURL(
+  path.join(path.dirname(fileURLToPath(import.meta.url)), 'figma-redirect.mjs'),
+).href
+
 /** Directory with no-op `open` / `xdg-open` so `graph --format html` never launches a browser. */
 function makeStubBin(dir: string): string {
   fs.mkdirSync(dir, { recursive: true })
@@ -27,12 +33,58 @@ function makeStubBin(dir: string): string {
   return dir
 }
 
+interface RunResult {
+  stdout: string
+  stderr: string
+  status: number
+}
+
+/** Run a command to completion, collecting its output. Never blocks the event loop. */
+function run(
+  command: string,
+  args: string[],
+  options: { cwd: string; env: NodeJS.ProcessEnv; timeoutMs: number; label: string },
+): Promise<RunResult> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      cwd: options.cwd,
+      env: options.env,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+    const stdout: Buffer[] = []
+    const stderr: Buffer[] = []
+    child.stdout.on('data', (chunk: Buffer) => stdout.push(chunk))
+    child.stderr.on('data', (chunk: Buffer) => stderr.push(chunk))
+
+    const timer = setTimeout(() => {
+      child.kill('SIGKILL')
+      reject(new Error(`"${options.label}" timed out after ${options.timeoutMs} ms`))
+    }, options.timeoutMs)
+
+    child.on('error', (error) => {
+      clearTimeout(timer)
+      reject(error)
+    })
+    child.on('close', (code, signal) => {
+      clearTimeout(timer)
+      if (code === null) reject(new Error(`"${options.label}" was terminated by ${signal}`))
+      else {
+        resolve({
+          stdout: Buffer.concat(stdout).toString('utf-8'),
+          stderr: Buffer.concat(stderr).toString('utf-8'),
+          status: code,
+        })
+      }
+    })
+  })
+}
+
 /**
  * Run one CLI invocation against a fresh copy of a fixture project and return its
  * normalized, machine-independent behaviour: stdout, stderr, exit code and the
  * files the command created.
  */
-export function captureScenario(options: CaptureOptions): ScenarioResult {
+export async function captureScenario(options: CaptureOptions): Promise<ScenarioResult> {
   const { fixtureDir, scenario, cli, repoRoot, timeoutMs = 120_000 } = options
 
   const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'dta-snapshot-')))
@@ -54,18 +106,25 @@ export function captureScenario(options: CaptureOptions): ScenarioResult {
     delete env.FIGMA_PERSONAL_ACCESS_TOKEN
     delete env.FIGMA_FILE_KEY
 
-    const run = spawnSync(cli.command, [...cli.args, ...scenario.args], {
+    if (options.figmaApiUrl !== undefined) {
+      env.DTA_FIGMA_API_URL = options.figmaApiUrl
+      // Requests must reach the fake directly. An environment proxy (common in CI and
+      // sandboxes) would make the HTTP client address the proxy instead of api.figma.com.
+      for (const name of Object.keys(env)) {
+        if (/^(https?|all)_proxy$/i.test(name)) delete env[name]
+      }
+      env.NO_PROXY = '*'
+      env.no_proxy = '*'
+      const preload = `--import=${FIGMA_REDIRECT_URL}`
+      env.NODE_OPTIONS = [process.env.NODE_OPTIONS, preload].filter(Boolean).join(' ')
+    }
+
+    const result = await run(cli.command, [...cli.args, ...scenario.args], {
       cwd: workDir,
       env,
-      encoding: 'utf-8',
-      timeout: timeoutMs,
-      // Node's default (1 MB) is too small for a large token set's graph output.
-      maxBuffer: 256 * 1024 * 1024,
+      timeoutMs,
+      label: scenario.name,
     })
-    if (run.error) throw run.error
-    if (run.status === null) {
-      throw new Error(`"${scenario.name}" was terminated by ${run.signal ?? 'a signal'}`)
-    }
 
     const normalize = (text: string) => normalizeOutput(text, workDir, repoRoot)
     const files: Record<string, string> = {}
@@ -74,9 +133,9 @@ export function captureScenario(options: CaptureOptions): ScenarioResult {
       files[name] = normalize(fs.readFileSync(path.join(workDir, name), 'utf-8'))
     }
     return {
-      stdout: normalize(run.stdout ?? ''),
-      stderr: normalize(run.stderr ?? ''),
-      exitCode: run.status,
+      stdout: normalize(result.stdout),
+      stderr: normalize(result.stderr),
+      exitCode: result.status,
       files,
     }
   } finally {

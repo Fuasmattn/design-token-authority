@@ -28,7 +28,7 @@
     "dist"
   ],
   "scripts": {
-    "prettier:check": "prettier --check src/ packages/ scripts/snapshots/",
+    "prettier:check": "prettier --check src/ packages/ scripts/",
     "dta": "tsx src/cli.ts",
     "sync-tokens-to-figma": "tsx src/sync_tokens_to_figma.ts",
     "sync-figma-to-tokens": "tsx src/sync_figma_to_tokens.ts",
@@ -42,10 +42,11 @@
     "prepare": "npm run build:cli",
     "release": "release-it",
     "release:dry": "release-it --dry-run",
-    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p scripts/snapshots/tsconfig.json && pnpm -r typecheck",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p scripts/snapshots/tsconfig.json && tsc --noEmit -p scripts/figma/tsconfig.json && pnpm -r typecheck",
     "snapshot:capture": "tsx scripts/snapshots/capture-legacy.ts",
     "snapshot:check": "tsx scripts/snapshots/capture-legacy.ts --check",
-    "dta:next": "tsx packages/cli/src/bin.ts"
+    "dta:next": "tsx packages/cli/src/bin.ts",
+    "figma:recording": "tsx scripts/figma/build-recording.ts"
   },
   "dependencies": {
     "@clack/prompts": "^1.2.0",

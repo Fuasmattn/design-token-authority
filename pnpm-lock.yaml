@@ -107,6 +107,9 @@ importers:
         specifier: ^8.0.4
         version: 8.0.4
     devDependencies:
+      '@figma/rest-api-spec':
+        specifier: ^0.37.0
+        version: 0.37.0
       '@types/node':
         specifier: ^24.12.2
         version: 24.12.2

@@ -26,6 +26,11 @@ export interface CaptureOptions {
   cli: CliCommand
   /** Absolute path of the repository; replaced by `<repo>` in captured output. */
   repoRoot: string
+  /**
+   * Redirect the command's requests for api.figma.com to this URL (a fake Figma API).
+   * Works for any Node-based CLI that talks to Figma over `https`.
+   */
+  figmaApiUrl?: string
   /** Kill the command after this many milliseconds (default: 120000). */
   timeoutMs?: number
 }

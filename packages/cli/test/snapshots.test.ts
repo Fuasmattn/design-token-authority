@@ -51,14 +51,14 @@ describe('pending list', () => {
 })
 
 describe.each(listFixtures(fixturesRoot))('fixture %s', (fixture) => {
-  it.each(SCENARIOS.map((s) => s.name))('%s', (name) => {
+  it.each(SCENARIOS.map((s) => s.name))('%s', async (name) => {
     const scenario = SCENARIOS.find((s) => s.name === name)!
     const expected = readSnapshot(path.join(snapshotsRoot, fixture, name))
     if (expected === null) {
       throw new Error(`No snapshot recorded for ${fixture}/${name}. Run "pnpm snapshot:capture".`)
     }
 
-    const actual = captureScenario({
+    const actual = await captureScenario({
       fixtureDir: path.join(fixturesRoot, fixture),
       scenario,
       cli: newCli,

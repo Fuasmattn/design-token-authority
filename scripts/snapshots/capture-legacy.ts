@@ -46,7 +46,7 @@ function parseArgs(argv: string[]) {
   }
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const { check, out, fixture: onlyFixture } = parseArgs(process.argv.slice(2))
   const outRoot = path.resolve(out ?? snapshotsRoot)
 
@@ -56,7 +56,7 @@ function main(): void {
   const problems: string[] = []
   for (const fixture of fixtures) {
     for (const scenario of SCENARIOS) {
-      const result = captureScenario({
+      const result = await captureScenario({
         fixtureDir: path.join(fixturesRoot, fixture),
         scenario,
         cli: legacyCli,
@@ -92,4 +92,4 @@ function main(): void {
   }
 }
 
-main()
+await main()
