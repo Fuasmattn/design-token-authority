@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** S
 **Blocked by:** None (can start immediately)
-**Status:** ready-for-agent
+**Status:** in review
 **Spec:** [token-engine-overhaul](../specs/token-engine-overhaul.md) · ADRs 0001, 0002
 
 ## What to build
@@ -13,9 +13,9 @@ A pnpm workspace next to the frozen legacy code, with a first `@dta/core` packag
 
 ## Acceptance Criteria
 
-- [ ] Repo uses pnpm workspaces; `packages/*` is a workspace glob
-- [ ] `@dta/core` exists, ESM only, Node 24+, and exposes exactly one public entry point
-- [ ] One test exercises `@dta/core` through its public entry point only
-- [ ] CI runs typecheck, Vitest and Prettier for the workspace on every push
-- [ ] Legacy tests and legacy `dta` commands still pass unchanged
-- [ ] Changesets is set up in fixed mode for `@dta/*` packages; no package is published
+- [x] Repo uses pnpm workspaces; `packages/*` is a workspace glob
+- [x] `@dta/core` exists, ESM only, Node 24+, and exposes exactly one public entry point
+- [x] One test exercises `@dta/core` through its public entry point only
+- [x] CI runs typecheck, Vitest and Prettier for the workspace on every push
+- [x] Legacy tests and legacy `dta` commands still pass unchanged
+- [x] Changesets is set up in fixed mode for `@dta/*` packages; no package is published

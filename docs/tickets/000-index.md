@@ -114,7 +114,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 | # | Ticket | Priority | Effort | Blocked by | Status |
 |---|---|---|---|---|---|
-| [033](./033-workspace-scaffold.md) | pnpm workspace scaffold | High | S | — | Open |
+| [033](./033-workspace-scaffold.md) | pnpm workspace scaffold | High | S | — | In review |
 | [034](./034-fixture-projects.md) | Fixture projects for parity testing | High | S | — | Open |
 | [035](./035-capture-legacy-goldens.md) | Capture legacy golden outputs | High | S | 034 | Open |
 | [036](./036-cli-skeleton-golden-runner.md) | New CLI skeleton + golden-file runner | High | M | 033, 035 | Open |

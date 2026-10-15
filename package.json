@@ -28,7 +28,7 @@
     "dist"
   ],
   "scripts": {
-    "prettier:check": "prettier --check src/",
+    "prettier:check": "prettier --check src/ packages/",
     "dta": "tsx src/cli.ts",
     "sync-tokens-to-figma": "tsx src/sync_tokens_to_figma.ts",
     "sync-figma-to-tokens": "tsx src/sync_figma_to_tokens.ts",
@@ -41,7 +41,8 @@
     "build:cli": "npx tsc && chmod +x dist/cli.js",
     "prepare": "npm run build:cli",
     "release": "release-it",
-    "release:dry": "release-it --dry-run"
+    "release:dry": "release-it --dry-run",
+    "typecheck": "tsc --noEmit -p tsconfig.json && pnpm -r typecheck"
   },
   "dependencies": {
     "@clack/prompts": "^1.2.0",
@@ -54,6 +55,7 @@
     "typescript": "^5.1.6"
   },
   "devDependencies": {
+    "@changesets/cli": "^3.0.3",
     "@figma/rest-api-spec": "^0.37.0",
     "@playwright/test": "^1.59.1",
     "@release-it/conventional-changelog": "^10.0.6",
@@ -62,5 +64,6 @@
     "prettier": "^3.8.1",
     "release-it": "^19.2.4",
     "vitest": "^4.1.2"
-  }
+  },
+  "packageManager": "pnpm@10.28.0"
 }

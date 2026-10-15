@@ -151,21 +151,22 @@ FIGMA_FILE_KEY=                # From Figma file URL: figma.com/file/<FILE_KEY>/
 ### Available commands
 
 ```bash
-npm run dta -- pull            # Pull variables from Figma → tokens/
-npm run dta -- push            # Push tokens/ → Figma (typed confirmation required)
-npm run dta -- push --yes      # Push without confirmation (CI/automation)
-npm run dta -- build           # Generate CSS + JS from tokens/
-npm run dta -- clean           # Remove all token files and build output
-npm run dta -- analyze         # Inspect Figma file structure
-npm run dta -- graph           # Token dependency graph (console summary)
-npm run dta -- graph --format html   # Interactive HTML visualization
-npm run dta -- init            # Interactive project setup wizard
-npm test                       # Run Vitest test suite
-npm run prettier:check         # Check code formatting
+pnpm dta pull            # Pull variables from Figma → tokens/
+pnpm dta push            # Push tokens/ → Figma (typed confirmation required)
+pnpm dta push --yes      # Push without confirmation (CI/automation)
+pnpm dta build           # Generate CSS + JS from tokens/
+pnpm dta clean           # Remove all token files and build output
+pnpm dta analyze         # Inspect Figma file structure
+pnpm dta graph           # Token dependency graph (console summary)
+pnpm dta graph --format html   # Interactive HTML visualization
+pnpm dta init            # Interactive project setup wizard
+pnpm test                      # Run Vitest (legacy + all packages)
+pnpm typecheck                 # Typecheck legacy + all packages
+pnpm prettier:check         # Check code formatting
 
 # Legacy scripts (still work)
-npm run sync-figma-to-tokens   # same as dta pull
-npm run sync-tokens-to-figma   # same as dta push
+pnpm sync-figma-to-tokens   # same as dta pull
+pnpm sync-tokens-to-figma   # same as dta push
 ```
 
 ### Figma plan requirements
@@ -175,7 +176,7 @@ The Figma Variables **REST API** (`/v1/files/:key/variables/local`) is **only av
 **For non-Enterprise plans**, use the `--from-file` flag to import tokens exported from Figma via a plugin:
 
 ```bash
-npm run dta -- pull --from-file <exported.json>
+pnpm dta pull --from-file <exported.json>
 ```
 
 **Compatible Figma plugins:**
@@ -190,7 +191,7 @@ The `dta init` wizard asks which Figma plan you have and adjusts the setup flow 
 
 ### Build pipeline (current, pre-v4)
 
-`npm run build` runs `removedollarsigns.sh` (strips `$` from token keys) then `style-dictionary build`.
+`pnpm build` runs `removedollarsigns.sh` (strips `$` from token keys) then `style-dictionary build`.
 ⚠️ This mutates token files. After a build run, token files may have `type`/`value` instead of `$type`/`$value`.
 **This will be fixed by TICKET-002 (upgrade to Style Dictionary v4).**
 
@@ -216,7 +217,7 @@ These are tracked as tickets — do not work around them, fix them at the source
 
 - Framework: Vitest
 - Test files live alongside source: `color.test.ts`, `token_export.test.ts`, `token_import.test.ts`, `config/schema.test.ts`, `analyze.test.ts`, `cli.test.ts`, `commands/init.test.ts`, `graph.test.ts`
-- Run: `npm test`
+- Run: `pnpm test`
 - Coverage: color parsing, export conversion, import payload generation, alias resolution, edge cases
 - When adding new source files, add a corresponding `*.test.ts`
 
@@ -229,13 +230,13 @@ These are tracked as tickets — do not work around them, fix them at the source
 - **TypeScript:** strict mode, ESNext modules, target ES2015
 - **No `any`** unless genuinely unavoidable — prefer `unknown` and narrow
 - Imports use `.js` extension (ESM requirement with tsx)
-- Run `npm run prettier:check` before committing; CI enforces it
+- Run `pnpm prettier:check` before committing; CI enforces it
 
 ---
 
 ## CI / GitHub Actions
 
-- `.github/workflows/test.yml` — runs on every push: prettier check + jest
+- `.github/workflows/test.yml` — runs on every push: prettier check + typecheck + vitest (pnpm, Node from .nvmrc)
 - `.github/workflows/sync-figma-to-tokens.yml` — manual: pulls from Figma, opens a PR
 - `.github/workflows/sync-tokens-to-figma.yml` — manual: pushes local tokens to Figma
 
