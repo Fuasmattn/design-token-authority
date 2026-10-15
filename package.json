@@ -46,6 +46,7 @@
     "snapshot:capture": "tsx scripts/snapshots/capture-legacy.ts",
     "snapshot:check": "tsx scripts/snapshots/capture-legacy.ts --check",
     "dta:next": "tsx packages/cli/src/bin.ts",
+    "schema:generate": "tsx scripts/figma/generate-token-file-schema.ts",
     "figma:recording": "tsx scripts/figma/build-recording.ts",
     "guardrails:boundaries": "tsx scripts/guardrails/package-boundaries.ts",
     "guardrails:legacy": "tsx scripts/guardrails/legacy-frozen.ts"
@@ -70,6 +71,7 @@
     "prettier": "^3.8.1",
     "release-it": "^19.2.4",
     "vitest": "^4.1.2",
+    "@dta/figma": "workspace:*",
     "@dta/testkit": "workspace:*"
   },
   "packageManager": "pnpm@10.28.0"

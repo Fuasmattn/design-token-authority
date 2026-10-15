@@ -44,7 +44,7 @@ For non-Enterprise plans, use the `--from-file` flag to import tokens exported f
 dta pull --from-file <exported.json>
 ```
 
-Compatible plugins include [tokenHaus](https://www.figma.com/community/plugin/1578065513743190845/tokenhaus-variable-import-export-with-links) (tested, recommended), [Design Tokens (W3C) Export](https://www.figma.com/community/plugin/1377982390646186215/design-tokens-w3c-export), and [Design Token Exporter](https://www.figma.com/community/plugin/1590704268871516927/design-token-exporter).
+DTA does not depend on a particular plugin. It reads its own per-mode DTCG format and converts a few known exports (currently tokenHaus). See [the input format and how to obtain it](docs/token-files/input-format.md).
 
 ## CLI
 

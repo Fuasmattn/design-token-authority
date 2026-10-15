@@ -179,11 +179,7 @@ The Figma Variables **REST API** (`/v1/files/:key/variables/local`) is **only av
 pnpm dta pull --from-file <exported.json>
 ```
 
-**Compatible Figma plugins:**
-
-- [tokenHaus - Variable Import/Export with Links](https://www.figma.com/community/plugin/1578065513743190845/tokenhaus-variable-import-export-with-links) — tested, exports DTCG format with alias preservation and multi-mode support
-- [Design Tokens (W3C) Export](https://www.figma.com/community/plugin/1377982390646186215/design-tokens-w3c-export) — exports variable collections as DTCG-format JSON
-- [Design Token Exporter](https://www.figma.com/community/plugin/1590704268871516927/design-token-exporter) — W3C DTCG spec-compliant export
+**Where the file comes from is up to you.** DTA does not depend on any plugin. It accepts its own documented per-mode DTCG format (`{Collection}.{Mode}.json`, JSON Schema in `docs/token-files/token-file.schema.json`) and converts a few known third-party exports through small adapters (currently tokenHaus). See [docs/token-files/input-format.md](docs/token-files/input-format.md) for the format and for ways to obtain it.
 
 **Outlook:** Figma announced native variable export/import aligned with the [W3C Design Tokens Community Group spec](https://tr.designtokens.org/format/) at [Schema 2025](https://figma.obra.studio/design-tokens-community-group-w3c-release/). This is gradually rolling out and expected to be fully available by late 2026. Once available, `dta pull --from-file` will work directly with Figma's native export.
 
