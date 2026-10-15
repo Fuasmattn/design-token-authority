@@ -23,7 +23,7 @@ Every legacy command, module and behaviour needs an owner and a proof. "Dropped"
 | `graph` report formatters (console, dot, markdown, html) and directory reading | `@dta/cli` (CLI epic) | CLI snapshots `graph-*` | open |
 | `pull` (API and `--from-file`, importers, format detection) | `@dta/figma` | Package tests + fake-Figma roundtrip (037); add `pull` CLI snapshot | open |
 | `push` (diff, confirmation, `--yes`, `--dry-run`, `--skip-lint`, never deletes) | `@dta/figma` | Package tests + payload assertion on the fake (037) | open |
-| `analyze` (structure autodiscovery; Figma-response and token-file variants) | `@dta/core` (TICKET-048, on the model) + `@dta/cli` report | Core tests; add `analyze` CLI snapshot | open |
+| `analyze` (structure autodiscovery; Figma-response and token-file variants) | `@dta/core` (TICKET-048, on the model) + `@dta/cli` report | Core tests; add `analyze` CLI snapshot | core side done (`analyzeStructure`); text report and legacy `analyze.ts` deleted with the `analyze` command |
 | `init` (wizard) | `@dta/cli` | CLI tests with scripted prompts | open |
 | `clean` | `@dta/cli` | CLI tests on a temp copy of a fixture | open |
 | docs site generator (`formatters/docs-html.ts`) | `@dta/build` or Epic 7 | Snapshot or explicit "replaced by Epic 7" decision | open |
@@ -32,7 +32,7 @@ Every legacy command, module and behaviour needs an owner and a proof. "Dropped"
 | `color.ts` (and `contrastRatio` in `linter.ts`) | `@dta/core` (TICKET-041) | Legacy color tests re-expressed through the core API | core done; legacy deleted with its last importer (`token_import`, `token_export`, `linter`) |
 | `figma_api.ts` | `@dta/figma` (TICKET-044) | Client tests against the Figma fake | figma side done; legacy file deleted with its last importer (`pull`/`push` commands) |
 | `importers/tokenhaus.ts`, `importers/detect.ts` | `@dta/figma` (TICKET-047) | Legacy importer tests re-expressed through `importPluginExport` / `detectFormat` | figma side done; legacy files deleted with `pull` (`--from-file`). **Keep-or-drop of the tokenHaus adapter:** keep until the CLI parity work (Epic 6) shows nobody needs `--from-file` with it; then delete `adapters/tokenhaus.ts` and its list entry, nothing else changes |
-| `importers/analyze-tokens.ts` | `@dta/core` (TICKET-048) | Cross-check against legacy `dta analyze` | open |
+| `importers/analyze-tokens.ts` | `@dta/core` (TICKET-048) | Cross-checked against legacy output (differences listed in the ticket) | core side done; legacy file deleted with the `analyze` command |
 | `token_export.ts` (TICKET-045, figma side done), `token_import.ts` (TICKET-046, figma side done), `utils.ts` | `@dta/figma` / `@dta/cli` | Ported unit tests (legacy tests re-expressed through the new public APIs) | open |
 | Legacy entrypoints `sync_*`, `dta.config.ts` loader | `@dta/cli` | Config tests (036) | open |
 

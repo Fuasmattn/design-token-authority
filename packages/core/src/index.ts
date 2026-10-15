@@ -12,6 +12,8 @@ export type {
   GraphNode,
   GraphStats,
 } from './graph.js'
+export { analyzeStructure } from './structure.js'
+export type { CollectionStructure, LayerRole, StructureAnalysis } from './structure.js'
 export { checkUniqueNames, resolve } from './resolve.js'
 export type { ModeSelection, ResolveResult, ResolveStep } from './resolve.js'
 export { serializeTokenFiles } from './serialize.js'
