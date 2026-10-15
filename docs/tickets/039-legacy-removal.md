@@ -17,7 +17,7 @@ Every legacy command, module and behaviour needs an owner and a proof. "Dropped"
 
 | Legacy | New home | Proof of parity | Status |
 |---|---|---|---|
-| `build` (CSS, JS, Tailwind v3/v4, per-brand) | `@dta/build` | CLI snapshot `build` (brand-ab, daisyui) | open |
+| `build` (CSS, JS, Tailwind v3/v4, per-brand) | `@dta/build` (TICKETs 049–054) | Package parity against `test/snapshots/*/build/files/output/{css,js,tailwind}`; CLI snapshot `build` once wired (Epic 6) | open |
 | `lint` | `@dta/lint` | CLI snapshot `lint` | open |
 | `graph` analysis (nodes, edges, cycles, dangling, orphans, depth, stats) | `@dta/core` (TICKET-043) | Core tests incl. numbers equal to legacy `graph-console` snapshots on both fixtures | core done; legacy `graph.ts` deleted with the formatters |
 | `graph` report formatters (console, dot, markdown, html) and directory reading | `@dta/cli` (CLI epic) | CLI snapshots `graph-*` | open |
@@ -26,7 +26,7 @@ Every legacy command, module and behaviour needs an owner and a proof. "Dropped"
 | `analyze` (structure autodiscovery; Figma-response and token-file variants) | `@dta/core` (TICKET-048, on the model) + `@dta/cli` report | Core tests; add `analyze` CLI snapshot | core side done (`analyzeStructure`); text report and legacy `analyze.ts` deleted with the `analyze` command |
 | `init` (wizard) | `@dta/cli` | CLI tests with scripted prompts | open |
 | `clean` | `@dta/cli` | CLI tests on a temp copy of a fixture | open |
-| docs site generator (`formatters/docs-html.ts`) | `@dta/build` or Epic 7 | Snapshot or explicit "replaced by Epic 7" decision | open |
+| docs site generator (`formatters/docs-html.ts`) | Epic 7 (not `@dta/build`; see build spec decision 8) | Snapshot or explicit "replaced by Epic 7" decision; the CLI keeps calling the legacy generator until then | open |
 | `test:visual` (Playwright) | Epic 8 visual-diff | Explicit "replaced by Epic 8" decision | open |
 | `token_types.ts` | `@dta/core` (model, parse/serialize; TICKET-040) | Core tests incl. byte-identical round trip of both fixtures | core done; legacy file deleted when figma/build no longer import it |
 | `color.ts` (and `contrastRatio` in `linter.ts`) | `@dta/core` (TICKET-041) | Legacy color tests re-expressed through the core API | core done; legacy deleted with its last importer (`token_import`, `token_export`, `linter`) |
