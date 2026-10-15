@@ -146,7 +146,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 |---|---|---|---|---|---|
 | [049](./049-build-scaffold-base-css.md) | Package scaffold and base layer CSS | High | S | 033, 040 | **Done** |
 | [050](./050-build-shared-css-js.md) | Shared CSS variables and JS palette | High | S | 049 | **Done** |
-| [051](./051-build-brand-themes.md) | Per-brand CSS themes | High | M | 049 | Open |
+| [051](./051-build-brand-themes.md) | Per-brand CSS themes | High | M | 049 | **Done** |
 | [052](./052-build-tailwind-v4.md) | Tailwind v4 output | High | M | 049, 051 | Open |
 | [053](./053-build-tailwind-v3.md) | Tailwind v3 output | High | M | 049, 051 | Open |
 | [054](./054-build-api-parity.md) | Public API, options and full parity test | High | S | 050–053 | Open |
