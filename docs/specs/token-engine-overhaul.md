@@ -9,7 +9,7 @@ Design Token Authority works, but it has grown as one flat source tree with lega
 
 ## Solution
 
-Rewrite DTA as a set of small, deep packages behind a single CLI, using a strangler approach: the legacy code stays frozen and runnable until the new CLI reproduces its behaviour, proven by golden-file tests, and is then deleted. Users keep one entry point (`npx dta …`) and one config file. Internally, each `@dta/*` package exposes a small public API and hides its internals, so each can be rewritten, tested and reasoned about on its own.
+Rewrite DTA as a set of small, deep packages behind a single CLI, using a strangler approach: the legacy code stays frozen and runnable until the new CLI reproduces its behaviour, proven by snapshot tests, and is then deleted. Users keep one entry point (`npx dta …`) and one config file. Internally, each `@dta/*` package exposes a small public API and hides its internals, so each can be rewritten, tested and reasoned about on its own.
 
 ## User Stories
 
@@ -36,11 +36,11 @@ Rewrite DTA as a set of small, deep packages behind a single CLI, using a strang
 21. As a DTA maintainer, I want each package to expose a small public API, so that I can change internals without breaking other packages.
 22. As a DTA maintainer, I want `@dta/core` to depend on no other DTA package, so that the token model stays the stable centre.
 23. As a DTA maintainer, I want strict dependency isolation between packages, so that undeclared dependencies fail immediately.
-24. As a DTA maintainer, I want golden-file tests comparing legacy and new outputs on the same fixtures, so that I can prove parity before deleting legacy code.
-25. As a DTA maintainer, I want intentional output changes to show up as golden-file diffs in the PR, so that they are reviewed explicitly.
+24. As a DTA maintainer, I want snapshot tests comparing legacy and new outputs on the same fixtures, so that I can prove parity before deleting legacy code.
+25. As a DTA maintainer, I want intentional output changes to show up as snapshot diffs in the PR, so that they are reviewed explicitly.
 26. As a DTA maintainer, I want Figma interactions tested against recorded API responses, so that CI needs no Figma secrets or Enterprise plan.
 27. As a DTA maintainer, I want one version for all `@dta/*` packages managed by Changesets, so that releases stay simple.
-28. As a coding agent, I want every ticket gated by typecheck, Vitest, golden files and Prettier in CI, so that I get a clear pass/fail signal while working in a loop.
+28. As a coding agent, I want every ticket gated by typecheck, Vitest, snapshots and Prettier in CI, so that I get a clear pass/fail signal while working in a loop.
 29. As a coding agent, I want the legacy source tree off-limits, so that the parity reference can't be accidentally changed.
 30. As a coding agent, I want each ticket to fit one context window and touch mostly one package, so that I can finish it without losing context.
 31. As a DTA user, I want the legacy `dta` binary to keep working until the new CLI reaches parity, so that I'm never given a half-finished tool.
@@ -59,18 +59,18 @@ Rewrite DTA as a set of small, deep packages behind a single CLI, using a strang
 - **Config:** `dta.config.ts` with `defineConfig` and Zod validation, JSON fallback, no TOML. Starts from the v1 schema; breaking changes are allowed and released as v2.0.0 with a migration note.
 - **Existing invariants kept:** variable names unique across collections; push never deletes; typed push confirmation, bypassable via flag or config.
 - **Release:** legacy keeps the `dta` binary until parity; the new CLI is not published before then. Changesets in fixed mode for all `@dta/*` packages.
-- **Epic order:** 1) workspace scaffold and golden-file harness, 2) core, 3) figma, 4) build, 5) lint, 6) CLI parity and legacy removal, 7) docs site, 8) visual-diff.
+- **Epic order:** 1) workspace scaffold and snapshot harness, 2) core, 3) figma, 4) build, 5) lint, 6) CLI parity and legacy removal, 7) docs site, 8) visual-diff.
 
 ## Testing Decisions
 
 - **Good tests** exercise behaviour through a public interface (what users or calling packages do and see), never internals. Refactoring internals must not break tests.
 - **Two levels of seams:**
   - **Package seam (primary):** each package is tested through its small public API, with thorough tests inside each package.
-  - **CLI seam (parity):** golden-file tests run CLI commands against fixture projects and compare written files and stdout with outputs captured from the legacy pipeline.
+  - **CLI seam (parity):** snapshot tests run CLI commands against fixture projects and compare written files and stdout with outputs captured from the legacy pipeline.
 - **Figma boundary:** a fake that replays recorded API responses; push is verified by asserting the request payload. One manual smoke test against real Figma before release.
 - **Fixtures:** the repo's anonymized BrandA/BrandB token set, plus the DaisyUI DTCG token file as a structurally different second input.
-- **CI gates per ticket:** typecheck, Vitest, golden files, Prettier.
-- **Prior art:** existing Vitest suites for color parsing, export/import conversion, config schema, analyze, CLI, init and graph; Vitest file snapshots for golden files.
+- **CI gates per ticket:** typecheck, Vitest, snapshots, Prettier.
+- **Prior art:** existing Vitest suites for color parsing, export/import conversion, config schema, analyze, CLI, init and graph; Vitest file snapshots for snapshots.
 
 ## Out of Scope
 

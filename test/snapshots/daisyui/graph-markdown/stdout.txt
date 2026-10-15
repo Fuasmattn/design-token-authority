@@ -1,0 +1,69 @@
+T   ⮕  dta graph 
+|
+o  Graph built
+|
+|  Tokens: 1,277 | Aliases: 237 (19%) | Max depth: 2 | Issues: 0
+
+# Token Dependency Graph Report
+
+## Summary
+
+| Metric | Value |
+|--------|-------|
+| Total tokens | 1,277 |
+| Alias tokens | 237 (19%) |
+| Max chain depth | 2 |
+| Circular references | 0 |
+| Dangling aliases | 0 |
+| Orphaned tokens | 908 |
+| Files | 41 |
+
+## Tokens by file
+
+| File | Count |
+|------|-------|
+| Card.Mode 1 | 7 |
+| Component fontSize.Mode 1 | 10 |
+| Device.Mode 1 | 1 |
+| Join.false | 12 |
+| Join.join-direction | 12 |
+| Join.no radius (middle) | 12 |
+| List.Mode 1 | 3 |
+| Modal.Mode 1 | 4 |
+| Navbar.Mode 1 | 3 |
+| Radius.no radius | 5 |
+| Radius.round (circle) | 5 |
+| Radius.theme | 5 |
+| Stat.Mode 1 | 3 |
+| border.1.5 | 1 |
+| border.1 | 1 |
+| border.2 | 1 |
+| border.theme | 1 |
+| depth.false | 9 |
+| depth.true | 9 |
+| fieldset & labels.Mode 1 | 13 |
+| footer.Mode 1 | 4 |
+| join-direction.Bottom | 12 |
+| join-direction.Left | 12 |
+| join-direction.Right | 12 |
+| join-direction.Top | 12 |
+| noise.false | 1 |
+| noise.true | 1 |
+| size.3 | 20 |
+| size.4.5 | 20 |
+| size.4 | 20 |
+| size.5 | 20 |
+| square-apply.false | 21 |
+| square-apply.true | 21 |
+| tailwind - spacing.Mode 1 | 36 |
+| tailwind - typography.Mode 1 | 33 |
+| theme.Corporate | 27 |
+| theme.Dark | 27 |
+| theme.Light | 27 |
+| theme.Night | 27 |
+| themes alias.Mode 1 | 805 |
+| utilities.Mode 1 | 2 |
+
+|
+—  Done!
+

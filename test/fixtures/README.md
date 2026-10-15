@@ -1,6 +1,6 @@
 # Parity fixtures
 
-Two self-contained projects that the legacy and the new (`@dta/*`) pipeline are both run against. Golden outputs (TICKET-035) are captured from these. Run commands from inside a fixture folder.
+Two self-contained projects that the legacy and the new (`@dta/*`) pipeline are both run against. Snapshots (TICKET-035) are captured from these. Run commands from inside a fixture folder.
 
 | Fixture | Source | What it covers |
 |---|---|---|

@@ -42,7 +42,9 @@
     "prepare": "npm run build:cli",
     "release": "release-it",
     "release:dry": "release-it --dry-run",
-    "typecheck": "tsc --noEmit -p tsconfig.json && pnpm -r typecheck"
+    "typecheck": "tsc --noEmit -p tsconfig.json && pnpm -r typecheck",
+    "snapshot:capture": "node scripts/snapshots/capture-legacy.mjs",
+    "snapshot:check": "node scripts/snapshots/capture-legacy.mjs --check"
   },
   "dependencies": {
     "@clack/prompts": "^1.2.0",

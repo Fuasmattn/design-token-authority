@@ -1,0 +1,61 @@
+T   ✔  dta lint 
+|
+o  Linting complete.
+|
+|  Card.Mode 1.json
+|
+|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
+|
+|  Component fontSize.Mode 1.json
+|
+|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
+|
+|  Device.Mode 1.json
+|
+|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
+|
+|  List.Mode 1.json
+|
+|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
+|
+|  Modal.Mode 1.json
+|
+|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
+|
+|  Navbar.Mode 1.json
+|
+|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
+|
+|  Stat.Mode 1.json
+|
+|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
+|
+|  fieldset & labels.Mode 1.json
+|
+|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
+|
+|  footer.Mode 1.json
+|
+|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
+|
+|  tailwind - spacing.Mode 1.json
+|
+|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
+|
+|  tailwind - typography.Mode 1.json
+|
+|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
+|
+|  themes alias.Mode 1.json
+|
+|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
+|
+|  utilities.Mode 1.json
+|
+|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
+|
+|
+|  13 errors found.
+|
+—  Lint failed.
+
