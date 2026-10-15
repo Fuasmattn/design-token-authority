@@ -18,6 +18,8 @@ Every legacy command, module and behaviour needs an owner and a proof. "Dropped"
 | Legacy | New home | Proof of parity | Status |
 |---|---|---|---|
 | `build` (CSS, JS, Tailwind v3/v4, per-brand) | `@dta/build` (TICKETs 049–054) | Package parity against `test/snapshots/*/build/files/output/{css,js,tailwind}`; CLI snapshot `build` once wired (Epic 6) | open |
+| `formatters/tailwind-v4.ts` | `@dta/build` (TICKET-052) | Snapshot parity (brand-ab, daisyui) and legacy formatter cases re-expressed through `buildOutputs` | build side done; legacy file deleted with the legacy build command |
+| `formatters/tailwind-v3.ts` | `@dta/build` (TICKET-053) | Same, for v3 | open |
 | `lint` | `@dta/lint` | CLI snapshot `lint` | open |
 | `graph` analysis (nodes, edges, cycles, dangling, orphans, depth, stats) | `@dta/core` (TICKET-043) | Core tests incl. numbers equal to legacy `graph-console` snapshots on both fixtures | core done; legacy `graph.ts` deleted with the formatters |
 | `graph` report formatters (console, dot, markdown, html) and directory reading | `@dta/cli` (CLI epic) | CLI snapshots `graph-*` | open |
