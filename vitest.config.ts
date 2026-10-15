@@ -11,6 +11,13 @@ export default defineConfig({
           include: ['src/**/*.test.ts'],
         },
       },
+      {
+        test: {
+          name: 'guardrails',
+          environment: 'node',
+          include: ['scripts/guardrails/**/*.test.ts'],
+        },
+      },
       'packages/*',
     ],
   },

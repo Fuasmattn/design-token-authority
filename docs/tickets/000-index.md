@@ -119,7 +119,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [035](./035-capture-legacy-snapshots.md) | Capture legacy snapshots | High | S | 034 | Done |
 | [036](./036-cli-skeleton-snapshot-runner.md) | New CLI skeleton + snapshot runner | High | M | 033, 035 | Done |
 | [037](./037-figma-fake.md) | Figma API fake with recorded responses | Medium | M | 033, 034 | Done |
-| [038](./038-agent-guardrails.md) | Agent guardrails for the overhaul | High | XS | 033 | Open |
+| [038](./038-agent-guardrails.md) | Agent guardrails for the overhaul | High | XS | 033 | Done |
 
 Later epics (core, figma, build, lint, CLI parity + legacy removal, docs site, visual-diff) get tickets once the previous epic is near done.
 

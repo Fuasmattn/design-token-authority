@@ -42,11 +42,13 @@
     "prepare": "npm run build:cli",
     "release": "release-it",
     "release:dry": "release-it --dry-run",
-    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p scripts/snapshots/tsconfig.json && tsc --noEmit -p scripts/figma/tsconfig.json && pnpm -r typecheck",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p scripts/snapshots/tsconfig.json && tsc --noEmit -p scripts/figma/tsconfig.json && tsc --noEmit -p scripts/guardrails/tsconfig.json && pnpm -r typecheck",
     "snapshot:capture": "tsx scripts/snapshots/capture-legacy.ts",
     "snapshot:check": "tsx scripts/snapshots/capture-legacy.ts --check",
     "dta:next": "tsx packages/cli/src/bin.ts",
-    "figma:recording": "tsx scripts/figma/build-recording.ts"
+    "figma:recording": "tsx scripts/figma/build-recording.ts",
+    "guardrails:boundaries": "tsx scripts/guardrails/package-boundaries.ts",
+    "guardrails:legacy": "tsx scripts/guardrails/legacy-frozen.ts"
   },
   "dependencies": {
     "@clack/prompts": "^1.2.0",

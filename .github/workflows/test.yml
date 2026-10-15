@@ -14,5 +14,6 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run prettier:check
       - run: pnpm run typecheck
+      - run: pnpm run guardrails:boundaries
       - run: pnpm run test
       - run: pnpm run snapshot:check

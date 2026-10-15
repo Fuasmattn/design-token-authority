@@ -236,11 +236,42 @@ These are tracked as tickets — do not work around them, fix them at the source
 
 ## CI / GitHub Actions
 
-- `.github/workflows/test.yml` — runs on every push: prettier check + typecheck + vitest (pnpm, Node from .nvmrc)
+- `.github/workflows/test.yml` — runs on every push: prettier check + typecheck + package-boundary check + vitest + snapshot check (pnpm, Node from .nvmrc)
+- `.github/workflows/guardrails.yml` — on pull requests: fails if legacy `src/` changes (unless labeled `legacy-exception`)
 - `.github/workflows/sync-figma-to-tokens.yml` — manual: pulls from Figma, opens a PR
 - `.github/workflows/sync-tokens-to-figma.yml` — manual: pushes local tokens to Figma
 
 CI secret name: `FIGMA_PERSONAL_ACCESS_TOKEN` (see TICKET-005 — currently inconsistent).
+
+---
+
+## Token Engine Overhaul (Phase 8) — read before touching code
+
+The project is being rewritten package by package (strangler). Background: [spec](docs/specs/token-engine-overhaul.md), [ADR 0001](docs/adr/0001-strangler-rewrite.md), [ADR 0002](docs/adr/0002-pnpm-monorepo-single-cli.md). Tickets 033+ in `docs/tickets/000-index.md` (Phase 8). Work one ticket at a time; open feature tickets wait until parity.
+
+**Rules**
+
+- Legacy `src/` is **frozen**: it is the parity reference. Do not edit it (CI fails the PR unless a maintainer adds the `legacy-exception` label). New code goes in `packages/*`.
+- Packages (`@dta/core`, `@dta/testkit`, `@dta/cli`; later `figma`, `build`, `lint`) expose a small public API through their entry point. Import other packages only by name (`@dta/core`), never `@dta/core/src/...` or `../../core/...`. `pnpm run guardrails:boundaries` checks this.
+- `@dta/core` depends on no other `@dta/*` package. Only `@dta/cli` is user-facing; `@dta/testkit` is private and dev-only.
+- Don't commit or push without the maintainer's explicit go-ahead.
+- Never use real customer brand names in files; use BrandA/BrandB. Say "snapshot", not "golden".
+
+**Test seams**
+
+- Package seam (primary): test each package through its public API only, with thorough tests inside the package.
+- CLI seam (parity): `test/snapshots/` holds reference snapshots recorded from the frozen legacy CLI on `test/fixtures/*`. Never regenerate them from new code or "update to pass"; an intentional output change is a reviewed snapshot diff. Scenarios not yet ported are listed in `PENDING` in `packages/cli/test/snapshots.test.ts`.
+- Figma boundary: use `startFigmaFake` from `@dta/testkit` with `test/recordings/`; CI needs no Figma secrets. Real-Figma check: `docs/testing/figma-smoke-test.md`.
+
+**Gates every ticket must pass** (same as CI)
+
+```bash
+pnpm run prettier:check
+pnpm run typecheck
+pnpm run guardrails:boundaries
+pnpm test
+pnpm run snapshot:check
+```
 
 ---
 

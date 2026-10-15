@@ -1,0 +1,27 @@
+name: Guardrails
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+jobs:
+  legacy-frozen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Legacy src/ must not change (label legacy-exception to allow)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, '\n') }}
+        run: |
+          args=()
+          while IFS= read -r label; do
+            [ -n "$label" ] && args+=(--label "$label")
+          done < <(printf '%b\n' "$LABELS")
+          pnpm run guardrails:legacy "$BASE_SHA" "${args[@]}"
