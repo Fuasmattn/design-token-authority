@@ -16,4 +16,15 @@ jobs:
       - run: pnpm run typecheck
       - run: pnpm run guardrails:boundaries
       - run: pnpm run test
-      - run: pnpm run snapshot:check
+      - name: Snapshots match the frozen legacy pipeline
+        run: |
+          set +e
+          pnpm run snapshot:check > snapshot-check.log 2>&1
+          code=$?
+          cat snapshot-check.log
+          if [ "$code" -ne 0 ]; then
+            # Job logs may not be readable by every collaborator; surface the start of the diff as an annotation.
+            msg=$(head -c 3500 snapshot-check.log | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+            echo "::error title=snapshot:check failed::$msg"
+          fi
+          exit $code
