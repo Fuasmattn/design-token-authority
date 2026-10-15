@@ -136,7 +136,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 |---|---|---|---|---|---|
 | [044](./044-figma-client.md) | Package scaffold and Zod-validated HTTP client | High | S | 033, 037 | Done |
 | [045](./045-figma-export.md) | Export variables to the token model | High | M | 040, 044 | Done |
-| [046](./046-figma-push-planning.md) | Plan a push (payload and structured changes) | High | L | 042, 045 | Open |
+| [046](./046-figma-push-planning.md) | Plan a push (payload and structured changes) | High | L | 042, 045 | **Done** |
 | [047](./047-figma-plugin-importers.md) | Documented input format, schema, import adapters | Medium | M | 040 | Open |
 | [048](./048-core-structure-analysis.md) | Structure analysis on the model (in `@dta/core`) | Medium | S | 040 | Open |
 

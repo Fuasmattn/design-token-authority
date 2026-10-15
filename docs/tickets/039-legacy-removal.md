@@ -32,7 +32,7 @@ Every legacy command, module and behaviour needs an owner and a proof. "Dropped"
 | `color.ts` (and `contrastRatio` in `linter.ts`) | `@dta/core` (TICKET-041) | Legacy color tests re-expressed through the core API | core done; legacy deleted with its last importer (`token_import`, `token_export`, `linter`) |
 | `figma_api.ts` | `@dta/figma` (TICKET-044) | Client tests against the Figma fake | figma side done; legacy file deleted with its last importer (`pull`/`push` commands) |
 | `importers/*` | `@dta/figma` (TICKET-047) | Legacy importer tests re-expressed | open |
-| `token_export.ts` (TICKET-045, figma side done), `token_import.ts` (TICKET-046), `utils.ts` | `@dta/figma` / `@dta/cli` | Ported unit tests (legacy tests re-expressed through the new public APIs) | open |
+| `token_export.ts` (TICKET-045, figma side done), `token_import.ts` (TICKET-046, figma side done), `utils.ts` | `@dta/figma` / `@dta/cli` | Ported unit tests (legacy tests re-expressed through the new public APIs) | open |
 | Legacy entrypoints `sync_*`, `dta.config.ts` loader | `@dta/cli` | Config tests (036) | open |
 
 ## Delete as you go
