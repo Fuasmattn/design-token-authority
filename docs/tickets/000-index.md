@@ -106,6 +106,25 @@ Figma and the design/coding AI tools will not build themselves.
 
 ---
 
+## Phase 8 — Token Engine Overhaul
+
+Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs/token-engine-overhaul.md) and ADRs [0001](../adr/0001-strangler-rewrite.md), [0002](../adr/0002-pnpm-monorepo-single-cli.md). Open feature tickets above wait until parity.
+
+**Epic 1 — Workspace scaffold & golden-file harness**
+
+| # | Ticket | Priority | Effort | Blocked by | Status |
+|---|---|---|---|---|---|
+| [033](./033-workspace-scaffold.md) | pnpm workspace scaffold | High | S | — | Open |
+| [034](./034-fixture-projects.md) | Fixture projects for parity testing | High | S | — | Open |
+| [035](./035-capture-legacy-goldens.md) | Capture legacy golden outputs | High | S | 034 | Open |
+| [036](./036-cli-skeleton-golden-runner.md) | New CLI skeleton + golden-file runner | High | M | 033, 035 | Open |
+| [037](./037-figma-fake.md) | Figma API fake with recorded responses | Medium | M | 033, 034 | Open |
+| [038](./038-agent-guardrails.md) | Agent guardrails for the overhaul | High | XS | 033 | Open |
+
+Later epics (core, figma, build, lint, CLI parity + legacy removal, docs site, visual-diff) get tickets once the previous epic is near done.
+
+---
+
 ## Dependency Map
 
 ```
