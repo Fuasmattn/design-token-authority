@@ -254,6 +254,7 @@ The project is being rewritten package by package (strangler). Background: [spec
 - Legacy `src/` is **frozen**: it is the parity reference. Do not edit it (CI fails the PR unless a maintainer adds the `legacy-exception` label). New code goes in `packages/*`.
 - Packages (`@dta/core`, `@dta/testkit`, `@dta/cli`; later `figma`, `build`, `lint`) expose a small public API through their entry point. Import other packages only by name (`@dta/core`), never `@dta/core/src/...` or `../../core/...`. `pnpm run guardrails:boundaries` checks this.
 - `@dta/core` depends on no other `@dta/*` package. Only `@dta/cli` is user-facing; `@dta/testkit` is private and dev-only.
+- Porting a legacy behaviour? Update its row in `docs/tickets/039-legacy-removal.md` (parity table) in the same PR; delete the matching legacy files in that same PR (label `legacy-exception`) once its row is proven.
 - Don't commit or push without the maintainer's explicit go-ahead.
 - Never use real customer brand names in files; use BrandA/BrandB. Say "snapshot", not "golden".
 

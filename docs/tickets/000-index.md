@@ -121,7 +121,13 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [037](./037-figma-fake.md) | Figma API fake with recorded responses | Medium | M | 033, 034 | Done |
 | [038](./038-agent-guardrails.md) | Agent guardrails for the overhaul | High | XS | 033 | Done |
 
-Later epics (core, figma, build, lint, CLI parity + legacy removal, docs site, visual-diff) get tickets once the previous epic is near done.
+**Epic 6 — exit plan (written early on purpose)**
+
+| # | Ticket | Priority | Effort | Blocked by | Status |
+|---|---|---|---|---|---|
+| [039](./039-legacy-removal.md) | Remove the legacy code cleanly (parity table, quirk decisions, removal checklist) | High | M | Epics 2–6 | Blocked |
+
+Later epics (core, figma, build, lint, CLI parity, docs site, visual-diff) get tickets once the previous epic is near done. Every porting ticket must update its row in 039's parity table.
 
 ---
 
