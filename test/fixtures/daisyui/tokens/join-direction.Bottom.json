@@ -1,0 +1,118 @@
+{
+  "join-direction": {
+    "fields": {
+      "top-left": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{radius.null}"
+      },
+      "top-right": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{radius.null}"
+      },
+      "bot-right": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{radius.fields}"
+      },
+      "bot-left": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{radius.fields}"
+      }
+    },
+    "boxes": {
+      "top-left": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{radius.null}"
+      },
+      "top-right": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{radius.null}"
+      },
+      "bot-right": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{radius.boxes}"
+      },
+      "bot-left": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{radius.boxes}"
+      }
+    },
+    "selectors": {
+      "top-left": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{radius.null}"
+      },
+      "top-right": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{radius.null}"
+      },
+      "bot-right": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{radius.selectors}"
+      },
+      "bot-left": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{radius.selectors}"
+      }
+    }
+  }
+}

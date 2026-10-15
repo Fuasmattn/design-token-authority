@@ -1,0 +1,13 @@
+{
+  "noise": {
+    "$type": "boolean",
+    "$extensions": {
+      "com.figma": {
+        "scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "$value": true
+  }
+}

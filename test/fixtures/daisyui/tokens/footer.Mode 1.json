@@ -1,0 +1,44 @@
+{
+  "footer": {
+    "padding": {
+      "md (xy)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{tailwind.spacing.10 (40)}"
+      },
+      "sm (y)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{tailwind.spacing.4 (16)}"
+      }
+    },
+    "footer": {
+      "default-color": {
+        "$type": "color",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{main.color.base.200}"
+      }
+    },
+    "gap": {
+      "$type": "number",
+      "$extensions": {
+        "com.figma": {
+          "scopes": []
+        }
+      },
+      "$value": "{tailwind.spacing.10 (40)}"
+    }
+  }
+}

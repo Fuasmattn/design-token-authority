@@ -1,0 +1,69 @@
+{
+  "card": {
+    "backrgound": {
+      "$type": "color",
+      "$extensions": {
+        "com.figma": {
+          "scopes": []
+        }
+      },
+      "$value": "{main.color.base.100}"
+    },
+    "gap": {
+      "$type": "number",
+      "$extensions": {
+        "com.figma": {
+          "scopes": []
+        }
+      },
+      "$value": "{tailwind.spacing.2 (8)}"
+    },
+    "padding": {
+      "xs": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{tailwind.spacing.2 (8)}"
+      },
+      "sm": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{tailwind.spacing.4 (16)}"
+      },
+      "md": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{tailwind.spacing.6 (24)}"
+      },
+      "lg": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{tailwind.spacing.8 (32)}"
+      },
+      "xl": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{tailwind.spacing.10 (40)}"
+      }
+    }
+  }
+}

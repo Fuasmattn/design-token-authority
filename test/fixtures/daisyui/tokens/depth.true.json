@@ -1,0 +1,109 @@
+{
+  "depth": {
+    "$type": "boolean",
+    "$extensions": {
+      "com.figma": {
+        "scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "$value": true
+  },
+  "foreground-shadow": {
+    "$type": "boolean",
+    "$extensions": {
+      "com.figma": {
+        "scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "$value": true
+  },
+  "foreground-NoShadow": {
+    "$type": "boolean",
+    "$extensions": {
+      "com.figma": {
+        "scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "$value": ""
+  },
+  "btn": {
+    "dropShadow": {
+      "01": {
+        "Y": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "EFFECT_FLOAT"
+              ]
+            }
+          },
+          "$value": 4
+        },
+        "blur": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "EFFECT_FLOAT"
+              ]
+            }
+          },
+          "$value": 3
+        },
+        "spread": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "EFFECT_FLOAT"
+              ]
+            }
+          },
+          "$value": -2
+        }
+      },
+      "02": {
+        "Y": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "EFFECT_FLOAT"
+              ]
+            }
+          },
+          "$value": 3
+        },
+        "blur": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "EFFECT_FLOAT"
+              ]
+            }
+          },
+          "$value": 2
+        },
+        "spread": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "EFFECT_FLOAT"
+              ]
+            }
+          },
+          "$value": -2
+        }
+      }
+    }
+  }
+}

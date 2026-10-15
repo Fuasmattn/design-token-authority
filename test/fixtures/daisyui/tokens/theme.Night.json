@@ -1,0 +1,323 @@
+{
+  "main": {
+    "color": {
+      "primary": {
+        "primary": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.primary.primary}"
+        },
+        "content": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.primary.content}"
+        }
+      },
+      "secondary": {
+        "secondary": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.secondary.secondary}"
+        },
+        "content": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.secondary.content}"
+        }
+      },
+      "accent": {
+        "bg": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.accent.accent}"
+        },
+        "content": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.accent.content}"
+        }
+      },
+      "neutral": {
+        "neutral": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.neutral.neutral}"
+        },
+        "content": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.neutral.content}"
+        }
+      },
+      "base": {
+        "100": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.base.100}"
+        },
+        "200": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.base.200}"
+        },
+        "300": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.base.300}"
+        },
+        "content": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.base.content}"
+        }
+      },
+      "info": {
+        "info": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.info.info}"
+        },
+        "content": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.info.content}"
+        }
+      },
+      "success": {
+        "success": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.success.success}"
+        },
+        "content": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.success.content}"
+        }
+      },
+      "warning": {
+        "warning": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.warning.warning}"
+        },
+        "content": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.warning.content}"
+        }
+      },
+      "error": {
+        "error": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.error.error}"
+        },
+        "content": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "{alias.night.color.error.content}"
+        }
+      }
+    },
+    "themeName": {
+      "theme": {
+        "$type": "string",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "TEXT_CONTENT"
+            ]
+          }
+        },
+        "$value": "{alias.night.themeName.theme}"
+      }
+    },
+    "fontFamily": {
+      "primary": {
+        "$type": "string",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "TEXT_CONTENT",
+              "FONT_FAMILY"
+            ]
+          }
+        },
+        "$value": "{alias.night.fontFamily.primary}"
+      },
+      "code": {
+        "$type": "string",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "TEXT_CONTENT",
+              "FONT_FAMILY"
+            ]
+          }
+        },
+        "$value": "{alias.night.fontFamily.code}"
+      }
+    },
+    "radius": {
+      "fields": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": 4
+      },
+      "selectors": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": 8
+      },
+      "boxes": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": 16
+      }
+    },
+    "border (width)": {
+      "border": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": 1
+      }
+    }
+  }
+}

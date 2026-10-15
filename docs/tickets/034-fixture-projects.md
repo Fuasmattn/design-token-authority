@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** S
 **Blocked by:** None (can start immediately)
-**Status:** ready-for-agent
+**Status:** in review
 **Spec:** [token-engine-overhaul](../specs/token-engine-overhaul.md)
 
 ## What to build
@@ -13,7 +13,7 @@ Two self-contained fixture projects that the legacy and the new pipeline can bot
 
 ## Acceptance Criteria
 
-- [ ] Each fixture project contains a config and token files in the current format (one file per collection and mode)
-- [ ] Legacy `dta build`, `dta lint` and `dta graph` run successfully on both fixtures
-- [ ] Fixtures contain only anonymized brand names (BrandA, BrandB) — no real customer names
-- [ ] A short README in the fixtures folder explains what each fixture covers
+- [x] Each fixture project contains a config and token files in the current format (one file per collection and mode)
+- [x] Legacy `dta build`, `dta lint` and `dta graph` run on both fixtures (lint on `daisyui` intentionally exits 2 with errors; see the fixtures README)
+- [x] Fixtures contain only anonymized brand names (BrandA, BrandB) — no real customer names
+- [x] A short README in the fixtures folder explains what each fixture covers

@@ -10,3 +10,6 @@ token-graph.html
 dta.config.ts
 test/visual/report
 test/visual/test-results
+# Parity fixtures are committed on purpose (see test/fixtures/README.md)
+!test/fixtures/**/tokens
+!test/fixtures/**/dta.config.ts

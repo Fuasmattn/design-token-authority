@@ -1,0 +1,144 @@
+{
+  "radius": {
+    "join": {
+      "fieds": {
+        "top-left": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{radius.fields}"
+        },
+        "top-right": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{radius.fields}"
+        },
+        "bot-right": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{radius.fields}"
+        },
+        "bot-left": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{radius.fields}"
+        }
+      },
+      "boxes": {
+        "top-left": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{radius.boxes}"
+        },
+        "top-right": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{radius.boxes}"
+        },
+        "bot-right": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{radius.boxes}"
+        },
+        "bot-left": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{radius.boxes}"
+        }
+      },
+      "selectors": {
+        "top-left": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{radius.selectors}"
+        },
+        "top-right": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{radius.selectors}"
+        },
+        "bot-right": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{radius.selectors}"
+        },
+        "bot-left": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{radius.selectors}"
+        }
+      }
+    }
+  }
+}

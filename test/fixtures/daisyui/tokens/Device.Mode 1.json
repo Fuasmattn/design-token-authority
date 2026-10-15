@@ -1,0 +1,13 @@
+{
+  "safe-area": {
+    "$type": "number",
+    "$extensions": {
+      "com.figma": {
+        "scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "$value": 16
+  }
+}

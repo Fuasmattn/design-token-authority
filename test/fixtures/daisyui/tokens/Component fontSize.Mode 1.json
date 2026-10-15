@@ -1,0 +1,134 @@
+{
+  "🌼 daisy": {
+    "typography": {
+      "fields": {
+        "fontSize": {
+          "xs": {
+            "$type": "number",
+            "$extensions": {
+              "com.figma": {
+                "scopes": [
+                  "WIDTH_HEIGHT",
+                  "FONT_SIZE"
+                ]
+              }
+            },
+            "$value": 11
+          },
+          "sm": {
+            "$type": "number",
+            "$extensions": {
+              "com.figma": {
+                "scopes": [
+                  "WIDTH_HEIGHT",
+                  "FONT_SIZE"
+                ]
+              }
+            },
+            "$value": 12
+          },
+          "md": {
+            "$type": "number",
+            "$extensions": {
+              "com.figma": {
+                "scopes": [
+                  "WIDTH_HEIGHT",
+                  "FONT_SIZE"
+                ]
+              }
+            },
+            "$value": 14
+          },
+          "lg": {
+            "$type": "number",
+            "$extensions": {
+              "com.figma": {
+                "scopes": [
+                  "WIDTH_HEIGHT",
+                  "FONT_SIZE"
+                ]
+              }
+            },
+            "$value": 18
+          },
+          "xl": {
+            "$type": "number",
+            "$extensions": {
+              "com.figma": {
+                "scopes": [
+                  "WIDTH_HEIGHT",
+                  "FONT_SIZE"
+                ]
+              }
+            },
+            "$value": 22
+          }
+        }
+      },
+      "selectors": {
+        "fontSize": {
+          "xl": {
+            "$type": "number",
+            "$extensions": {
+              "com.figma": {
+                "scopes": [
+                  "WIDTH_HEIGHT",
+                  "FONT_SIZE"
+                ]
+              }
+            },
+            "$value": 18
+          },
+          "lg": {
+            "$type": "number",
+            "$extensions": {
+              "com.figma": {
+                "scopes": [
+                  "WIDTH_HEIGHT",
+                  "FONT_SIZE"
+                ]
+              }
+            },
+            "$value": 16
+          },
+          "md": {
+            "$type": "number",
+            "$extensions": {
+              "com.figma": {
+                "scopes": [
+                  "WIDTH_HEIGHT",
+                  "FONT_SIZE"
+                ]
+              }
+            },
+            "$value": 14
+          },
+          "sm": {
+            "$type": "number",
+            "$extensions": {
+              "com.figma": {
+                "scopes": [
+                  "WIDTH_HEIGHT",
+                  "FONT_SIZE"
+                ]
+              }
+            },
+            "$value": 12
+          },
+          "xs": {
+            "$type": "number",
+            "$extensions": {
+              "com.figma": {
+                "scopes": [
+                  "WIDTH_HEIGHT",
+                  "FONT_SIZE"
+                ]
+              }
+            },
+            "$value": 10
+          }
+        }
+      }
+    }
+  }
+}
