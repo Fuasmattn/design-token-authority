@@ -148,7 +148,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [050](./050-build-shared-css-js.md) | Shared CSS variables and JS palette | High | S | 049 | **Done** |
 | [051](./051-build-brand-themes.md) | Per-brand CSS themes | High | M | 049 | **Done** |
 | [052](./052-build-tailwind-v4.md) | Tailwind v4 output | High | M | 049, 051 | **Done** |
-| [053](./053-build-tailwind-v3.md) | Tailwind v3 output | High | M | 049, 051 | Open |
+| [053](./053-build-tailwind-v3.md) | Tailwind v3 output | High | M | 049, 051 | **Done** |
 | [054](./054-build-api-parity.md) | Public API, options and full parity test | High | S | 050–053 | Open |
 
 **Epic 6 — exit plan (written early on purpose)**
