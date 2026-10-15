@@ -19,7 +19,8 @@ Every legacy command, module and behaviour needs an owner and a proof. "Dropped"
 |---|---|---|---|
 | `build` (CSS, JS, Tailwind v3/v4, per-brand) | `@dta/build` | CLI snapshot `build` (brand-ab, daisyui) | open |
 | `lint` | `@dta/lint` | CLI snapshot `lint` | open |
-| `graph` (console, dot, markdown, html) | `@dta/core` + `@dta/cli` | CLI snapshots `graph-*` | open |
+| `graph` analysis (nodes, edges, cycles, dangling, orphans, depth, stats) | `@dta/core` (TICKET-043) | Core tests incl. numbers equal to legacy `graph-console` snapshots on both fixtures | core done; legacy `graph.ts` deleted with the formatters |
+| `graph` report formatters (console, dot, markdown, html) and directory reading | `@dta/cli` (CLI epic) | CLI snapshots `graph-*` | open |
 | `pull` (API and `--from-file`, importers, format detection) | `@dta/figma` | Package tests + fake-Figma roundtrip (037); add `pull` CLI snapshot | open |
 | `push` (diff, confirmation, `--yes`, `--dry-run`, `--skip-lint`, never deletes) | `@dta/figma` | Package tests + payload assertion on the fake (037) | open |
 | `analyze` (structure autodiscovery) | `@dta/figma` | Package tests; add `analyze` CLI snapshot | open |

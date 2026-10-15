@@ -1,14 +1,7 @@
 import { parseAlias } from './alias.js'
+import { indexTokens } from './lookup.js'
 import { nameToDot } from './names.js'
-import type {
-  Collection,
-  Diagnostic,
-  Token,
-  TokenModel,
-  TokenName,
-  TokenType,
-  TokenValue,
-} from './types.js'
+import type { Diagnostic, TokenModel, TokenName, TokenType, TokenValue } from './types.js'
 
 /** Which mode to read in each collection, by collection name. Missing → the first mode. */
 export type ModeSelection = Record<string, string>
@@ -23,29 +16,13 @@ export type ResolveResult =
   | { ok: true; value: TokenValue; type: TokenType; chain: ResolveStep[] }
   | { ok: false; diagnostics: Diagnostic[]; chain: ResolveStep[] }
 
-interface Located {
-  token: Token
-  collection: Collection
-}
-
-function index(model: TokenModel): Map<string, Located[]> {
-  const byName = new Map<string, Located[]>()
-  for (const collection of model.collections) {
-    for (const token of collection.tokens) {
-      const key = nameToDot(token.name)
-      byName.set(key, [...(byName.get(key) ?? []), { token, collection }])
-    }
-  }
-  return byName
-}
-
 /**
  * Names are unique across collections (a project invariant), so a token name identifies one
  * token. Returns an error diagnostic for every name used in more than one collection.
  */
 export function checkUniqueNames(model: TokenModel): Diagnostic[] {
   const diagnostics: Diagnostic[] = []
-  for (const [name, found] of index(model)) {
+  for (const [name, found] of indexTokens(model)) {
     const collections = [...new Set(found.map((f) => f.collection.name))]
     if (collections.length > 1) {
       diagnostics.push({
@@ -69,7 +46,7 @@ export function resolve(
   name: TokenName,
   selection: ModeSelection = {},
 ): ResolveResult {
-  const byName = index(model)
+  const byName = indexTokens(model)
   const chain: ResolveStep[] = []
   const seen = new Set<string>()
   const fail = (code: string, message: string, path: TokenName): ResolveResult => ({
