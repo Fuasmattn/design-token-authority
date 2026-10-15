@@ -23,14 +23,16 @@ Every legacy command, module and behaviour needs an owner and a proof. "Dropped"
 | `graph` report formatters (console, dot, markdown, html) and directory reading | `@dta/cli` (CLI epic) | CLI snapshots `graph-*` | open |
 | `pull` (API and `--from-file`, importers, format detection) | `@dta/figma` | Package tests + fake-Figma roundtrip (037); add `pull` CLI snapshot | open |
 | `push` (diff, confirmation, `--yes`, `--dry-run`, `--skip-lint`, never deletes) | `@dta/figma` | Package tests + payload assertion on the fake (037) | open |
-| `analyze` (structure autodiscovery) | `@dta/figma` | Package tests; add `analyze` CLI snapshot | open |
+| `analyze` (structure autodiscovery; Figma-response and token-file variants) | `@dta/core` (TICKET-048, on the model) + `@dta/cli` report | Core tests; add `analyze` CLI snapshot | open |
 | `init` (wizard) | `@dta/cli` | CLI tests with scripted prompts | open |
 | `clean` | `@dta/cli` | CLI tests on a temp copy of a fixture | open |
 | docs site generator (`formatters/docs-html.ts`) | `@dta/build` or Epic 7 | Snapshot or explicit "replaced by Epic 7" decision | open |
 | `test:visual` (Playwright) | Epic 8 visual-diff | Explicit "replaced by Epic 8" decision | open |
 | `token_types.ts` | `@dta/core` (model, parse/serialize; TICKET-040) | Core tests incl. byte-identical round trip of both fixtures | core done; legacy file deleted when figma/build no longer import it |
 | `color.ts` (and `contrastRatio` in `linter.ts`) | `@dta/core` (TICKET-041) | Legacy color tests re-expressed through the core API | core done; legacy deleted with its last importer (`token_import`, `token_export`, `linter`) |
-| `token_export.ts`, `token_import.ts`, `utils.ts` | `@dta/figma` / `@dta/cli` | Ported unit tests (legacy tests re-expressed through the new public APIs) | open |
+| `figma_api.ts` | `@dta/figma` (TICKET-044) | Client tests against the Figma fake | open |
+| `importers/*` | `@dta/figma` (TICKET-047) | Legacy importer tests re-expressed | open |
+| `token_export.ts` (TICKET-045), `token_import.ts` (TICKET-046), `utils.ts` | `@dta/figma` / `@dta/cli` | Ported unit tests (legacy tests re-expressed through the new public APIs) | open |
 | Legacy entrypoints `sync_*`, `dta.config.ts` loader | `@dta/cli` | Config tests (036) | open |
 
 ## Delete as you go
