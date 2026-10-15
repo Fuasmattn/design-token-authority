@@ -55,6 +55,7 @@ Rewrite DTA as a set of small, deep packages behind a single CLI, using a strang
   - `@dta/build`: Style Dictionary v4 integration and formatters (CSS, JS, Tailwind v3/v4, per-brand output).
   - `@dta/lint`: lint rules and runner, built on the core graph.
   - `@dta/cli`: the only user-facing package; commands, config loading and validation, prompts and output.
+  - `@dta/testkit` (private, dev-only): the snapshot harness shared by the legacy capture script and the CLI parity tests.
 - **Gray-box packages:** each package exposes a deliberately small public API and keeps everything else internal. Other packages may only import from that public API.
 - **Config:** `dta.config.ts` with `defineConfig` and Zod validation, JSON fallback, no TOML. Starts from the v1 schema; breaking changes are allowed and released as v2.0.0 with a migration note.
 - **Existing invariants kept:** variable names unique across collections; push never deletes; typed push confirmation, bypassable via flag or config.

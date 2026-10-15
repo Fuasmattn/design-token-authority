@@ -114,10 +114,10 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 | # | Ticket | Priority | Effort | Blocked by | Status |
 |---|---|---|---|---|---|
-| [033](./033-workspace-scaffold.md) | pnpm workspace scaffold | High | S | — | In review |
+| [033](./033-workspace-scaffold.md) | pnpm workspace scaffold | High | S | — | Done |
 | [034](./034-fixture-projects.md) | Fixture projects for parity testing | High | S | — | Done |
-| [035](./035-capture-legacy-snapshots.md) | Capture legacy snapshots | High | S | 034 | In review |
-| [036](./036-cli-skeleton-snapshot-runner.md) | New CLI skeleton + snapshot runner | High | M | 033, 035 | Open |
+| [035](./035-capture-legacy-snapshots.md) | Capture legacy snapshots | High | S | 034 | Done |
+| [036](./036-cli-skeleton-snapshot-runner.md) | New CLI skeleton + snapshot runner | High | M | 033, 035 | In review |
 | [037](./037-figma-fake.md) | Figma API fake with recorded responses | Medium | M | 033, 034 | Open |
 | [038](./038-agent-guardrails.md) | Agent guardrails for the overhaul | High | XS | 033 | Open |
 

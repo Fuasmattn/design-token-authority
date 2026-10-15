@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** S
 **Blocked by:** TICKET-034
-**Status:** in review
+**Status:** done
 **Spec:** [token-engine-overhaul](../specs/token-engine-overhaul.md)
 
 ## What to build

@@ -1,0 +1,26 @@
+{
+  "name": "@dta/testkit",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Snapshot harness for Design Token Authority: runs a CLI against fixture projects and compares its output with recorded snapshots",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24.14.1"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "diff": "^8.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.2",
+    "typescript": "^5.1.6",
+    "vitest": "^4.1.2"
+  }
+}

@@ -15,3 +15,4 @@ jobs:
       - run: pnpm run prettier:check
       - run: pnpm run typecheck
       - run: pnpm run test
+      - run: pnpm run snapshot:check

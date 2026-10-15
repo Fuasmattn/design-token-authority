@@ -1,0 +1,29 @@
+{
+  "name": "@dta/cli",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Command-line interface for Design Token Authority",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24.14.1"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "commander": "^14.0.3",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@dta/testkit": "workspace:*",
+    "@types/node": "^24.12.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.1.6",
+    "vitest": "^4.1.2"
+  }
+}

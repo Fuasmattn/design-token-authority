@@ -28,7 +28,7 @@
     "dist"
   ],
   "scripts": {
-    "prettier:check": "prettier --check src/ packages/",
+    "prettier:check": "prettier --check src/ packages/ scripts/snapshots/",
     "dta": "tsx src/cli.ts",
     "sync-tokens-to-figma": "tsx src/sync_tokens_to_figma.ts",
     "sync-figma-to-tokens": "tsx src/sync_figma_to_tokens.ts",
@@ -42,9 +42,10 @@
     "prepare": "npm run build:cli",
     "release": "release-it",
     "release:dry": "release-it --dry-run",
-    "typecheck": "tsc --noEmit -p tsconfig.json && pnpm -r typecheck",
-    "snapshot:capture": "node scripts/snapshots/capture-legacy.mjs",
-    "snapshot:check": "node scripts/snapshots/capture-legacy.mjs --check"
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p scripts/snapshots/tsconfig.json && pnpm -r typecheck",
+    "snapshot:capture": "tsx scripts/snapshots/capture-legacy.ts",
+    "snapshot:check": "tsx scripts/snapshots/capture-legacy.ts --check",
+    "dta:next": "tsx packages/cli/src/bin.ts"
   },
   "dependencies": {
     "@clack/prompts": "^1.2.0",
@@ -65,7 +66,8 @@
     "@vitest/coverage-v8": "^4.1.2",
     "prettier": "^3.8.1",
     "release-it": "^19.2.4",
-    "vitest": "^4.1.2"
+    "vitest": "^4.1.2",
+    "@dta/testkit": "workspace:*"
   },
   "packageManager": "pnpm@10.28.0"
 }
