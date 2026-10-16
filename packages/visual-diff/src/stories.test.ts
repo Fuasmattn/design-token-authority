@@ -45,9 +45,9 @@ describe('diffConfigSchema', () => {
 
   it('rejects unknown keys, unknown adapters and bad numbers', () => {
     expect(diffConfigSchema.safeParse({ outDir: 'dist', outdir: 'x' }).success).toBe(false)
-    expect(
-      diffConfigSchema.safeParse({ outDir: 'dist', stories: { type: 'storybook' } }).success,
-    ).toBe(false)
+    expect(diffConfigSchema.safeParse({ outDir: 'dist', stories: { type: 'ladle' } }).success).toBe(
+      false,
+    )
     expect(diffConfigSchema.safeParse({ outDir: 'dist', viewports: [0] }).success).toBe(false)
     expect(diffConfigSchema.safeParse({ outDir: 'dist', threshold: 2 }).success).toBe(false)
     expect(

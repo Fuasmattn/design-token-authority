@@ -20,6 +20,7 @@ import {
   type Review,
   type RevertGroup,
   readStoriesManifest,
+  readStorybookIndex,
   storyImagePaths,
   summarizeStories,
   toDiffJson,
@@ -275,16 +276,40 @@ async function planAttribution(
 /** A problem with the built output (missing manifest, broken story). */
 class VisualDiffError extends Error {}
 
+/** The configured stories source: which file in the output to read, and how. */
+function storiesSource(diff: DiffConfig) {
+  const options = { viewports: diff.viewports }
+  const stories = diff.stories
+  if (stories.type === 'storybook') {
+    return {
+      file: stories.index,
+      label: 'Storybook index',
+      read: (json: unknown) =>
+        readStorybookIndex(json, {
+          ...options,
+          excludeTags: stories.excludeTags,
+          exclude: stories.exclude,
+        }),
+    }
+  }
+  return {
+    file: stories.manifest,
+    label: 'stories manifest',
+    read: (json: unknown) => readStoriesManifest(json, options),
+  }
+}
+
 function readManifest(outDir: string, diff: DiffConfig, side: string) {
-  const file = path.join(outDir, diff.stories.manifest)
+  const source = storiesSource(diff)
+  const file = path.join(outDir, source.file)
   if (!fs.existsSync(file)) return null
   let json: unknown
   try {
     json = JSON.parse(fs.readFileSync(file, 'utf8'))
   } catch {
-    throw new VisualDiffError(`${side}: ${diff.stories.manifest} is not valid JSON.`)
+    throw new VisualDiffError(`${side}: ${source.file} is not valid JSON.`)
   }
-  const { stories, diagnostics } = readStoriesManifest(json, { viewports: diff.viewports })
+  const { stories, diagnostics } = source.read(json)
   if (hasErrors(diagnostics)) {
     throw new VisualDiffError(`${side}: ${diagnostics.map(formatDiagnostic).join('; ')}`)
   }
@@ -313,7 +338,7 @@ async function compareVisually(
     const headStories = readManifest(headOut, diff, 'head')
     if (!headStories) {
       throw new VisualDiffError(
-        `no stories manifest at ${path.join(diff.outDir, diff.stories.manifest)} after the build.`,
+        `no ${storiesSource(diff).label} at ${path.join(diff.outDir, storiesSource(diff).file)} after the build.`,
       )
     }
 
@@ -347,6 +372,7 @@ async function compareVisually(
         screenshotter.capture(
           `${(side === 'head' ? headServer : baseServer).url}${story.url}`,
           viewport,
+          story.ready,
         ),
       // Changed stories only: revert each changed token in the head page and see what moves.
       attribute: async (story, viewport, comparison) => {
@@ -359,6 +385,7 @@ async function compareVisually(
                 viewport,
                 DEPENDENTS_SCRIPT,
                 groups,
+                story.ready,
               )) as Record<string, Dependent[]> | null) ?? {})
         const attribution = attributePixels(
           comparison.mask,
@@ -507,11 +534,12 @@ function listStories(
       'no `diff` section in the config. Add at least `diff: { outDir: "dist" }` (see the docs).',
     )
   }
-  const manifestPath = path.join(diff.outDir, diff.stories.manifest)
+  const source = storiesSource(diff)
+  const manifestPath = path.join(diff.outDir, source.file)
   const absolute = path.resolve(context.cwd, manifestPath)
   if (!fs.existsSync(absolute)) {
     const build = diff.build ? `run \`${diff.build}\` first` : 'build the project first'
-    return fail(`no stories manifest at ${manifestPath}; ${build}.`)
+    return fail(`no ${source.label} at ${manifestPath}; ${build}.`)
   }
   let json: unknown
   try {
@@ -519,7 +547,7 @@ function listStories(
   } catch {
     return fail(`${manifestPath} is not valid JSON.`)
   }
-  const { stories, diagnostics } = readStoriesManifest(json, { viewports: diff.viewports })
+  const { stories, diagnostics } = source.read(json)
   if (hasErrors(diagnostics)) {
     for (const d of diagnostics) context.stderr(`${manifestPath}: ${formatDiagnostic(d)}\n`)
     return 1
@@ -541,7 +569,9 @@ function listStories(
   }
   const ui = createUi(context.stdout)
   ui.intro(banner('diff'))
-  ui.log.message(`${pc.dim('Manifest:')} ${manifestPath}`)
+  ui.log.message(
+    `${pc.dim(source.label === 'stories manifest' ? 'Manifest:' : 'Storybook index:')} ${manifestPath}`,
+  )
   const idWidth = Math.max(...stories.map((s) => s.id.length), 0)
   const urlWidth = Math.max(...stories.map((s) => s.url.length), 0)
   const rows = stories.map(

@@ -279,6 +279,43 @@ describe('dta diff --list', () => {
     expect(stderr).toContain('invalid-manifest')
   })
 
+  it('lists the stories of a Storybook build (recorded index.json)', async () => {
+    fs.writeFileSync(
+      path.join(dir, 'dta.config.json'),
+      JSON.stringify({ diff: { outDir: 'storybook-static', stories: { type: 'storybook' } } }),
+    )
+    fs.cpSync(
+      path.resolve(import.meta.dirname, '../../../../test/storybook/storybook-static'),
+      path.join(dir, 'storybook-static'),
+      { recursive: true },
+    )
+    const { exitCode, stdout } = await diff(['--list'])
+    expect(exitCode).toBe(0)
+    expect(stdout).toContain('Storybook index: storybook-static/index.json')
+    expect(stdout).toMatch(
+      /components-button--primary\s+\/iframe\.html\?id=components-button--primary&viewMode=story\s+1280/,
+    )
+    expect(stdout).not.toContain('experimental') // tagged skip-dta-diff
+    expect(stdout).not.toContain('intro--docs')
+    expect(stdout).toContain('3 stories')
+  })
+
+  it('explains a missing Storybook build', async () => {
+    fs.writeFileSync(
+      path.join(dir, 'dta.config.json'),
+      JSON.stringify({
+        diff: {
+          outDir: 'storybook-static',
+          build: 'npm run build-storybook',
+          stories: { type: 'storybook' },
+        },
+      }),
+    )
+    expect((await diff(['--list'])).stderr).toContain(
+      'no Storybook index at storybook-static/index.json; run `npm run build-storybook` first',
+    )
+  })
+
   it('rejects an invalid diff section with exit code 2', async () => {
     site({ diff: { outDir: 'dist', viewports: [] } })
     expect((await diff(['--list'])).exitCode).toBe(2)

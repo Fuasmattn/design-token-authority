@@ -41,7 +41,7 @@ diff: {
 }
 ```
 
-`readStoriesManifest(json, { viewports })` is the static-site adapter: it reads a `dta.stories/1` manifest (the DTA website writes one at `/stories/manifest.json`) into `StoryRef`s (`id`, `title`, `url`, `viewports`) and returns problems as diagnostics. A Storybook adapter follows (TICKET-089).
+`readStoriesManifest(json, { viewports })` is the static-site adapter: it reads a `dta.stories/1` manifest (the DTA website writes one at `/stories/manifest.json`) into `StoryRef`s (`id`, `title`, `url`, `viewports`) and returns problems as diagnostics. `readStorybookIndex(json, { viewports, excludeTags, exclude })` is the Storybook adapter (`stories: { type: 'storybook' }`): it reads `index.json` (v4/v5) of a static Storybook build, keeps entries of type `story` (no docs), drops excluded tags (default `skip-dta-diff`) and ids matching `exclude`, and renders each through `/iframe.html?id=<id>&viewMode=story`. Its `StoryRef`s carry `ready`, a JavaScript expression the capture waits for (Storybook's `sb-show-main` body class).
 
 ## Comparing stories
 

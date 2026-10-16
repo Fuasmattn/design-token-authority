@@ -14,13 +14,22 @@ export class BrowserUnavailableError extends Error {
 }
 
 export interface Screenshotter {
-  /** Full-page PNG of `url` at `width` px, deterministic settings, or null on HTTP errors. */
-  capture(url: string, width: number): Promise<Uint8Array | null>
+  /**
+   * Full-page PNG of `url` at `width` px, deterministic settings, or null on HTTP errors.
+   * `ready`: a JavaScript expression to wait for after network idle (e.g. Storybook's render).
+   */
+  capture(url: string, width: number, ready?: string): Promise<Uint8Array | null>
   /**
    * Loads `url` like `capture` and runs `script` (a function expression) with `arg` in the
    * page; returns its result, or null on HTTP errors.
    */
-  evaluate(url: string, width: number, script: string, arg: unknown): Promise<unknown>
+  evaluate(
+    url: string,
+    width: number,
+    script: string,
+    arg: unknown,
+    ready?: string,
+  ): Promise<unknown>
   close(): Promise<void>
 }
 
@@ -28,6 +37,7 @@ export interface Screenshotter {
 interface Page {
   goto(url: string, options: object): Promise<{ ok(): boolean } | null>
   evaluate(expression: string): Promise<unknown>
+  waitForFunction(expression: string, arg: unknown, options: object): Promise<unknown>
   screenshot(options: object): Promise<Uint8Array>
 }
 interface Browser {
@@ -60,6 +70,7 @@ export async function launchScreenshotter(): Promise<Screenshotter> {
   async function withPage<T>(
     url: string,
     width: number,
+    ready: string | undefined,
     use: (page: Page) => Promise<T>,
   ): Promise<T | null> {
     const context = await browser.newContext({
@@ -74,6 +85,7 @@ export async function launchScreenshotter(): Promise<Screenshotter> {
       const page = await context.newPage()
       const response = await page.goto(url, { waitUntil: 'networkidle', timeout: 30_000 })
       if (!response || !response.ok()) return null
+      if (ready) await page.waitForFunction(ready, undefined, { timeout: 30_000 })
       await page.evaluate('document.fonts.ready.then(() => true)')
       return await use(page)
     } finally {
@@ -82,12 +94,12 @@ export async function launchScreenshotter(): Promise<Screenshotter> {
   }
 
   return {
-    capture: (url, width) =>
-      withPage(url, width, (page) =>
+    capture: (url, width, ready) =>
+      withPage(url, width, ready, (page) =>
         page.screenshot({ fullPage: true, animations: 'disabled', caret: 'hide' }),
       ),
-    evaluate: (url, width, script, arg) =>
-      withPage(url, width, (page) => page.evaluate(`(${script})(${JSON.stringify(arg)})`)),
+    evaluate: (url, width, script, arg, ready) =>
+      withPage(url, width, ready, (page) => page.evaluate(`(${script})(${JSON.stringify(arg)})`)),
     close: () => browser.close(),
   }
 }

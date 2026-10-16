@@ -18,14 +18,45 @@ export const diffConfigSchema = z.strictObject({
   build: path.optional(),
   /** Folder of the static output, relative to the project. */
   outDir: path,
-  /** Where the stories come from. Only static sites for now; Storybook is a follow-up. */
-  stories: z
-    .strictObject({
-      type: z.literal('static-site').default('static-site'),
-      /** Manifest path inside `outDir`. */
-      manifest: path.default('stories/manifest.json'),
-    })
-    .prefault({}),
+  /**
+   * Where the stories come from: a `dta.stories/1` manifest in the static output (`static-site`,
+   * the default) or the `index.json` of a static Storybook build (`storybook`).
+   */
+  stories: z.preprocess(
+    (value) =>
+      value === undefined
+        ? { type: 'static-site' }
+        : typeof value === 'object' && value !== null && !('type' in value)
+          ? { ...value, type: 'static-site' }
+          : value,
+    z.discriminatedUnion('type', [
+      z.strictObject({
+        type: z.literal('static-site'),
+        /** Manifest path inside `outDir`. */
+        manifest: path.default('stories/manifest.json'),
+      }),
+      z.strictObject({
+        type: z.literal('storybook'),
+        /** Storybook's index inside `outDir` (the `storybook build` output). */
+        index: path.default('index.json'),
+        /** Stories with one of these tags are not rendered. */
+        excludeTags: z.array(z.string().min(1)).default(['skip-dta-diff']),
+        /** Regular expressions; stories whose id matches one are not rendered. */
+        exclude: z
+          .array(
+            z.string().refine((pattern) => {
+              try {
+                new RegExp(pattern)
+                return true
+              } catch {
+                return false
+              }
+            }, 'not a valid regular expression'),
+          )
+          .default([]),
+      }),
+    ]),
+  ),
   /** Viewport widths for stories that do not suggest their own. */
   viewports: z.array(viewport).min(1).default([1280]),
   /** Changed-pixel ratio (0–1) a story may differ by before it counts as changed. */
@@ -62,6 +93,11 @@ export interface StoryRef {
   /** Path inside the static output, e.g. `/stories/button/variants/`. */
   url: string
   viewports: number[]
+  /**
+   * Optional JavaScript expression the page must make true before the screenshot (after network
+   * idle), e.g. Storybook's "story rendered" body class.
+   */
+  ready?: string
 }
 
 const manifestSchema = z.object({
@@ -122,4 +158,64 @@ export function readStoriesManifest(
     })
   }
   return { stories, diagnostics }
+}
+
+/** Storybook adds one of these classes to the iframe's body once a story has rendered (or failed). */
+export const STORYBOOK_READY =
+  "['sb-show-main', 'sb-show-errordisplay', 'sb-show-nopreview'].some((c) => document.body.classList.contains(c))"
+
+const storybookIndexSchema = z.object({
+  v: z.number().int(),
+  entries: z.record(
+    z.string(),
+    z.looseObject({
+      type: z.string(),
+      id: z.string().min(1),
+      title: z.string(),
+      name: z.string(),
+      tags: z.array(z.string()).optional(),
+    }),
+  ),
+})
+
+/**
+ * Storybook adapter: the `index.json` of a static Storybook build (v4 and v5) to stories. Only
+ * entries of type `story` are rendered, through `iframe.html` (the story without Storybook's UI);
+ * docs entries, excluded tags and ids matching `exclude` are left out. Problems come back as
+ * diagnostics; the function never throws on bad input.
+ */
+export function readStorybookIndex(
+  index: unknown,
+  options: { viewports: number[]; excludeTags?: string[]; exclude?: string[] },
+): { stories: StoryRef[]; diagnostics: Diagnostic[] } {
+  const parsed = storybookIndexSchema.safeParse(index)
+  if (!parsed.success || parsed.data.v < 4) {
+    const stories3 = typeof index === 'object' && index !== null && 'stories' in index
+    return {
+      stories: [],
+      diagnostics: [
+        {
+          severity: 'error',
+          code: 'invalid-storybook-index',
+          message: stories3
+            ? 'This is a stories.json of Storybook 6 or older; dta diff reads index.json (Storybook 7+).'
+            : `Not a Storybook index.json (v4 or v5): ${parsed.success ? `version ${parsed.data.v}` : parsed.error.issues.map((i) => `${i.path.join('.') || '(root)'}: ${i.message}`).join('; ')}`,
+        },
+      ],
+    }
+  }
+  const excludeTags = new Set(options.excludeTags ?? [])
+  const exclude = (options.exclude ?? []).map((pattern) => new RegExp(pattern))
+  const stories = Object.values(parsed.data.entries)
+    .filter((entry) => entry.type === 'story')
+    .filter((entry) => !(entry.tags ?? []).some((tag) => excludeTags.has(tag)))
+    .filter((entry) => !exclude.some((regex) => regex.test(entry.id)))
+    .map((entry) => ({
+      id: entry.id,
+      title: `${entry.title} / ${entry.name}`,
+      url: `/iframe.html?id=${encodeURIComponent(entry.id)}&viewMode=story`,
+      viewports: options.viewports,
+      ready: STORYBOOK_READY,
+    }))
+  return { stories, diagnostics: [] }
 }
