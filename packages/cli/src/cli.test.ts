@@ -65,10 +65,10 @@ describe('help and usage', () => {
 describe('commands that are not ported yet', () => {
   it('exit with code 3 and say so, once the config is valid', async () => {
     writeConfig({ figma: { source: 'file' } })
-    const { exitCode, stdout, stderr } = await run(['build'])
+    const { exitCode, stdout, stderr } = await run(['analyze'])
     expect(exitCode).toBe(3)
     expect(stdout).toBe('')
-    expect(stderr).toContain('"build" is not ported')
+    expect(stderr).toContain('"analyze" is not ported')
   })
 
   it('accept the options of the legacy command', async () => {
@@ -104,7 +104,7 @@ describe('config handling', () => {
   it('uses the file given with --config', async () => {
     writeConfig({ brands: 5 }, 'dta.config.json')
     fs.writeFileSync(path.join(dir, 'other.json'), '{}')
-    const { exitCode } = await run(['build', '--config', 'other.json'])
+    const { exitCode } = await run(['analyze', '--config', 'other.json'])
     expect(exitCode).toBe(3)
   })
 })

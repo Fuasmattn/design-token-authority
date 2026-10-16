@@ -91,9 +91,15 @@ importers:
       '@clack/prompts':
         specifier: ^1.2.0
         version: 1.8.1
+      '@dta/build':
+        specifier: workspace:*
+        version: link:../build
       '@dta/core':
         specifier: workspace:*
         version: link:../core
+      '@dta/docs':
+        specifier: workspace:*
+        version: link:../docs
       '@dta/lint':
         specifier: workspace:*
         version: link:../lint

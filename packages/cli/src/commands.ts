@@ -1,4 +1,5 @@
 import type { Config } from './config/schema.js'
+import { runBuild } from './commands/build.js'
 import { runLint } from './commands/lint.js'
 
 export interface CommandOption {
@@ -76,6 +77,7 @@ export const COMMANDS: readonly CommandDefinition[] = [
     name: 'build',
     description: 'Generate CSS, JS, and other outputs from local token files',
     needsConfig: true,
+    run: runBuild,
     options: [CONFIG, VERBOSE],
   },
   {

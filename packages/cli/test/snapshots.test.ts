@@ -35,12 +35,38 @@ const newCli: CliCommand = {
  * same PR, to document an intentional change).
  */
 const PENDING: ReadonlySet<string> = new Set([
-  'build',
   'graph-console',
   'graph-dot',
   'graph-markdown',
   'graph-html',
 ])
+
+/**
+ * Reviewed, intentional differences from the legacy output (see the quirk table in
+ * docs/tickets/039-legacy-removal.md). The recorded snapshots stay untouched, because
+ * `pnpm snapshot:check` re-records them from the legacy CLI; the change is applied to the
+ * expected stdout here, in one visible place. An entry that no longer applies fails the suite.
+ */
+const INTENDED_CHANGES: ReadonlyArray<{ scenario: string; from: string; to: string }> = [
+  {
+    // Legacy prints a path the build never writes to; the file is in output/js/.
+    scenario: 'build',
+    from: '|  build/js/colorpalette.js ',
+    to: '|  output/js/colorpalette.js',
+  },
+]
+
+function applyIntendedChanges(scenario: string, stdout: string): string {
+  return INTENDED_CHANGES.filter((change) => change.scenario === scenario).reduce(
+    (text, change) => {
+      if (!text.includes(change.from)) {
+        throw new Error(`Intended change no longer applies to "${scenario}": ${change.from}`)
+      }
+      return text.replace(change.from, change.to)
+    },
+    stdout,
+  )
+}
 
 describe('pending list', () => {
   it('only names scenarios that exist', () => {
@@ -52,10 +78,11 @@ describe('pending list', () => {
 describe.each(listFixtures(fixturesRoot))('fixture %s', (fixture) => {
   it.each(SCENARIOS.map((s) => s.name))('%s', async (name) => {
     const scenario = SCENARIOS.find((s) => s.name === name)!
-    const expected = readSnapshot(path.join(snapshotsRoot, fixture, name))
-    if (expected === null) {
+    const recorded = readSnapshot(path.join(snapshotsRoot, fixture, name))
+    if (recorded === null) {
       throw new Error(`No snapshot recorded for ${fixture}/${name}. Run "pnpm snapshot:capture".`)
     }
+    const expected = { ...recorded, stdout: applyIntendedChanges(name, recorded.stdout) }
 
     const actual = await captureScenario({
       fixtureDir: path.join(fixturesRoot, fixture),

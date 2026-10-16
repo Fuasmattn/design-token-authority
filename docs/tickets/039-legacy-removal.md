@@ -17,7 +17,7 @@ Every legacy command, module and behaviour needs an owner and a proof. "Dropped"
 
 | Legacy | New home | Proof of parity | Status |
 |---|---|---|---|
-| `build` (CSS, JS, Tailwind v3/v4, per-brand) | `@dta/build` (TICKETs 049–054) | Package parity against `test/snapshots/*/build/files/output/{css,js,tailwind}`; CLI snapshot `build` once wired (Epic 6) | package done; CLI wiring in Epic 6 (scenario stays PENDING); legacy `commands/build.ts`, `style-dictionary.config.ts` deleted with the CLI port |
+| `build` (CSS, JS, Tailwind v3/v4, per-brand) | `@dta/build` (TICKETs 049–054) | Package parity against `test/snapshots/*/build/files/output/{css,js,tailwind}`; CLI snapshot `build` once wired (Epic 6) | package done; CLI `build` ported, snapshot green with one intended change (062); legacy `commands/build.ts`, `style-dictionary.config.ts` deleted at the cut-over (066) |
 | `formatters/tailwind-v4.ts` | `@dta/build` (TICKET-052) | Snapshot parity (brand-ab, daisyui) and legacy formatter cases re-expressed through `buildOutputs` | build side done; legacy file deleted with the legacy build command |
 | `formatters/tailwind-v3.ts` | `@dta/build` (TICKET-053) | Same, for v3 | build side done; legacy file deleted with the legacy build command |
 | `lint` (rules, config validation; `linter.ts`, lint config types) | `@dta/lint` (TICKETs 055–058) | Package parity against the violations in `test/snapshots/*/lint/stdout.txt`; CLI snapshot `lint` once wired (Epic 6) | package done (055–058); CLI `lint` ported and snapshot green (060); legacy files deleted at the cut-over (066); `contrastRatio` duplicate covered by core |
@@ -48,7 +48,7 @@ Each legacy quirk is either copied (snapshot stays) or fixed (reviewed snapshot 
 
 | Quirk | Decision |
 |---|---|
-| Build summary prints `build/js/colorpalette.js` but writes `output/js/…` | `@dta/build` returns the real path (`output/js/colorpalette.js`); the summary is fixed in the CLI port as a reviewed snapshot diff |
+| Build summary prints `build/js/colorpalette.js` but writes `output/js/…` | fixed: `@dta/build` and the CLI report the real path (`output/js/colorpalette.js`); recorded as `INTENDED_CHANGES` in the CLI snapshot test (062) |
 | JS palette directory is hardcoded to `output/js/` | copied for now (not configurable); revisit after parity |
 | A brand token aliasing its own path is dropped together with the primitive it shadows | copied (covered by a test in `@dta/build`); revisit after parity |
 | Version hardcoded as `0.1.0` in `theme.ts` / `cli.ts` | open |
