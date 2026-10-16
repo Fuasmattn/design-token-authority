@@ -1,11 +1,11 @@
 {
   "schema": "dta.diff/1",
   "base": "origin/plan/token-engine-overhaul (3f02117)",
-  "verdict": "review",
+  "verdict": "fail",
   "review": {
-    "verdict": "review",
-    "changed": 7,
-    "explained": 7,
+    "verdict": "fail",
+    "changed": 9,
+    "explained": 6,
     "tokens": [
       {
         "id": "action.bg (Theme · Light)",
@@ -22,14 +22,50 @@
           "button--variants@390",
           "redline--radius@1280",
           "redline--spacing@1280",
-          "diff-card--review@1280",
           "workflow-rail--default@1280",
           "workflow-rail--default@390"
         ],
         "needsReview": true
       }
     ],
-    "unexplained": [],
+    "unexplained": [
+      {
+        "story": "chip--states@1280",
+        "ratio": 0.0004638671875,
+        "pixels": 475,
+        "region": {
+          "x": 33,
+          "y": 59,
+          "width": 946,
+          "height": 28
+        },
+        "failing": true
+      },
+      {
+        "story": "diff-card--review@1280",
+        "ratio": 0.00691015625,
+        "pixels": 153,
+        "region": {
+          "x": 348,
+          "y": 84,
+          "width": 710,
+          "height": 28
+        },
+        "failing": true
+      },
+      {
+        "story": "diff-card--blocked@1280",
+        "ratio": 0.0001494140625,
+        "pixels": 153,
+        "region": {
+          "x": 340,
+          "y": 84,
+          "width": 718,
+          "height": 28
+        },
+        "failing": true
+      }
+    ],
     "added": [],
     "removed": []
   },
@@ -98,7 +134,7 @@
           "width": 1280,
           "height": 800
         },
-        "ms": 591
+        "ms": 590
       },
       "images": {
         "base": "base/button--variants@1280.png",
@@ -145,7 +181,7 @@
           "width": 390,
           "height": 800
         },
-        "ms": 582
+        "ms": 583
       },
       "images": {
         "base": "base/button--variants@390.png",
@@ -184,12 +220,29 @@
       "title": "Info, changed, pass",
       "url": "/stories/chip/states/",
       "viewport": 1280,
-      "status": "unchanged",
-      "ratio": 0,
-      "changedPixels": 0,
+      "status": "changed",
+      "ratio": 0.0004638671875,
+      "changedPixels": 475,
+      "attribution": {
+        "explained": false,
+        "tokens": [],
+        "unexplainedPixels": 475,
+        "canvas": {
+          "width": 1280,
+          "height": 800
+        },
+        "unexplainedRegion": {
+          "x": 33,
+          "y": 59,
+          "width": 946,
+          "height": 28
+        },
+        "ms": 576
+      },
       "images": {
         "base": "base/chip--states@1280.png",
-        "head": "head/chip--states@1280.png"
+        "head": "head/chip--states@1280.png",
+        "diff": "diff/chip--states@1280.png"
       }
     },
     {
@@ -277,7 +330,7 @@
           "width": 1280,
           "height": 800
         },
-        "ms": 587
+        "ms": 590
       },
       "images": {
         "base": "base/redline--radius@1280.png",
@@ -318,7 +371,7 @@
           "width": 1280,
           "height": 800
         },
-        "ms": 579
+        "ms": 575
       },
       "images": {
         "base": "base/redline--spacing@1280.png",
@@ -332,10 +385,10 @@
       "url": "/stories/diff-card/review/",
       "viewport": 1280,
       "status": "changed",
-      "ratio": 0.0067607421875,
-      "changedPixels": 6923,
+      "ratio": 0.00691015625,
+      "changedPixels": 7076,
       "attribution": {
-        "explained": true,
+        "explained": false,
         "tokens": [
           {
             "id": "action.bg (Theme · Light)",
@@ -354,12 +407,18 @@
             ]
           }
         ],
-        "unexplainedPixels": 0,
+        "unexplainedPixels": 153,
         "canvas": {
           "width": 1280,
           "height": 800
         },
-        "ms": 606
+        "unexplainedRegion": {
+          "x": 348,
+          "y": 84,
+          "width": 710,
+          "height": 28
+        },
+        "ms": 600
       },
       "images": {
         "base": "base/diff-card--review@1280.png",
@@ -372,12 +431,29 @@
       "title": "Blocked change",
       "url": "/stories/diff-card/blocked/",
       "viewport": 1280,
-      "status": "unchanged",
-      "ratio": 0,
-      "changedPixels": 0,
+      "status": "changed",
+      "ratio": 0.0001494140625,
+      "changedPixels": 153,
+      "attribution": {
+        "explained": false,
+        "tokens": [],
+        "unexplainedPixels": 153,
+        "canvas": {
+          "width": 1280,
+          "height": 800
+        },
+        "unexplainedRegion": {
+          "x": 340,
+          "y": 84,
+          "width": 718,
+          "height": 28
+        },
+        "ms": 639
+      },
       "images": {
         "base": "base/diff-card--blocked@1280.png",
-        "head": "head/diff-card--blocked@1280.png"
+        "head": "head/diff-card--blocked@1280.png",
+        "diff": "diff/diff-card--blocked@1280.png"
       }
     },
     {
@@ -413,7 +489,7 @@
           "width": 1280,
           "height": 800
         },
-        "ms": 614
+        "ms": 618
       },
       "images": {
         "base": "base/workflow-rail--default@1280.png",
@@ -454,7 +530,7 @@
           "width": 390,
           "height": 800
         },
-        "ms": 630
+        "ms": 622
       },
       "images": {
         "base": "base/workflow-rail--default@390.png",
