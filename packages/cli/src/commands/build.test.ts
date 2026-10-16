@@ -56,7 +56,7 @@ describe('dta build', () => {
     ]) {
       expect(exists(file), file).toBe(true)
     }
-    const listed = [...stdout.matchAll(/^\|\s+(output\/\S+)/gm)].map((match) => match[1])
+    const listed = [...stdout.matchAll(/^[|│]\s+(output\/\S+)/gm)].map((match) => match[1])
     expect(listed[0]).toBe('output/css/base.css')
     expect(listed.indexOf('output/css/themes/a.css')).toBeLessThan(
       listed.indexOf('output/css/themes/b.css'),
