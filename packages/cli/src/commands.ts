@@ -4,9 +4,11 @@ import { runAnalyze } from './commands/analyze.js'
 import { runBuild } from './commands/build.js'
 import { runClean } from './commands/clean.js'
 import { runGraph } from './commands/graph.js'
+import { runInit } from './commands/init.js'
 import { runLint } from './commands/lint.js'
 import { runPull } from './commands/pull.js'
 import { runPush } from './commands/push.js'
+import { runTestVisual } from './commands/test-visual.js'
 
 export interface CommandOption {
   flags: string
@@ -33,18 +35,14 @@ export interface CommandDefinition {
   options: readonly CommandOption[]
   /** Whether the project config is loaded (and validated) before the command runs. */
   needsConfig: boolean
-  /** Implementation; returns the exit code. Absent while the command is not ported yet. */
-  run?: (context: CommandContext) => Promise<number>
+  /** Implementation; returns the exit code. */
+  run: (context: CommandContext) => Promise<number>
 }
 
 const CONFIG: CommandOption = { flags: '-c, --config <path>', description: 'Path to config file' }
 const VERBOSE: CommandOption = { flags: '-v, --verbose', description: 'Enable verbose logging' }
 
-/**
- * Every command of the legacy CLI, with its options. A command is "not ported" until it
- * has a `run`; its snapshot scenarios stay on the pending list in `test/snapshots.test.ts`
- * until then.
- */
+/** Every command of the CLI, with its options. */
 export const COMMANDS: readonly CommandDefinition[] = [
   {
     name: 'pull',
@@ -137,6 +135,7 @@ export const COMMANDS: readonly CommandDefinition[] = [
     name: 'test:visual',
     description: 'Run visual regression tests against build output',
     needsConfig: false,
+    run: runTestVisual,
     options: [
       {
         flags: '--update-baseline',
@@ -149,6 +148,7 @@ export const COMMANDS: readonly CommandDefinition[] = [
     name: 'init',
     description: 'Create a new dta.config.ts in the current directory',
     needsConfig: false,
+    run: runInit,
     options: [VERBOSE],
   },
 ]

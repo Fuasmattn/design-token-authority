@@ -74,6 +74,22 @@ Example: `Brand(Alias).BrandA.json`, `ScreenType.Desktop.json`
 
 ## Source code structure
 
+**Active code lives in `packages/*`** (all commands are ported; `dta` and `design-token-authority` start `packages/cli`):
+
+```
+packages/
+  core/      token model, parse/serialize, resolve, graph, structure analysis, color
+  figma/     Figma REST client, variables ⇄ model, push planning, plugin-export importers
+  build/     CSS, JS, Tailwind v3/v4 outputs
+  lint/      lint rules and config
+  docs/      docs-site HTML generator
+  cli/       commands (pull, push, build, lint, graph, analyze, clean, init), config loader, UI
+  testkit/   private test helpers: Figma fake, snapshot capture
+bin/dta.js   binary entry (runs packages/cli/src/bin.ts)
+```
+
+The `src/` tree below is the **frozen legacy reference** that `pnpm snapshot:check` still records from. TICKET-039 deletes it.
+
 ```
 src/
   cli.ts                CLI entrypoint (design-token-authority / dta)
@@ -84,8 +100,6 @@ src/
   token_import.ts       Token JSON files → Figma API POST payload (import direction)
   color.ts              Color utilities: parseColor(), rgbToHex(), colorApproximatelyEqual()
   utils.ts              Console color helpers, areSetsEqual()
-  sync_figma_to_tokens.ts   Legacy entrypoint: pull from Figma
-  sync_tokens_to_figma.ts   Legacy entrypoint: push to Figma
   config/
     schema.ts           Config type definitions + validation (dta.config.ts)
     loader.ts           Runtime config file loader
@@ -125,7 +139,7 @@ src/
 
 ### Conservative sync
 
-The push direction (`sync_tokens_to_figma.ts`) **never deletes** variables from Figma. It only creates new ones or updates existing ones. Deletion is intentionally out-of-scope for the push command (see TICKET-021 for `prune`).
+The push direction (`dta push`) **never deletes** variables from Figma. It only creates new ones or updates existing ones. Deletion is intentionally out-of-scope for the push command (see TICKET-021 for `prune`).
 
 ### Push confirmation
 
@@ -163,10 +177,6 @@ pnpm dta init            # Interactive project setup wizard
 pnpm test                      # Run Vitest (legacy + all packages)
 pnpm typecheck                 # Typecheck legacy + all packages
 pnpm prettier:check         # Check code formatting
-
-# Legacy scripts (still work)
-pnpm sync-figma-to-tokens   # same as dta pull
-pnpm sync-tokens-to-figma   # same as dta push
 ```
 
 ### Figma plan requirements
@@ -234,8 +244,6 @@ These are tracked as tickets — do not work around them, fix them at the source
 
 - `.github/workflows/test.yml` — runs on every push: prettier check + typecheck + package-boundary check + vitest + snapshot check (pnpm, Node from .nvmrc)
 - `.github/workflows/guardrails.yml` — on pull requests: fails if legacy `src/` changes (unless labeled `legacy-exception`)
-- `.github/workflows/sync-figma-to-tokens.yml` — manual: pulls from Figma, opens a PR
-- `.github/workflows/sync-tokens-to-figma.yml` — manual: pushes local tokens to Figma
 
 CI secret name: `FIGMA_PERSONAL_ACCESS_TOKEN` (see TICKET-005 — currently inconsistent).
 
@@ -257,7 +265,7 @@ The project is being rewritten package by package (strangler). Background: [spec
 **Test seams**
 
 - Package seam (primary): test each package through its public API only, with thorough tests inside the package.
-- CLI seam (parity): `test/snapshots/` holds reference snapshots recorded from the frozen legacy CLI on `test/fixtures/*`. Never regenerate them from new code or "update to pass"; an intentional output change is a reviewed snapshot diff. Scenarios not yet ported are listed in `PENDING` in `packages/cli/test/snapshots.test.ts`.
+- CLI seam (parity): `test/snapshots/` holds reference snapshots recorded from the frozen legacy CLI on `test/fixtures/*`. Never regenerate them from new code or "update to pass"; an intentional output change is a reviewed snapshot diff. Reviewed, intentional differences are listed in `INTENDED_CHANGES` in `packages/cli/test/snapshots.test.ts` (and in the quirk table of TICKET-039); the `PENDING` list is empty.
 - Figma boundary: use `startFigmaFake` from `@dta/testkit` with `test/recordings/`; CI needs no Figma secrets. Real-Figma check: `docs/testing/figma-smoke-test.md`.
 
 **Gates every ticket must pass** (same as CI)

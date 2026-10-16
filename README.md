@@ -48,7 +48,7 @@ DTA does not depend on a particular plugin. It reads its own per-mode DTCG forma
 
 ## CLI
 
-The CLI is available as `dta` (or its full name `design-token-authority`). During development without a global install, use `npm run dta --`.
+The CLI is available as `dta` (or its full name `design-token-authority`). During development without a global install, use `pnpm dta`. `dta --version` prints the package version.
 
 ```bash
 # Core workflow
@@ -83,15 +83,9 @@ dta <cmd> -v                    # verbose logging
 - **CLI flag:** `dta push --yes` (one-off, useful for CI)
 - **Config:** `push: { skipConfirmation: true }` in `dta.config.ts` (permanent)
 
-### Legacy npm scripts
+### Replaced scripts
 
-The older npm scripts still work:
-
-```bash
-npm run sync-figma-to-tokens   # same as dta pull
-npm run sync-tokens-to-figma   # same as dta push
-npm run build                  # same as dta build
-```
+The old `sync-figma-to-tokens` and `sync-tokens-to-figma` npm scripts are gone: use `dta pull` and `dta push`.
 
 ## Configuration
 

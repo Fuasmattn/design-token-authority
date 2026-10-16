@@ -17,21 +17,18 @@
     "node": ">=24.14.1"
   },
   "type": "module",
-  "exports": {
-    ".": "./dist/config/index.js"
-  },
+  "exports": "./packages/cli/src/index.ts",
   "bin": {
-    "design-token-authority": "./dist/cli.js",
-    "dta": "./dist/cli.js"
+    "design-token-authority": "./bin/dta.js",
+    "dta": "./bin/dta.js"
   },
   "files": [
-    "dist"
+    "bin",
+    "packages"
   ],
   "scripts": {
-    "prettier:check": "prettier --check src/ packages/ scripts/",
-    "dta": "tsx src/cli.ts",
-    "sync-tokens-to-figma": "tsx src/sync_tokens_to_figma.ts",
-    "sync-figma-to-tokens": "tsx src/sync_figma_to_tokens.ts",
+    "prettier:check": "prettier --check src/ packages/ scripts/ bin/",
+    "dta": "tsx packages/cli/src/bin.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -45,7 +42,6 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p scripts/snapshots/tsconfig.json && tsc --noEmit -p scripts/figma/tsconfig.json && tsc --noEmit -p scripts/guardrails/tsconfig.json && pnpm -r typecheck",
     "snapshot:capture": "tsx scripts/snapshots/capture-legacy.ts",
     "snapshot:check": "tsx scripts/snapshots/capture-legacy.ts --check",
-    "dta:next": "tsx packages/cli/src/bin.ts",
     "schema:generate": "tsx scripts/figma/generate-token-file-schema.ts",
     "figma:recording": "tsx scripts/figma/build-recording.ts",
     "guardrails:boundaries": "tsx scripts/guardrails/package-boundaries.ts",

@@ -2,7 +2,16 @@ import { Writable, type Readable } from 'node:stream'
 import * as p from '@clack/prompts'
 import pc from 'picocolors'
 
-type CommandName = 'pull' | 'push' | 'build' | 'analyze' | 'graph' | 'clean' | 'lint' | 'init'
+type CommandName =
+  | 'pull'
+  | 'push'
+  | 'build'
+  | 'analyze'
+  | 'graph'
+  | 'clean'
+  | 'lint'
+  | 'init'
+  | 'test:visual'
 
 const STYLES: Record<CommandName, { icon: string; paint: (text: string) => string }> = {
   pull: { icon: '⤵', paint: (s) => pc.bgCyan(pc.black(s)) },
@@ -13,6 +22,7 @@ const STYLES: Record<CommandName, { icon: string; paint: (text: string) => strin
   clean: { icon: '✖', paint: (s) => pc.bgRed(pc.white(s)) },
   lint: { icon: '✔', paint: (s) => pc.bgYellow(pc.black(s)) },
   init: { icon: '✨', paint: (s) => pc.bgCyan(pc.black(s)) },
+  'test:visual': { icon: '◐', paint: (s) => pc.bgBlue(pc.white(s)) },
 }
 
 /** Intro banner of a command, e.g. ` ✔  dta lint ` on a coloured background. */
@@ -47,10 +57,53 @@ export function createUi(write: (text: string) => void, input?: Readable) {
     async text(options: {
       message: string
       placeholder: string
+      defaultValue?: string
       validate: (value: string | undefined) => string | undefined
     }) {
       const answer = await p.text({ ...options, input, output })
       return p.isCancel(answer) ? null : answer
+    },
+    /** Asks for a secret; the typed characters are masked. `null` when cancelled. */
+    async password(options: {
+      message: string
+      validate: (value: string | undefined) => string | undefined
+    }) {
+      const answer = await p.password({ ...options, input, output })
+      return p.isCancel(answer) ? null : answer
+    },
+    /** Asks yes or no; `null` when cancelled. */
+    async confirm(options: { message: string; initialValue: boolean }) {
+      const answer = await p.confirm({ ...options, input, output })
+      return p.isCancel(answer) ? null : answer
+    },
+    /** Picks one option; `null` when cancelled. */
+    async select<Value extends string>(options: {
+      message: string
+      options: Array<{ value: Value; label: string; hint?: string }>
+    }) {
+      const answer = await p.select<Value>({
+        message: options.message,
+        options: options.options as never,
+        input,
+        output,
+      })
+      return p.isCancel(answer) ? null : (answer as Value)
+    },
+    /** Picks any number of options; `null` when cancelled. */
+    async multiselect(options: {
+      message: string
+      options: Array<{ value: string; label: string; hint?: string }>
+      initialValues?: string[]
+    }) {
+      const answer = await p.multiselect<string>({
+        message: options.message,
+        options: options.options as never,
+        initialValues: options.initialValues,
+        required: false,
+        input,
+        output,
+      })
+      return p.isCancel(answer) ? null : (answer as string[])
     },
     cancel: (message: string) => p.cancel(message, { output }),
     log: {

@@ -29,11 +29,14 @@ export interface Sandbox {
 }
 
 export async function createSandbox(
-  options: { recording?: unknown; token?: string; config?: unknown } = {},
+  options: { recording?: unknown; token?: string; config?: unknown; fileKey?: string } = {},
 ): Promise<Sandbox> {
   const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'dta-cmd-')))
   const fake = options.recording
-    ? await startFigmaFake({ files: { KEY: options.recording as never }, token: 'secret' })
+    ? await startFigmaFake({
+        files: { [options.fileKey ?? 'KEY']: options.recording as never },
+        token: 'secret',
+      })
     : undefined
   if (fake) process.env.DTA_FIGMA_API_URL = fake.url
   const config = options.config ?? {

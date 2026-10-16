@@ -1,12 +1,23 @@
+import fs from 'node:fs'
 import type { Readable } from 'node:stream'
+import { fileURLToPath } from 'node:url'
 import { Command, CommanderError } from 'commander'
 import { COMMANDS, type CommandDefinition } from './commands.js'
 import { ConfigError, loadConfig } from './config/load.js'
 import type { Config } from './config/schema.js'
 import { openWithSystem } from './open.js'
 
-/** Exit code for a command that exists in the legacy CLI but is not ported yet. */
-const EXIT_NOT_PORTED = 3
+/** The version of the published package (the repository root), `unknown` if it cannot be read. */
+function packageVersion(): string {
+  try {
+    const file = fileURLToPath(new URL('../../../package.json', import.meta.url))
+    const { version } = JSON.parse(fs.readFileSync(file, 'utf8')) as { version?: string }
+    return version ?? 'unknown'
+  } catch {
+    return 'unknown'
+  }
+}
+
 /** Exit code for an invalid config (same as the legacy CLI). */
 const EXIT_INVALID_CONFIG = 2
 
@@ -43,13 +54,6 @@ async function execute(
     }
   }
 
-  if (!definition.run) {
-    io.stderr(
-      `dta-next: "${definition.name}" is not ported to the new CLI yet. ` +
-        'Use the legacy "dta" CLI for now.\n',
-    )
-    return EXIT_NOT_PORTED
-  }
   return definition.run({ ...io, config, options })
 }
 
@@ -69,7 +73,8 @@ export async function runCli(argv: string[], io: CliIo = {}): Promise<number> {
   let exitCode = 0
   // exitOverride and configureOutput are copied to the subcommands created below.
   const program = new Command()
-    .name('dta-next')
+    .name('dta')
+    .version(packageVersion())
     .description('Design Token Authority — sync Figma variables to code, and back.')
     .exitOverride()
     .configureOutput({ writeOut: resolved.stdout, writeErr: resolved.stderr })

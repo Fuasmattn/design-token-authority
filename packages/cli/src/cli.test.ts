@@ -62,18 +62,23 @@ describe('help and usage', () => {
   })
 })
 
-describe('commands that are not ported yet', () => {
-  it('exit with code 3 and say so', async () => {
+describe('--version', () => {
+  it('prints the version of package.json', async () => {
+    const { exitCode, stdout } = await run(['--version'])
+    const { version } = JSON.parse(
+      fs.readFileSync(new URL('../../../package.json', import.meta.url), 'utf8'),
+    )
+    expect(exitCode).toBe(0)
+    expect(stdout.trim()).toBe(version)
+  })
+})
+
+describe('test:visual', () => {
+  it('points to the repository script and exits with code 3', async () => {
     const { exitCode, stdout, stderr } = await run(['test:visual'])
     expect(exitCode).toBe(3)
-    expect(stdout).toBe('')
-    expect(stderr).toContain('"test:visual" is not ported')
-  })
-
-  it('init does not need a config', async () => {
-    const { exitCode, stderr } = await run(['init'])
-    expect(exitCode).toBe(3)
-    expect(stderr).toContain('"init" is not ported')
+    expect(stdout).toContain('pnpm test:visual')
+    expect(stderr).toContain('no longer a CLI command')
   })
 })
 

@@ -26,17 +26,17 @@ Every legacy command, module and behaviour needs an owner and a proof. "Dropped"
 | `pull` (API and `--from-file`, importers, format detection) | `@dta/figma` + `@dta/cli` (TICKET-065) | Package tests + fake-Figma roundtrip (037); CLI snapshots `pull-api`, `pull-from-file` | done; legacy `commands/pull.ts` deleted at the cut-over (066) |
 | `push` (diff, confirmation, `--yes`, `--dry-run`, `--skip-lint`, never deletes) | `@dta/figma` + `@dta/cli` (TICKET-065) | Package tests + payload assertion on the fake (037); CLI snapshots `push-*` | done; legacy `commands/push.ts` deleted at the cut-over (066) |
 | `analyze` (structure autodiscovery; Figma-response and token-file variants) | `@dta/core` (TICKET-048, on the model) + `@dta/cli` report | Core tests; add `analyze` CLI snapshot | core side done (`analyzeStructure`); CLI `analyze` ported, snapshot green on brand-ab (064); legacy `analyze.ts`, `commands/analyze.ts` deleted at the cut-over (066) |
-| `init` (wizard) | `@dta/cli` | CLI tests with scripted prompts | open |
+| `init` (wizard) | `@dta/cli` (TICKET-066) | CLI tests with scripted prompts (both Figma plan paths; generated config loaded through the config schema) | done; legacy `commands/init.ts` and its test deleted at the cut-over (066 → 039) |
 | `clean` | `@dta/cli` (TICKET-064) | Snapshot `clean` (both fixtures) + CLI tests on temp dirs | done; legacy `commands/clean.ts` deleted at the cut-over (066) |
 | docs site generator (`formatters/docs-html.ts`) | `@dta/docs` (port, TICKET-061); Epic 7 redesigns | Output byte-identical to `output/docs/index.html` in both fixtures (`@dta/docs`, TICKET-061); the redesign is Epic 7 | package done; legacy `formatters/docs-html.ts` deleted at the cut-over (066) |
-| `test:visual` (Playwright) | Epic 8 visual-diff | Explicit "replaced by Epic 8" decision | open |
+| `test:visual` (Playwright) | Epic 8 visual-diff | Explicit "replaced by Epic 8" decision | done: decision 10 of the CLI parity spec; the command stays registered, prints where to run the tests and exits 3; no workflow uses it (checked in 066); legacy `commands/test-visual.ts` deleted at the cut-over |
 | `token_types.ts` | `@dta/core` (model, parse/serialize; TICKET-040) | Core tests incl. byte-identical round trip of both fixtures | core done; legacy file deleted when figma/build no longer import it |
 | `color.ts` (and `contrastRatio` in `linter.ts`) | `@dta/core` (TICKET-041) | Legacy color tests re-expressed through the core API | core done; legacy deleted with its last importer (`token_import`, `token_export`, `linter`) |
 | `figma_api.ts` | `@dta/figma` (TICKET-044) | Client tests against the Figma fake | figma side done; legacy file deleted with its last importer (`pull`/`push` commands) |
 | `importers/tokenhaus.ts`, `importers/detect.ts` | `@dta/figma` (TICKET-047) | Legacy importer tests re-expressed through `importPluginExport` / `detectFormat` | figma side done; legacy files deleted with `pull` (`--from-file`). **Keep-or-drop of the tokenHaus adapter:** keep until the CLI parity work (Epic 6) shows nobody needs `--from-file` with it; then delete `adapters/tokenhaus.ts` and its list entry, nothing else changes |
 | `importers/analyze-tokens.ts` | `@dta/core` (TICKET-048) | Cross-checked against legacy output (differences listed in the ticket) | core side done; legacy file deleted with the `analyze` command |
-| `token_export.ts` (TICKET-045, figma side done), `token_import.ts` (TICKET-046, figma side done), `utils.ts` | `@dta/figma` / `@dta/cli` | Ported unit tests (legacy tests re-expressed through the new public APIs) | open |
-| Legacy entrypoints `sync_*`, `dta.config.ts` loader | `@dta/cli` | Config tests (036) | open |
+| `token_export.ts` (TICKET-045, figma side done), `token_import.ts` (TICKET-046, figma side done), `utils.ts` | `@dta/figma` / `@dta/cli` | Ported unit tests (legacy tests re-expressed through the new public APIs) | done: `variablesToModel` / `planPush` in `@dta/figma`, file-name helpers in `@dta/cli` (`util-names.ts`); legacy files deleted at the cut-over (039) |
+| Legacy entrypoints `sync_*`, `dta.config.ts` loader | `@dta/cli` | Config tests (036) | done: `sync_*` dropped (the `sync-*` npm scripts are removed; `dta pull` / `dta push` replace them), loader replaced by `packages/cli/src/config/load.ts`; legacy files deleted at the cut-over (039) |
 
 ## Delete as you go
 
@@ -51,7 +51,7 @@ Each legacy quirk is either copied (snapshot stays) or fixed (reviewed snapshot 
 | Build summary prints `build/js/colorpalette.js` but writes `output/js/…` | fixed: `@dta/build` and the CLI report the real path (`output/js/colorpalette.js`); recorded as `INTENDED_CHANGES` in the CLI snapshot test (062) |
 | JS palette directory is hardcoded to `output/js/` | copied for now (not configurable); revisit after parity |
 | A brand token aliasing its own path is dropped together with the primitive it shadows | copied (covered by a test in `@dta/build`); revisit after parity |
-| Version hardcoded as `0.1.0` in `theme.ts` / `cli.ts` | open |
+| Version hardcoded as `0.1.0` in `theme.ts` / `cli.ts` | fixed: `dta --version` prints the version of `package.json` (066) |
 | Legacy export always writes `$description` (empty string if none) | copied (`variablesToModel`, TICKET-045) |
 | Legacy payload omits the alpha channel when it is 1 | copied (`planPush`, TICKET-046) |
 | `color-contrast` only compares raw hex, skips aliased/missing tokens, looks up by in-file name in any mode (last wins) | copied (`@dta/lint`, pinned by tests, TICKET-057) |
@@ -59,7 +59,13 @@ Each legacy quirk is either copied (snapshot stays) or fixed (reviewed snapshot 
 | `clean` deleted the whole top-level directory of any configured outDir (`src/styles` removed `src/`) | fixed: only configured output folders and the build defaults, then empty parents; outside-project folders refused (064) |
 | `push` printed `Local variable collections in Figma file: [...]` (debug `console.log`) | fixed: removed (065); `INTENDED_CHANGES` in the CLI snapshot suite |
 | `pull` wrote token files without a final newline | fixed: new files end with a newline; existing files keep their formatting (065) |
-| Other quirks listed in `test/snapshots/README.md` | open |
+| `graph --format html` always opens a browser | copied (opening goes through the injectable `openFile`, so tests do not launch one) |
+| `lint` exits 2 on errors, 0 on warnings | copied (decision 7 of the CLI parity spec) |
+| `graph` console report truncates long lists | copied (snapshot stays) |
+| `init` printed an animated logo and rewrote the terminal title every 400 ms | dropped: static banner only (066); the title animation never reset on a crash |
+| `init` opened `build/docs/index.html`, which `dta build` does not write by default | fixed: opens the configured docs folder (default `output/docs`) (066) |
+| `init` copied script names (`sync-figma-to-tokens`) into `.env.example` | fixed: names `dta pull` / `dta push` (066) |
+| `init` cancelled with `process.exit(0)` from anywhere | fixed: cancelling returns exit code 0 through the normal path, nothing is written (066) |
 
 ## Removal checklist
 
