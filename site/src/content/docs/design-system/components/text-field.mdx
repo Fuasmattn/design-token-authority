@@ -1,0 +1,25 @@
+---
+title: Text field
+description: A single-line input with a visible label above and help text below; mono inside when the value is a token, path or command.
+sidebar:
+  order: 4
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+A single-line input with a visible label above and help text below; mono inside when the value is a token, path or command.
+
+<Examples component="text-field" />
+
+## Guidelines
+
+- 46px tall, `stroke-ink` outline in `border-strong`, `radius-sm`.
+- Focus: the border turns `action-bg` plus the `stroke-focus` ring in `action-subtle`.
+- Always a real `<label>`; never placeholder-only. Help text is linked with `aria-describedby`.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="TextField" />

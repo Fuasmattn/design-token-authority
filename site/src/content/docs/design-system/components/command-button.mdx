@@ -1,0 +1,26 @@
+---
+title: Command button
+description: A copyable CLI command on terminal-bg
+sidebar:
+  order: 2
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+A copyable CLI command on `terminal-bg`: the main call to action wherever DTA can be started from the terminal.
+
+<Examples component="command-button" />
+
+## Guidelines
+
+- Shows the `$` prompt in `terminal-prompt`, the command in mono and a small "copy" hint.
+- Clicking copies the command without the `$` and swaps the hint to "copied" for a moment (announced to screen readers).
+- Its accessible name names the command.
+- Pair it with one outline Button at most.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="CommandButton" />

@@ -1,0 +1,72 @@
+---
+/** The type scale from site/tokens, each style set with its own token variables. */
+import { fontFamilies, typeStyles } from '../../lib/design-tokens'
+
+const display = new Set(['display-xl', 'display-lg', 'heading'])
+const samples: Record<string, string> = {
+  code: '$ npx dta diff',
+  meta: 'FIGMA → PULL REQUEST',
+  redline: 'radius.lg · 18',
+}
+---
+
+<div class="not-content">
+  <ul class="families">
+    {
+      fontFamilies().map((family) => (
+        <li>
+          <code>{family.cssVar}</code> <span style={`font-family: var(${family.cssVar})`}>{family.value}</span>
+        </li>
+      ))
+    }
+  </ul>
+  {
+    typeStyles().map((style) => (
+      <section class="style" id={style.name}>
+        <p
+          class="sample"
+          style={[
+            `font-family: var(${style.cssPrefix}-family)`,
+            `font-size: calc(var(${style.cssPrefix}-size) * 1px)`,
+            `line-height: var(${style.cssPrefix}-line-height)`,
+            `font-weight: var(${style.cssPrefix}-weight)`,
+            style.letterSpacing ? `letter-spacing: var(${style.cssPrefix}-letter-spacing)` : '',
+            display.has(style.name) ? 'font-stretch: 85%' : '',
+          ].join('; ')}
+        >
+          {samples[style.name] ?? 'Redlines that compile.'}
+        </p>
+        <p class="spec">
+          <code>{style.name}</code> · {style.size}px / {style.lineHeight} · {style.weight}
+          {style.letterSpacing && <> · {style.letterSpacing}</>}
+          {style.usage && <> · {style.usage}</>}
+        </p>
+      </section>
+    ))
+  }
+</div>
+
+<style>
+  .families {
+    margin: 0 0 var(--space-8);
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-2);
+  }
+  .style {
+    padding-block: var(--space-4);
+    border-bottom: var(--stroke-hairline) solid var(--border-default);
+  }
+  .sample {
+    margin: 0;
+    color: var(--fg-default);
+    overflow-wrap: anywhere;
+  }
+  .spec {
+    margin: var(--space-2) 0 0;
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    color: var(--fg-subtle);
+  }
+</style>

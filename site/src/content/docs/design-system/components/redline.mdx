@@ -1,0 +1,26 @@
+---
+title: Redline
+description: The signature annotation
+sidebar:
+  order: 6
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+The signature annotation: a `stroke-redline` line in `signal-bg` with a mono label naming the token it measures, over an object on grid paper.
+
+<Examples component="redline" />
+
+## Guidelines
+
+- The label is always a real token and value: `radius.lg · 18`, `space.24 · 96`. Never decorative words.
+- Label: `redline` text style, `signal-bg` fill, `signal-fg` text.
+- At most three redlines per object, at most one annotated object per view (the component refuses more than three).
+- Lines draw in (800ms ease-out), labels pop after (400ms); both are static under reduced motion.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="Redline" />

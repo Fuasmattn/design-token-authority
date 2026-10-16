@@ -1,0 +1,62 @@
+---
+/** A single-line input with a visible label above and help text below; mono for token values. */
+interface Props {
+  id: string
+  label: string
+  value?: string
+  help?: string
+  mono?: boolean
+}
+const { id, label, value, help, mono = false } = Astro.props
+---
+
+<div class="dta-field">
+  <label for={id}>{label}</label>
+  <input
+    id={id}
+    type="text"
+    value={value}
+    class:list={{ mono }}
+    aria-describedby={help ? `${id}-help` : undefined}
+  />
+  {help && <p id={`${id}-help`}>{help}</p>}
+</div>
+
+<style>
+  .dta-field {
+    max-width: 380px;
+    font-family: var(--font-sans);
+    color: var(--fg-default);
+  }
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: calc(var(--type-body-sm-size) * 1px);
+    font-weight: var(--type-label-weight);
+  }
+  input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    border: var(--stroke-ink) solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--fg-default);
+    font-family: var(--font-sans);
+    font-size: calc(var(--type-body-sm-size) * 1px);
+    outline: none;
+  }
+  input.mono {
+    font-family: var(--font-mono);
+  }
+  input:focus {
+    border-color: var(--action-bg);
+    box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+  }
+  p {
+    margin: 6px 0 0;
+    font-size: calc(var(--type-body-sm-size) * 1px);
+    color: var(--fg-muted);
+  }
+</style>

@@ -1,0 +1,36 @@
+---
+/** All examples of one component, each in both themes, with a link to its isolated story. */
+import { EXAMPLES, storyId, storyPath } from '../../examples/registry'
+import ThemePair from './ThemePair.astro'
+
+interface Props {
+  component: string
+}
+const { component } = Astro.props
+const examples = EXAMPLES.filter((example) => example.component === component)
+if (examples.length === 0) throw new Error(`No examples for "${component}"`)
+---
+
+{
+  examples.map((example) => (
+    <section class="example">
+      <h3>{example.title}</h3>
+      <ThemePair example={example} idPrefix={storyId(example)} />
+      <p class="story">
+        Story: <a href={storyPath(example)}>{storyPath(example)}</a>
+      </p>
+    </section>
+  ))
+}
+
+<style>
+  .example {
+    margin-block: var(--space-6);
+  }
+  .story {
+    margin-top: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    color: var(--fg-subtle);
+  }
+</style>

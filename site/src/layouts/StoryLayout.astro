@@ -1,0 +1,48 @@
+---
+/**
+ * A bare page for one story: no site chrome, both themes side by side, motion off, stable
+ * for screenshots (`dta diff`). Not indexed by search or robots.
+ */
+import '../../output/css/base.css'
+import '../../output/css/themes/light.css'
+import '../../output/css/themes/graphite.css'
+import '../styles/fonts.css'
+
+interface Props {
+  title: string
+}
+const { title } = Astro.props
+---
+
+<!doctype html>
+<html lang="en" data-brand="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>{title} · DTA story</title>
+  </head>
+  <body data-pagefind-ignore>
+    <main><slot /></main>
+  </body>
+</html>
+
+<style is:global>
+  body {
+    margin: 0;
+    background: var(--bg-canvas);
+    color: var(--fg-default);
+    font-family: var(--font-sans);
+  }
+  main {
+    padding: var(--space-4);
+  }
+  *,
+  *::before,
+  *::after {
+    animation-play-state: paused !important;
+    animation-delay: -10s !important;
+    transition: none !important;
+  }
+</style>

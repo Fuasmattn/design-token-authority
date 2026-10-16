@@ -1,0 +1,25 @@
+---
+title: Chip
+description: A small mono label for state and context
+sidebar:
+  order: 3
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+A small mono label for state and context: info (`action-subtle`), changed (`signal-subtle`) and pass (`success-subtle`).
+
+<Examples component="chip" />
+
+## Guidelines
+
+- Text is `meta`-sized mono, lower case, values after a middle dot: "changed · 4.2%".
+- State chips carry a dot so the state is not told by colour alone.
+- Chips are not buttons; a filter that toggles is a segmented control.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="Chip" />

@@ -1,0 +1,76 @@
+---
+/** Spacing, radius and stroke tokens from site/tokens, drawn with their own variables. */
+import { dimension } from '../../lib/design-tokens'
+
+interface Props {
+  group: 'space' | 'radius' | 'stroke'
+}
+const { group } = Astro.props
+---
+
+<ul class:list={['not-content', 'dimensions', group]}>
+  {
+    dimension(group).map((token) => (
+      <li id={token.name}>
+        <span class="label">
+          <code>{token.name}</code>
+          <small>
+            {token.value}px · {token.cssVar}
+          </small>
+        </span>
+        {group === 'space' && <span class="bar" style={`width: var(${token.cssVar})`} />}
+        {group === 'radius' && <span class="box" style={`border-radius: var(${token.cssVar})`} />}
+        {group === 'stroke' && (
+          <span class="rule" style={`border-top-width: var(${token.cssVar})`} />
+        )}
+        {token.usage && <span class="usage">{token.usage}</span>}
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .dimensions {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-3);
+  }
+  li {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) 2fr;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+  }
+  .label {
+    display: grid;
+  }
+  small,
+  .usage {
+    font-size: calc(var(--type-meta-size) * 1px);
+    color: var(--fg-subtle);
+  }
+  small {
+    font-family: var(--font-mono);
+  }
+  .usage {
+    grid-column: 2;
+  }
+  .bar {
+    height: var(--space-4);
+    background: var(--action-bg);
+    border-radius: 2px;
+  }
+  .box {
+    width: 64px;
+    height: 64px;
+    border: var(--stroke-ink) solid var(--border-strong);
+    background: var(--bg-surface);
+  }
+  .rule {
+    width: 100%;
+    border-top-style: solid;
+    border-top-color: var(--signal-bg);
+  }
+</style>

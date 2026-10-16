@@ -1,0 +1,57 @@
+---
+/** A copyable CLI command; the main call to action wherever DTA starts from the terminal. */
+interface Props {
+  command: string
+}
+const { command } = Astro.props
+---
+
+<button type="button" class="dta-command" data-command={command} aria-label={`Copy command: ${command}`}>
+  <span class="prompt" aria-hidden="true">$</span>
+  <span class="text">{command}</span>
+  <span class="hint" aria-live="polite">copy</span>
+</button>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>('.dta-command')) {
+    button.addEventListener('click', async () => {
+      const hint = button.querySelector('.hint')
+      try {
+        await navigator.clipboard.writeText(button.dataset.command ?? '')
+        if (hint) hint.textContent = 'copied'
+      } catch {
+        if (hint) hint.textContent = 'select to copy'
+      }
+      setTimeout(() => hint && (hint.textContent = 'copy'), 1600)
+    })
+  }
+</script>
+
+<style>
+  .dta-command {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 52px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: var(--terminal-bg);
+    color: var(--terminal-fg);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-code-size) * 1px);
+    cursor: pointer;
+  }
+  .prompt {
+    color: var(--terminal-prompt);
+  }
+  .hint {
+    margin-left: 6px;
+    font-size: calc(var(--type-meta-size) * 1px);
+    opacity: 0.7;
+  }
+  .dta-command:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+  }
+</style>

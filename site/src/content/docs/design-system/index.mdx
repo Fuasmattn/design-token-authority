@@ -1,8 +1,28 @@
 ---
 title: DTA Drafting Table
-description: The design system of this site, built with DTA.
+description: The design system of this site, built with DTA from DTA token files.
+sidebar:
+  order: 0
 ---
 
-:::note[Coming]
-Token pages generated from the site tokens and one page per component (TICKET-070).
-:::
+DTA Drafting Table is the design system of this website, the `dta diff` reports and the playground. It looks like a drafting table: warm paper, blueprint blue, ink outlines and orange redlines that measure what changed. Its dark mode, Graphite, is the dark side of the same paper.
+
+It is also a demo of DTA itself: the tokens are DTA token files in `site/tokens`, linted with `dta lint` and built with `dta build` into the CSS this page uses. The token pages read the same files through `@dta/core`.
+
+## Principles
+
+1. **Measure, don't decorate.** The signature element is the redline: a `stroke-redline` line in `signal-bg` with a mono label naming the token it measures (`radius.lg · 18`). It points at real values, never at nothing.
+2. **Two inks and a signal.** `fg-default` and `action-bg` carry the page. `signal-bg` appears only where something changed or is moving through the workflow. More than three orange marks on a screen is too many.
+3. **Borders, not shadows.** Surfaces get a `stroke-hairline` in `border-default`; interactive elements a `stroke-ink` in `border-strong`.
+4. **Paper you can measure on.** Grid paper (`bg-grid` lines at a `space-4` pitch on `bg-subtle`) marks areas where things are inspected: previews, diffs, component stages.
+5. **Deterministic motion.** Motion shows process, not mood: redlines draw in, labels pop, the workflow packet travels the rail. All motion stops under `prefers-reduced-motion`.
+
+## Voice
+
+Plain, specific, calm. Short sentences. Name the thing: "1 rename: color.cta → color.action", not "Some changes were detected". Commands are shown as commands (`npx dta init`). Designers and engineers are addressed equally; never "simply" or "just".
+
+## In this section
+
+- Tokens: [colours](/design-system/tokens/colors/), [typography](/design-system/tokens/typography/), [spacing, radius and stroke](/design-system/tokens/spacing/)
+- Components: [Button](/design-system/components/button/), [Command button](/design-system/components/command-button/), [Chip](/design-system/components/chip/), [Text field](/design-system/components/text-field/), [Terminal](/design-system/components/terminal/), [Redline](/design-system/components/redline/), [Diff card](/design-system/components/diff-card/), [Workflow rail](/design-system/components/workflow-rail/)
+- Every component example also exists as an isolated story for visual testing; the list is [`/stories/manifest.json`](/stories/manifest.json).

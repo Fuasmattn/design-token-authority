@@ -1,0 +1,13 @@
+---
+import WorkflowRail from '../components/ds/WorkflowRail.astro'
+---
+
+<WorkflowRail
+  stations={[
+    { label: 'Design change', state: 'done', actor: 'Designer, in Figma' },
+    { label: 'Pull', state: 'active' },
+    { label: 'Checks', state: 'next' },
+    { label: 'Visual review', state: 'review' },
+    { label: 'Ship', state: 'next' },
+  ]}
+/>

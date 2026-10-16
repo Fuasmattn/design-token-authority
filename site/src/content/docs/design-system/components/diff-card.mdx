@@ -1,0 +1,26 @@
+---
+title: Diff card
+description: Summarises one dta diff result
+sidebar:
+  order: 7
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+Summarises one `dta diff` result: story and viewport, baseline / candidate / diff thumbnails, the change ratio against the threshold, and the action.
+
+<Examples component="diff-card" />
+
+## Guidelines
+
+- The diff thumbnail uses `signal-bg` hatching over `signal-subtle`; the change bar fills with `signal-bg` relative to the threshold.
+- The state chip says "review", "pass" or "blocked"; a blocked card says why in text.
+- Thumbnails are placeholders until `dta diff` renders real screenshots.
+- One primary action, "Approve change", only when there is something to review.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="DiffCard" />

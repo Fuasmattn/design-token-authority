@@ -1,0 +1,121 @@
+---
+/**
+ * One visual-diff result: story and viewport, baseline / candidate / diff thumbnails, change
+ * ratio against the threshold, one action. Thumbnails are placeholders until dta diff renders.
+ */
+import Button from './Button.astro'
+import Chip from './Chip.astro'
+
+interface Props {
+  story: string
+  ratio: number
+  threshold: number
+  state: 'review' | 'pass' | 'blocked'
+  reason?: string
+}
+const { story, ratio, threshold, state, reason } = Astro.props
+const tone = state === 'pass' ? 'pass' : 'changed'
+const fill = `${Math.min(100, (ratio / threshold) * 100)}%`
+---
+
+<article class="dta-diff-card">
+  <div class="top">
+    <span class="meta">VISUAL DIFF</span>
+    <Chip tone={tone}>{state}</Chip>
+  </div>
+  <h3>{story}</h3>
+  <div class="thumbs">
+    <figure><div class="thumb baseline"></div><figcaption>baseline</figcaption></figure>
+    <figure><div class="thumb candidate"></div><figcaption>candidate</figcaption></figure>
+    <figure><div class="thumb diff"></div><figcaption>diff {ratio}%</figcaption></figure>
+  </div>
+  <div class="bar" role="img" aria-label={`${ratio}% changed, threshold ${threshold}%`}>
+    <span style={`width: ${fill}`}></span>
+  </div>
+  {reason && <p class="reason">{reason}</p>}
+  {state === 'review' && <Button>Approve change</Button>}
+</article>
+
+<style>
+  .dta-diff-card {
+    box-sizing: border-box;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: var(--space-6);
+    border: var(--stroke-hairline) solid var(--border-default);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    color: var(--fg-default);
+    font-family: var(--font-sans);
+  }
+  .top {
+    align-self: stretch;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .meta {
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    color: var(--fg-subtle);
+  }
+  h3 {
+    margin: 0;
+    font-size: calc(var(--type-body-size) * 1px);
+    font-weight: var(--type-title-weight);
+  }
+  .thumbs {
+    align-self: stretch;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  figure {
+    margin: 0;
+  }
+  .thumb {
+    height: 64px;
+    border-radius: var(--radius-sm);
+  }
+  .baseline {
+    background: var(--blueprint-600);
+  }
+  .candidate {
+    background: var(--blueprint-500);
+    border-radius: var(--radius-lg);
+  }
+  .diff {
+    background: repeating-linear-gradient(
+      45deg,
+      var(--signal-bg) 0 4px,
+      var(--signal-subtle) 4px 8px
+    );
+  }
+  figcaption {
+    margin-top: 6px;
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-redline-size) * 1px);
+    color: var(--fg-subtle);
+  }
+  .bar {
+    align-self: stretch;
+    position: relative;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--bg-subtle);
+  }
+  .bar span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 3px;
+    background: var(--signal-bg);
+  }
+  .reason {
+    margin: 0;
+    font-size: calc(var(--type-body-sm-size) * 1px);
+    color: var(--fg-default);
+  }
+</style>

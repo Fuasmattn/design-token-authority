@@ -1,0 +1,26 @@
+---
+title: Terminal
+description: A read-only block of CLI output on terminal-bg, showing what DTA actually prints.
+sidebar:
+  order: 5
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+A read-only block of CLI output on `terminal-bg`, showing what DTA actually prints.
+
+<Examples component="terminal" />
+
+## Guidelines
+
+- Header strip in mono meta: "TERMINAL" and "SAME INPUT · SAME OUTPUT".
+- Prompt and changes in `terminal-prompt`, passes in `sage-400`, everything else `terminal-fg` at reduced opacity.
+- Output is copied from a real run and stays stable; never invent statistics. The example is abridged output of `dta diff` on the brand-ab fixture.
+- The cursor blinks; it stops under reduced motion.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="Terminal" />

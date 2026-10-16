@@ -1,0 +1,20 @@
+---
+import Terminal from '../components/ds/Terminal.astro'
+
+// Abridged real output of `dta diff` on the brand-ab fixture (test/snapshots/brand-ab/diff-tokens).
+const lines = [
+  [{ text: '$ ', tone: 'prompt' as const }, { text: 'npx dta diff --base tokens-base --tokens-only' }],
+  [
+    { text: 'changed  ', tone: 'muted' as const },
+    { text: 'Colors.Foundation.Blue.500  #0047a0 → #0057b8' },
+  ],
+  [
+    { text: 'affected ', tone: 'muted' as const },
+    { text: 'Colors.Brand.Primary  ' },
+    { text: 'because of Colors.Foundation.Blue.500', tone: 'signal' as const },
+  ],
+  [{ text: '3 changed · 1 added · 1 removed · 2 affected', tone: 'ok' as const }],
+]
+---
+
+<Terminal lines={lines} cursor label="Output of dta diff" />

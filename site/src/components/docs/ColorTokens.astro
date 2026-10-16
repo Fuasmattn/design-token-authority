@@ -1,0 +1,139 @@
+---
+/**
+ * Colour tokens from site/tokens, read through @dta/core. Swatches use the CSS variables
+ * `dta build` writes, so this page shows the built output, not copied values.
+ */
+import { colorScales, semanticColors, THEMES } from '../../lib/design-tokens'
+
+interface Props {
+  kind: 'semantic' | 'primitives'
+}
+const { kind } = Astro.props
+const brand = (theme: string) => theme.toLowerCase()
+---
+
+{
+  kind === 'semantic' ? (
+    <div class="not-content table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Token</th>
+            {THEMES.map((theme) => (
+              <th scope="col">{theme}</th>
+            ))}
+            <th scope="col">Use</th>
+          </tr>
+        </thead>
+        <tbody>
+          {semanticColors().map((color) => (
+            <tr id={color.name}>
+              <th scope="row">
+                <code>{color.name}</code>
+                <small>{color.cssVar}</small>
+              </th>
+              {THEMES.map((theme) => (
+                <td>
+                  <span class="value">
+                    <span
+                      class="swatch"
+                      data-brand={brand(theme)}
+                      style={`background: var(${color.cssVar})`}
+                    />
+                    <code>{color.themes[theme].value}</code>
+                  </span>
+                  <small>→ {color.themes[theme].chain.join(' → ')}</small>
+                </td>
+              ))}
+              <td>{color.usage}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  ) : (
+    <div class="not-content scales">
+      {colorScales().map(({ scale, tokens }) => (
+        <section>
+          <h3>{scale}</h3>
+          <ul>
+            {tokens.map((token) => (
+              <li id={token.name} title={token.usage}>
+                <span class="chip" style={`background: var(${token.cssVar})`} />
+                <code>{token.name}</code>
+                <small>{token.value}</small>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  )
+}
+
+<style>
+  .table-wrap {
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: calc(var(--type-body-sm-size) * 1px);
+  }
+  th,
+  td {
+    padding: var(--space-2) var(--space-3);
+    border-bottom: var(--stroke-hairline) solid var(--border-default);
+    text-align: left;
+    vertical-align: top;
+  }
+  th[scope='row'] code,
+  small {
+    display: block;
+  }
+  small {
+    color: var(--fg-subtle);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-redline-size) * 1px);
+  }
+  .value {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .swatch,
+  .chip {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border: var(--stroke-hairline) solid var(--border-default);
+    border-radius: var(--radius-sm);
+  }
+  .scales section {
+    margin-block: var(--space-6);
+  }
+  .scales h3 {
+    margin: 0 0 var(--space-2);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+  .scales ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .scales li {
+    display: grid;
+    gap: 4px;
+    font-size: calc(var(--type-body-sm-size) * 1px);
+  }
+  .scales .chip {
+    width: 100%;
+    height: 48px;
+  }
+</style>

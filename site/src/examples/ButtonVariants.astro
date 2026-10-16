@@ -1,0 +1,18 @@
+---
+import Button from '../components/ds/Button.astro'
+---
+
+<div class="row">
+  <Button>See a review</Button>
+  <Button variant="outline">Read the docs</Button>
+  <Button variant="link">Learn more</Button>
+</div>
+
+<style>
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+</style>

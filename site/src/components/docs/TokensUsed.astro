@@ -1,0 +1,28 @@
+---
+/** The token variables a component's source uses, read from the source itself. */
+const sources = import.meta.glob('../ds/*.astro', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>
+
+interface Props {
+  name: string
+}
+const { name } = Astro.props
+const source = sources[`../ds/${name}.astro`]
+if (!source) throw new Error(`Unknown component "${name}"`)
+const used = [...new Set([...source.matchAll(/var\(--([\w-]+)\)/g)].map((m) => m[1]))].sort()
+---
+
+<p class="tokens">
+  {used.map((token) => <code>--{token}</code>)}
+</p>
+
+<style>
+  .tokens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+</style>

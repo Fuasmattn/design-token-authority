@@ -1,0 +1,16 @@
+---
+import TextField from '../components/ds/TextField.astro'
+
+interface Props {
+  idPrefix: string
+}
+const { idPrefix } = Astro.props
+---
+
+<TextField
+  id={`${idPrefix}-token-name`}
+  label="Token name"
+  value="action.bg"
+  help="Dot path, as written in the token files."
+  mono
+/>

@@ -1,0 +1,88 @@
+---
+/**
+ * Read-only CLI output. Output must be real: copy it from an actual run, never invent numbers.
+ * Each line is a list of segments with a tone.
+ */
+export type Tone = 'prompt' | 'muted' | 'ok' | 'signal' | undefined
+interface Props {
+  lines: Array<Array<{ text: string; tone?: Tone }>>
+  cursor?: boolean
+  label?: string
+}
+const { lines, cursor = false, label = 'Terminal output' } = Astro.props
+---
+
+<figure class="dta-terminal" aria-label={label}>
+  <div class="header" aria-hidden="true"><span>TERMINAL</span><span>SAME INPUT · SAME OUTPUT</span></div>
+  <div class="body">
+    {
+      lines.map((line, index) => (
+        <p class="line">
+          {line.map((segment) => (
+            <span class={segment.tone}>{segment.text}</span>
+          ))}
+          {cursor && index === lines.length - 1 && <span class="cursor" aria-hidden="true" />}
+        </p>
+      ))
+    }
+  </div>
+</figure>
+
+<style>
+  .dta-terminal {
+    margin: 0;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--terminal-bg);
+    color: var(--terminal-fg);
+    font-family: var(--font-mono);
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: 12px 18px;
+    border-bottom: var(--stroke-hairline) solid color-mix(in srgb, var(--terminal-fg) 12%, transparent);
+    font-size: calc(var(--type-meta-size) * 1px);
+    opacity: 0.7;
+  }
+  .body {
+    padding: var(--space-4) 20px;
+    font-size: calc(var(--type-code-size) * 1px);
+    line-height: 2;
+  }
+  .line {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .muted {
+    opacity: 0.75;
+  }
+  .prompt,
+  .signal {
+    color: var(--terminal-prompt);
+  }
+  .ok {
+    color: var(--sage-400);
+  }
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    margin-left: 6px;
+    vertical-align: -2px;
+    background: var(--terminal-fg);
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cursor {
+      animation: none;
+    }
+  }
+</style>

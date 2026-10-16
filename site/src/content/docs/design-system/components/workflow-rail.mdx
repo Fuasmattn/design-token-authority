@@ -1,0 +1,26 @@
+---
+title: Workflow rail
+description: The DTA pipeline as numbered stations on a dashed rail, with a signal-bg packet travelling along it.
+sidebar:
+  order: 8
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+The DTA pipeline as numbered stations on a dashed `rail`, with a `signal-bg` packet travelling along it.
+
+<Examples component="workflow-rail" />
+
+## Guidelines
+
+- Station states: done (`success-fg`), active (`action-bg` with an `action-subtle` halo), next (`border-strong` outline), review (`signal-bg` outline on `signal-subtle`). Each state is also written out for screen readers.
+- Each station has a mono number and a short label; add the actor below ("Designer, in Figma") when space allows.
+- Below 760px: two columns, rail and packet hidden.
+- The packet loop is 7.2s linear and stops under reduced motion.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="WorkflowRail" />

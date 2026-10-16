@@ -34,3 +34,10 @@ Known limitations, both from DTA's current model:
 - Font sizes are unitless in the CSS (`--type-body-size: 17`), as DTA only adds `px` to spacing, sizes, radii, strokes and effects; the site multiplies with `1px`.
 
 The design reference stays the design system on claude.ai ("DTA Drafting Table"); from now on these files are the source of truth for the site, and changes to them are reviewed like any token change.
+
+## Design system section and stories
+
+- `src/components/ds/` — the DTA Drafting Table components (Astro, token variables only; a test fails on colour literals and drop shadows).
+- `src/examples/stories.ts` — every story once (component, variant, example file, viewports). The docs pages (`src/content/docs/design-system/`) render them in Light and Graphite, `/stories/<component>/<variant>/` renders each alone without site chrome, and `/stories/manifest.json` (`dta.stories/1`) lists them for `dta diff`.
+- `src/lib/design-tokens.ts` — the token pages read `site/tokens` through `@dta/core`; swatches use the built CSS variables.
+- Adding a story: write `src/examples/<Name>.astro`, add an entry to `stories.ts`, reference it from the component's docs page via `<Examples component="…" />`.

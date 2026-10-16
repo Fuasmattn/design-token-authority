@@ -1,0 +1,27 @@
+---
+title: Button
+description: Three variants for actions
+sidebar:
+  order: 1
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+Three variants for actions: primary (`action-bg`), outline (`stroke-ink` in `border-strong`) and link (underlined `action-bg` text).
+
+<Examples component="button" />
+
+## Guidelines
+
+- One primary button per view. Outline for the secondary action next to it; link for tertiary.
+- At least 48px tall (44px is the minimum on touch), `radius-md`, the `label` text style.
+- Focus is a `stroke-focus` ring in `action-subtle`, never only a colour change.
+- Labels are verbs or verb phrases: "See a review", not "Click here".
+- With an `href` it renders a link, otherwise a `<button>`.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="Button" />

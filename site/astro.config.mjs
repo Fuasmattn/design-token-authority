@@ -32,7 +32,17 @@ export default defineConfig({
         { label: 'Learn', items: [{ autogenerate: { directory: 'learn' } }] },
         { label: 'Guides', items: [{ autogenerate: { directory: 'guides' } }] },
         { label: 'Reference', items: [{ autogenerate: { directory: 'reference' } }] },
-        { label: 'Design system', items: [{ autogenerate: { directory: 'design-system' } }] },
+        {
+          label: 'Design system',
+          items: [
+            { label: 'DTA Drafting Table', link: '/design-system/' },
+            { label: 'Tokens', items: [{ autogenerate: { directory: 'design-system/tokens' } }] },
+            {
+              label: 'Components',
+              items: [{ autogenerate: { directory: 'design-system/components' } }],
+            },
+          ],
+        },
         { label: 'Playground', items: [{ autogenerate: { directory: 'playground' } }] },
         { label: 'Contribute', items: [{ autogenerate: { directory: 'contribute' } }] },
       ],

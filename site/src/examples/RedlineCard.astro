@@ -1,0 +1,39 @@
+---
+import Button from '../components/ds/Button.astro'
+import Redline from '../components/ds/Redline.astro'
+---
+
+<Redline
+  description="A card whose corner radius is measured: radius.lg, 18"
+  marks={[{ kind: 'corner', label: 'radius.lg · 18' }]}
+>
+  <div class="card">
+    <strong>Monthly plan</strong>
+    <small>[Plan description]</small>
+    <Button>Continue</Button>
+  </div>
+</Redline>
+
+<style>
+  .card {
+    width: 240px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-6);
+    border: var(--stroke-hairline) solid var(--border-default);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    color: var(--fg-default);
+    font-family: var(--font-sans);
+  }
+  strong {
+    font-size: calc(var(--type-body-size) * 1px);
+  }
+  small {
+    margin-bottom: var(--space-2);
+    font-size: calc(var(--type-body-sm-size) * 1px);
+    color: var(--fg-muted);
+  }
+</style>

@@ -1,0 +1,44 @@
+---
+/** A small mono label for state and context. State chips carry a dot: not colour alone. */
+interface Props {
+  tone?: 'info' | 'changed' | 'pass'
+}
+const { tone = 'info' } = Astro.props
+---
+
+<span class:list={['dta-chip', tone]}>
+  {tone !== 'info' && <span class="dot" aria-hidden="true" />}
+  <slot />
+</span>
+
+<style>
+  .dta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    line-height: var(--type-meta-line-height);
+  }
+  .info {
+    background: var(--action-subtle);
+    color: var(--action-text);
+  }
+  .changed {
+    background: var(--signal-subtle);
+    color: var(--signal-text);
+  }
+  .pass {
+    background: var(--success-subtle);
+    color: var(--success-fg);
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: currentColor;
+  }
+</style>
