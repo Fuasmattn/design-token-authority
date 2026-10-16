@@ -3,7 +3,13 @@ import { tailwindV3Formatter } from './formatters/tailwind-v3.js'
 import { tailwindV4Formatter } from './formatters/tailwind-v4.js'
 
 /** Figma scopes of number tokens that mean "a length in pixels". */
-const PIXEL_SCOPES = new Set(['GAP', 'WIDTH_HEIGHT', 'CORNER_RADIUS', 'STROKE_FLOAT', 'EFFECT_FLOAT'])
+const PIXEL_SCOPES = new Set([
+  'GAP',
+  'WIDTH_HEIGHT',
+  'CORNER_RADIUS',
+  'STROKE_FLOAT',
+  'EFFECT_FLOAT',
+])
 
 const CSS_BASE_TRANSFORMS = [
   'attribute/cti',

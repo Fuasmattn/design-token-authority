@@ -46,4 +46,3 @@ export async function sharedFile(tokens: Record<string, Spec>, file: string) {
   const { files } = await buildOutputs(model(tokens), {})
   return files.find((f) => f.path === file)?.content ?? ''
 }
-

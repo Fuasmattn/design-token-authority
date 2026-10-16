@@ -284,7 +284,9 @@ describe('buildOutputs: parity with the legacy build', () => {
         .filter((file) => !file.startsWith('output/docs/'))
         .sort()
 
-      const { files, diagnostics } = await buildOutputs(fixtureModel(fixture), { brands: [...brands] })
+      const { files, diagnostics } = await buildOutputs(fixtureModel(fixture), {
+        brands: [...brands],
+      })
 
       expect(files.map((f) => f.path)).toEqual(expected)
       for (const file of files) expect(file.content, file.path).toBe(snapshot(fixture, file.path))

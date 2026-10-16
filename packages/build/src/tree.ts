@@ -56,7 +56,8 @@ export function mergeSources(sources: Source[]): MergedTokens {
   for (const [dotPath] of origins) {
     const segments = dotPath.split('.')
     const parents: Tree[] = [tree]
-    for (const segment of segments.slice(0, -1)) parents.push(parents[parents.length - 1][segment] as Tree)
+    for (const segment of segments.slice(0, -1))
+      parents.push(parents[parents.length - 1][segment] as Tree)
     const parent = parents[parents.length - 1]
     const node = parent[segments[segments.length - 1]] as Record<string, unknown> | undefined
     const value = node?.$value

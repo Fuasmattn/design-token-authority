@@ -43,9 +43,7 @@ describe('Tailwind v3 output', () => {
       'Colors.foundation.brand.default': { type: 'color', value: '#2b5dff' },
     })
     expect(ts).toContain("colors: {\n        'grey-50': 'var(--colors-grey-50)'")
-    expect(ts).toContain(
-      "'foundation-brand-default': 'var(--colors-foundation-brand-default)'",
-    )
+    expect(ts).toContain("'foundation-brand-default': 'var(--colors-foundation-brand-default)'")
   })
 
   it('maps well-known dimension, border, effect and typography paths', async () => {
@@ -99,11 +97,15 @@ describe('Tailwind v3 output', () => {
     const themed = parseTokenFiles([
       {
         fileName: 'Brand.Sunrise.json',
-        content: JSON.stringify({ Colors: { grey: { 50: { $type: 'color', $value: '#f8f8f8' } } } }),
+        content: JSON.stringify({
+          Colors: { grey: { 50: { $type: 'color', $value: '#f8f8f8' } } },
+        }),
       },
       {
         fileName: 'Brand.Moonlight.json',
-        content: JSON.stringify({ Colors: { grey: { 50: { $type: 'color', $value: '#101010' } } } }),
+        content: JSON.stringify({
+          Colors: { grey: { 50: { $type: 'color', $value: '#101010' } } },
+        }),
       },
     ]).model
     const { files } = await buildOutputs(themed, { brands: ['Sunrise'] })

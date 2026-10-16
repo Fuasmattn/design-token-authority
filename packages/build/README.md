@@ -13,12 +13,12 @@ const { files, diagnostics } = await buildOutputs(model, { brands: ['BrandA', 'B
 
 ## Options
 
-| Option            | Meaning                                                                          |
-| ----------------- | -------------------------------------------------------------------------------- |
-| `brands`          | Modes of the multi-mode collections to build themes for (default: none)          |
-| `collections`     | Only build from these collections (default: all)                                 |
-| `css.outDir`      | CSS directory (default `output/css`)                                             |
-| `tailwind.outDir` | Tailwind directory (default `output/tailwind`)                                   |
+| Option            | Meaning                                                                 |
+| ----------------- | ----------------------------------------------------------------------- |
+| `brands`          | Modes of the multi-mode collections to build themes for (default: none) |
+| `collections`     | Only build from these collections (default: all)                        |
+| `css.outDir`      | CSS directory (default `output/css`)                                    |
+| `tailwind.outDir` | Tailwind directory (default `output/tailwind`)                          |
 
 The JS palette is always `output/js/colorpalette.js` (same as the legacy build).
 
