@@ -28,3 +28,16 @@ jobs:
             echo "::error title=snapshot:check failed::$msg"
           fi
           exit $code
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build the website (dta build on its tokens, astro build, internal link check)
+        run: pnpm site:build

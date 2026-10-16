@@ -29,6 +29,8 @@
   "scripts": {
     "prettier:check": "prettier --check packages/ scripts/ bin/ site/",
     "dta": "tsx packages/cli/src/bin.ts",
+    "site:dev": "pnpm --filter dta-site dev",
+    "site:build": "pnpm --filter dta-site build",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

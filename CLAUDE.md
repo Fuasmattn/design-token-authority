@@ -146,6 +146,8 @@ pnpm dta graph --format html   # Interactive HTML visualization
 pnpm dta init            # Interactive project setup wizard
 pnpm dta diff --tokens-only            # Token changes vs the merge base with main
 pnpm dta diff --base <ref|dir> -f markdown   # ...against another base, as markdown
+pnpm site:dev                  # Website (Astro + Starlight) on its DTA-built tokens
+pnpm site:build                # Website build incl. link check (CI job "site")
 pnpm test                      # Run Vitest (all packages, scripts)
 pnpm typecheck                 # Typecheck all packages and scripts
 pnpm prettier:check            # Check code formatting
@@ -202,7 +204,7 @@ These are tracked as tickets — do not work around them, fix them at the source
 
 ## CI / GitHub Actions
 
-- `.github/workflows/test.yml` — runs on every push: prettier check + typecheck + package-boundary check + vitest + snapshot check (pnpm, Node from .nvmrc)
+- `.github/workflows/test.yml` — runs on every push: prettier check + typecheck + package-boundary check + vitest + snapshot check (pnpm, Node from .nvmrc); a second job builds the website (`pnpm site:build`)
 
 CI needs no Figma secrets (Figma is faked from `test/recordings/`). Locally the variable is `FIGMA_PERSONAL_ACCESS_TOKEN`.
 

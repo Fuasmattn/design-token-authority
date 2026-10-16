@@ -7,15 +7,26 @@
   "type": "module",
   "scripts": {
     "tokens": "node ../bin/dta.js build",
-    "typecheck": "tsc --noEmit",
+    "dev": "pnpm tokens && astro dev",
+    "build": "pnpm tokens && astro build",
+    "preview": "astro preview",
+    "typecheck": "pnpm tokens && astro check",
     "test": "vitest run"
   },
   "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@astrojs/starlight": "0.42.5",
     "@dta/build": "workspace:*",
     "@dta/core": "workspace:*",
     "@dta/lint": "workspace:*",
     "@types/node": "^24.12.2",
+    "astro": "7.3.5",
+    "starlight-links-validator": "0.26.0",
     "typescript": "^5.1.6",
     "vitest": "^4.1.2"
+  },
+  "dependencies": {
+    "@fontsource-variable/instrument-sans": "5.3.0",
+    "@fontsource-variable/martian-mono": "5.3.0"
   }
 }

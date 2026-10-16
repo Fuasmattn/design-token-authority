@@ -1,0 +1,66 @@
+/*
+ * Starlight's colours and fonts mapped onto the DTA Drafting Table tokens. Only semantic
+ * token variables are used here (no raw values); the values live in site/tokens and are
+ * built by `dta build` into output/css. Our semantic tokens already switch per theme, so one
+ * mapping serves Light and Graphite.
+ */
+:root,
+:root[data-theme='light'],
+:root[data-theme='dark'] {
+  --sl-font: var(--font-sans);
+  --sl-font-mono: var(--font-mono);
+
+  --sl-color-black: var(--bg-canvas);
+  --sl-color-white: var(--fg-default);
+  --sl-color-gray-1: var(--fg-default);
+  --sl-color-gray-2: var(--fg-muted);
+  --sl-color-gray-3: var(--fg-subtle);
+  --sl-color-gray-4: var(--fg-subtle);
+  --sl-color-gray-5: var(--border-default);
+  --sl-color-gray-6: var(--bg-subtle);
+  --sl-color-gray-7: var(--bg-surface);
+
+  --sl-color-accent-low: var(--action-subtle);
+  --sl-color-accent: var(--action-bg);
+  --sl-color-accent-high: var(--action-text);
+  --sl-color-text-accent: var(--action-bg);
+  --sl-color-text-invert: var(--action-fg);
+  --sl-color-bg-accent: var(--action-bg);
+
+  --sl-color-bg: var(--bg-canvas);
+  --sl-color-bg-nav: var(--bg-canvas);
+  --sl-color-bg-sidebar: var(--bg-canvas);
+  --sl-color-bg-inline-code: var(--bg-subtle);
+  --sl-color-hairline: var(--border-default);
+  --sl-color-hairline-light: var(--border-default);
+  --sl-color-hairline-shade: var(--border-default);
+
+  /* Asides and badges: note → action, tip → success, caution and danger → signal (the system
+     has no error red; errors are plain text on a signal-subtle well). */
+  --sl-color-blue-low: var(--action-subtle);
+  --sl-color-blue: var(--action-bg);
+  --sl-color-blue-high: var(--action-text);
+  --sl-color-purple-low: var(--action-subtle);
+  --sl-color-purple: var(--action-bg);
+  --sl-color-purple-high: var(--action-text);
+  --sl-color-green-low: var(--success-subtle);
+  --sl-color-green: var(--success-fg);
+  --sl-color-green-high: var(--success-fg);
+  --sl-color-orange-low: var(--signal-subtle);
+  --sl-color-orange: var(--signal-bg);
+  --sl-color-orange-high: var(--signal-text);
+  --sl-color-red-low: var(--signal-subtle);
+  --sl-color-red: var(--signal-bg);
+  --sl-color-red-high: var(--signal-text);
+
+  /* Borders, not shadows. */
+  --sl-shadow-sm: none;
+  --sl-shadow-md: none;
+  --sl-shadow-lg: none;
+}
+
+/* Focus ring from the design system: 3px, action tint. */
+:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: 2px;
+}

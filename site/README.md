@@ -1,6 +1,17 @@
 # DTA website
 
-The Design Token Authority website (spec: [docs/specs/docs-site.md](../docs/specs/docs-site.md)). Astro + Starlight arrive with TICKET-069; for now this folder holds the site's design tokens.
+The Design Token Authority website (spec: [docs/specs/docs-site.md](../docs/specs/docs-site.md)): Astro + Starlight, static, no tracking.
+
+```bash
+pnpm site:dev     # from the repo root: dta build on site/tokens, then astro dev
+pnpm site:build   # dta build, astro build, internal link check (CI runs this)
+```
+
+## Theme
+
+- `src/styles/theme.css` maps Starlight's variables onto the semantic token variables only (a test fails on raw colours). Asides follow the system: note → action, tip → success, caution and danger → signal; no shadows.
+- Starlight's theme switch sets `data-theme`; `src/components/ThemeProvider.astro` mirrors it to `data-brand` (`light` / `graphite`), which selects DTA's theme CSS.
+- Fonts are self-hosted from `@fontsource-variable` under the family names the tokens use (`src/styles/fonts.css`); nothing is loaded from Google.
 
 ## Design tokens
 
