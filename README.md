@@ -1,151 +1,56 @@
-```
-          ┌─────────┐
-  [•‿•] ──┤ ◆  ●  ▪ │   Design Token Authority
-   /|\    └─────────┘   Sync Figma variables to code, and back.
-   ╵ ╵
-```
+# Design Token Authority
 
-# design-token-authority
+The deterministic backbone for design token workflows, built for humans and agents.
 
-> Bi-directional sync between Figma Variables and design token JSON files,
-> with multi-target output via Style Dictionary.
+DTA reads your design tokens as plain [DTCG](https://tr.designtokens.org/format/) JSON files (pulled from Figma or written by hand), checks their structure, builds them into CSS, JavaScript and Tailwind, and shows what a change does to your UI before it ships: base and head rendered, compared and explained by the token that caused each difference. Same input, same result, on your machine, in CI or when an agent runs it.
 
-## What it does
-
-- **Pull** — fetches variable collections from the Figma Variables API and writes them as W3C DTCG-format JSON files
-- **Push** — reads token files and writes variables back to Figma (with typed confirmation and dry-run support)
-- **Build** — runs Style Dictionary to produce CSS custom properties, JavaScript exports, and Tailwind v3/v4 theme files
-- **Analyze** — inspects a Figma file's variable collections and infers the design system layer structure (primitives, brand, dimension, semantic)
-- **Graph** — builds a dependency graph of alias references across token files, detects circular references, dangling aliases, and orphaned tokens
-- **Lint** — validates token files against configurable rules (naming patterns, alias requirements, color contrast, duplicates)
-- **Clean** — removes all generated token files and build output
-- **Init** — interactive wizard that connects to Figma, auto-detects your variable structure, and generates a project config
+> **Status:** not on npm yet. `npx dta` would run an unrelated package with the same name. Until the first release, run DTA from a clone (below).
 
 ## Quick start
 
-The fastest path is the init wizard:
+Node.js 24 or newer and pnpm:
 
-```bash
-npm install
-npx dta init
+```sh
+git clone https://github.com/Fuasmattn/design-token-authority.git
+cd design-token-authority && pnpm install
+alias dta="node $PWD/bin/dta.js"
 ```
 
-The wizard asks for your Figma file URL and personal access token, auto-detects your variable structure, and writes a `dta.config.ts` and `.env` file.
+Then, in your project:
 
-To set up manually instead, copy `.env.example` to `.env`, fill in `FIGMA_FILE_KEY` and `FIGMA_PERSONAL_ACCESS_TOKEN`, then run `npm install`.
-
-### Figma plan requirements
-
-The Figma Variables REST API is only available on **Enterprise plans**. Professional and Organization plans receive a 403 error.
-
-For non-Enterprise plans, use the `--from-file` flag to import tokens exported from a Figma plugin:
-
-```bash
-dta pull --from-file <exported.json>
+```sh
+dta init     # writes dta.config.ts for your Figma plan and outputs
+dta pull     # Figma variables → tokens/ (Enterprise; otherwise: dta pull --from-file <export.json>)
+dta build    # tokens/ → output/css, output/js, output/tailwind
+dta lint     # structure checks; exits 2 on errors
+dta diff     # token changes against the merge base with main (+ screenshots with a diff section)
 ```
 
-DTA does not depend on a particular plugin. It reads its own per-mode DTCG format and converts a few known exports (currently tokenHaus). See [the input format and how to obtain it](docs/token-files/input-format.md).
+The config `dta init` writes imports `defineConfig` from `design-token-authority`; until the release, drop the import and export the object directly.
 
-## CLI
+## Commands
 
-The CLI is available as `dta` (or its full name `design-token-authority`). During development without a global install, use `pnpm dta`. `dta --version` prints the package version.
+| Command       | What it does                                                                        |
+| ------------- | ----------------------------------------------------------------------------------- |
+| `dta init`    | Wizard that writes `dta.config.ts`                                                  |
+| `dta pull`    | Figma → token files (REST API on Enterprise, `--from-file` with a plugin export)    |
+| `dta push`    | Token files → Figma; dry run, typed confirmation, never deletes                     |
+| `dta build`   | CSS custom properties, JavaScript, Tailwind v3 and v4, one theme per brand          |
+| `dta lint`    | Dangling and circular aliases, default mode names, configurable rules               |
+| `dta graph`   | Alias graph: console, Markdown, DOT or interactive HTML                             |
+| `dta diff`    | Token changes against a base; stories rendered at base and head, explained by token |
+| `dta analyze` | Which role each Figma collection plays                                              |
+| `dta clean`   | Removes token files and build output                                                |
 
-```bash
-# Core workflow
-dta pull                        # Figma → tokens/
-dta push                        # tokens/ → Figma (requires typed confirmation)
-dta push --dry-run              # show what would change without modifying Figma
-dta push --yes                  # skip confirmation prompt (CI/automation)
-dta build                       # tokens/ → build/
+## Documentation
 
-# Analysis & validation
-dta analyze                     # inspect Figma file and infer layer roles
-dta graph                       # token dependency graph (console summary)
-dta graph --format html         # interactive HTML visualization
-dta graph --format dot          # Graphviz DOT (pipe to dot -Tsvg)
-dta graph --format markdown     # markdown table report
-dta lint                        # validate tokens against configured rules
-dta lint --fix                  # auto-fix violations where possible
+The website in `site/` holds the docs (`pnpm site:dev`):
 
-# Housekeeping
-dta init                        # interactive project setup wizard
-dta clean                       # remove all token files and build output
+- [What DTA is](site/src/content/docs/start/index.mdx), [Quick start](site/src/content/docs/start/quick-start.mdx), [Core concepts](site/src/content/docs/start/concepts.mdx)
+- Guides: [Figma](site/src/content/docs/guides/figma.mdx), [Brands and themes](site/src/content/docs/guides/brands-and-themes.mdx), [Tailwind](site/src/content/docs/guides/tailwind.mdx), [CI](site/src/content/docs/guides/ci.mdx), [dta diff in pull requests](site/src/content/docs/guides/dta-diff-in-pull-requests.mdx), [dta diff with Storybook](site/src/content/docs/guides/dta-diff-with-storybook.mdx), [Migrating from v1](site/src/content/docs/guides/migrate-from-v1.mdx)
+- Reference: [Token files](site/src/content/docs/reference/token-files.mdx), [Outputs](site/src/content/docs/reference/outputs.mdx), [Lint rules](site/src/content/docs/reference/lint-rules.mdx), [Exit codes](site/src/content/docs/reference/exit-codes.mdx)
+- [Contribute](site/src/content/docs/contribute/index.mdx): architecture, package boundaries, tests, specs and tickets
 
-# Global options (available on all commands)
-dta <cmd> -c path/to/config.ts  # custom config file
-dta <cmd> -v                    # verbose logging
-```
+## License
 
-### Push confirmation
-
-`dta push` modifies the Figma file, so it requires you to type `push variables to figma` to confirm. This can be bypassed in two ways:
-
-- **CLI flag:** `dta push --yes` (one-off, useful for CI)
-- **Config:** `push: { skipConfirmation: true }` in `dta.config.ts` (permanent)
-
-### Upgrading from v1
-
-v2 keeps the commands, flags, token files and build outputs of v1. The config is validated more strictly and a few outputs were fixed; see the [v1 → v2 migration note](docs/migration/v1-to-v2.md). The old `sync-figma-to-tokens` and `sync-tokens-to-figma` npm scripts are gone: use `dta pull` and `dta push`.
-
-## Configuration
-
-The CLI reads a `dta.config.ts` file (generated by `dta init` or written manually):
-
-```ts
-import { defineConfig } from 'design-token-authority'
-
-export default defineConfig({
-  figma: {
-    fileKey: process.env.FIGMA_FILE_KEY!,
-    personalAccessToken: process.env.FIGMA_PERSONAL_ACCESS_TOKEN!,
-  },
-  collections: ['Primitives(Global)', 'Brand(Alias)', 'ScreenType'],
-  brands: ['BrandA', 'BrandB'],
-  tokens: { dir: 'tokens' },
-  outputs: {
-    css: { outDir: 'build/css', prefix: '--ds' },
-    tailwind: { outDir: 'build/tailwind', version: 4 },
-  },
-  push: {
-    skipConfirmation: false, // set to true for CI/automation
-  },
-  lint: {
-    rules: {
-      'semantic-must-alias': { severity: 'error', collections: ['Brand(Alias)'] },
-    },
-  },
-})
-```
-
-## Token format
-
-Files follow the [W3C Design Token Community Group (DTCG)](https://tr.designtokens.org/format/) draft spec with Figma extensions. One file per variable collection + mode:
-
-```
-tokens/Primitives(Global).Value.json
-tokens/Brand(Alias).BrandA.json
-tokens/Brand(Alias).BrandB.json
-tokens/ScreenType.Desktop.json
-```
-
-## Build outputs
-
-| File                                | Description                       |
-| ----------------------------------- | --------------------------------- |
-| `build/css/variables.css`           | CSS custom properties (`:root`)   |
-| `build/js/colorpalette.js`          | ES6 named exports                 |
-| `build/tailwind/tailwind.tokens.ts` | Tailwind v3 `theme.extend` object |
-| `build/tailwind/tailwind.css`       | Tailwind v4 `@theme` block        |
-
-## Token dependency graph
-
-`dta graph` analyzes alias references across all token files and reports total tokens, alias percentage, max chain depth, circular references, dangling aliases, and orphaned tokens.
-
-| Format     | Use case                                                  |
-| ---------- | --------------------------------------------------------- |
-| `console`  | Quick terminal summary (default)                          |
-| `dot`      | Graphviz DOT — pipe to `dot -Tsvg` for static diagrams   |
-| `markdown` | Markdown table for PRs, docs, or CI reports               |
-| `html`     | Interactive visualization with zoom, pan, and filtering   |
-
-The HTML format generates a self-contained file with a force-directed graph layout, semantic zoom, color-coded token types, and a sidebar with stats and file filtering.
+MIT

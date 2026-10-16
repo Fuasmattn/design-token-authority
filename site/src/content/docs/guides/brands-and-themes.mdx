@@ -1,0 +1,77 @@
+---
+title: Brands and themes
+description: One token set with several brands, or light and dark, switched with one attribute.
+sidebar:
+  order: 2
+---
+
+A brand (or a theme) is a **mode** of the collection that holds your semantic tokens. In the `brand-ab` fixture that collection is `Brand(Alias)` with the modes `BrandA` and `BrandB`; both alias into the same primitives:
+
+```json title="tokens/Brand(Alias).BrandA.json (excerpt)"
+{
+  "Colors": {
+    "Brand": { "Primary": { "$type": "color", "$value": "{Colors.Foundation.Blue.500}" } }
+  }
+}
+```
+
+```json title="tokens/Brand(Alias).BrandB.json (excerpt)"
+{
+  "Colors": {
+    "Brand": { "Primary": { "$type": "color", "$value": "{Colors.Foundation.Green.500}" } }
+  }
+}
+```
+
+## Build one theme per brand
+
+List the modes to build in `brands`:
+
+```ts title="dta.config.ts"
+export default {
+  brands: ['BrandA', 'BrandB'],
+  // …
+}
+```
+
+`dta build` then writes the primitives once (`output/css/variables.css`, on `:root`) and one file per brand, scoped to an attribute with the lower-cased brand name:
+
+```css title="output/css/themes/brandb.css (excerpt)"
+[data-brand="brandb"] {
+  --colors-brand-primary: var(--colors-foundation-green-500);
+  …
+}
+```
+
+Load all of them and switch with the attribute. It works on any element, so a page can show two brands side by side:
+
+```html
+<link rel="stylesheet" href="output/css/variables.css" />
+<link rel="stylesheet" href="output/css/themes/branda.css" />
+<link rel="stylesheet" href="output/css/themes/brandb.css" />
+
+<html data-brand="branda">
+  …
+  <section data-brand="brandb">this part uses BrandB</section>
+</html>
+```
+
+Because brand values stay `var()` references to the primitives, a change to `Colors.Foundation.Blue.500` reaches every brand that uses it without a rebuild of the themes.
+
+## Light and dark
+
+Light and dark are the same mechanism: a collection with the modes `Light` and `Dark` (or `Graphite`), listed in `brands`. This website does exactly that: its tokens have a `Theme` collection with `Light` and `Graphite`, built into `[data-brand="light"]` and `[data-brand="graphite"]`, and a small script sets the attribute when you switch the theme.
+
+:::note[Brands and themes together]
+DTA treats every mode listed in `brands` as one theme file. A set with both brands and light/dark (BrandA light, BrandA dark, …) needs one mode per combination for now; combining independent dimensions (brand × theme × breakpoint) is planned.
+:::
+
+## Keep the brand layer clean
+
+The `semantic-must-alias` rule fails when a token in the brand layer holds a raw value instead of an alias, so a brand never drifts from the palette:
+
+```ts
+lint: { rules: { 'semantic-must-alias': { severity: 'error', collections: ['Brand(Alias)'] } } }
+```
+
+`color-contrast` checks text and background pairs, with limits worth knowing for brands (it reads raw colour values only): [Lint rules](/reference/lint-rules/).

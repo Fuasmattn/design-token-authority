@@ -1,0 +1,55 @@
+---
+title: CI with GitHub Actions
+description: Lint and build the tokens on every push; fail on structural errors, keep warnings visible.
+sidebar:
+  order: 4
+---
+
+The two commands that belong in every pipeline:
+
+- `dta lint` exits with **2** when it finds errors (dangling or circular aliases, default mode names, rules you set to `error`). Warnings print but exit with 0.
+- `dta build` exits with **1** when the token files cannot be read or built, and writes the outputs otherwise.
+
+All exit codes: [Exit codes](/reference/exit-codes/).
+
+## Workflow
+
+Until DTA is on npm, the workflow checks out the DTA repository next to yours and runs its CLI (Node.js 24, pnpm). After the release, the second checkout and the install step become `npx dta`.
+
+```yaml title=".github/workflows/tokens.yml"
+name: tokens
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  tokens:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Fuasmattn/design-token-authority
+          path: .dta
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: .dta/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: pnpm install --frozen-lockfile
+        working-directory: .dta
+      - name: Lint tokens
+        run: node .dta/bin/dta.js lint
+      - name: Build outputs
+        run: node .dta/bin/dta.js build
+```
+
+Commit the `tokens/` folder, not the build output: CI rebuilds it, and `dta clean` removes it locally.
+
+## On pull requests
+
+- **What changed in the tokens:** `dta diff --tokens-only -f markdown -o token-changes.md` writes the change set as a Markdown table for a comment or the job summary (`>> $GITHUB_STEP_SUMMARY`).
+- **What it looks like:** with a `diff` section in the config, `dta diff` renders your stories at the base and the head and explains the differences by token. [dta diff in pull requests](/guides/dta-diff-in-pull-requests/) has ready-made actions for the status check and the comment.
+- **Pushing to Figma from CI** (Enterprise): `dta push --yes` skips the typed confirmation. Run `dta push --dry-run --format markdown` on the pull request and the real push only on the main branch.
+
+The token diff needs the base commit: check out with `fetch-depth: 0`, or pass `--base <ref|folder>`.

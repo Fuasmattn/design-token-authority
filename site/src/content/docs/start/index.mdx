@@ -1,8 +1,45 @@
 ---
 title: What DTA is
-description: DTA checks design token changes deterministically and shows their effect before they ship.
+description: DTA checks design token changes deterministically, builds them for every platform and shows their effect before they ship.
+sidebar:
+  order: 1
 ---
 
-:::note[Coming]
-Start: what DTA is, why automate, the quick start and core concepts (TICKET-072).
-:::
+Design Token Authority (DTA) is a command-line tool for design tokens. It reads your tokens as plain [DTCG](https://tr.designtokens.org/format/) JSON files (pulled from Figma or written by hand), checks their structure, builds them into CSS, JavaScript and Tailwind, and shows what a change does to your UI before it ships.
+
+Every command is deterministic: same input, same result, on your machine, in CI or when an agent runs it.
+
+## Why automate
+
+A one-off export from Figma is easy: a plugin, a copy, done. It gets hard when tokens change every week:
+
+- **Structure drifts.** New variables break naming and layering, and nobody notices until a theme breaks.
+- **Code breaks quietly.** A renamed or deleted token is still referenced somewhere.
+- **Screenshots pile up.** One colour change touches a hundred screens, and nobody reviews a hundred screenshots.
+
+DTA turns each change into something you can review: the token diff, the lint findings and the visual difference, grouped by the token that caused it.
+
+| You need…                                      | DTA gives you                                                       |
+| ---------------------------------------------- | ------------------------------------------------------------------- |
+| tokens out of Figma once, for a prototype      | `dta pull` (or `--from-file`) and `dta build`                       |
+| the same tokens in code on every change        | `dta build` in CI, with `dta lint` failing on structural errors     |
+| to see the effect of a change before it merges | `dta diff`: base and head rendered and compared, explained by token |
+| tokens back in Figma after a code-side change  | `dta push`, conservative: it creates and updates, it never deletes  |
+
+## What it does today
+
+| Command       | What it does                                                                            |
+| ------------- | --------------------------------------------------------------------------------------- |
+| `dta init`    | Wizard that writes `dta.config.ts` for your Figma plan and outputs                      |
+| `dta pull`    | Figma variables → token files (REST API, or `--from-file` with a plugin export)         |
+| `dta push`    | Token files → Figma variables, with a dry run and a typed confirmation                  |
+| `dta build`   | Token files → CSS custom properties, JavaScript, Tailwind v3 and v4                     |
+| `dta lint`    | Structure checks: dangling and circular aliases, default mode names, configurable rules |
+| `dta graph`   | The alias graph: depth, orphans, cycles; console, Markdown, DOT or interactive HTML     |
+| `dta diff`    | Token changes against a base, and screenshots of your stories explained by token        |
+| `dta analyze` | Which layer each Figma collection plays (primitives, brand, dimension)                  |
+| `dta clean`   | Removes token files and build output                                                    |
+
+Native iOS and Android outputs, breaking-change detection in code and an agent skill are planned; this page lists only what is released in the CLI.
+
+Next: [Quick start](/start/quick-start/).

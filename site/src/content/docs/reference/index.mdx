@@ -1,8 +1,33 @@
 ---
 title: Reference
-description: Commands, configuration, token files and outputs.
+description: Commands, configuration, token files, outputs, lint rules and exit codes.
+sidebar:
+  order: 0
 ---
 
-:::note[Coming]
-The commands and config reference are generated from the CLI (TICKET-074); token files, outputs and lint rules follow in TICKET-072.
-:::
+| Page                                   | What it covers                                               |
+| -------------------------------------- | ------------------------------------------------------------ |
+| [Token files](/reference/token-files/) | The per-mode DTCG format, its JSON Schema, converted exports |
+| [Outputs](/reference/outputs/)         | Every file `dta build` writes and what is in it              |
+| [Lint rules](/reference/lint-rules/)   | Built-in and configurable rules, severities, options         |
+| [Exit codes](/reference/exit-codes/)   | What 0, 1 and 2 mean for each command                        |
+
+## Commands
+
+`dta <command> --help` lists the options of a command. Every command takes `-c, --config <path>` and `-v, --verbose`, except `init`.
+
+| Command       | Options                                                                                                                                                                                  |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dta init`    | (interactive)                                                                                                                                                                            |
+| `dta pull`    | `-o, --output <dir>`, `--from-file <path>`                                                                                                                                               |
+| `dta push`    | `--dry-run`, `--format console\|markdown\|json`, `--skip-lint`, `-y, --yes`                                                                                                              |
+| `dta build`   |                                                                                                                                                                                          |
+| `dta lint`    | `--fix` (accepted, no fixes yet)                                                                                                                                                         |
+| `dta graph`   | `-f, --format console\|dot\|markdown\|html`, `-o, --output <path>`                                                                                                                       |
+| `dta diff`    | `--base <ref\|dir>`, `--tokens-only`, `--list`, `--report <dir>`, `--publish <command>`, `--from-report`, `-f, --format console\|markdown\|json`, `-o, --out <file>`, `--fail-on-change` |
+| `dta analyze` |                                                                                                                                                                                          |
+| `dta clean`   |                                                                                                                                                                                          |
+
+A generated reference of every command and config option follows (TICKET-074).
+
+`dta diff`'s `result.json` is documented with its JSON Schema in the repository: [docs/diff/result.md](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/diff/result.md).

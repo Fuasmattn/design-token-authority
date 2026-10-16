@@ -1,0 +1,72 @@
+---
+title: Lint rules
+description: The rules dta lint always runs, the ones you configure, their options and severities.
+sidebar:
+  order: 3
+---
+
+`dta lint` checks the token files in `tokens.dir`. A rule reports **errors** (exit code 2) or **warnings** (exit code 0, printed). `dta push` runs the same check before it changes Figma (`--skip-lint` skips it).
+
+## Always on
+
+| Rule                    | Severity | Finds                                                   |
+| ----------------------- | -------- | ------------------------------------------------------- |
+| `no-dangling-aliases`   | error    | An alias whose target does not exist                    |
+| `no-circular-aliases`   | error    | Aliases that point at each other in a circle            |
+| `no-default-mode-names` | error    | Modes still called `Mode 1`, `Mode 2` (Figma's default) |
+
+## Configurable
+
+Configured under `lint.rules`. A configured rule is a warning unless you set `severity: 'error'`; `'off'` disables it.
+
+```ts title="dta.config.ts (the brand-ab fixture)"
+lint: {
+  rules: {
+    'semantic-must-alias': { severity: 'error', collections: ['Brand(Alias)', 'ScreenType'] },
+    'naming-pattern': { severity: 'warn', patterns: { 'Brand(Alias)': '^[A-Z][A-Za-z ]*$' } },
+    'color-contrast': {
+      severity: 'warn',
+      minRatio: 4.5,
+      pairs: [
+        ['Colors.Text.Default', 'Colors.Surface.Default'],
+        ['Colors.Text.On Primary', 'Colors.Brand.Primary'],
+      ],
+    },
+    'no-duplicate-values': { severity: 'warn' },
+  },
+},
+```
+
+### `semantic-must-alias`
+
+Every token in the listed `collections` must be an alias. Catches a semantic or brand token that holds a raw value and would no longer follow the palette.
+
+```text
+Token has a raw value "#ffffff" but should be an alias in collection "Brand(Alias)"
+```
+
+### `naming-pattern`
+
+`patterns` maps a collection name to a regular expression; every segment of every token path in that collection must match it. An invalid expression is a config error.
+
+```text
+warn Token path segment "overlay" does not match pattern /^[A-Z][A-Za-z ]*$/ for collection "Brand(Alias)" [naming-pattern]
+```
+
+### `color-contrast`
+
+For each `[foreground, background]` pair, the WCAG contrast ratio must reach `minRatio` (default 4.5, level AA). Token names are written with dots or slashes.
+
+Limits of the current version: only tokens that hold a raw hex colour are compared (an alias is skipped), and when several modes define the same name, the last one read wins, so it does not check each brand separately.
+
+### `no-duplicate-values`
+
+Reports raw values that appear more than once, across all collections and modes: a hint that one of them could be an alias.
+
+```text
+warn Duplicate value "8" — also defined in: Primitives.Value/Dimensions/spacing/2 [no-duplicate-values]
+```
+
+## `--fix`
+
+`dta lint --fix` is accepted but has no fixes yet; it says so and lints as usual.

@@ -1,0 +1,27 @@
+---
+title: Exit codes
+description: What 0, 1 and 2 mean, command by command.
+sidebar:
+  order: 4
+---
+
+| Code | Meaning                                                                         |
+| ---- | ------------------------------------------------------------------------------- |
+| 0    | Success, also with lint warnings                                                |
+| 1    | Something failed, or `dta diff --fail-on-change` found something to look at     |
+| 2    | Invalid input: the config, credentials or files a command needs, or lint errors |
+
+## By command
+
+| Command       | 1                                                                                                                            | 2                                                                                                                |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| every command | no config file found, or it cannot be loaded; unknown command or option                                                      | the config is invalid (unknown key, wrong type)                                                                  |
+| `dta pull`    | the Figma request failed; the received files have errors                                                                     | no Figma credentials for an API pull; `--from-file` not found, not JSON, in an unknown format or not convertible |
+| `dta push`    | unknown `--format`; token files invalid; the Figma request failed; the plan has errors                                       | tokens folder missing or empty; lint errors (without `--skip-lint`); no Figma credentials                        |
+| `dta build`   | token files cannot be read or built                                                                                          |                                                                                                                  |
+| `dta lint`    | tokens folder missing; token files invalid                                                                                   | lint errors                                                                                                      |
+| `dta analyze` | the Figma request failed                                                                                                     | no Figma credentials                                                                                             |
+| `dta init`    |                                                                                                                              | a config file already exists (cancelling the wizard exits with 0)                                                |
+| `dta diff`    | the base cannot be resolved; the build or a story failed; a publish hook failed; `--fail-on-change` with something to review |                                                                                                                  |
+
+`dta diff --fail-on-change` exits 1 when stories changed in a way that needs a look (unexplained changes above the threshold, explained ones not yet approved, added or removed stories); without stories, on any token change. See [dta diff in pull requests](/guides/dta-diff-in-pull-requests/).

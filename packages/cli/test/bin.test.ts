@@ -23,4 +23,38 @@ describe('bin/dta.js', () => {
       fs.rmSync(cwd, { recursive: true, force: true })
     }
   })
+  // A project without "type": "module" in its package.json (or without a package.json at all):
+  // the config is ESM syntax in a .ts / .js file. TICKET-072 found that this failed to load.
+  for (const [file, body] of [
+    [
+      'dta.config.ts',
+      "export default { tokens: { dir: 'tokens' } } satisfies Record<string, unknown>",
+    ],
+    ['dta.config.js', "export default { tokens: { dir: 'tokens' } }"],
+    ['dta.config.mts', "export default { tokens: { dir: 'tokens' } }"],
+  ] as const) {
+    it(`loads an ESM ${file} outside a module package`, () => {
+      const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'dta-bin-'))
+      try {
+        fs.writeFileSync(path.join(cwd, file), body)
+        fs.writeFileSync(path.join(cwd, 'package.json'), '{ "name": "app" }')
+        fs.mkdirSync(path.join(cwd, 'tokens'))
+        fs.writeFileSync(
+          path.join(cwd, 'tokens', 'Base.Value.json'),
+          JSON.stringify({ brand: { $type: 'color', $value: '#2f55d4' } }),
+        )
+        const out = execFileSync(process.execPath, [bin, 'build'], {
+          cwd,
+          encoding: 'utf-8',
+          env: { ...process.env, NO_COLOR: '1' },
+        })
+        expect(out).toContain('Build complete')
+        expect(
+          fs.readFileSync(path.join(cwd, 'output', 'css', 'variables.css'), 'utf-8'),
+        ).toContain('--brand: #2f55d4;')
+      } finally {
+        fs.rmSync(cwd, { recursive: true, force: true })
+      }
+    })
+  }
 })

@@ -1,0 +1,135 @@
+---
+title: Quick start
+description: From token files to CSS in a few commands, with output from a real run.
+sidebar:
+  order: 2
+---
+
+import { Steps } from '@astrojs/starlight/components'
+
+:::caution[Not on npm yet]
+DTA has no npm release yet: `npx dta` would run an unrelated package with the same name. Until the first release, run it from a clone of the repository (Node.js 24 or newer, pnpm):
+
+```sh
+git clone https://github.com/Fuasmattn/design-token-authority.git
+cd design-token-authority && pnpm install
+alias dta="node $PWD/bin/dta.js"   # then use dta in your own project folder
+```
+
+The config `dta init` writes imports `defineConfig` from `design-token-authority`, which your project cannot resolve before the release: drop that import and write `export default { … }` instead of `export default defineConfig({ … })`.
+
+:::
+
+The examples on this page ran on the `brand-ab` fixture of the repository (`test/fixtures/brand-ab`): a Primitives collection, a Brand collection with the modes BrandA and BrandB, and ScreenType with Desktop, Tablet and Mobile. The output is copied from those runs.
+
+<Steps>
+
+1. **Create a config.** In your project folder, `dta init` asks which Figma plan you have, which collections and brands to build and which outputs you want, and writes a `dta.config.ts`. The fixture's config looks like this:
+
+   ```ts title="dta.config.ts"
+   export default {
+     figma: { source: 'file' },
+     tokens: { dir: 'tokens' },
+     brands: ['BrandA', 'BrandB'],
+     outputs: {
+       css: { outDir: 'output/css' },
+       tailwind: { outDir: 'output/tailwind', version: 4 },
+     },
+   }
+   ```
+
+2. **Get your tokens.** On a Figma Enterprise plan, `dta pull` reads the variables through the REST API. On any other plan, export them with a plugin and import the file; see [Getting tokens out of Figma](/guides/figma/). The result is one JSON file per collection and mode in `tokens/`:
+
+   ```text
+   tokens/
+     Brand(Alias).BrandA.json
+     Brand(Alias).BrandB.json
+     Primitives.Value.json
+     ScreenType.Desktop.json
+     ScreenType.Mobile.json
+     ScreenType.Tablet.json
+   ```
+
+3. **Build.**
+
+   ```text
+   $ dta build
+   T   ⚒  dta build
+   |
+   o  Base layer complete
+   |
+   o  Brand BrandA complete
+   |
+   o  Brand BrandB complete
+   |
+   o  Shared outputs complete
+   |
+   o  Generated files ---------------------------+
+   |                                             |
+   |  output/css/base.css                        |
+   |  output/css/themes/branda.css               |
+   |  output/tailwind/branda/tailwind.tokens.ts  |
+   |  output/tailwind/branda/tailwind.css        |
+   |  output/css/themes/brandb.css               |
+   |  output/tailwind/brandb/tailwind.tokens.ts  |
+   |  output/tailwind/brandb/tailwind.css        |
+   |  output/css/variables.css                   |
+   |  output/js/colorpalette.js                  |
+   |  output/tailwind/tailwind.tokens.ts         |
+   |  output/tailwind/tailwind.css               |
+   |                                             |
+   +---------------------------------------------+
+   |
+   —  Build complete!
+   ```
+
+   What each file is: [Outputs](/reference/outputs/).
+
+4. **Check the structure.** With no rules configured, `dta lint` still catches dangling and circular aliases and Figma's default mode names. The fixture enables more rules, so it reports warnings:
+
+   ```text
+   $ dta lint
+   …
+   |  Primitives.Value.json
+   |
+   |    warn Duplicate value "8" — also defined in: Primitives.Value/Dimensions/spacing/2 [no-duplicate-values]
+   |
+   |  8 warnings found.
+   |
+   —  Lint passed with warnings.
+   ```
+
+   Warnings exit with 0, errors with 2: [Lint rules](/reference/lint-rules/).
+
+5. **See what changed.** `dta diff` compares your tokens with a base: a folder, a git ref, or by default the merge base with your main branch.
+
+   ```text
+   $ dta diff --tokens-only --base tokens-base
+   T   ◑  dta diff
+   |
+   |  Base: tokens-base
+
+   changed  Colors.Brand.Accent  Brand(Alias) · BrandB
+            {Colors.Foundation.Green.700} → #1f7a43 → {Colors.Foundation.Orange.500} → #e8731a
+   changed  Colors.Foundation.Blue.500  Primitives · Value
+            #0047a0 → #0057b8
+   changed  Dimensions.spacing.8  Primitives · Value
+            28 → 32
+   added    Dimensions.radius.pill  Primitives · Value
+            999
+   removed  Colors.Foundation.Red.500  Primitives · Value
+            #d1342f
+   affected Colors.Brand.Primary  Brand(Alias) · BrandA
+            {Colors.Foundation.Blue.500} → #0047a0 → {Colors.Foundation.Blue.500} → #0057b8  (because of Colors.Foundation.Blue.500)
+   affected Spacing.Padding  ScreenType · Desktop
+            {Dimensions.spacing.8} → 28 → {Dimensions.spacing.8} → 32  (because of Dimensions.spacing.8)
+
+   |
+   —  Tokens: 3 changed · 1 added · 1 removed · 2 affected
+   ```
+
+   With a `diff` section in the config it also screenshots your stories at the base and the head and explains each change by token: [dta diff in pull requests](/guides/dta-diff-in-pull-requests/).
+
+</Steps>
+
+Next: [Core concepts](/start/concepts/).

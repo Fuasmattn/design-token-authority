@@ -15,6 +15,8 @@ The goal is a **whitelabel design token pipeline tool** that:
 
 All planned work is tracked as tickets in `docs/tickets/`. Start with `docs/tickets/000-index.md` for an overview and recommended implementation order.
 
+**User documentation lives on the website** (`site/src/content/docs/`: Start, Guides, Reference, Contribute); the README is only pitch, quick start and links. Update the docs pages with every user-visible change, and copy command output from real runs on the fixtures.
+
 ---
 
 ## Architecture — the 3-layer token model
@@ -169,7 +171,7 @@ The Figma Variables **REST API** (`/v1/files/:key/variables/local`) is **only av
 pnpm dta pull --from-file <exported.json>
 ```
 
-**Where the file comes from is up to you.** DTA does not depend on any plugin. It accepts its own documented per-mode DTCG format (`{Collection}.{Mode}.json`, JSON Schema in `docs/token-files/token-file.schema.json`) and converts a few known third-party exports through small adapters (currently tokenHaus). See [docs/token-files/input-format.md](docs/token-files/input-format.md) for the format and for ways to obtain it.
+**Where the file comes from is up to you.** DTA does not depend on any plugin. It accepts its own documented per-mode DTCG format (`{Collection}.{Mode}.json`, JSON Schema in `docs/token-files/token-file.schema.json`) and converts a few known third-party exports through small adapters (currently tokenHaus). See the website's [Token files](site/src/content/docs/reference/token-files.mdx) reference for the format and for ways to obtain it.
 
 **Outlook:** Figma announced native variable export/import aligned with the [W3C Design Tokens Community Group spec](https://tr.designtokens.org/format/) at [Schema 2025](https://figma.obra.studio/design-tokens-community-group-w3c-release/). This is gradually rolling out and expected to be fully available by late 2026. Once available, `dta pull --from-file` will work directly with Figma's native export.
 

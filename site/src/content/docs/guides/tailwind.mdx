@@ -1,0 +1,81 @@
+---
+title: Tailwind
+description: Use the generated @theme file with Tailwind v4, and keep brand colours switchable.
+sidebar:
+  order: 3
+---
+
+`dta build` writes Tailwind files next to the CSS:
+
+| File                                         | For                                                                      |
+| -------------------------------------------- | ------------------------------------------------------------------------ |
+| `output/tailwind/tailwind.css`               | Tailwind v4: an `@theme` block of the primitives (as `var()` references) |
+| `output/tailwind/<brand>/tailwind.css`       | Tailwind v4: one brand's tokens, with resolved values                    |
+| `output/tailwind/tailwind.tokens.ts`         | Tailwind v3: a `theme.extend` object                                     |
+| `output/tailwind/<brand>/tailwind.tokens.ts` | Tailwind v3: one brand, resolved                                         |
+
+## Tailwind v4
+
+Import the token CSS and the `@theme` file into your stylesheet. The `@theme` entries point at the custom properties, so `variables.css` must be loaded too:
+
+```css title="src/app.css"
+@import 'tailwindcss';
+@import '../output/css/variables.css';
+@import '../output/css/themes/branda.css';
+@import '../output/css/themes/brandb.css';
+@import '../output/tailwind/tailwind.css';
+
+/* Brand tokens switch with [data-brand]: map them as theme variables that stay references. */
+@theme inline {
+  --color-brand-primary: var(--colors-brand-primary);
+  --color-brand-accent: var(--colors-brand-accent);
+}
+```
+
+Then use the utilities:
+
+```html
+<html data-brand="branda">
+  <button class="bg-brand-primary text-foundation-white p-4 rounded-dimensions-radius-md">
+    Save
+  </button>
+</html>
+```
+
+Compiled with Tailwind 4.3.3 against the `brand-ab` fixture, these utilities come out as:
+
+```css
+.rounded-dimensions-radius-md {
+  border-radius: var(--radius-dimensions-radius-md);
+}
+.bg-brand-primary {
+  background-color: var(--colors-brand-primary);
+}
+.p-4 {
+  padding: var(--spacing-4);
+}
+.text-foundation-white {
+  color: var(--color-foundation-white);
+}
+```
+
+Two things to know:
+
+- **Spacing replaces Tailwind's scale.** The fixture's `Dimensions.spacing.4` becomes `--spacing-4` (16px), so `p-4` uses your token instead of Tailwind's default calculation.
+- **Brand files are resolved.** `output/tailwind/<brand>/tailwind.css` holds one brand's final values: use it when a build ships one brand only. For switching brands at runtime, map the brand tokens with `@theme inline` as above, so the utilities keep reading the custom properties.
+
+## Tailwind v3
+
+Spread the generated object into your config:
+
+```ts title="tailwind.config.ts"
+import type { Config } from 'tailwindcss'
+import { tokens } from './output/tailwind/tailwind.tokens'
+
+export default {
+  content: ['./src/**/*.{html,tsx}'],
+  ...tokens,
+} satisfies Config
+```
+
+Its values are `var()` references too (`'foundation-blue-500': 'var(--colors-foundation-blue-500)'`), so load `output/css/variables.css` in your app.

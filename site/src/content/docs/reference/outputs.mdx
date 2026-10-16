@@ -1,0 +1,38 @@
+---
+title: Outputs
+description: Every file dta build writes, where, and what is in it.
+sidebar:
+  order: 2
+---
+
+`dta build` writes into `output/` by default; `outputs.css.outDir` and `outputs.tailwind.outDir` move the CSS and Tailwind files. The list below is from a build of the `brand-ab` fixture (`brands: ['BrandA', 'BrandB']`).
+
+| File                                         | Content                                                                                     |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `output/css/variables.css`                   | Single-mode collections as custom properties on `:root`; aliases stay `var()` references    |
+| `output/css/base.css`                        | The same properties with resolved values                                                    |
+| `output/css/themes/<brand>.css`              | One brand's tokens on `[data-brand="<brand>"]` (lower-cased), as `var()` references         |
+| `output/js/colorpalette.js`                  | ES module exports with resolved values: `export const ColorsFoundationBlue500 = "#0057b8";` |
+| `output/tailwind/tailwind.css`               | Tailwind v4 `@theme` block for the single-mode collections                                  |
+| `output/tailwind/<brand>/tailwind.css`       | Tailwind v4 `@theme` block for one brand, resolved                                          |
+| `output/tailwind/tailwind.tokens.ts`         | Tailwind v3 `theme.extend` object (`export const tokens`)                                   |
+| `output/tailwind/<brand>/tailwind.tokens.ts` | The same for one brand, resolved                                                            |
+
+## Names and values
+
+- **Names** are the token path in kebab case: `Colors.Foundation.Blue.500` → `--colors-foundation-blue-500`. Repeated neighbouring words are collapsed (`Colors/Colors Brand/Primary` → `--colors-brand-primary`).
+- **Numbers** become `px` when the Figma scopes say they are lengths (gap, width and height, corner radius, stroke, effects), decimals when the scope is opacity (`50` → `0.5`), and stay plain otherwise (line heights, font weights).
+- **Descriptions** become comments next to the property.
+
+```css title="output/css/variables.css (excerpt)"
+:root {
+  --colors-foundation-blue-500: #0057b8;
+  --colors-foundation-blue-700: #003f8a; /** Deep blue */
+  …
+}
+```
+
+## Not built yet
+
+- Collections whose modes are not brands, such as breakpoints (`ScreenType`), are not written as separate CSS; their first mode only resolves aliases. See [Core concepts](/start/concepts/).
+- `outputs.ios` and `outputs.android` are accepted in the config and cleaned by `dta clean`, but `dta build` writes no Swift, XML or Compose files yet. `outputs.css.prefix` and `outputs.tailwind.version` are accepted and not used yet: every build writes both Tailwind versions.

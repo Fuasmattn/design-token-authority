@@ -84,6 +84,23 @@ function locate(cwd: string, configPath: string | undefined): string {
   return path.join(cwd, found[0])
 }
 
+/**
+ * A config tsx compiled to CommonJS arrives as `{ default: { __esModule, default: config } }`;
+ * an ES module as `{ default: config }`. Both become the latter.
+ */
+function unwrapInterop(module: Record<string, unknown>): Record<string, unknown> {
+  const inner = module.default
+  const nested =
+    typeof inner === 'object' &&
+    inner !== null &&
+    ('__esModule' in inner || Object.prototype.toString.call(inner) === '[object Module]')
+  if (nested) {
+    // A module namespace inside the namespace: its own `default` is the config, if any.
+    return 'default' in inner ? (inner as Record<string, unknown>) : {}
+  }
+  return module
+}
+
 async function readRaw(filePath: string): Promise<unknown> {
   const reason = (error: unknown) => (error instanceof Error ? error.message : String(error))
 
@@ -95,10 +112,15 @@ async function readRaw(filePath: string): Promise<unknown> {
     }
   }
 
-  // Node 24 can import erasable TypeScript natively, and tsx handles the rest.
+  // tsx's own import, scoped to this file: a `.ts` or `.js` config written with `export default`
+  // must load in projects without "type": "module" too (a plain import there goes through the
+  // CommonJS loader and fails on the ESM syntax).
   let module: Record<string, unknown>
   try {
-    module = (await import(pathToFileURL(filePath).href)) as Record<string, unknown>
+    const { tsImport } = await import('tsx/esm/api')
+    module = unwrapInterop(
+      (await tsImport(pathToFileURL(filePath).href, import.meta.url)) as Record<string, unknown>,
+    )
   } catch (error) {
     throw new ConfigError('unreadable', `Could not load ${filePath}: ${reason(error)}`)
   }
