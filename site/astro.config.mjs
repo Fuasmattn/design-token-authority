@@ -29,15 +29,7 @@ export default defineConfig({
       },
       sidebar: [
         { label: 'Start', items: [{ autogenerate: { directory: 'start' } }] },
-        {
-          label: 'Learn',
-          items: [
-            { label: 'Overview', link: '/learn/' },
-            { label: 'The DTCG format', items: [{ autogenerate: { directory: 'learn/dtcg' } }] },
-            { label: 'Token patterns', items: [{ autogenerate: { directory: 'learn/patterns' } }] },
-            { slug: 'learn/public-systems' },
-          ],
-        },
+        { label: 'Learn', items: [{ autogenerate: { directory: 'learn' } }] },
         { label: 'Guides', items: [{ autogenerate: { directory: 'guides' } }] },
         { label: 'Reference', items: [{ autogenerate: { directory: 'reference' } }] },
         {

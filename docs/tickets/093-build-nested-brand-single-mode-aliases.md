@@ -28,4 +28,4 @@ Single-mode tokens whose alias chain reaches a brand-mode token are also emitted
 - [ ] A test with a single-mode tier over brand modes: the theme files declare the dependent tokens, `variables.css` is unchanged
 - [ ] A browser check (or computed-style test) that a nested `data-brand` section resolves the dependent tokens to its own brand
 - [ ] `brand-ab` snapshots unchanged, or re-recorded by name and reviewed if its output changes
-- [ ] The caution on the Learn tiers page and the note in Brands and themes updated; Outputs reference states what `base.css` resolves to; all gates pass, and the GitHub run is green
+- [ ] The caution on the Learn patterns page and the note in Brands and themes updated; Outputs reference states what `base.css` resolves to; all gates pass, and the GitHub run is green

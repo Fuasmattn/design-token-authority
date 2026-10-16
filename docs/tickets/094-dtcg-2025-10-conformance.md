@@ -23,4 +23,4 @@ A spec (or ADR) first: how DTCG 2025.10 files and resolver documents map onto th
 ## Acceptance criteria
 
 - [ ] Spec approved by the maintainer, with the slices as tickets in the index
-- [ ] The DTCG pages under Learn updated as each slice lands (remove the "not read by DTA yet" labels)
+- [ ] The "Where DTA differs" list on the Learn DTCG page updated as each slice lands

@@ -1,37 +1,27 @@
 ---
-title: Learn
-description: The DTCG token format, common ways to structure tokens, and how large public design systems do it.
+title: The DTCG format
+description: DTCG in short, and where DTA's token files differ from it.
+sidebar:
+  order: 1
 ---
 
-import { CardGrid, LinkCard } from '@astrojs/starlight/components'
+DTA's token files use the format of the W3C [Design Tokens Community Group](https://www.designtokens.org/) (DTCG). Its first stable version, [2025.10](https://www.designtokens.org/TR/2025.10/), has three modules. The spec is the reference; this page only gives the ideas and says where DTA differs.
 
-This section explains the ideas behind a token set, independent of any tool, and says where DTA stands on each of them today.
+| Module                                                        | What it defines                                                                                                                                                         |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Format](https://www.designtokens.org/tr/2025.10/format/)     | Tokens (objects with `$value`) and groups, `$type`, `$description`, `$extensions`, `$deprecated`, aliases (`{group.token}`, `$ref`), `$root`, `$extends`, and the types |
+| [Color](https://www.designtokens.org/tr/2025.10/color/)       | Colour values as objects in any CSS Color 4 space                                                                                                                       |
+| [Resolver](https://www.designtokens.org/tr/2025.10/resolver/) | Themes, brands and other contexts: sets, modifiers and the order in which they apply                                                                                    |
 
-<CardGrid>
-  <LinkCard
-    title="The DTCG format"
-    description="Tokens and groups, types, aliases, and the resolver module for themes and brands."
-    href="/learn/dtcg/format/"
-  />
-  <LinkCard
-    title="Token patterns"
-    description="Tiers, multiple brands, light and dark, breakpoints and component overrides, with trade-offs."
-    href="/learn/patterns/tiers/"
-  />
-  <LinkCard
-    title="Public design systems"
-    description="How Material, Primer, Spectrum, Atlassian and Lightning structure their tokens."
-    href="/learn/public-systems/"
-  />
-</CardGrid>
+## Where DTA differs
 
-## The examples are real projects
+DTA's files are DTCG in the shape of Figma variables: one file per collection and mode (`Brand.BrandA.json`, `Brand.BrandB.json`), and the four Figma types `color`, `number`, `string` and `boolean`. The [Token files](/reference/token-files/) reference has the format. Compared with 2025.10, DTA does **not** read yet:
 
-Every example token set on these pages is a folder in the repository, [`site/learn-examples/`](https://github.com/Fuasmattn/design-token-authority/tree/main/site/learn-examples), with a `dta.config.ts` and a `tokens/` folder. The files on the pages are imported from there, and a test runs `dta lint` and `dta build` on each of them, so what you read is what the CLI accepts. To try one, run DTA from a clone (see [Quick start](/start/quick-start/)) inside the folder:
+- `$type` inherited from a group (every token needs its own),
+- colour and dimension values as objects, and the other DTCG types (they are skipped with an `unsupported-type` warning),
+- `$ref`, `$root` and `$extends`,
+- resolver documents. A collection with several modes plays the role of a modifier, and `brands` in the config picks the contexts to build.
 
-```sh
-cd site/learn-examples/tiers
-dta lint && dta build   # writes output/ next to tokens/
-```
+These gaps are tracked in [TICKET-094](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/tickets/094-dtcg-2025-10-conformance.md).
 
-Where the DTCG specification and DTA differ, the pages say so and show the spec's syntax separately, marked as not read by DTA yet.
+A minimal file DTA reads, with all four types and an alias, is [`learn-examples/dtcg-basics/`](https://github.com/Fuasmattn/design-token-authority/tree/main/site/learn-examples/dtcg-basics/). Next: [Token patterns](/learn/patterns/).

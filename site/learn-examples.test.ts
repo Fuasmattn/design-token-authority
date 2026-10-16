@@ -61,7 +61,7 @@ describe('Learn example token sets', () => {
     ])
   })
 
-  it.each(examples)('%s is shown on a Learn page', (example) => {
+  it.each(examples)('%s is linked from a Learn page', (example) => {
     expect(learnPages(learnDir).some((page) => page.includes(`learn-examples/${example}/`))).toBe(
       true,
     )

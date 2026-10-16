@@ -59,7 +59,7 @@ Load all of them and switch with the attribute. It works on any element, so a pa
 Because brand values stay `var()` references to the primitives, a change to `Colors.Foundation.Blue.500` reaches every brand that uses it without a rebuild of the themes.
 
 :::caution[Single-mode tokens that alias brand tokens]
-A token in a single-mode collection (a component tier, say) that aliases a brand token is declared on `:root`, so it takes the brand set on `<html>` and keeps it inside a nested `data-brand` section. Set the brand on `<html>`, or give that collection the brand modes too ([Component overrides](/learn/patterns/component-overrides/)). Fixing this in the build is TICKET-093.
+A token in a single-mode collection (a component tier, say) that aliases a brand token is declared on `:root`, so it takes the brand set on `<html>` and keeps it inside a nested `data-brand` section. Set the brand on `<html>`, or give that collection the brand modes too ([Token patterns](/learn/patterns/)). Fixing this in the build is TICKET-093.
 :::
 
 ## Light and dark

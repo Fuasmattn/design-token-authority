@@ -20,7 +20,7 @@ The Learn section explains the DTCG format (types, aliases, groups, the resolver
 
 ## Outcome
 
-- Pages under `site/src/content/docs/learn/`: DTCG (tokens and groups, types, aliases, resolver module), patterns (tiers, multiple brands, light and dark, breakpoint overrides, component overrides) and public design systems (Material, Primer, Spectrum, Atlassian, Salesforce Lightning, each quoted from and linked to its own documentation).
-- Six example projects in `site/learn-examples/`, imported into the pages with `?raw`; `site/learn-examples.test.ts` runs `dta lint` and `dta build` on each through `bin/dta.js` and pins the output the pages show. Spec syntax DTA does not read is shown separately and labelled.
-- Open question 5 of the docs-site spec: the public-systems research shipped with this ticket.
+- Two pages under `site/src/content/docs/learn/`, kept short on purpose (maintainer's call: details live in the sources, so the pages do not go out of date): **The DTCG format** (the three 2025.10 modules, linked, and where DTA differs) and **Token patterns** (tiers, brands, light/dark, breakpoints, component overrides in one table, plus how Material, Primer, Spectrum, Atlassian and Salesforce Lightning name their tiers, each linked to its own docs).
+- Six example projects in `site/learn-examples/`, linked from the patterns table; `site/learn-examples.test.ts` runs `dta lint` and `dta build` on each through `bin/dta.js` and pins the output the patterns rely on.
+- Open question 5 of the docs-site spec: the public-systems references shipped with this ticket, as links.
 - Follow-ups: 093 (nested `data-brand` does not reach single-mode tokens that alias brand tokens, found while checking the examples in Chromium) and 094 (DTCG 2025.10 conformance).
