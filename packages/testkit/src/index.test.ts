@@ -56,6 +56,7 @@ describe('SCENARIOS', () => {
       'clean',
       'analyze',
       'pull-api',
+      'diff-tokens',
       'pull-from-file',
       'push-up-to-date',
       'push-dry-run',

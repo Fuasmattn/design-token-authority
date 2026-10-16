@@ -30,6 +30,11 @@ export const SCENARIOS: readonly Scenario[] = [
     figma: { fileKey: 'FAKEFILEKEY', token: 'fake-token' },
   },
   {
+    name: 'diff-tokens',
+    args: ['diff', '--tokens-only', '--base', 'tokens-base', '--format', 'markdown'],
+    fixtures: ['brand-ab'],
+  },
+  {
     name: 'pull-from-file',
     args: ['pull', '--from-file', 'tokens/Primitives.Value.json', '--output', 'pulled'],
     fixtures: ['brand-ab'],

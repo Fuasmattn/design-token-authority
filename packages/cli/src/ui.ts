@@ -11,6 +11,7 @@ type CommandName =
   | 'clean'
   | 'lint'
   | 'init'
+  | 'diff'
   | 'test:visual'
 
 const STYLES: Record<CommandName, { icon: string; paint: (text: string) => string }> = {
@@ -22,6 +23,7 @@ const STYLES: Record<CommandName, { icon: string; paint: (text: string) => strin
   clean: { icon: '✖', paint: (s) => pc.bgRed(pc.white(s)) },
   lint: { icon: '✔', paint: (s) => pc.bgYellow(pc.black(s)) },
   init: { icon: '✨', paint: (s) => pc.bgCyan(pc.black(s)) },
+  diff: { icon: '◑', paint: (s) => pc.bgYellow(pc.black(s)) },
   'test:visual': { icon: '◐', paint: (s) => pc.bgBlue(pc.white(s)) },
 }
 

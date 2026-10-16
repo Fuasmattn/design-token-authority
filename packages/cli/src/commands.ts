@@ -3,6 +3,7 @@ import type { Config } from './config/schema.js'
 import { runAnalyze } from './commands/analyze.js'
 import { runBuild } from './commands/build.js'
 import { runClean } from './commands/clean.js'
+import { runDiff } from './commands/diff.js'
 import { runGraph } from './commands/graph.js'
 import { runInit } from './commands/init.js'
 import { runLint } from './commands/lint.js'
@@ -127,6 +128,28 @@ export const COMMANDS: readonly CommandDefinition[] = [
     run: runLint,
     options: [
       { flags: '--fix', description: 'Auto-fix violations where possible' },
+      CONFIG,
+      VERBOSE,
+    ],
+  },
+  {
+    name: 'diff',
+    description: 'Compare the tokens with a base (directory, git ref, or merge base with main)',
+    needsConfig: true,
+    run: runDiff,
+    options: [
+      {
+        flags: '--base <ref|dir>',
+        description: 'Base to compare with (default: merge base of HEAD and the default branch)',
+      },
+      { flags: '--tokens-only', description: 'Only compare token values, no screenshots' },
+      {
+        flags: '-f, --format <format>',
+        description: 'Output format: console, markdown, json',
+        defaultValue: 'console',
+      },
+      { flags: '-o, --out <file>', description: 'Write the markdown or JSON report to a file' },
+      { flags: '--fail-on-change', description: 'Exit with code 1 when anything changed' },
       CONFIG,
       VERBOSE,
     ],

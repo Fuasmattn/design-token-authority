@@ -36,9 +36,20 @@ describe('help and usage', () => {
     for (const name of COMMAND_NAMES) expect(stdout).toContain(name)
   })
 
-  it('offers the same commands as the v1 CLI', () => {
+  it('offers the v1 commands plus diff', () => {
     expect([...COMMAND_NAMES].sort()).toEqual(
-      ['analyze', 'build', 'clean', 'graph', 'init', 'lint', 'pull', 'push', 'test:visual'].sort(),
+      [
+        'analyze',
+        'build',
+        'clean',
+        'diff',
+        'graph',
+        'init',
+        'lint',
+        'pull',
+        'push',
+        'test:visual',
+      ].sort(),
     )
   })
 

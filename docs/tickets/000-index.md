@@ -206,7 +206,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 | # | Ticket | Priority | Effort | Blocked by | Status |
 |---|---|---|---|---|---|
-| [080](./080-diff-token-change-set.md) | `dta diff` tracer: token change set | High | M | 039 | Open |
+| [080](./080-diff-token-change-set.md) | `dta diff` tracer: token change set | High | M | 039 | Done |
 | [081](./081-diff-stories-config.md) | Stories adapter and the `diff` config section | High | S | 070, 080 | Open |
 | [082](./082-diff-dual-render-compare.md) | Render base and head in one run and compare | High | L | 081 | Open |
 | [083](./083-diff-attribution-spike.md) | Spike: record which CSS variables each element uses | High | S | 082 | Open |

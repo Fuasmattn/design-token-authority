@@ -12,7 +12,7 @@ Reference outputs of the CLI on the fixture projects in `test/fixtures/`. They w
       exit-code.txt   process exit code
       files/**        every file the command created, at its relative path
 
-Fixtures: `brand-ab`, `daisyui`. Scenarios: `build`, `lint`, `graph-console`, `graph-dot`, `graph-markdown`, `graph-html`, `clean` and, for `brand-ab` only (served by the Figma fake from `test/recordings/`), `analyze`, `pull-api`, `pull-from-file`, `push-up-to-date`, `push-dry-run` (also `-markdown`, `-json`) and `push-yes`.
+Fixtures: `brand-ab`, `daisyui`. Scenarios: `build`, `lint`, `graph-console`, `graph-dot`, `graph-markdown`, `graph-html`, `clean` and, for `brand-ab` only (served by the Figma fake from `test/recordings/`), `analyze`, `diff-tokens` (against the earlier token set in `tokens-base/`), `pull-api`, `pull-from-file`, `push-up-to-date`, `push-dry-run` (also `-markdown`, `-json`) and `push-yes`.
 
 ## Commands
 

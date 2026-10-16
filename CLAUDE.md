@@ -82,7 +82,8 @@ packages/
   figma/     Figma REST client, variables ⇄ model, push planning, plugin-export importers
   build/     CSS, JS, Tailwind v3/v4 outputs
   lint/      lint rules and config
-  cli/       commands (pull, push, build, lint, graph, analyze, clean, init), config loader, UI
+  visual-diff/  token change sets for dta diff (screenshots and attribution follow in Epic 8)
+  cli/       commands (pull, push, build, lint, graph, analyze, clean, init, diff), config loader, UI
   testkit/   private test helpers: Figma fake, snapshot capture
 bin/dta.js   binary entry (runs packages/cli/src/bin.ts through tsx)
 scripts/     snapshot recorder, Figma recording/schema tools, guardrails
@@ -142,6 +143,8 @@ pnpm dta analyze         # Inspect Figma file structure
 pnpm dta graph           # Token dependency graph (console summary)
 pnpm dta graph --format html   # Interactive HTML visualization
 pnpm dta init            # Interactive project setup wizard
+pnpm dta diff --tokens-only            # Token changes vs the merge base with main
+pnpm dta diff --base <ref|dir> -f markdown   # ...against another base, as markdown
 pnpm test                      # Run Vitest (all packages, scripts)
 pnpm typecheck                 # Typecheck all packages and scripts
 pnpm prettier:check            # Check code formatting
@@ -210,7 +213,7 @@ The project was rewritten package by package (strangler); parity is reached and 
 
 **Rules**
 
-- Packages (`@dta/core`, `@dta/figma`, `@dta/build`, `@dta/lint`, `@dta/cli`, `@dta/testkit`) expose a small public API through their entry point. Import other packages only by name (`@dta/core`), never `@dta/core/src/...` or `../../core/...`. `pnpm run guardrails:boundaries` checks this.
+- Packages (`@dta/core`, `@dta/figma`, `@dta/build`, `@dta/lint`, `@dta/visual-diff`, `@dta/cli`, `@dta/testkit`) expose a small public API through their entry point. Import other packages only by name (`@dta/core`), never `@dta/core/src/...` or `../../core/...`. `pnpm run guardrails:boundaries` checks this.
 - `@dta/core` depends on no other `@dta/*` package. Only `@dta/cli` is user-facing; `@dta/testkit` is private and dev-only.
 - Don't commit or push without the maintainer's explicit go-ahead.
 - Never use real customer brand names in files; use BrandA/BrandB. Say "snapshot", not "golden".
