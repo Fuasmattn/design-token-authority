@@ -6,14 +6,15 @@ Within version `dta.diff/1` fields are only added. A change that removes or rena
 
 ## Top level
 
-| Field     | Meaning                                                                                                    |
-| --------- | ---------------------------------------------------------------------------------------------------------- |
-| `schema`  | Always `"dta.diff/1"`                                                                                      |
-| `base`    | How the base was chosen, e.g. `merge base with origin/main (1a2b3c4)`                                      |
-| `verdict` | `pass` (nothing to look at), `review` (explained or new changes), `fail` (unexplained above the threshold) |
-| `review`  | The changes grouped by cause (below)                                                                       |
-| `tokens`  | `counts` and `changes` of the token change set (as `dta diff --tokens-only --format json`)                 |
-| `stories` | One entry per story and viewport                                                                           |
+| Field     | Meaning                                                                                                              |
+| --------- | -------------------------------------------------------------------------------------------------------------------- |
+| `schema`  | Always `"dta.diff/1"`                                                                                                |
+| `base`    | How the base was chosen, e.g. `merge base with origin/main (1a2b3c4)`                                                |
+| `verdict` | `pass` (nothing to look at), `review` (explained or new changes), `fail` (unexplained above the threshold)           |
+| `review`  | The changes grouped by cause (below)                                                                                 |
+| `publish` | `{ url, report }` when a publish hook ran: the folder's public URL (image paths resolve against it) and `index.html` |
+| `tokens`  | `counts` and `changes` of the token change set (as `dta diff --tokens-only --format json`)                           |
+| `stories` | One entry per story and viewport                                                                                     |
 
 ## Stories
 
