@@ -1,0 +1,14 @@
+{
+  "color": {
+    "neutral": {
+      "0": { "$type": "color", "$value": "#ffffff" },
+      "100": { "$type": "color", "$value": "#eef0f3" },
+      "800": { "$type": "color", "$value": "#2a2e36" },
+      "950": { "$type": "color", "$value": "#121418" }
+    },
+    "blue": {
+      "400": { "$type": "color", "$value": "#6f9cf0" },
+      "600": { "$type": "color", "$value": "#1f5fd1" }
+    }
+  }
+}

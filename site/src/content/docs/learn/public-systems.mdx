@@ -1,0 +1,61 @@
+---
+title: Public design systems
+description: How Material, Primer, Spectrum, Atlassian and Lightning structure their tokens, with sources.
+sidebar:
+  order: 3
+---
+
+Five large public design systems, and how their documentation describes their tokens. Everything below is taken from the linked pages (as read in October 2026); systems change, so check the source before you rely on a detail.
+
+## At a glance
+
+| System               | Tiers, from raw values up                          | A decision token                  |
+| -------------------- | -------------------------------------------------- | --------------------------------- |
+| Material Design 3    | reference → system → component                     | `--md-sys-color-primary`          |
+| GitHub Primer        | base → functional → component/pattern              | `bgColor-inset`                   |
+| Adobe Spectrum       | primitive (global) → semantic → component-specific | `accent-background-color-default` |
+| Atlassian            | palette → tokens (foundation, property, modifier)  | `color.background.brand.bold`     |
+| Salesforce Lightning | global styling hooks → component styling hooks     | `--slds-g-*`                      |
+
+The tiers are named as each source page names them; a tier a page does not describe is left out, which does not mean the system has none.
+
+## Material Design 3
+
+Material's web components name three kinds of tokens ([Material Web: theming](https://material-web.dev/theming/material-theming/)): **reference** tokens "hold concrete values, such as a hex color, pixel size, or font family name" (`--md-ref-typeface-brand`); **system** tokens "define decisions and roles that give the design system its character" (`--md-sys-color-primary`, `--md-sys-shape-corner-small`); **component** tokens are "design attributes assigned to elements" (`--md-filled-button-container-shape`). Component tokens carry the component name, not a `comp` prefix.
+
+Takeaway: the [three tiers](/learn/patterns/tiers/) with the tier in the name, so a custom property tells you how deep in the system it sits.
+
+## GitHub Primer
+
+Primer's naming guide ([Primer: token names](https://primer.style/product/primitives/token-names/)) has three categories: **base** tokens "map directly to a raw value" (`base-size-4`, `base-color-green-5`); **functional** tokens "represent global UI patterns" (`bgColor-inset`, `borderColor-default`); **component/pattern** tokens "should only be used in component CSS" (`button-primary-bgColor-hover`, `control-danger-borderColor-rest`). A name is built from blocks (prefix, namespace, pattern, variant, property, scale), of which only the property is required. Colour roles use the modifiers `default`, `muted` and `emphasis`.
+
+On themes, Primer's colour guide ([Primer: color](https://primer.style/foundations/color/overview)) says GitHub offers light and dark "across nine themes", and that "base color tokens don't respect color modes and should never be used directly in code or design"; functional tokens "respect color modes".
+
+Takeaway: themes live in the decision tier only; base tokens are the same everywhere ([Light and dark](/learn/patterns/themes/)).
+
+## Adobe Spectrum
+
+Spectrum's token page ([Spectrum: design tokens](https://spectrum.adobe.com/page/design-tokens)) separates **primitive (aka global)** tokens that "define the available values in the design language" (`blue-800`, `corner-radius-75`), **semantic** tokens that "define how design decisions are used throughout the system" (`accent-background-color-default`, `container-padding-medium`), and **component-specific** tokens (`tooltip-maximum-width`), which "play a much smaller role than reusable semantic tokens". **Alias** is not a tier but a relationship: "a token that references another token instead of a final value", as in `blue-900` → `accent-color-900` → `accent-content-color-default`. Values "may differ between platforms to support differences in sizing, density, theming, or platform capabilities".
+
+Takeaway: keep the component tier small and lean on semantic tokens ([tiers](/learn/patterns/tiers/)); chains may be longer than one step.
+
+## Atlassian
+
+Atlassian's token names have three parts ([Atlassian: design tokens explained](https://atlassian.design/foundations/tokens/design-tokens/)): the **foundation** ("the type of visual design attribute"), the **property** ("the UI element the token is being applied to") and an optional **modifier**: `color.icon.success`, `opacity.disabled`. Its colour guide ([Atlassian: color](https://www.atlassian.design/foundations/color)) shows how far the modifiers go (`color.background.danger.bold.hovered`, `color.background.neutral.subtle`) and tells you to pick a token by purpose "rather than choosing a certain shade or value"; hex values are listed for teams that do not use tokens. "Themes are how we switch color schemes and styles everywhere using a single set of tokens", with light, dark and high contrast as examples and non-colour themes (compact, reduced motion) as possibilities.
+
+Takeaway: products see only the decision tier; the palette is an implementation detail.
+
+## Salesforce Lightning
+
+Lightning exposes CSS custom properties it calls styling hooks ([Salesforce: style components using styling hooks](https://developer.salesforce.com/docs/platform/lwc/guide/create-components-css-custom-properties)): **global** hooks (`--slds-g-*`) "are predefined values used globally in an app", **component** hooks (`--slds-c-*`) "enable you to update properties in a specific component", such as `--slds-c-button-brand-color-background` set on one component's `:host`. Overriding SLDS classes directly is called an anti-pattern, because "SLDS classes and base component internals can change in future releases". The same page notes that SLDS 2 does not support component-level hooks yet.
+
+Takeaway: component tokens as the supported way to [override one component](/learn/patterns/component-overrides/), instead of overriding its CSS.
+
+## What they share
+
+- **Two or three tiers**, whatever the names: raw values, decisions, and (smaller) component tokens.
+- **Code uses decisions, not raw values.** Primer and Atlassian say so explicitly.
+- **Themes change the decision tier.** The raw palette stays the same in every theme.
+- **Names carry the role**, often with a fixed order of parts (Primer's blocks, Atlassian's foundation, property, modifier).
+
+The DTCG format can express all of these; see [Tokens and groups](/learn/dtcg/format/) and the [resolver module](/learn/dtcg/resolver/) for themes.

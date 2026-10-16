@@ -1,0 +1,40 @@
+{
+  "size": {
+    "16": {
+      "$type": "number",
+      "$value": 16,
+      "$extensions": {
+        "com.figma": {
+          "scopes": ["GAP"]
+        }
+      }
+    },
+    "24": {
+      "$type": "number",
+      "$value": 24,
+      "$extensions": {
+        "com.figma": {
+          "scopes": ["GAP"]
+        }
+      }
+    },
+    "32": {
+      "$type": "number",
+      "$value": 32,
+      "$extensions": {
+        "com.figma": {
+          "scopes": ["GAP"]
+        }
+      }
+    },
+    "48": {
+      "$type": "number",
+      "$value": 48,
+      "$extensions": {
+        "com.figma": {
+          "scopes": ["GAP"]
+        }
+      }
+    }
+  }
+}

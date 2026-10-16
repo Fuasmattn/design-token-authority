@@ -1,8 +1,37 @@
 ---
-title: DTCG and token patterns
-description: The DTCG format and common ways to structure tokens.
+title: Learn
+description: The DTCG token format, common ways to structure tokens, and how large public design systems do it.
 ---
 
-:::note[Coming]
-Learn: DTCG intro and the pattern catalogue (TICKET-073).
-:::
+import { CardGrid, LinkCard } from '@astrojs/starlight/components'
+
+This section explains the ideas behind a token set, independent of any tool, and says where DTA stands on each of them today.
+
+<CardGrid>
+  <LinkCard
+    title="The DTCG format"
+    description="Tokens and groups, types, aliases, and the resolver module for themes and brands."
+    href="/learn/dtcg/format/"
+  />
+  <LinkCard
+    title="Token patterns"
+    description="Tiers, multiple brands, light and dark, breakpoints and component overrides, with trade-offs."
+    href="/learn/patterns/tiers/"
+  />
+  <LinkCard
+    title="Public design systems"
+    description="How Material, Primer, Spectrum, Atlassian and Lightning structure their tokens."
+    href="/learn/public-systems/"
+  />
+</CardGrid>
+
+## The examples are real projects
+
+Every example token set on these pages is a folder in the repository, [`site/learn-examples/`](https://github.com/Fuasmattn/design-token-authority/tree/main/site/learn-examples), with a `dta.config.ts` and a `tokens/` folder. The files on the pages are imported from there, and a test runs `dta lint` and `dta build` on each of them, so what you read is what the CLI accepts. To try one, run DTA from a clone (see [Quick start](/start/quick-start/)) inside the folder:
+
+```sh
+cd site/learn-examples/tiers
+dta lint && dta build   # writes output/ next to tokens/
+```
+
+Where the DTCG specification and DTA differ, the pages say so and show the spec's syntax separately, marked as not read by DTA yet.

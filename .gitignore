@@ -20,3 +20,5 @@ dta.config.ts
 # The website's design tokens and their config are source
 !site/tokens
 !site/dta.config.ts
+# Learn example projects are source (tested in site/learn-examples.test.ts)
+!site/learn-examples/**/dta.config.ts

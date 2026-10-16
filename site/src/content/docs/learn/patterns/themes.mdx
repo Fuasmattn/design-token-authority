@@ -1,0 +1,51 @@
+---
+title: Light and dark
+description: Themes as modes of a semantic collection, and what to do when brands and themes meet.
+sidebar:
+  order: 3
+---
+
+import { Code } from '@astrojs/starlight/components'
+import light from '../../../../../learn-examples/themes/tokens/Theme.Light.json?raw'
+import dark from '../../../../../learn-examples/themes/tokens/Theme.Dark.json?raw'
+import config from '../../../../../learn-examples/themes/dta.config.ts?raw'
+
+Light and dark are the same mechanism as brands: a semantic collection with one mode per theme, aliasing into one palette. What changes is the vocabulary: themes are about **surfaces, text and borders**, so the semantic names describe those roles, not colours. `surface.default` can be white or near-black; `color.white` cannot.
+
+## Example
+
+The `Theme` collection has the modes `Light` and `Dark`:
+
+<Code code={light} lang="json" title="learn-examples/themes/tokens/Theme.Light.json" />
+<Code code={dark} lang="json" title="learn-examples/themes/tokens/Theme.Dark.json" />
+
+The modes are listed in `brands`, because to DTA a theme is a mode to build like any other:
+
+<Code code={config} lang="ts" title="learn-examples/themes/dta.config.ts" />
+
+{/* prettier-ignore */}
+```css title="output/css/themes/dark.css"
+[data-brand="dark"] {
+  --surface-default: var(--color-neutral-950);
+  --surface-raised: var(--color-neutral-800);
+  --text-default: var(--color-neutral-0);
+  --link: var(--color-blue-400);
+}
+```
+
+A small script sets the attribute, for example from `prefers-color-scheme` and a saved choice. This website does exactly that with its `Light` and `Graphite` modes.
+
+## Trade-offs
+
+- **Not every colour is a pair.** Dark themes rarely invert the palette: raised surfaces get lighter, not darker, and saturated colours need lighter steps to keep their contrast (the link above uses `blue.400` in dark, `blue.600` in light). Name tokens by role so each theme can make its own choice.
+- **Contrast per theme.** Every text and background pair has to pass in every theme. `color-contrast` checks raw colour values only for now, so pairs that go through aliases are not checked per mode yet (TICKET-092).
+- **More than two themes.** High-contrast or dimmed variants are more modes of the same collection; each one is a full set of values.
+
+## Brands and themes together
+
+BrandA light, BrandA dark, BrandB light, BrandB dark: two independent choices. The DTCG [resolver module](/learn/dtcg/resolver/) models them as two modifiers that combine. DTA builds one theme file per listed mode and does not combine two multi-mode collections yet, so today there are two options:
+
+- **One mode per combination** (`BrandA Light`, `BrandA Dark`, …) in the semantic collection. Simple to build, but the number of modes is brands × themes.
+- **Split by concern**: brand decisions that do not depend on the theme (fonts, radii) in a `Brand` collection, colours in a `Theme` collection, and all four modes in `brands`. Both theme files use the `data-brand` attribute, so nest them: `<html data-brand="branda">` and `<body data-brand="dark">`. This keeps the files small, but only works while the theme colours are the same for every brand.
+
+Combining dimensions is planned; see the note in [Brands and themes](/guides/brands-and-themes/).

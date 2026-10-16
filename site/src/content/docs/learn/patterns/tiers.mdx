@@ -1,0 +1,76 @@
+---
+title: Primitive, semantic, component
+description: Three tiers of tokens, what each one is for, and when fewer are enough.
+sidebar:
+  order: 1
+---
+
+import { Code } from '@astrojs/starlight/components'
+import primitives from '../../../../../learn-examples/tiers/tokens/Primitives.Value.json?raw'
+import semantic from '../../../../../learn-examples/tiers/tokens/Semantic.Value.json?raw'
+import component from '../../../../../learn-examples/tiers/tokens/Component.Value.json?raw'
+import config from '../../../../../learn-examples/tiers/dta.config.ts?raw'
+
+Most token sets separate **what values exist** from **what they are for**. The usual split has three tiers, each one aliasing the one below:
+
+| Tier          | Answers                                         | Example name                 | Value                 |
+| ------------- | ----------------------------------------------- | ---------------------------- | --------------------- |
+| **Primitive** | Which values does the palette have?             | `color.blue.600`, `radius.4` | raw: `#1f5fd1`, `4`   |
+| **Semantic**  | Which value does this _role_ use?               | `action.background`          | `{color.blue.600}`    |
+| **Component** | Which role does this _part_ of a component use? | `button.background`          | `{action.background}` |
+
+The names differ between systems (reference, base, global, foundation for the first tier; system, functional, alias for the second), but the split is the same; see [Public design systems](/learn/public-systems/).
+
+## Example
+
+The `tiers` example has one collection per tier, each with one mode:
+
+<Code code={primitives} lang="json" title="learn-examples/tiers/tokens/Primitives.Value.json" />
+<Code code={semantic} lang="json" title="learn-examples/tiers/tokens/Semantic.Value.json" />
+<Code code={component} lang="json" title="learn-examples/tiers/tokens/Component.Value.json" />
+
+The config makes the tiers enforceable: `semantic-must-alias` fails when a semantic or component token holds a raw value instead of an alias.
+
+<Code code={config} lang="ts" title="learn-examples/tiers/dta.config.ts" />
+
+`dta graph` shows the chain: 9 of 14 tokens are aliases, at most two steps deep (button → action → blue).
+
+```text
+$ dta graph
+  Total tokens:       14
+  Alias tokens:       9  (64%)
+  Max chain depth:    2
+  Circular refs:      0
+  Dangling aliases:   0
+  Orphaned tokens:    0
+
+  Tokens by file:
+    Component.Value: 4
+    Primitives.Value: 5
+    Semantic.Value: 5
+```
+
+`dta build` keeps every step as a `var()` reference, so the browser follows the same chain:
+
+```css title="output/css/variables.css (excerpt)"
+:root {
+  --color-blue-600: #1f5fd1;
+  --radius-4: 4px;
+  --action-background: var(--color-blue-600);
+  --shape-control: var(--radius-4);
+  --button-background: var(--action-background);
+  --button-radius: var(--shape-control);
+}
+```
+
+## When to use which tier
+
+- **Primitives only** fit a small product with one look: fewer names, but every use of `blue.600` has to be found and changed by hand when the brand colour moves.
+- **Primitives and semantic tokens** are the common middle. Themes and brands become a matter of re-pointing the semantic tier (see [Multiple brands](/learn/patterns/multi-brand/)), and code that only uses semantic tokens never needs to change for them.
+- **A component tier** pays off when components need decisions of their own (a button that is rounder than other controls), when several teams build components and should not invent their own mappings, or when one brand overrides a single component ([Component overrides](/learn/patterns/component-overrides/)). It is also the tier that grows fastest: every component multiplies the token count, and many component tokens end up as one-to-one copies of a semantic token.
+
+Two rules keep tiers useful whatever their number: **aliases point down, never up or sideways** (a primitive never aliases a semantic token), and **code uses the highest tier that exists** for what it styles, not the primitives.
+
+:::caution[A component tier with several brands]
+If the semantic tier has a mode per brand and the component tier has one mode, set the brand on `<html>`. A component token declared on `:root` takes the brand of the root element, so a nested `data-brand` section would change the semantic tokens but not the component tokens. For nested brands, give the component tier the brand modes too, as in [Component overrides](/learn/patterns/component-overrides/). TICKET-093 tracks making this work without the workaround.
+:::

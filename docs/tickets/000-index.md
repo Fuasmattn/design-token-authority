@@ -189,7 +189,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [070](./070-site-components-stories.md) | Design system section: token pages, component docs and stories | High | L | 069 | Done |
 | [071](./071-site-landing-page.md) | Landing page from the "J · Drafting Table" mockup | High | L | 070 | Done |
 | [072](./072-site-docs-content.md) | Docs content (Start, Guides, Reference, Contribute) and a slim README | High | M | 067, 069 | Done |
-| [073](./073-site-learn.md) | Learn: DTCG intro and token pattern catalogue | Medium | M | 069 | Open |
+| [073](./073-site-learn.md) | Learn: DTCG intro and token pattern catalogue | Medium | M | 069 | Done |
 | [074](./074-site-generated-reference.md) | Generated reference, published schemas and `llms.txt` | Medium | M | 069 | Open |
 | [075](./075-site-deploy.md) | Deploy the website on Vercel | Medium | S | 069 | Open |
 
@@ -224,6 +224,13 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [090](./090-first-npm-release.md) | First npm release (compiled CLI, `npx design-token-authority`) | High | M | — | Open |
 | [091](./091-build-breakpoint-modes.md) | Breakpoint modes in the build output | Medium | M | — | Open |
 | [092](./092-lint-contrast-per-mode.md) | `color-contrast` per mode, through aliases | Medium | S | — | Open |
+
+**Follow-ups found while writing Learn (073)**
+
+| # | Ticket | Priority | Effort | Blocked by | Status |
+|---|---|---|---|---|---|
+| [093](./093-build-nested-brand-single-mode-aliases.md) | Nested brands reach single-mode tokens that alias brand tokens | Medium | S | — | Open |
+| [094](./094-dtcg-2025-10-conformance.md) | Read DTCG 2025.10 token files and resolver documents | Medium | L | — | Open |
 
 Order: Epic 7 first (068 → 069 → 070 unblock the rest); 7b and 8 can run in parallel once 069/070 are done; 080 can start right after 039. Design sources: the maintainer's concept doc, the DTA Drafting Table design system and the landing page mockup (see the specs).
 

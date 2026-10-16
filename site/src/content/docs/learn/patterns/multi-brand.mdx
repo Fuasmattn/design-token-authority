@@ -1,0 +1,64 @@
+---
+title: Multiple brands
+description: One token set, several brands, as modes of the semantic collection.
+sidebar:
+  order: 2
+---
+
+import { Code } from '@astrojs/starlight/components'
+import primitives from '../../../../../learn-examples/multi-brand/tokens/Primitives.Value.json?raw'
+import brandA from '../../../../../learn-examples/multi-brand/tokens/Brand.BrandA.json?raw'
+import brandB from '../../../../../learn-examples/multi-brand/tokens/Brand.BrandB.json?raw'
+import config from '../../../../../learn-examples/multi-brand/dta.config.ts?raw'
+
+Several brands that share components differ in a few dozen decisions: the action colour, the corner radius, the heading font. The pattern: **one shared palette, one semantic collection with a mode per brand**. Every brand has the same token names; only the aliases differ.
+
+## Example
+
+The palette has what any brand may use:
+
+<Code
+  code={primitives}
+  lang="json"
+  title="learn-examples/multi-brand/tokens/Primitives.Value.json"
+/>
+
+The `Brand` collection has the modes `BrandA` and `BrandB`, one file each, with the same names:
+
+<Code code={brandA} lang="json" title="learn-examples/multi-brand/tokens/Brand.BrandA.json" />
+<Code code={brandB} lang="json" title="learn-examples/multi-brand/tokens/Brand.BrandB.json" />
+
+`brands` lists the modes to build; `semantic-must-alias` keeps the brand files free of raw values, so no brand drifts away from the palette:
+
+<Code code={config} lang="ts" title="learn-examples/multi-brand/dta.config.ts" />
+
+`dta build` writes the palette once and one file per brand:
+
+{/* prettier-ignore */}
+```css title="output/css/themes/branda.css"
+[data-brand="branda"] {
+  --action-background: var(--color-blue-600);
+  --action-foreground: var(--color-neutral-0);
+  --shape-control: var(--radius-4);
+  --type-heading: var(--font-sans);
+}
+```
+
+{/* prettier-ignore */}
+```css title="output/css/themes/brandb.css"
+[data-brand="brandb"] {
+  --action-background: var(--color-green-600);
+  --action-foreground: var(--color-neutral-0);
+  --shape-control: var(--radius-999);
+  --type-heading: var(--font-serif);
+}
+```
+
+Components use `var(--action-background)` and never know which brand they are in. `<html data-brand="brandb">` switches the page; [Brands and themes](/guides/brands-and-themes/) has the setup.
+
+## Trade-offs
+
+- **Shared palette or one per brand.** A shared palette (this example) makes brands easy to compare and lint, but grows with every brand's colours. Brands that share almost nothing can keep their own primitive collection with a mode per brand as well; then the brand tier aliases into a palette that changes with the brand.
+- **Same names in every mode.** A token missing in one brand is reported (`missing-in-mode`), because a component that uses it would get no value in that brand. A decision that only one brand needs still gets a value in every brand.
+- **Where the brand stops.** Brand modes are for decisions that differ between brands. Component decisions that differ belong in a component tier with brand modes ([Component overrides](/learn/patterns/component-overrides/)), and a single-mode tier that aliases brand tokens has a limit with nested brands (see the note on [tiers](/learn/patterns/tiers/)).
+- **Brands and themes together.** BrandA in light and dark is a second dimension; see [Light and dark](/learn/patterns/themes/).

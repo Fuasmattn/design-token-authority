@@ -1,0 +1,8 @@
+{
+  "surface": {
+    "default": { "$type": "color", "$value": "{color.neutral.0}" },
+    "raised": { "$type": "color", "$value": "{color.neutral.100}" }
+  },
+  "text": { "default": { "$type": "color", "$value": "{color.neutral.950}" } },
+  "link": { "$type": "color", "$value": "{color.blue.600}" }
+}

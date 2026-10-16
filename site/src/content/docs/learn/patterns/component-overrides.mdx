@@ -1,0 +1,60 @@
+---
+title: Component overrides
+description: One brand changes one component without forking the semantic tier.
+sidebar:
+  order: 5
+---
+
+import { Code } from '@astrojs/starlight/components'
+import componentA from '../../../../../learn-examples/component-overrides/tokens/Component.BrandA.json?raw'
+import componentB from '../../../../../learn-examples/component-overrides/tokens/Component.BrandB.json?raw'
+import config from '../../../../../learn-examples/component-overrides/dta.config.ts?raw'
+
+Sooner or later one brand wants one component to look different. BrandB has pill-shaped controls (`shape.control` is `radius.999`), but its buttons should be square. Changing `shape.control` for BrandB would change every control; adding a raw value to the button's CSS would bypass the tokens. The pattern: **a component tier with the brand modes, where a brand can point one token somewhere else**.
+
+## Example
+
+The `component-overrides` example is the [multi-brand](/learn/patterns/multi-brand/) example plus a `Component` collection with the same modes. In BrandA every button token follows the semantic tier:
+
+<Code
+  code={componentA}
+  lang="json"
+  title="learn-examples/component-overrides/tokens/Component.BrandA.json"
+/>
+
+BrandB is identical except for one line: `button.radius` points at the primitive `radius.4` instead of `shape.control`.
+
+<Code
+  code={componentB}
+  lang="json"
+  title="learn-examples/component-overrides/tokens/Component.BrandB.json"
+/>
+
+`semantic-must-alias` covers both tiers, so the override still has to be an alias into the palette:
+
+<Code code={config} lang="ts" title="learn-examples/component-overrides/dta.config.ts" />
+
+In the build, the component tokens are part of each brand's theme file:
+
+{/* prettier-ignore */}
+```css title="output/css/themes/brandb.css"
+[data-brand="brandb"] {
+  --action-background: var(--color-green-600);
+  --action-foreground: var(--color-neutral-0);
+  --shape-control: var(--radius-999);
+  --type-heading: var(--font-serif);
+  --button-radius: var(--radius-4);
+  --button-background: var(--action-background);
+  --button-label: var(--action-foreground);
+}
+```
+
+Because the component tokens are declared on `[data-brand="…"]` and not on `:root`, they follow the brand on any element, including a nested `<section data-brand="brandb">`.
+
+## Trade-offs
+
+- **Every brand repeats the component file.** Most lines are the same in every mode, and a new component token needs a value in each one (`missing-in-mode` warns otherwise). That is the price of being able to see every override as a diff between two files.
+- **Overrides hide in plain sight.** A component token that points past the semantic tier is easy to miss in review. `dta diff --tokens-only` lists every alias change with its collection and mode (`changed  button.radius  Component · BrandB`), and `dta graph --format html` draws the alias chains, so a token that skips a tier stands out.
+- **Override sparingly.** If several components of one brand need the same override, it is a semantic decision; move it into the brand tier instead.
+
+The DTCG spec has a shorter way to write the same thing, `$extends` on a group ([Aliases](/learn/dtcg/aliases/)); DTA does not read it yet.

@@ -1,0 +1,52 @@
+{
+  "color": {
+    "blue": {
+      "600": {
+        "$type": "color",
+        "$value": "#1f5fd1"
+      }
+    },
+    "green": {
+      "600": {
+        "$type": "color",
+        "$value": "#1d7a4c"
+      }
+    },
+    "neutral": {
+      "0": {
+        "$type": "color",
+        "$value": "#ffffff"
+      }
+    }
+  },
+  "radius": {
+    "4": {
+      "$type": "number",
+      "$value": 4,
+      "$extensions": {
+        "com.figma": {
+          "scopes": ["CORNER_RADIUS"]
+        }
+      }
+    },
+    "999": {
+      "$type": "number",
+      "$value": 999,
+      "$extensions": {
+        "com.figma": {
+          "scopes": ["CORNER_RADIUS"]
+        }
+      }
+    }
+  },
+  "font": {
+    "sans": {
+      "$type": "string",
+      "$value": "Instrument Sans, sans-serif"
+    },
+    "serif": {
+      "$type": "string",
+      "$value": "Georgia, serif"
+    }
+  }
+}

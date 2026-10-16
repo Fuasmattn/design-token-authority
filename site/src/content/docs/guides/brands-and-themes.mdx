@@ -58,6 +58,10 @@ Load all of them and switch with the attribute. It works on any element, so a pa
 
 Because brand values stay `var()` references to the primitives, a change to `Colors.Foundation.Blue.500` reaches every brand that uses it without a rebuild of the themes.
 
+:::caution[Single-mode tokens that alias brand tokens]
+A token in a single-mode collection (a component tier, say) that aliases a brand token is declared on `:root`, so it takes the brand set on `<html>` and keeps it inside a nested `data-brand` section. Set the brand on `<html>`, or give that collection the brand modes too ([Component overrides](/learn/patterns/component-overrides/)). Fixing this in the build is TICKET-093.
+:::
+
 ## Light and dark
 
 Light and dark are the same mechanism: a collection with the modes `Light` and `Dark` (or `Graphite`), listed in `brands`. This website does exactly that: its tokens have a `Theme` collection with `Light` and `Graphite`, built into `[data-brand="light"]` and `[data-brand="graphite"]`, and a small script sets the attribute when you switch the theme.
