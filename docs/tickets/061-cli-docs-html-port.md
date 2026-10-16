@@ -16,5 +16,5 @@ Resolve spec decision 9. Recommended: port `formatters/docs-html.ts` verbatim in
 - [ ] Decision recorded in the spec (a or b)
 - [ ] (a) The function's output is byte-identical to `test/snapshots/*/build/files/output/docs/index.html`; package has a README and small public API
 - [ ] (b) The reviewed snapshot diff and the 039 row say "replaced by Epic 7"
-- [ ] 039 parity table rows updated in the same PR; legacy files that are now unused are deleted (label `legacy-exception`)
+- [ ] 039 parity table rows updated in the same PR; legacy files stay until the cut-over (066): `snapshot:check` still drives the legacy CLI
 - [ ] All gates pass, and the GitHub run is green

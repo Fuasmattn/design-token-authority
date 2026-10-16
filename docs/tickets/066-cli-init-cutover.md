@@ -17,5 +17,5 @@ Port the `init` wizard with scripted-prompt tests, register `test:visual` as mov
 - [ ] `PENDING` list is empty; every scenario is green
 - [ ] Binaries point at the new CLI; `pnpm dta …` scripts and docs updated
 - [ ] 039 has no `open` rows except the final removal checklist
-- [ ] 039 parity table rows updated in the same PR; legacy files that are now unused are deleted (label `legacy-exception`)
+- [ ] 039 parity table rows updated in the same PR; legacy files stay until the cut-over (066): `snapshot:check` still drives the legacy CLI
 - [ ] All gates pass, and the GitHub run is green

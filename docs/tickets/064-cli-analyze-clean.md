@@ -16,6 +16,6 @@ Record `analyze` and `clean` scenarios from the frozen legacy CLI (reviewed snap
 - [ ] New snapshots recorded from the legacy CLI for both fixtures, and `snapshot:check` stays green
 - [ ] Both scenarios green against the new CLI
 - [ ] `clean` is tested on a temp copy of a fixture and never touches files outside the configured dirs
-- [ ] Legacy `analyze`, `importers/analyze-tokens.ts`, `clean` files deleted once green
-- [ ] 039 parity table rows updated in the same PR; legacy files that are now unused are deleted (label `legacy-exception`)
+- [ ] Legacy `analyze`, `importers/analyze-tokens.ts`, `clean` files deleted at the cut-over (066)
+- [ ] 039 parity table rows updated in the same PR; legacy files stay until the cut-over (066): `snapshot:check` still drives the legacy CLI
 - [ ] All gates pass, and the GitHub run is green

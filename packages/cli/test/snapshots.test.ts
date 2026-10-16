@@ -36,7 +36,6 @@ const newCli: CliCommand = {
  */
 const PENDING: ReadonlySet<string> = new Set([
   'build',
-  'lint',
   'graph-console',
   'graph-dot',
   'graph-markdown',

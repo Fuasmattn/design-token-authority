@@ -165,7 +165,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | # | Ticket | Priority | Effort | Blocked by | Status |
 |---|---|---|---|---|---|
 | [059](./059-cli-io-layer.md) | Shared I/O layer, UI helpers, config wiring | High | M | 058 | Done |
-| [060](./060-cli-lint-command.md) | `lint` command | High | S | 059 | Open |
+| [060](./060-cli-lint-command.md) | `lint` command | High | S | 059 | Done |
 | [061](./061-cli-docs-html-port.md) | Docs HTML generator as a package function (decision needed) | High | M | 059 | Open |
 | [062](./062-cli-build-command.md) | `build` command | High | M | 059, 061 | Open |
 | [063](./063-cli-graph-command.md) | `graph` command (four formats) | High | M | 059 | Open |

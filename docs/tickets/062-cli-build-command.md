@@ -16,6 +16,6 @@ Port `dta build`: read tokens, call `buildOutputs` (brands, collections, css/tai
 - [ ] `build` removed from `PENDING`; both fixtures match the recorded stdout and all files under `output/`
 - [ ] Summary prints the real JS path (`output/js/colorpalette.js`): the one intended snapshot diff, reviewed in the PR and recorded in the 039 quirk table
 - [ ] Diagnostics (broken reference, unknown brand/collection) shown; errors give exit 1
-- [ ] Legacy `commands/build.ts`, `style-dictionary.config.ts`, `formatters/tailwind-v*.ts`, `removedollarsigns.sh` deleted once green
-- [ ] 039 parity table rows updated in the same PR; legacy files that are now unused are deleted (label `legacy-exception`)
+- [ ] Legacy `commands/build.ts`, `style-dictionary.config.ts`, `formatters/tailwind-v*.ts`, `removedollarsigns.sh` deleted at the cut-over (066)
+- [ ] 039 parity table rows updated in the same PR; legacy files stay until the cut-over (066): `snapshot:check` still drives the legacy CLI
 - [ ] All gates pass, and the GitHub run is green

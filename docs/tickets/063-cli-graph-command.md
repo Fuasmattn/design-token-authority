@@ -15,6 +15,6 @@ Port `dta graph` and its four report formats on top of core `analyzeGraph`; `--o
 
 - [ ] All four `graph-*` scenarios removed from `PENDING` and green on both fixtures (formats live in the CLI; the HTML visualisation is ported verbatim)
 - [ ] `--output <path>` and missing tokens dir behave as in legacy (tests)
-- [ ] Legacy `graph.ts` and `commands/graph.ts` deleted once green
-- [ ] 039 parity table rows updated in the same PR; legacy files that are now unused are deleted (label `legacy-exception`)
+- [ ] Legacy `graph.ts` and `commands/graph.ts` deleted at the cut-over (066)
+- [ ] 039 parity table rows updated in the same PR; legacy files stay until the cut-over (066): `snapshot:check` still drives the legacy CLI
 - [ ] All gates pass, and the GitHub run is green

@@ -1,4 +1,5 @@
 import type { Config } from './config/schema.js'
+import { runLint } from './commands/lint.js'
 
 export interface CommandOption {
   flags: string
@@ -108,6 +109,7 @@ export const COMMANDS: readonly CommandDefinition[] = [
     name: 'lint',
     description: 'Validate token files against linting rules',
     needsConfig: true,
+    run: runLint,
     options: [
       { flags: '--fix', description: 'Auto-fix violations where possible' },
       CONFIG,
