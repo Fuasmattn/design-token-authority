@@ -55,6 +55,13 @@ describe('SCENARIOS', () => {
       'graph-html',
       'clean',
       'analyze',
+      'pull-api',
+      'pull-from-file',
+      'push-up-to-date',
+      'push-dry-run',
+      'push-dry-run-markdown',
+      'push-dry-run-json',
+      'push-yes',
     ])
   })
 

@@ -63,18 +63,11 @@ describe('help and usage', () => {
 })
 
 describe('commands that are not ported yet', () => {
-  it('exit with code 3 and say so, once the config is valid', async () => {
-    writeConfig({ figma: { source: 'file' } })
-    const { exitCode, stdout, stderr } = await run(['pull'])
+  it('exit with code 3 and say so', async () => {
+    const { exitCode, stdout, stderr } = await run(['test:visual'])
     expect(exitCode).toBe(3)
     expect(stdout).toBe('')
-    expect(stderr).toContain('"pull" is not ported')
-  })
-
-  it('accept the options of the legacy command', async () => {
-    writeConfig()
-    const { exitCode } = await run(['push', '--dry-run', '--format', 'markdown', '-v'])
-    expect(exitCode).toBe(3)
+    expect(stderr).toContain('"test:visual" is not ported')
   })
 
   it('init does not need a config', async () => {
@@ -104,7 +97,7 @@ describe('config handling', () => {
   it('uses the file given with --config', async () => {
     writeConfig({ brands: 5 }, 'dta.config.json')
     fs.writeFileSync(path.join(dir, 'other.json'), '{}')
-    const { exitCode } = await run(['pull', '--config', 'other.json'])
-    expect(exitCode).toBe(3)
+    const { exitCode } = await run(['clean', '--config', 'other.json'])
+    expect(exitCode).toBe(0)
   })
 })

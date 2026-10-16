@@ -1,4 +1,4 @@
-import { Writable } from 'node:stream'
+import { Writable, type Readable } from 'node:stream'
 import * as p from '@clack/prompts'
 import pc from 'picocolors'
 
@@ -31,7 +31,7 @@ export const filePath = (value: string): string => pc.cyan(value)
  * The prompt library (`@clack/prompts`) draws the terminal frame of every command. It is
  * pointed at a callback instead of `process.stdout` so command output can be captured.
  */
-export function createUi(write: (text: string) => void) {
+export function createUi(write: (text: string) => void, input?: Readable) {
   const output = new Writable({
     write(chunk: Buffer | string, _encoding, done) {
       write(chunk.toString())
@@ -43,10 +43,21 @@ export function createUi(write: (text: string) => void) {
     outro: (message: string) => p.outro(message, { output }),
     note: (message: string, title: string) => p.note(message, title, { output }),
     spinner: () => p.spinner({ output }),
+    /** Asks for a line of text; `null` when the person cancels. */
+    async text(options: {
+      message: string
+      placeholder: string
+      validate: (value: string | undefined) => string | undefined
+    }) {
+      const answer = await p.text({ ...options, input, output })
+      return p.isCancel(answer) ? null : answer
+    },
+    cancel: (message: string) => p.cancel(message, { output }),
     log: {
       message: (message: string) => p.log.message(message, { output }),
       success: (message: string) => p.log.success(message, { output }),
       info: (message: string) => p.log.info(message, { output }),
+      step: (message: string) => p.log.step(message, { output }),
       warn: (message: string) => p.log.warn(message, { output }),
       error: (message: string) => p.log.error(message, { output }),
     },

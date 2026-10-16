@@ -1,9 +1,12 @@
+import type { Readable } from 'node:stream'
 import type { Config } from './config/schema.js'
 import { runAnalyze } from './commands/analyze.js'
 import { runBuild } from './commands/build.js'
 import { runClean } from './commands/clean.js'
 import { runGraph } from './commands/graph.js'
 import { runLint } from './commands/lint.js'
+import { runPull } from './commands/pull.js'
+import { runPush } from './commands/push.js'
 
 export interface CommandOption {
   flags: string
@@ -20,6 +23,8 @@ export interface CommandContext {
   stderr: (text: string) => void
   /** Opens a file in the default application (a browser for HTML). */
   openFile: (file: string) => void
+  /** Where prompts read their answers from. */
+  input: Readable
 }
 
 export interface CommandDefinition {
@@ -45,6 +50,7 @@ export const COMMANDS: readonly CommandDefinition[] = [
     name: 'pull',
     description: 'Export variables from Figma to local token JSON files',
     needsConfig: true,
+    run: runPull,
     options: [
       {
         flags: '-o, --output <dir>',
@@ -62,6 +68,7 @@ export const COMMANDS: readonly CommandDefinition[] = [
     name: 'push',
     description: 'Push local token JSON files to Figma',
     needsConfig: true,
+    run: runPush,
     options: [
       { flags: '--dry-run', description: 'Show what would change without modifying Figma' },
       {

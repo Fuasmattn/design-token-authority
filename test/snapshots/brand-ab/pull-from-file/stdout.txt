@@ -1,0 +1,8 @@
+T   ⤵  dta pull 
+|
+o  Detected DTCG per-mode format
+|
+o  Copied Primitives.Value.json
+|
+—  Tokens written to pulled/
+

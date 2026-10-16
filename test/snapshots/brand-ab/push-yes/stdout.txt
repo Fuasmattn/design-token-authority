@@ -1,0 +1,21 @@
+T   ⤴  dta push 
+|
+!  8 lint warnings found.
+|
+Local variable collections in Figma file: [ 'Primitives', 'Brand(Alias)', 'ScreenType' ]
+o  Diff computed
+|
+|  Summary: +1 added, ~2 modified
+|
+|  Added (1):
+|    + Dimensions/radius/pill [VariableCollectionId:1:1]
+|
+|  Modified (2):
+|    ~ VariableID:1:1 (1:0) → {"r":0,"g":0.3411764705882353,"b":0.7215686274509804}
+|    ~ VariableID:1:11 (1:0) → 8
+|
+|
+o  Push complete
+|
+—  Figma file has been updated with the new tokens.
+

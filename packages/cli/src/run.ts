@@ -1,3 +1,4 @@
+import type { Readable } from 'node:stream'
 import { Command, CommanderError } from 'commander'
 import { COMMANDS, type CommandDefinition } from './commands.js'
 import { ConfigError, loadConfig } from './config/load.js'
@@ -16,6 +17,8 @@ export interface CliIo {
   stderr?: (text: string) => void
   /** Opens a file in the default application (default: the system's). */
   openFile?: (file: string) => void
+  /** Where prompts read their answers from (default: standard input). */
+  input?: Readable
 }
 
 async function execute(
@@ -60,6 +63,7 @@ export async function runCli(argv: string[], io: CliIo = {}): Promise<number> {
     stdout: io.stdout ?? ((text) => void process.stdout.write(text)),
     stderr: io.stderr ?? ((text) => void process.stderr.write(text)),
     openFile: io.openFile ?? openWithSystem,
+    input: io.input ?? process.stdin,
   }
 
   let exitCode = 0

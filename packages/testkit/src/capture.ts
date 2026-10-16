@@ -23,6 +23,63 @@ export const SCENARIOS: readonly Scenario[] = [
     fixtures: ['brand-ab'],
     figma: { fileKey: 'FAKEFILEKEY', token: 'fake-token' },
   },
+  {
+    name: 'pull-api',
+    args: ['pull', '--output', 'pulled'],
+    fixtures: ['brand-ab'],
+    figma: { fileKey: 'FAKEFILEKEY', token: 'fake-token' },
+  },
+  {
+    name: 'pull-from-file',
+    args: ['pull', '--from-file', 'tokens/Primitives.Value.json', '--output', 'pulled'],
+    fixtures: ['brand-ab'],
+  },
+  {
+    name: 'push-up-to-date',
+    args: ['push', '--dry-run'],
+    fixtures: ['brand-ab'],
+    figma: { fileKey: 'FAKEFILEKEY', token: 'fake-token' },
+  },
+  {
+    name: 'push-dry-run',
+    args: ['push', '--dry-run'],
+    fixtures: ['brand-ab'],
+    figma: {
+      fileKey: 'FAKEFILEKEY',
+      token: 'fake-token',
+      recording: 'variables-local.drifted.json',
+    },
+  },
+  {
+    name: 'push-dry-run-markdown',
+    args: ['push', '--dry-run', '--format', 'markdown'],
+    fixtures: ['brand-ab'],
+    figma: {
+      fileKey: 'FAKEFILEKEY',
+      token: 'fake-token',
+      recording: 'variables-local.drifted.json',
+    },
+  },
+  {
+    name: 'push-dry-run-json',
+    args: ['push', '--dry-run', '--format', 'json'],
+    fixtures: ['brand-ab'],
+    figma: {
+      fileKey: 'FAKEFILEKEY',
+      token: 'fake-token',
+      recording: 'variables-local.drifted.json',
+    },
+  },
+  {
+    name: 'push-yes',
+    args: ['push', '--yes'],
+    fixtures: ['brand-ab'],
+    figma: {
+      fileKey: 'FAKEFILEKEY',
+      token: 'fake-token',
+      recording: 'variables-local.drifted.json',
+    },
+  },
 ]
 
 /** The scenarios that apply to a fixture project. */
@@ -129,7 +186,13 @@ export async function captureScenario(options: CaptureOptions): Promise<Scenario
           files: {
             [figma.fileKey]: JSON.parse(
               fs.readFileSync(
-                path.join(repoRoot, 'test', 'recordings', fixtureName, 'variables-local.json'),
+                path.join(
+                  repoRoot,
+                  'test',
+                  'recordings',
+                  fixtureName,
+                  figma.recording ?? 'variables-local.json',
+                ),
                 'utf-8',
               ),
             ),

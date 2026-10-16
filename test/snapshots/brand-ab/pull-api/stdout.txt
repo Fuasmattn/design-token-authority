@@ -1,0 +1,18 @@
+T   ⤵  dta pull 
+|
+o  Received 6 token files from Figma
+|
+o  Wrote Primitives.Value.json
+|
+o  Wrote Brand(Alias).BrandA.json
+|
+o  Wrote Brand(Alias).BrandB.json
+|
+o  Wrote ScreenType.Desktop.json
+|
+o  Wrote ScreenType.Tablet.json
+|
+o  Wrote ScreenType.Mobile.json
+|
+—  Tokens written to pulled/
+

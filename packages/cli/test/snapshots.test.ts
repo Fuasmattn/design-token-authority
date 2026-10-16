@@ -15,6 +15,7 @@ import {
   SCENARIOS,
   scenariosFor,
   type CliCommand,
+  type ScenarioResult,
 } from '@dta/testkit'
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
@@ -43,24 +44,56 @@ const PENDING: ReadonlySet<string> = new Set([])
  * `pnpm snapshot:check` re-records them from the legacy CLI; the change is applied to the
  * expected stdout here, in one visible place. An entry that no longer applies fails the suite.
  */
-const INTENDED_CHANGES: ReadonlyArray<{ scenario: string; from: string; to: string }> = [
+const INTENDED_CHANGES: ReadonlyArray<{
+  scenario: string
+  /** Turns the recorded legacy result into the result the new CLI should produce. */
+  apply: (expected: ScenarioResult) => ScenarioResult
+}> = [
+  ...[
+    'push-up-to-date',
+    'push-dry-run',
+    'push-dry-run-markdown',
+    'push-dry-run-json',
+    'push-yes',
+  ].map((scenario) => ({
+    // Leftover debug output of the legacy payload generator.
+    scenario,
+    apply: (expected: ScenarioResult) =>
+      replaceInStdout(
+        expected,
+        "Local variable collections in Figma file: [ 'Primitives', 'Brand(Alias)', 'ScreenType' ]\n",
+        '',
+      ),
+  })),
   {
     // Legacy prints a path the build never writes to; the file is in output/js/.
     scenario: 'build',
-    from: '|  build/js/colorpalette.js ',
-    to: '|  output/js/colorpalette.js',
+    apply: (expected) =>
+      replaceInStdout(expected, '|  build/js/colorpalette.js ', '|  output/js/colorpalette.js'),
+  },
+  {
+    // Legacy wrote token files without a final newline; new files now end with one.
+    scenario: 'pull-api',
+    apply: (expected) => ({
+      ...expected,
+      files: Object.fromEntries(
+        Object.entries(expected.files).map(([name, content]) => [name, content + '\n']),
+      ),
+    }),
   },
 ]
 
-function applyIntendedChanges(scenario: string, stdout: string): string {
+function replaceInStdout(expected: ScenarioResult, from: string, to: string): ScenarioResult {
+  if (!expected.stdout.includes(from)) {
+    throw new Error(`Intended change no longer applies: ${JSON.stringify(from)}`)
+  }
+  return { ...expected, stdout: expected.stdout.replace(from, to) }
+}
+
+function applyIntendedChanges(scenario: string, expected: ScenarioResult): ScenarioResult {
   return INTENDED_CHANGES.filter((change) => change.scenario === scenario).reduce(
-    (text, change) => {
-      if (!text.includes(change.from)) {
-        throw new Error(`Intended change no longer applies to "${scenario}": ${change.from}`)
-      }
-      return text.replace(change.from, change.to)
-    },
-    stdout,
+    (result, change) => change.apply(result),
+    expected,
   )
 }
 
@@ -78,7 +111,7 @@ describe.each(listFixtures(fixturesRoot))('fixture %s', (fixture) => {
     if (recorded === null) {
       throw new Error(`No snapshot recorded for ${fixture}/${name}. Run "pnpm snapshot:capture".`)
     }
-    const expected = { ...recorded, stdout: applyIntendedChanges(name, recorded.stdout) }
+    const expected = applyIntendedChanges(name, recorded)
 
     const actual = await captureScenario({
       fixtureDir: path.join(fixturesRoot, fixture),
