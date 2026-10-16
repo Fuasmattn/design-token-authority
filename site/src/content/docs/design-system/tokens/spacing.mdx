@@ -1,0 +1,26 @@
+---
+title: Spacing, radius and stroke
+description: Lengths of DTA Drafting Table, in px.
+sidebar:
+  order: 3
+---
+
+import Dimensions from '../../../../components/docs/Dimensions.astro'
+
+A 4px base. Figma scopes on the tokens (`GAP`, `CORNER_RADIUS`, `STROKE_FLOAT`) tell `dta build` to write these in `px`.
+
+## Spacing
+
+<Dimensions group="space" />
+
+## Radius
+
+Six for chips and inputs, ten for buttons, eighteen for cards, full only for status dots.
+
+<Dimensions group="radius" />
+
+## Stroke
+
+Hairline for surfaces, redline for measurements, ink for interactive outlines and the dashed rail, focus for the focus ring.
+
+<Dimensions group="stroke" />

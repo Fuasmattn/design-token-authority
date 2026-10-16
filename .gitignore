@@ -2,7 +2,7 @@ node_modules
 .gitconfig
 settings.local.json
 .env
-tokens
+/tokens
 output
 build
 dist

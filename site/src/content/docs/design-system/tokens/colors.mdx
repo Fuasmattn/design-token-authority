@@ -1,0 +1,20 @@
+---
+title: Colours
+description: Semantic and primitive colour tokens of DTA Drafting Table, in Light and Graphite.
+sidebar:
+  order: 1
+---
+
+import ColorTokens from '../../../../components/docs/ColorTokens.astro'
+
+Components use only the **semantic** tokens. Each one aliases a primitive per theme; the arrow shows the alias. Swatches are drawn with the CSS variables `dta build` writes, so what you see is the built output.
+
+Rules from the system: text on `signal-bg` is always `signal-fg` (dark), never white, because white on redline orange fails contrast. `signal` is never used for errors. `paper-500` fails as text on paper and stays decorative. A test in the repository checks every text pair at 4.5:1 in both themes.
+
+## Semantic
+
+<ColorTokens kind="semantic" />
+
+## Primitives
+
+<ColorTokens kind="primitives" />
