@@ -100,6 +100,9 @@ importers:
       '@dta/docs':
         specifier: workspace:*
         version: link:../docs
+      '@dta/figma':
+        specifier: workspace:*
+        version: link:../figma
       '@dta/lint':
         specifier: workspace:*
         version: link:../lint

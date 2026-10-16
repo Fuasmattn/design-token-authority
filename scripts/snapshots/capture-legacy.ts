@@ -19,7 +19,7 @@ import {
   compareSnapshot,
   listFixtures,
   readSnapshot,
-  SCENARIOS,
+  scenariosFor,
   writeSnapshot,
   type CliCommand,
 } from '@dta/testkit'
@@ -55,7 +55,7 @@ async function main(): Promise<void> {
 
   const problems: string[] = []
   for (const fixture of fixtures) {
-    for (const scenario of SCENARIOS) {
+    for (const scenario of scenariosFor(fixture)) {
       const result = await captureScenario({
         fixtureDir: path.join(fixturesRoot, fixture),
         scenario,

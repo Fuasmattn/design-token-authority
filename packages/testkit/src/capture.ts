@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { startFigmaFake, type FigmaFake } from './figma-fake.js'
 import { normalizeOutput } from './normalize.js'
 import { listFiles } from './store.js'
 import type { CaptureOptions, Scenario, ScenarioResult } from './types.js'
@@ -15,7 +16,22 @@ export const SCENARIOS: readonly Scenario[] = [
   { name: 'graph-dot', args: ['graph', '--format', 'dot'] },
   { name: 'graph-markdown', args: ['graph', '--format', 'markdown'] },
   { name: 'graph-html', args: ['graph', '--format', 'html', '--output', 'graph.html'] },
+  { name: 'clean', args: ['clean'] },
+  {
+    name: 'analyze',
+    args: ['analyze'],
+    fixtures: ['brand-ab'],
+    figma: { fileKey: 'FAKEFILEKEY', token: 'fake-token' },
+  },
 ]
+
+/** The scenarios that apply to a fixture project. */
+export function scenariosFor(fixture: string): readonly Scenario[] {
+  return SCENARIOS.filter((scenario) => !scenario.fixtures || scenario.fixtures.includes(fixture))
+}
+
+/** Name of the generated config file used by scenarios that talk to the Figma fake. */
+const GENERATED_CONFIG = 'dta.snapshot.config.ts'
 
 /** Preload that redirects requests for api.figma.com to the fake (see figma-redirect.mjs). */
 const FIGMA_REDIRECT_URL = pathToFileURL(
@@ -89,9 +105,38 @@ export async function captureScenario(options: CaptureOptions): Promise<Scenario
 
   const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'dta-snapshot-')))
   const workDir = path.join(root, 'work')
+  let fake: FigmaFake | undefined
   try {
     fs.cpSync(fixtureDir, workDir, { recursive: true })
+    const figma = scenario.figma
+    if (figma) {
+      fs.writeFileSync(
+        path.join(workDir, GENERATED_CONFIG),
+        [
+          "import base from './dta.config.ts'",
+          'export default {',
+          '  ...base,',
+          `  figma: { ...base.figma, source: 'api', fileKey: '${figma.fileKey}', personalAccessToken: '${figma.token}' },`,
+          '}',
+          '',
+        ].join('\n'),
+      )
+    }
     const before = new Set(listFiles(workDir))
+    const fixtureName = path.basename(fixtureDir)
+    fake = figma
+      ? await startFigmaFake({
+          files: {
+            [figma.fileKey]: JSON.parse(
+              fs.readFileSync(
+                path.join(repoRoot, 'test', 'recordings', fixtureName, 'variables-local.json'),
+                'utf-8',
+              ),
+            ),
+          },
+          token: figma.token,
+        })
+      : undefined
 
     const env: NodeJS.ProcessEnv = {
       ...process.env,
@@ -109,8 +154,9 @@ export async function captureScenario(options: CaptureOptions): Promise<Scenario
     delete env.FIGMA_PERSONAL_ACCESS_TOKEN
     delete env.FIGMA_FILE_KEY
 
-    if (options.figmaApiUrl !== undefined) {
-      env.DTA_FIGMA_API_URL = options.figmaApiUrl
+    const figmaApiUrl = options.figmaApiUrl ?? fake?.url
+    if (figmaApiUrl !== undefined) {
+      env.DTA_FIGMA_API_URL = figmaApiUrl
       // Requests must reach the fake directly. An environment proxy (common in CI and
       // sandboxes) would make the HTTP client address the proxy instead of api.figma.com.
       for (const name of Object.keys(env)) {
@@ -122,7 +168,8 @@ export async function captureScenario(options: CaptureOptions): Promise<Scenario
       env.NODE_OPTIONS = [process.env.NODE_OPTIONS, preload].filter(Boolean).join(' ')
     }
 
-    const result = await run(cli.command, [...cli.args, ...scenario.args], {
+    const args = figma ? [...scenario.args, '--config', GENERATED_CONFIG] : scenario.args
+    const result = await run(cli.command, [...cli.args, ...args], {
       cwd: workDir,
       env,
       timeoutMs,
@@ -142,6 +189,7 @@ export async function captureScenario(options: CaptureOptions): Promise<Scenario
       files,
     }
   } finally {
+    await fake?.close()
     fs.rmSync(root, { recursive: true, force: true })
   }
 }

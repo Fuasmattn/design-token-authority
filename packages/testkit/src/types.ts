@@ -8,6 +8,14 @@ export interface CliCommand {
 export interface Scenario {
   name: string
   args: string[]
+  /** Only run for these fixtures (default: all). */
+  fixtures?: readonly string[]
+  /**
+   * Run against the Figma fake, which serves `test/recordings/<fixture>/variables-local.json`.
+   * The command gets a generated config (`--config`) that adds these credentials to the
+   * fixture's own `dta.config.ts`.
+   */
+  figma?: { fileKey: string; token: string }
 }
 
 /** The normalized observable behaviour of one CLI invocation. */

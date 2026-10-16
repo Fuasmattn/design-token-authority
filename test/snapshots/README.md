@@ -12,7 +12,7 @@ Reference outputs of the **frozen legacy pipeline** (`src/`), captured from the 
       exit-code.txt   process exit code
       files/**        every file the command created, at its relative path
 
-Fixtures: `brand-ab`, `daisyui`. Scenarios: `build`, `lint`, `graph-console`, `graph-dot`, `graph-markdown`, `graph-html`.
+Fixtures: `brand-ab`, `daisyui`. Scenarios: `build`, `lint`, `graph-console`, `graph-dot`, `graph-markdown`, `graph-html`, `clean` and, for `brand-ab` only (served by the Figma fake from `test/recordings/`), `analyze`.
 
 ## Commands
 

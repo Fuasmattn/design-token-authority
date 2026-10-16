@@ -8,6 +8,7 @@ import {
   listFixtures,
   readSnapshot,
   SCENARIOS,
+  scenariosFor,
   writeSnapshot,
   type CliCommand,
   type ScenarioResult,
@@ -52,7 +53,15 @@ describe('SCENARIOS', () => {
       'graph-dot',
       'graph-markdown',
       'graph-html',
+      'clean',
+      'analyze',
     ])
+  })
+
+  it('limits scenarios to the fixtures they are meant for', () => {
+    expect(scenariosFor('brand-ab').map((s) => s.name)).toContain('analyze')
+    expect(scenariosFor('daisyui').map((s) => s.name)).not.toContain('analyze')
+    expect(scenariosFor('daisyui').map((s) => s.name)).toContain('clean')
   })
 })
 

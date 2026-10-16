@@ -1,5 +1,7 @@
 import type { Config } from './config/schema.js'
+import { runAnalyze } from './commands/analyze.js'
 import { runBuild } from './commands/build.js'
+import { runClean } from './commands/clean.js'
 import { runGraph } from './commands/graph.js'
 import { runLint } from './commands/lint.js'
 
@@ -87,6 +89,7 @@ export const COMMANDS: readonly CommandDefinition[] = [
     name: 'analyze',
     description: 'Analyze Figma file structure and infer layer roles',
     needsConfig: true,
+    run: runAnalyze,
     options: [CONFIG, VERBOSE],
   },
   {
@@ -109,6 +112,7 @@ export const COMMANDS: readonly CommandDefinition[] = [
     name: 'clean',
     description: 'Remove all token files and build output',
     needsConfig: true,
+    run: runClean,
     options: [CONFIG, VERBOSE],
   },
   {

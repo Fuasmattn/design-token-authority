@@ -25,9 +25,9 @@ Every legacy command, module and behaviour needs an owner and a proof. "Dropped"
 | `graph` report formatters (console, dot, markdown, html) and directory reading | `@dta/cli` (CLI epic, TICKET-063) | CLI snapshots `graph-*` | done: all four formats green on both fixtures; legacy `graph.ts`, `commands/graph.ts` deleted at the cut-over (066) |
 | `pull` (API and `--from-file`, importers, format detection) | `@dta/figma` | Package tests + fake-Figma roundtrip (037); add `pull` CLI snapshot | open |
 | `push` (diff, confirmation, `--yes`, `--dry-run`, `--skip-lint`, never deletes) | `@dta/figma` | Package tests + payload assertion on the fake (037) | open |
-| `analyze` (structure autodiscovery; Figma-response and token-file variants) | `@dta/core` (TICKET-048, on the model) + `@dta/cli` report | Core tests; add `analyze` CLI snapshot | core side done (`analyzeStructure`); text report and legacy `analyze.ts` deleted with the `analyze` command |
+| `analyze` (structure autodiscovery; Figma-response and token-file variants) | `@dta/core` (TICKET-048, on the model) + `@dta/cli` report | Core tests; add `analyze` CLI snapshot | core side done (`analyzeStructure`); CLI `analyze` ported, snapshot green on brand-ab (064); legacy `analyze.ts`, `commands/analyze.ts` deleted at the cut-over (066) |
 | `init` (wizard) | `@dta/cli` | CLI tests with scripted prompts | open |
-| `clean` | `@dta/cli` | CLI tests on a temp copy of a fixture | open |
+| `clean` | `@dta/cli` (TICKET-064) | Snapshot `clean` (both fixtures) + CLI tests on temp dirs | done; legacy `commands/clean.ts` deleted at the cut-over (066) |
 | docs site generator (`formatters/docs-html.ts`) | `@dta/docs` (port, TICKET-061); Epic 7 redesigns | Output byte-identical to `output/docs/index.html` in both fixtures (`@dta/docs`, TICKET-061); the redesign is Epic 7 | package done; legacy `formatters/docs-html.ts` deleted at the cut-over (066) |
 | `test:visual` (Playwright) | Epic 8 visual-diff | Explicit "replaced by Epic 8" decision | open |
 | `token_types.ts` | `@dta/core` (model, parse/serialize; TICKET-040) | Core tests incl. byte-identical round trip of both fixtures | core done; legacy file deleted when figma/build no longer import it |
@@ -56,6 +56,7 @@ Each legacy quirk is either copied (snapshot stays) or fixed (reviewed snapshot 
 | Legacy payload omits the alpha channel when it is 1 | copied (`planPush`, TICKET-046) |
 | `color-contrast` only compares raw hex, skips aliased/missing tokens, looks up by in-file name in any mode (last wins) | copied (`@dta/lint`, pinned by tests, TICKET-057) |
 | `no-duplicate-values` groups across all collections and modes by `type:value` | copied (`@dta/lint`, pinned by tests, TICKET-057) |
+| `clean` deleted the whole top-level directory of any configured outDir (`src/styles` removed `src/`) | fixed: only configured output folders and the build defaults, then empty parents; outside-project folders refused (064) |
 | Other quirks listed in `test/snapshots/README.md` | open |
 
 ## Removal checklist

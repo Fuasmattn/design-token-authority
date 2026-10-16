@@ -1,4 +1,4 @@
-export { captureScenario, SCENARIOS } from './capture.js'
+export { captureScenario, SCENARIOS, scenariosFor } from './capture.js'
 export { compareSnapshot } from './compare.js'
 export { startFigmaFake } from './figma-fake.js'
 export type { FigmaFake, FigmaFakeOptions, RecordedRequest } from './figma-fake.js'

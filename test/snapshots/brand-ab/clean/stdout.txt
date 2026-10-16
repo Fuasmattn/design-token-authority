@@ -1,0 +1,15 @@
+T   ✖  dta clean 
+|
+o  Removed -------------------------+
+|                                   |
+|  tokens/Brand(Alias).BrandA.json  |
+|  tokens/Brand(Alias).BrandB.json  |
+|  tokens/Primitives.Value.json     |
+|  tokens/ScreenType.Desktop.json   |
+|  tokens/ScreenType.Mobile.json    |
+|  tokens/ScreenType.Tablet.json    |
+|                                   |
++-----------------------------------+
+|
+—  Clean complete!
+

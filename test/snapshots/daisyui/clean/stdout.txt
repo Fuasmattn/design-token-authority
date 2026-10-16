@@ -1,0 +1,50 @@
+T   ✖  dta clean 
+|
+o  Removed ----------------------------------+
+|                                            |
+|  tokens/Card.Mode 1.json                   |
+|  tokens/Component fontSize.Mode 1.json     |
+|  tokens/Device.Mode 1.json                 |
+|  tokens/Join.false.json                    |
+|  tokens/Join.join-direction.json           |
+|  tokens/Join.no radius (middle).json       |
+|  tokens/List.Mode 1.json                   |
+|  tokens/Modal.Mode 1.json                  |
+|  tokens/Navbar.Mode 1.json                 |
+|  tokens/Radius.no radius.json              |
+|  tokens/Radius.round (circle).json         |
+|  tokens/Radius.theme.json                  |
+|  tokens/Stat.Mode 1.json                   |
+|  tokens/border.1.5.json                    |
+|  tokens/border.1.json                      |
+|  tokens/border.2.json                      |
+|  tokens/border.theme.json                  |
+|  tokens/depth.false.json                   |
+|  tokens/depth.true.json                    |
+|  tokens/fieldset & labels.Mode 1.json      |
+|  tokens/footer.Mode 1.json                 |
+|  tokens/join-direction.Bottom.json         |
+|  tokens/join-direction.Left.json           |
+|  tokens/join-direction.Right.json          |
+|  tokens/join-direction.Top.json            |
+|  tokens/noise.false.json                   |
+|  tokens/noise.true.json                    |
+|  tokens/size.3.json                        |
+|  tokens/size.4.5.json                      |
+|  tokens/size.4.json                        |
+|  tokens/size.5.json                        |
+|  tokens/square-apply.false.json            |
+|  tokens/square-apply.true.json             |
+|  tokens/tailwind - spacing.Mode 1.json     |
+|  tokens/tailwind - typography.Mode 1.json  |
+|  tokens/theme.Corporate.json               |
+|  tokens/theme.Dark.json                    |
+|  tokens/theme.Light.json                   |
+|  tokens/theme.Night.json                   |
+|  tokens/themes alias.Mode 1.json           |
+|  tokens/utilities.Mode 1.json              |
+|                                            |
++--------------------------------------------+
+|
+—  Clean complete!
+

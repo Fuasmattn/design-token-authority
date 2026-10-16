@@ -20,6 +20,7 @@
     "@dta/build": "workspace:*",
     "@dta/core": "workspace:*",
     "@dta/docs": "workspace:*",
+    "@dta/figma": "workspace:*",
     "@dta/lint": "workspace:*",
     "commander": "^14.0.3",
     "picocolors": "^1.1.1",

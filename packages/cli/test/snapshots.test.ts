@@ -13,6 +13,7 @@ import {
   listFixtures,
   readSnapshot,
   SCENARIOS,
+  scenariosFor,
   type CliCommand,
 } from '@dta/testkit'
 
@@ -71,7 +72,7 @@ describe('pending list', () => {
 })
 
 describe.each(listFixtures(fixturesRoot))('fixture %s', (fixture) => {
-  it.each(SCENARIOS.map((s) => s.name))('%s', async (name) => {
+  it.each(scenariosFor(fixture).map((s) => s.name))('%s', async (name) => {
     const scenario = SCENARIOS.find((s) => s.name === name)!
     const recorded = readSnapshot(path.join(snapshotsRoot, fixture, name))
     if (recorded === null) {
