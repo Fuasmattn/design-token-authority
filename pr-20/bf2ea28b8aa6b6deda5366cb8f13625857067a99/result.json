@@ -1,0 +1,466 @@
+{
+  "schema": "dta.diff/1",
+  "base": "origin/plan/token-engine-overhaul (3f02117)",
+  "verdict": "review",
+  "review": {
+    "verdict": "review",
+    "changed": 7,
+    "explained": 7,
+    "tokens": [
+      {
+        "id": "action.bg (Theme · Light)",
+        "before": {
+          "raw": "{blueprint.600}",
+          "resolved": "#2f55d4"
+        },
+        "after": {
+          "raw": "{blueprint.700}",
+          "resolved": "#2443ac"
+        },
+        "stories": [
+          "button--variants@1280",
+          "button--variants@390",
+          "redline--radius@1280",
+          "redline--spacing@1280",
+          "diff-card--review@1280",
+          "workflow-rail--default@1280",
+          "workflow-rail--default@390"
+        ],
+        "needsReview": true
+      }
+    ],
+    "unexplained": [],
+    "added": [],
+    "removed": []
+  },
+  "tokens": {
+    "counts": {
+      "changed": 1,
+      "added": 0,
+      "removed": 0,
+      "affected": 0
+    },
+    "changes": [
+      {
+        "kind": "changed",
+        "collection": "Theme",
+        "mode": "Light",
+        "name": "action.bg",
+        "type": "color",
+        "before": {
+          "raw": "{blueprint.600}",
+          "resolved": "#2f55d4"
+        },
+        "after": {
+          "raw": "{blueprint.700}",
+          "resolved": "#2443ac"
+        }
+      }
+    ]
+  },
+  "stories": [
+    {
+      "id": "button--variants",
+      "title": "Primary, outline, link",
+      "url": "/stories/button/variants/",
+      "viewport": 1280,
+      "status": "changed",
+      "ratio": 0.006078125,
+      "changedPixels": 6224,
+      "attribution": {
+        "explained": true,
+        "tokens": [
+          {
+            "id": "action.bg (Theme · Light)",
+            "dependents": 2,
+            "pixels": 6224,
+            "elements": [
+              "button.dta-button"
+            ],
+            "regions": [
+              {
+                "x": 33,
+                "y": 59,
+                "width": 130,
+                "height": 48
+              },
+              {
+                "x": 330,
+                "y": 59,
+                "width": 97,
+                "height": 48
+              }
+            ]
+          }
+        ],
+        "unexplainedPixels": 0,
+        "canvas": {
+          "width": 1280,
+          "height": 800
+        },
+        "ms": 591
+      },
+      "images": {
+        "base": "base/button--variants@1280.png",
+        "head": "head/button--variants@1280.png",
+        "diff": "diff/button--variants@1280.png"
+      }
+    },
+    {
+      "id": "button--variants",
+      "title": "Primary, outline, link",
+      "url": "/stories/button/variants/",
+      "viewport": 390,
+      "status": "changed",
+      "ratio": 0.01994871794871795,
+      "changedPixels": 6224,
+      "attribution": {
+        "explained": true,
+        "tokens": [
+          {
+            "id": "action.bg (Theme · Light)",
+            "dependents": 2,
+            "pixels": 6224,
+            "elements": [
+              "button.dta-button"
+            ],
+            "regions": [
+              {
+                "x": 33,
+                "y": 59,
+                "width": 130,
+                "height": 48
+              },
+              {
+                "x": 33,
+                "y": 119,
+                "width": 97,
+                "height": 48
+              }
+            ]
+          }
+        ],
+        "unexplainedPixels": 0,
+        "canvas": {
+          "width": 390,
+          "height": 800
+        },
+        "ms": 582
+      },
+      "images": {
+        "base": "base/button--variants@390.png",
+        "head": "head/button--variants@390.png",
+        "diff": "diff/button--variants@390.png"
+      }
+    },
+    {
+      "id": "command-button--default",
+      "title": "Copyable command",
+      "url": "/stories/command-button/default/",
+      "viewport": 1280,
+      "status": "unchanged",
+      "ratio": 0,
+      "changedPixels": 0,
+      "images": {
+        "base": "base/command-button--default@1280.png",
+        "head": "head/command-button--default@1280.png"
+      }
+    },
+    {
+      "id": "command-button--default",
+      "title": "Copyable command",
+      "url": "/stories/command-button/default/",
+      "viewport": 390,
+      "status": "unchanged",
+      "ratio": 0,
+      "changedPixels": 0,
+      "images": {
+        "base": "base/command-button--default@390.png",
+        "head": "head/command-button--default@390.png"
+      }
+    },
+    {
+      "id": "chip--states",
+      "title": "Info, changed, pass",
+      "url": "/stories/chip/states/",
+      "viewport": 1280,
+      "status": "unchanged",
+      "ratio": 0,
+      "changedPixels": 0,
+      "images": {
+        "base": "base/chip--states@1280.png",
+        "head": "head/chip--states@1280.png"
+      }
+    },
+    {
+      "id": "text-field--default",
+      "title": "Label, field, help",
+      "url": "/stories/text-field/default/",
+      "viewport": 1280,
+      "status": "unchanged",
+      "ratio": 0,
+      "changedPixels": 0,
+      "images": {
+        "base": "base/text-field--default@1280.png",
+        "head": "head/text-field--default@1280.png"
+      }
+    },
+    {
+      "id": "text-field--default",
+      "title": "Label, field, help",
+      "url": "/stories/text-field/default/",
+      "viewport": 390,
+      "status": "unchanged",
+      "ratio": 0,
+      "changedPixels": 0,
+      "images": {
+        "base": "base/text-field--default@390.png",
+        "head": "head/text-field--default@390.png"
+      }
+    },
+    {
+      "id": "terminal--diff",
+      "title": "Output of dta diff",
+      "url": "/stories/terminal/diff/",
+      "viewport": 1280,
+      "status": "unchanged",
+      "ratio": 0,
+      "changedPixels": 0,
+      "images": {
+        "base": "base/terminal--diff@1280.png",
+        "head": "head/terminal--diff@1280.png"
+      }
+    },
+    {
+      "id": "terminal--diff",
+      "title": "Output of dta diff",
+      "url": "/stories/terminal/diff/",
+      "viewport": 390,
+      "status": "unchanged",
+      "ratio": 0,
+      "changedPixels": 0,
+      "images": {
+        "base": "base/terminal--diff@390.png",
+        "head": "head/terminal--diff@390.png"
+      }
+    },
+    {
+      "id": "redline--radius",
+      "title": "Measuring a radius",
+      "url": "/stories/redline/radius/",
+      "viewport": 1280,
+      "status": "changed",
+      "ratio": 0.00854296875,
+      "changedPixels": 8748,
+      "attribution": {
+        "explained": true,
+        "tokens": [
+          {
+            "id": "action.bg (Theme · Light)",
+            "dependents": 1,
+            "pixels": 8748,
+            "elements": [
+              "button.dta-button"
+            ],
+            "regions": [
+              {
+                "x": 230,
+                "y": 194,
+                "width": 190,
+                "height": 48
+              }
+            ]
+          }
+        ],
+        "unexplainedPixels": 0,
+        "canvas": {
+          "width": 1280,
+          "height": 800
+        },
+        "ms": 587
+      },
+      "images": {
+        "base": "base/redline--radius@1280.png",
+        "head": "head/redline--radius@1280.png",
+        "diff": "diff/redline--radius@1280.png"
+      }
+    },
+    {
+      "id": "redline--spacing",
+      "title": "Measuring a length",
+      "url": "/stories/redline/spacing/",
+      "viewport": 1280,
+      "status": "changed",
+      "ratio": 0.0002060546875,
+      "changedPixels": 211,
+      "attribution": {
+        "explained": true,
+        "tokens": [
+          {
+            "id": "action.bg (Theme · Light)",
+            "dependents": 1,
+            "pixels": 211,
+            "elements": [
+              "div.bar"
+            ],
+            "regions": [
+              {
+                "x": 276,
+                "y": 107,
+                "width": 98,
+                "height": 26
+              }
+            ]
+          }
+        ],
+        "unexplainedPixels": 0,
+        "canvas": {
+          "width": 1280,
+          "height": 800
+        },
+        "ms": 579
+      },
+      "images": {
+        "base": "base/redline--spacing@1280.png",
+        "head": "head/redline--spacing@1280.png",
+        "diff": "diff/redline--spacing@1280.png"
+      }
+    },
+    {
+      "id": "diff-card--review",
+      "title": "Change to review",
+      "url": "/stories/diff-card/review/",
+      "viewport": 1280,
+      "status": "changed",
+      "ratio": 0.0067607421875,
+      "changedPixels": 6923,
+      "attribution": {
+        "explained": true,
+        "tokens": [
+          {
+            "id": "action.bg (Theme · Light)",
+            "dependents": 1,
+            "pixels": 6923,
+            "elements": [
+              "button.dta-button"
+            ],
+            "regions": [
+              {
+                "x": 58,
+                "y": 277,
+                "width": 156,
+                "height": 48
+              }
+            ]
+          }
+        ],
+        "unexplainedPixels": 0,
+        "canvas": {
+          "width": 1280,
+          "height": 800
+        },
+        "ms": 606
+      },
+      "images": {
+        "base": "base/diff-card--review@1280.png",
+        "head": "head/diff-card--review@1280.png",
+        "diff": "diff/diff-card--review@1280.png"
+      }
+    },
+    {
+      "id": "diff-card--blocked",
+      "title": "Blocked change",
+      "url": "/stories/diff-card/blocked/",
+      "viewport": 1280,
+      "status": "unchanged",
+      "ratio": 0,
+      "changedPixels": 0,
+      "images": {
+        "base": "base/diff-card--blocked@1280.png",
+        "head": "head/diff-card--blocked@1280.png"
+      }
+    },
+    {
+      "id": "workflow-rail--default",
+      "title": "Stations on the rail",
+      "url": "/stories/workflow-rail/default/",
+      "viewport": 1280,
+      "status": "changed",
+      "ratio": 0.002201171875,
+      "changedPixels": 2254,
+      "attribution": {
+        "explained": true,
+        "tokens": [
+          {
+            "id": "action.bg (Theme · Light)",
+            "dependents": 1,
+            "pixels": 2254,
+            "elements": [
+              "span.station"
+            ],
+            "regions": [
+              {
+                "x": 194,
+                "y": 83,
+                "width": 50,
+                "height": 50
+              }
+            ]
+          }
+        ],
+        "unexplainedPixels": 0,
+        "canvas": {
+          "width": 1280,
+          "height": 800
+        },
+        "ms": 614
+      },
+      "images": {
+        "base": "base/workflow-rail--default@1280.png",
+        "head": "head/workflow-rail--default@1280.png",
+        "diff": "diff/workflow-rail--default@1280.png"
+      }
+    },
+    {
+      "id": "workflow-rail--default",
+      "title": "Stations on the rail",
+      "url": "/stories/workflow-rail/default/",
+      "viewport": 390,
+      "status": "changed",
+      "ratio": 0.007224358974358975,
+      "changedPixels": 2254,
+      "attribution": {
+        "explained": true,
+        "tokens": [
+          {
+            "id": "action.bg (Theme · Light)",
+            "dependents": 1,
+            "pixels": 2254,
+            "elements": [
+              "span.station"
+            ],
+            "regions": [
+              {
+                "x": 238,
+                "y": 83,
+                "width": 50,
+                "height": 50
+              }
+            ]
+          }
+        ],
+        "unexplainedPixels": 0,
+        "canvas": {
+          "width": 390,
+          "height": 800
+        },
+        "ms": 630
+      },
+      "images": {
+        "base": "base/workflow-rail--default@390.png",
+        "head": "head/workflow-rail--default@390.png",
+        "diff": "diff/workflow-rail--default@390.png"
+      }
+    }
+  ]
+}

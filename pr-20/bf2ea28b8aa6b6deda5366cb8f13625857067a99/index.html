@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en" data-brand="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>dta diff · Changes to review</title>
+<script>(() => { let t = null; try { t = localStorage.getItem('dta-diff-theme') } catch {} if (!t && matchMedia('(prefers-color-scheme: dark)').matches) t = 'graphite'; if (t) document.documentElement.dataset.brand = t })()</script>
+<style>:root {
+  --paper-0: #ffffff;
+  --paper-50: #fbf9f4;
+  --paper-100: #f5f1e8;
+  --paper-150: #f1ece0;
+  --paper-200: #eae4d6;
+  --paper-300: #e2dccd;
+  --paper-400: #c9c1ae;
+  --paper-500: #9a9381;
+  --ink-600: #5a6480;
+  --ink-700: #3e4a66;
+  --ink-800: #22304f;
+  --ink-900: #13213f;
+  --graphite-100: #f2ede2;
+  --graphite-300: #c2baa8;
+  --graphite-400: #8f8878;
+  --graphite-600: #4a4740;
+  --graphite-700: #34312c;
+  --graphite-800: #272522;
+  --graphite-825: #22201d;
+  --graphite-850: #1f1e1b;
+  --graphite-900: #161513;
+  --graphite-950: #0f0e0d;
+  --blueprint-50: #f1f4fe;
+  --blueprint-100: #e3eafb;
+  --blueprint-200: #c6d3f7;
+  --blueprint-300: #a9b8e6;
+  --blueprint-400: #7590e6;
+  --blueprint-500: #4c6fdd;
+  --blueprint-600: #2f55d4;
+  --blueprint-700: #2443ac;
+  --blueprint-800: #1e3a9e;
+  --blueprint-950: #1e2a4d;
+  --redline-100: #ffe4d2;
+  --redline-200: #ffcfb2;
+  --redline-300: #ffb38a;
+  --redline-400: #f58b58;
+  --redline-500: #e8632a;
+  --redline-800: #8e3b12;
+  --redline-950: #3f2414;
+  --sage-100: #e1eee2;
+  --sage-400: #7fb887;
+  --sage-600: #3c7646;
+  --sage-950: #1c2a1e;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 18px;
+  --radius-full: 9999px;
+  --stroke-hairline: 1px;
+  --stroke-redline: 1.5px;
+  --stroke-ink: 2px;
+  --stroke-focus: 3px;
+  --font-sans: "Instrument Sans", system-ui, sans-serif;
+  --font-mono: "Martian Mono", ui-monospace, monospace;
+  --type-display-xl-family: "Instrument Sans", system-ui, sans-serif;
+  --type-display-xl-size: 84;
+  --type-display-xl-line-height: 0.95;
+  --type-display-xl-weight: 700;
+  --type-display-xl-letter-spacing: -0.03em;
+  --type-display-lg-family: "Instrument Sans", system-ui, sans-serif;
+  --type-display-lg-size: 50;
+  --type-display-lg-line-height: 1;
+  --type-display-lg-weight: 700;
+  --type-display-lg-letter-spacing: -0.03em;
+  --type-heading-family: "Instrument Sans", system-ui, sans-serif;
+  --type-heading-size: 34;
+  --type-heading-line-height: 1.05;
+  --type-heading-weight: 700;
+  --type-heading-letter-spacing: -0.02em;
+  --type-title-family: "Instrument Sans", system-ui, sans-serif;
+  --type-title-size: 22;
+  --type-title-line-height: 1.2;
+  --type-title-weight: 700;
+  --type-body-lg-family: "Instrument Sans", system-ui, sans-serif;
+  --type-body-lg-size: 20;
+  --type-body-lg-line-height: 1.5;
+  --type-body-lg-weight: 400;
+  --type-body-family: "Instrument Sans", system-ui, sans-serif;
+  --type-body-size: 17;
+  --type-body-line-height: 1.55;
+  --type-body-weight: 400;
+  --type-body-sm-family: "Instrument Sans", system-ui, sans-serif;
+  --type-body-sm-size: 14;
+  --type-body-sm-line-height: 1.5;
+  --type-body-sm-weight: 400;
+  --type-label-family: "Instrument Sans", system-ui, sans-serif;
+  --type-label-size: 15;
+  --type-label-line-height: 1.2;
+  --type-label-weight: 600;
+  --type-code-family: "Martian Mono", ui-monospace, monospace;
+  --type-code-size: 14;
+  --type-code-line-height: 1.8;
+  --type-code-weight: 400;
+  --type-meta-family: "Martian Mono", ui-monospace, monospace;
+  --type-meta-size: 12;
+  --type-meta-line-height: 1.4;
+  --type-meta-weight: 400;
+  --type-meta-letter-spacing: 0.02em;
+  --type-redline-family: "Martian Mono", ui-monospace, monospace;
+  --type-redline-size: 10.5;
+  --type-redline-line-height: 1.3;
+  --type-redline-weight: 400;
+}
+[data-brand="light"] {
+  --bg-canvas: var(--paper-100);
+  --bg-surface: var(--paper-0);
+  --bg-subtle: var(--paper-200);
+  --bg-grid: var(--paper-150);
+  --border-default: var(--paper-300);
+  --border-strong: var(--ink-900);
+  --fg-default: var(--ink-900);
+  --fg-muted: var(--ink-700);
+  --fg-subtle: var(--ink-600);
+  --action-bg: var(--blueprint-600);
+  --action-fg: var(--paper-0);
+  --action-subtle: var(--blueprint-100);
+  --action-text: var(--blueprint-800);
+  --signal-bg: var(--redline-500);
+  --signal-fg: var(--graphite-950);
+  --signal-subtle: var(--redline-100);
+  --signal-text: var(--redline-800);
+  --success-fg: var(--sage-600);
+  --success-subtle: var(--sage-100);
+  --rail: var(--blueprint-300);
+  --terminal-bg: var(--ink-900);
+  --terminal-fg: var(--paper-100);
+  --terminal-prompt: var(--redline-300);
+}
+[data-brand="graphite"] {
+  --bg-canvas: var(--graphite-900);
+  --bg-surface: var(--graphite-850);
+  --bg-subtle: var(--graphite-800);
+  --bg-grid: var(--graphite-825);
+  --border-default: var(--graphite-700);
+  --border-strong: var(--paper-200);
+  --fg-default: var(--graphite-100);
+  --fg-muted: var(--graphite-300);
+  --fg-subtle: var(--graphite-400);
+  --action-bg: var(--blueprint-400);
+  --action-fg: var(--graphite-900);
+  --action-subtle: var(--blueprint-950);
+  --action-text: var(--blueprint-200);
+  --signal-bg: var(--redline-400);
+  --signal-fg: var(--graphite-950);
+  --signal-subtle: var(--redline-950);
+  --signal-text: var(--redline-200);
+  --success-fg: var(--sage-400);
+  --success-subtle: var(--sage-950);
+  --rail: var(--graphite-600);
+  --terminal-bg: var(--graphite-950);
+  --terminal-fg: var(--graphite-100);
+  --terminal-prompt: var(--redline-400);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{color-scheme:light}
+html[data-brand="graphite"]{color-scheme:dark}
+body{margin:0;background-color:var(--bg-canvas);color:var(--fg-default);font-family:var(--font-sans);font-size:calc(var(--type-body-size)*1px);line-height:var(--type-body-line-height)}
+.page{max-width:1180px;margin:0 auto;grid-template-columns:minmax(0,1fr);padding:var(--space-8) max(var(--space-4),env(safe-area-inset-right)) var(--space-16) max(var(--space-4),env(safe-area-inset-left));display:grid;gap:var(--space-12)}
+.masthead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-4)}
+.mark-logo{display:flex;align-items:center;gap:10px;font-weight:var(--type-title-weight);font-size:calc(var(--type-title-size)*1px)}
+.mark-logo svg{flex:none}
+.masthead .meta{display:block}
+h1{margin:0;font-size:clamp(34px,6vw,calc(var(--type-display-lg-size)*1px));line-height:var(--type-display-lg-line-height);letter-spacing:var(--type-display-lg-letter-spacing);text-wrap:balance}
+h2{margin:0 0 var(--space-4);font-size:calc(var(--type-heading-size)*1px);line-height:var(--type-heading-line-height);letter-spacing:var(--type-heading-letter-spacing)}
+h3,h4{margin:0}
+.meta{font-family:var(--font-mono);font-size:calc(var(--type-meta-size)*1px);letter-spacing:var(--type-meta-letter-spacing);color:var(--fg-subtle);text-transform:uppercase}
+.dim{color:var(--fg-subtle)}
+code{font-family:var(--font-mono);font-size:.86em}
+a{color:var(--action-text)}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:var(--stroke-focus) solid var(--action-bg);outline-offset:2px}
+.intro{display:grid;gap:var(--space-4)}
+.lede{margin:0;color:var(--fg-muted);max-width:68ch}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--space-2);margin:0;padding:0;list-style:none}
+.stats li{padding:var(--space-4);border:var(--stroke-hairline) solid var(--border-default);border-radius:var(--radius-md);background:var(--bg-surface)}
+.stats strong{display:block;font-size:calc(var(--type-heading-size)*1px);line-height:1}
+nav.toc{display:flex;flex-wrap:wrap;gap:var(--space-2)}
+nav.toc a{padding:6px 12px;border:var(--stroke-hairline) solid var(--border-default);border-radius:var(--radius-full);background:var(--bg-surface);color:var(--fg-default);text-decoration:none;font-size:calc(var(--type-body-sm-size)*1px)}
+.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:var(--radius-full);font-family:var(--font-mono);font-size:calc(var(--type-meta-size)*1px);background:var(--bg-subtle);color:var(--fg-muted);white-space:nowrap}
+.chip.pass,.chip.unchanged{background:var(--success-subtle);color:var(--success-fg)}
+.chip.review,.chip.changed,.chip.added,.chip.affected{background:var(--action-subtle);color:var(--action-text)}
+.chip.fail,.chip.removed{background:var(--signal-subtle);color:var(--signal-text)}
+.chip.token{background:var(--signal-bg);color:var(--signal-fg);border-radius:4px}
+.verdict{font-size:calc(var(--type-body-sm-size)*1px);padding:6px 14px}
+.theme{min-height:44px;padding:0 16px;border:var(--stroke-ink) solid var(--border-strong);border-radius:var(--radius-md);background:transparent;color:var(--fg-default);font:inherit;font-weight:var(--type-label-weight);cursor:pointer}
+.group,.story,.panel{border:var(--stroke-hairline) solid var(--border-default);border-radius:var(--radius-lg);background:var(--bg-surface);min-width:0}
+.group{padding:var(--space-6);display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-6)}
+@media (max-width:640px){.group{padding:var(--space-4)}.story{padding:var(--space-3)}}
+.group>header{display:grid;gap:var(--space-2)}
+.token-title{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3)}
+.tag{display:inline-block;padding:2px 6px;border-radius:4px;background:var(--signal-bg);color:var(--signal-fg);font-family:var(--font-mono);font-size:calc(var(--type-redline-size)*1px);line-height:var(--type-redline-line-height);white-space:nowrap}
+.tag.big{font-size:calc(var(--type-code-size)*1px);padding:4px 10px}
+.change,.explains{margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2)}
+.arrow{color:var(--signal-bg);font-weight:700}
+.value{display:inline-flex;align-items:center;gap:6px}
+.swatch{width:18px;height:18px;border-radius:4px;border:var(--stroke-hairline) solid var(--border-default);flex:none}
+.samples,.list,.slider{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-4)}
+.page>*,.group>*,.story>*,.samples>*,.list>*{min-width:0}
+.story{padding:var(--space-4);display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-4);background:var(--bg-canvas)}
+.group .story{background:var(--bg-canvas)}
+.story>header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:var(--space-2)}
+.causes{display:flex;flex-wrap:wrap;gap:6px}
+.thumbs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-2)}
+.thumbs figure{margin:0;min-width:0}
+.thumbs img{display:block;width:100%;height:120px;object-fit:cover;object-position:top left;border-radius:var(--radius-sm);border:var(--stroke-hairline) solid var(--border-default);background:var(--bg-surface)}
+.thumbs .missing div{height:120px;display:grid;place-items:center;border-radius:var(--radius-sm);border:var(--stroke-hairline) dashed var(--border-default);color:var(--fg-subtle);font-size:calc(var(--type-body-sm-size)*1px)}
+figcaption{margin-top:6px;font-family:var(--font-mono);font-size:calc(var(--type-redline-size)*1px);color:var(--fg-subtle)}
+.slider{gap:var(--space-2)}
+.stage{position:relative;overflow:hidden;border-radius:var(--radius-md);border:var(--stroke-hairline) solid var(--border-default);background:var(--bg-surface);--pos:50%}
+.stage img{display:block;width:100%;height:auto}
+.stage .over{position:absolute;inset:0;clip-path:inset(0 0 0 var(--pos))}
+.stage .diff-layer{position:absolute;inset:0;opacity:0;pointer-events:none}
+.slider.show-diff .diff-layer{opacity:1}
+.stage .handle{position:absolute;top:0;bottom:0;left:var(--pos);width:0;border-left:var(--stroke-redline) solid var(--signal-bg)}
+.marks{position:absolute;inset:0;pointer-events:none}
+.mark{position:absolute;outline:var(--stroke-redline) solid var(--signal-bg);outline-offset:2px;border-radius:2px}
+.mark.unexplained{outline-style:dashed}
+.mark .tag{position:absolute;left:-2px;top:-22px}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3)}
+.controls input[type=range]{flex:1 1 200px;accent-color:var(--signal-bg);min-height:44px}
+.toggle{display:inline-flex;align-items:center;gap:6px;font-size:calc(var(--type-body-sm-size)*1px)}
+.sheet{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:var(--space-2)}
+.sheet a{display:grid;gap:4px;text-decoration:none;color:var(--fg-default);font-size:calc(var(--type-body-sm-size)*1px)}
+.sheet img{width:100%;height:100px;object-fit:cover;object-position:top left;border-radius:var(--radius-sm);border:var(--stroke-hairline) solid var(--border-default);background:var(--bg-surface)}
+
+details.all>summary{cursor:pointer;font-weight:var(--type-label-weight);min-height:44px;display:flex;align-items:center}
+.table{overflow-x:auto;border:var(--stroke-hairline) solid var(--border-default);border-radius:var(--radius-md);background:var(--bg-surface)}
+table{border-collapse:collapse;width:100%;font-size:calc(var(--type-body-sm-size)*1px)}
+th,td{padding:10px 12px;text-align:left;border-bottom:var(--stroke-hairline) solid var(--border-default);vertical-align:middle}
+th{font-family:var(--font-mono);font-weight:400;font-size:calc(var(--type-meta-size)*1px);color:var(--fg-subtle);text-transform:uppercase;letter-spacing:var(--type-meta-letter-spacing)}
+tr:last-child td{border-bottom:0}
+.empty{margin:0;color:var(--fg-subtle)}
+footer{color:var(--fg-subtle);font-size:calc(var(--type-body-sm-size)*1px)}
+@media (max-width:640px){.thumbs img,.thumbs .missing div{height:72px}}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <div class="mark-logo"><svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect x="11" y="3" width="18" height="18" rx="4" fill="var(--action-bg)"></rect><rect x="4" y="10" width="18" height="18" rx="4" fill="none" stroke="var(--fg-default)" stroke-width="2.5"></rect></svg><span>dta diff</span></div>
+    <button type="button" class="theme" data-theme-toggle>Graphite</button>
+  </header>
+  <div class="intro">
+    <span class="meta">Base · origin/plan/token-engine-overhaul (3f02117)</span>
+    <h1>Changes to review</h1>
+    <p><span class="chip review">Changes to review</span></p>
+    <ul class="stats">
+      <li><strong>1</strong><span class="meta">tokens changed</span></li>
+      <li><strong>7</strong><span class="meta">stories changed</span></li>
+      <li><strong>7</strong><span class="meta">explained by tokens</span></li>
+      <li><strong>0</strong><span class="meta">unexplained</span></li>
+      <li><strong>0</strong><span class="meta">added or removed</span></li>
+    </ul>
+    <nav class="toc" aria-label="Sections"><a href="#by-token">By token change</a><a href="#stories">All stories</a><a href="#tokens">Token changes</a></nav>
+  </div>
+  <section id="by-token" aria-labelledby="by-token-title"><h2 id="by-token-title">By token change</h2><div class="list"><article class="group" id="token-action-bg-Theme-Light">
+  <header>
+    <div class="token-title">
+      <span class="tag big">action.bg</span>
+      <span class="meta">Theme · Light</span>
+    </div>
+    <p class="change"><span class="value"><span class="swatch" style="background:#2f55d4"></span><code>{blueprint.600}</code> <span class="dim">#2f55d4</span></span> <span class="arrow">→</span> <span class="value"><span class="swatch" style="background:#2443ac"></span><code>{blueprint.700}</code> <span class="dim">#2443ac</span></span></p>
+    <p class="explains">Explains <strong>7</strong> stories <span class="chip review">to review</span></p>
+  </header>
+  <div class="samples"><article class="story" id="story-button--variants-1280">
+  <header>
+    <h4><code>button--variants</code> <span class="dim">1280px</span></h4>
+    <div class="causes"><span class="chip changed">changed</span><span class="chip token">action.bg</span></div>
+  </header>
+  <div class="thumbs"><figure><a href="base/button--variants@1280.png"><img src="base/button--variants@1280.png" alt="baseline of button--variants@1280" loading="lazy"></a><figcaption>baseline</figcaption></figure><figure><a href="head/button--variants@1280.png"><img src="head/button--variants@1280.png" alt="candidate of button--variants@1280" loading="lazy"></a><figcaption>candidate</figcaption></figure><figure><a href="diff/button--variants@1280.png"><img src="diff/button--variants@1280.png" alt="diff 0.61% of button--variants@1280" loading="lazy"></a><figcaption>diff 0.61%</figcaption></figure></div>
+  <div class="slider" data-slider>
+  <div class="stage">
+    <img class="under" src="base/button--variants@1280.png" alt="">
+    <div class="over"><img src="head/button--variants@1280.png" alt=""></div>
+    <img class="diff-layer" src="diff/button--variants@1280.png" alt="">
+    <div class="marks"><span class="mark" style="left:2.578%;top:7.375%;width:10.156%;height:6.000%"><span class="tag">action.bg</span></span></div>
+    <span class="handle" aria-hidden="true"></span>
+  </div>
+  <div class="controls">
+    <span class="meta">baseline</span>
+    <input type="range" min="0" max="100" value="50" aria-label="Divider between baseline (left) and candidate (right) of button--variants@1280, in percent">
+    <span class="meta">candidate</span>
+    <label class="toggle"><input type="checkbox" data-diff> diff overlay</label>
+  </div>
+</div>
+</article>
+<article class="story" id="story-button--variants-390">
+  <header>
+    <h4><code>button--variants</code> <span class="dim">390px</span></h4>
+    <div class="causes"><span class="chip changed">changed</span><span class="chip token">action.bg</span></div>
+  </header>
+  <div class="thumbs"><figure><a href="base/button--variants@390.png"><img src="base/button--variants@390.png" alt="baseline of button--variants@390" loading="lazy"></a><figcaption>baseline</figcaption></figure><figure><a href="head/button--variants@390.png"><img src="head/button--variants@390.png" alt="candidate of button--variants@390" loading="lazy"></a><figcaption>candidate</figcaption></figure><figure><a href="diff/button--variants@390.png"><img src="diff/button--variants@390.png" alt="diff 1.99% of button--variants@390" loading="lazy"></a><figcaption>diff 1.99%</figcaption></figure></div>
+  <div class="slider" data-slider>
+  <div class="stage">
+    <img class="under" src="base/button--variants@390.png" alt="">
+    <div class="over"><img src="head/button--variants@390.png" alt=""></div>
+    <img class="diff-layer" src="diff/button--variants@390.png" alt="">
+    <div class="marks"><span class="mark" style="left:8.462%;top:7.375%;width:33.333%;height:6.000%"><span class="tag">action.bg</span></span></div>
+    <span class="handle" aria-hidden="true"></span>
+  </div>
+  <div class="controls">
+    <span class="meta">baseline</span>
+    <input type="range" min="0" max="100" value="50" aria-label="Divider between baseline (left) and candidate (right) of button--variants@390, in percent">
+    <span class="meta">candidate</span>
+    <label class="toggle"><input type="checkbox" data-diff> diff overlay</label>
+  </div>
+</div>
+</article></div>
+  <h4 class="meta">Contact sheet · 7 stories</h4>
+  <ul class="sheet"><li><a href="#story-button--variants-1280"><img src="diff/button--variants@1280.png" alt="" loading="lazy"><span><code>button--variants@1280</code> 0.61%</span></a></li><li><a href="#story-button--variants-390"><img src="diff/button--variants@390.png" alt="" loading="lazy"><span><code>button--variants@390</code> 1.99%</span></a></li><li><a href="#story-redline--radius-1280"><img src="diff/redline--radius@1280.png" alt="" loading="lazy"><span><code>redline--radius@1280</code> 0.85%</span></a></li><li><a href="#story-redline--spacing-1280"><img src="diff/redline--spacing@1280.png" alt="" loading="lazy"><span><code>redline--spacing@1280</code> 0.021%</span></a></li><li><a href="#story-diff-card--review-1280"><img src="diff/diff-card--review@1280.png" alt="" loading="lazy"><span><code>diff-card--review@1280</code> 0.68%</span></a></li><li><a href="#story-workflow-rail--default-1280"><img src="diff/workflow-rail--default@1280.png" alt="" loading="lazy"><span><code>workflow-rail--default@1280</code> 0.22%</span></a></li><li><a href="#story-workflow-rail--default-390"><img src="diff/workflow-rail--default@390.png" alt="" loading="lazy"><span><code>workflow-rail--default@390</code> 0.72%</span></a></li></ul>
+</article></div></section>
+<section id="stories" aria-labelledby="stories-title"><h2 id="stories-title">All stories</h2><div class="table"><table><thead><tr><th>Story</th><th>Viewport</th><th>Status</th><th>Changed</th><th>Cause</th></tr></thead><tbody><tr><td><a href="#story-button--variants-1280"><code>button--variants</code></a></td><td>1280px</td><td><span class="chip changed">changed</span></td><td>0.61%</td><td><span class="chip token">action.bg</span></td></tr><tr><td><a href="#story-button--variants-390"><code>button--variants</code></a></td><td>390px</td><td><span class="chip changed">changed</span></td><td>1.99%</td><td><span class="chip token">action.bg</span></td></tr><tr><td><code>command-button--default</code></td><td>1280px</td><td><span class="chip unchanged">unchanged</span></td><td>0.00%</td><td></td></tr><tr><td><code>command-button--default</code></td><td>390px</td><td><span class="chip unchanged">unchanged</span></td><td>0.00%</td><td></td></tr><tr><td><code>chip--states</code></td><td>1280px</td><td><span class="chip unchanged">unchanged</span></td><td>0.00%</td><td></td></tr><tr><td><code>text-field--default</code></td><td>1280px</td><td><span class="chip unchanged">unchanged</span></td><td>0.00%</td><td></td></tr><tr><td><code>text-field--default</code></td><td>390px</td><td><span class="chip unchanged">unchanged</span></td><td>0.00%</td><td></td></tr><tr><td><code>terminal--diff</code></td><td>1280px</td><td><span class="chip unchanged">unchanged</span></td><td>0.00%</td><td></td></tr><tr><td><code>terminal--diff</code></td><td>390px</td><td><span class="chip unchanged">unchanged</span></td><td>0.00%</td><td></td></tr><tr><td><a href="#story-redline--radius-1280"><code>redline--radius</code></a></td><td>1280px</td><td><span class="chip changed">changed</span></td><td>0.85%</td><td><span class="chip token">action.bg</span></td></tr><tr><td><a href="#story-redline--spacing-1280"><code>redline--spacing</code></a></td><td>1280px</td><td><span class="chip changed">changed</span></td><td>0.021%</td><td><span class="chip token">action.bg</span></td></tr><tr><td><a href="#story-diff-card--review-1280"><code>diff-card--review</code></a></td><td>1280px</td><td><span class="chip changed">changed</span></td><td>0.68%</td><td><span class="chip token">action.bg</span></td></tr><tr><td><code>diff-card--blocked</code></td><td>1280px</td><td><span class="chip unchanged">unchanged</span></td><td>0.00%</td><td></td></tr><tr><td><a href="#story-workflow-rail--default-1280"><code>workflow-rail--default</code></a></td><td>1280px</td><td><span class="chip changed">changed</span></td><td>0.22%</td><td><span class="chip token">action.bg</span></td></tr><tr><td><a href="#story-workflow-rail--default-390"><code>workflow-rail--default</code></a></td><td>390px</td><td><span class="chip changed">changed</span></td><td>0.72%</td><td><span class="chip token">action.bg</span></td></tr></tbody></table></div><details class="all"><summary>Every explained story (5 more)</summary><div class="list"><article class="story" id="story-redline--radius-1280">
+  <header>
+    <h4><code>redline--radius</code> <span class="dim">1280px</span></h4>
+    <div class="causes"><span class="chip changed">changed</span><span class="chip token">action.bg</span></div>
+  </header>
+  <div class="thumbs"><figure><a href="base/redline--radius@1280.png"><img src="base/redline--radius@1280.png" alt="baseline of redline--radius@1280" loading="lazy"></a><figcaption>baseline</figcaption></figure><figure><a href="head/redline--radius@1280.png"><img src="head/redline--radius@1280.png" alt="candidate of redline--radius@1280" loading="lazy"></a><figcaption>candidate</figcaption></figure><figure><a href="diff/redline--radius@1280.png"><img src="diff/redline--radius@1280.png" alt="diff 0.85% of redline--radius@1280" loading="lazy"></a><figcaption>diff 0.85%</figcaption></figure></div>
+  <div class="slider" data-slider>
+  <div class="stage">
+    <img class="under" src="base/redline--radius@1280.png" alt="">
+    <div class="over"><img src="head/redline--radius@1280.png" alt=""></div>
+    <img class="diff-layer" src="diff/redline--radius@1280.png" alt="">
+    <div class="marks"><span class="mark" style="left:17.969%;top:24.250%;width:14.844%;height:6.000%"><span class="tag">action.bg</span></span></div>
+    <span class="handle" aria-hidden="true"></span>
+  </div>
+  <div class="controls">
+    <span class="meta">baseline</span>
+    <input type="range" min="0" max="100" value="50" aria-label="Divider between baseline (left) and candidate (right) of redline--radius@1280, in percent">
+    <span class="meta">candidate</span>
+    <label class="toggle"><input type="checkbox" data-diff> diff overlay</label>
+  </div>
+</div>
+</article>
+<article class="story" id="story-redline--spacing-1280">
+  <header>
+    <h4><code>redline--spacing</code> <span class="dim">1280px</span></h4>
+    <div class="causes"><span class="chip changed">changed</span><span class="chip token">action.bg</span></div>
+  </header>
+  <div class="thumbs"><figure><a href="base/redline--spacing@1280.png"><img src="base/redline--spacing@1280.png" alt="baseline of redline--spacing@1280" loading="lazy"></a><figcaption>baseline</figcaption></figure><figure><a href="head/redline--spacing@1280.png"><img src="head/redline--spacing@1280.png" alt="candidate of redline--spacing@1280" loading="lazy"></a><figcaption>candidate</figcaption></figure><figure><a href="diff/redline--spacing@1280.png"><img src="diff/redline--spacing@1280.png" alt="diff 0.021% of redline--spacing@1280" loading="lazy"></a><figcaption>diff 0.021%</figcaption></figure></div>
+  <div class="slider" data-slider>
+  <div class="stage">
+    <img class="under" src="base/redline--spacing@1280.png" alt="">
+    <div class="over"><img src="head/redline--spacing@1280.png" alt=""></div>
+    <img class="diff-layer" src="diff/redline--spacing@1280.png" alt="">
+    <div class="marks"><span class="mark" style="left:21.563%;top:13.375%;width:7.656%;height:3.250%"><span class="tag">action.bg</span></span></div>
+    <span class="handle" aria-hidden="true"></span>
+  </div>
+  <div class="controls">
+    <span class="meta">baseline</span>
+    <input type="range" min="0" max="100" value="50" aria-label="Divider between baseline (left) and candidate (right) of redline--spacing@1280, in percent">
+    <span class="meta">candidate</span>
+    <label class="toggle"><input type="checkbox" data-diff> diff overlay</label>
+  </div>
+</div>
+</article>
+<article class="story" id="story-diff-card--review-1280">
+  <header>
+    <h4><code>diff-card--review</code> <span class="dim">1280px</span></h4>
+    <div class="causes"><span class="chip changed">changed</span><span class="chip token">action.bg</span></div>
+  </header>
+  <div class="thumbs"><figure><a href="base/diff-card--review@1280.png"><img src="base/diff-card--review@1280.png" alt="baseline of diff-card--review@1280" loading="lazy"></a><figcaption>baseline</figcaption></figure><figure><a href="head/diff-card--review@1280.png"><img src="head/diff-card--review@1280.png" alt="candidate of diff-card--review@1280" loading="lazy"></a><figcaption>candidate</figcaption></figure><figure><a href="diff/diff-card--review@1280.png"><img src="diff/diff-card--review@1280.png" alt="diff 0.68% of diff-card--review@1280" loading="lazy"></a><figcaption>diff 0.68%</figcaption></figure></div>
+  <div class="slider" data-slider>
+  <div class="stage">
+    <img class="under" src="base/diff-card--review@1280.png" alt="">
+    <div class="over"><img src="head/diff-card--review@1280.png" alt=""></div>
+    <img class="diff-layer" src="diff/diff-card--review@1280.png" alt="">
+    <div class="marks"><span class="mark" style="left:4.531%;top:34.625%;width:12.188%;height:6.000%"><span class="tag">action.bg</span></span></div>
+    <span class="handle" aria-hidden="true"></span>
+  </div>
+  <div class="controls">
+    <span class="meta">baseline</span>
+    <input type="range" min="0" max="100" value="50" aria-label="Divider between baseline (left) and candidate (right) of diff-card--review@1280, in percent">
+    <span class="meta">candidate</span>
+    <label class="toggle"><input type="checkbox" data-diff> diff overlay</label>
+  </div>
+</div>
+</article>
+<article class="story" id="story-workflow-rail--default-1280">
+  <header>
+    <h4><code>workflow-rail--default</code> <span class="dim">1280px</span></h4>
+    <div class="causes"><span class="chip changed">changed</span><span class="chip token">action.bg</span></div>
+  </header>
+  <div class="thumbs"><figure><a href="base/workflow-rail--default@1280.png"><img src="base/workflow-rail--default@1280.png" alt="baseline of workflow-rail--default@1280" loading="lazy"></a><figcaption>baseline</figcaption></figure><figure><a href="head/workflow-rail--default@1280.png"><img src="head/workflow-rail--default@1280.png" alt="candidate of workflow-rail--default@1280" loading="lazy"></a><figcaption>candidate</figcaption></figure><figure><a href="diff/workflow-rail--default@1280.png"><img src="diff/workflow-rail--default@1280.png" alt="diff 0.22% of workflow-rail--default@1280" loading="lazy"></a><figcaption>diff 0.22%</figcaption></figure></div>
+  <div class="slider" data-slider>
+  <div class="stage">
+    <img class="under" src="base/workflow-rail--default@1280.png" alt="">
+    <div class="over"><img src="head/workflow-rail--default@1280.png" alt=""></div>
+    <img class="diff-layer" src="diff/workflow-rail--default@1280.png" alt="">
+    <div class="marks"><span class="mark" style="left:15.156%;top:10.375%;width:3.906%;height:6.250%"><span class="tag">action.bg</span></span></div>
+    <span class="handle" aria-hidden="true"></span>
+  </div>
+  <div class="controls">
+    <span class="meta">baseline</span>
+    <input type="range" min="0" max="100" value="50" aria-label="Divider between baseline (left) and candidate (right) of workflow-rail--default@1280, in percent">
+    <span class="meta">candidate</span>
+    <label class="toggle"><input type="checkbox" data-diff> diff overlay</label>
+  </div>
+</div>
+</article>
+<article class="story" id="story-workflow-rail--default-390">
+  <header>
+    <h4><code>workflow-rail--default</code> <span class="dim">390px</span></h4>
+    <div class="causes"><span class="chip changed">changed</span><span class="chip token">action.bg</span></div>
+  </header>
+  <div class="thumbs"><figure><a href="base/workflow-rail--default@390.png"><img src="base/workflow-rail--default@390.png" alt="baseline of workflow-rail--default@390" loading="lazy"></a><figcaption>baseline</figcaption></figure><figure><a href="head/workflow-rail--default@390.png"><img src="head/workflow-rail--default@390.png" alt="candidate of workflow-rail--default@390" loading="lazy"></a><figcaption>candidate</figcaption></figure><figure><a href="diff/workflow-rail--default@390.png"><img src="diff/workflow-rail--default@390.png" alt="diff 0.72% of workflow-rail--default@390" loading="lazy"></a><figcaption>diff 0.72%</figcaption></figure></div>
+  <div class="slider" data-slider>
+  <div class="stage">
+    <img class="under" src="base/workflow-rail--default@390.png" alt="">
+    <div class="over"><img src="head/workflow-rail--default@390.png" alt=""></div>
+    <img class="diff-layer" src="diff/workflow-rail--default@390.png" alt="">
+    <div class="marks"><span class="mark" style="left:61.026%;top:10.375%;width:12.821%;height:6.250%"><span class="tag">action.bg</span></span></div>
+    <span class="handle" aria-hidden="true"></span>
+  </div>
+  <div class="controls">
+    <span class="meta">baseline</span>
+    <input type="range" min="0" max="100" value="50" aria-label="Divider between baseline (left) and candidate (right) of workflow-rail--default@390, in percent">
+    <span class="meta">candidate</span>
+    <label class="toggle"><input type="checkbox" data-diff> diff overlay</label>
+  </div>
+</div>
+</article></div></details></section>
+<section id="tokens" aria-labelledby="tokens-title"><h2 id="tokens-title">Token changes</h2><div class="table"><table><thead><tr><th>Kind</th><th>Token</th><th>Collection · mode</th><th>Before</th><th>After</th></tr></thead><tbody><tr><td><span class="chip changed">changed</span></td><td><code>action.bg</code></td><td class="dim">Theme · Light</td><td><span class="value"><span class="swatch" style="background:#2f55d4"></span><code>{blueprint.600}</code> <span class="dim">#2f55d4</span></span></td><td><span class="value"><span class="swatch" style="background:#2443ac"></span><code>{blueprint.700}</code> <span class="dim">#2443ac</span></span></td></tr></tbody></table></div></section>
+  <footer>Rendered by <code>dta diff</code> · schema <code>dta.diff/1</code> · <a href="result.json">result.json</a> · <a href="summary.md">summary.md</a></footer>
+</div>
+<script>
+(() => {
+  const root = document.documentElement
+  const button = document.querySelector('[data-theme-toggle]')
+  const label = () => { if (button) button.textContent = root.dataset.brand === 'graphite' ? 'Light' : 'Graphite' }
+  label()
+  button && button.addEventListener('click', () => {
+    root.dataset.brand = root.dataset.brand === 'graphite' ? 'light' : 'graphite'
+    try { localStorage.setItem('dta-diff-theme', root.dataset.brand) } catch {}
+    label()
+  })
+  for (const slider of document.querySelectorAll('[data-slider]')) {
+    const stage = slider.querySelector('.stage')
+    const range = slider.querySelector('input[type=range]')
+    range.addEventListener('input', () => stage.style.setProperty('--pos', range.value + '%'))
+    const diff = slider.querySelector('[data-diff]')
+    diff && diff.addEventListener('change', () => slider.classList.toggle('show-diff', diff.checked))
+  }
+})()
+</script>
+</body>
+</html>
