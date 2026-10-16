@@ -16,17 +16,23 @@ export class BrowserUnavailableError extends Error {
 export interface Screenshotter {
   /** Full-page PNG of `url` at `width` px, deterministic settings, or null on HTTP errors. */
   capture(url: string, width: number): Promise<Uint8Array | null>
+  /**
+   * Loads `url` like `capture` and runs `script` (a function expression) with `arg` in the
+   * page; returns its result, or null on HTTP errors.
+   */
+  evaluate(url: string, width: number, script: string, arg: unknown): Promise<unknown>
   close(): Promise<void>
 }
 
 /** The small part of playwright-core this module uses. */
+interface Page {
+  goto(url: string, options: object): Promise<{ ok(): boolean } | null>
+  evaluate(expression: string): Promise<unknown>
+  screenshot(options: object): Promise<Uint8Array>
+}
 interface Browser {
   newContext(options: object): Promise<{
-    newPage(): Promise<{
-      goto(url: string, options: object): Promise<{ ok(): boolean } | null>
-      evaluate(expression: string): Promise<unknown>
-      screenshot(options: object): Promise<Uint8Array>
-    }>
+    newPage(): Promise<Page>
     close(): Promise<void>
   }>
   close(): Promise<void>
@@ -50,26 +56,38 @@ export async function launchScreenshotter(): Promise<Screenshotter> {
   } catch (error) {
     throw new BrowserUnavailableError(String((error as Error).message).split('\n')[0])
   }
+  /** Opens `url` at `width` with the deterministic settings and hands the page to `use`. */
+  async function withPage<T>(
+    url: string,
+    width: number,
+    use: (page: Page) => Promise<T>,
+  ): Promise<T | null> {
+    const context = await browser.newContext({
+      viewport: { width, height: 800 },
+      deviceScaleFactor: 1,
+      reducedMotion: 'reduce',
+      colorScheme: 'light',
+      locale: 'en-US',
+      timezoneId: 'UTC',
+    })
+    try {
+      const page = await context.newPage()
+      const response = await page.goto(url, { waitUntil: 'networkidle', timeout: 30_000 })
+      if (!response || !response.ok()) return null
+      await page.evaluate('document.fonts.ready.then(() => true)')
+      return await use(page)
+    } finally {
+      await context.close()
+    }
+  }
+
   return {
-    async capture(url, width) {
-      const context = await browser.newContext({
-        viewport: { width, height: 800 },
-        deviceScaleFactor: 1,
-        reducedMotion: 'reduce',
-        colorScheme: 'light',
-        locale: 'en-US',
-        timezoneId: 'UTC',
-      })
-      try {
-        const page = await context.newPage()
-        const response = await page.goto(url, { waitUntil: 'networkidle', timeout: 30_000 })
-        if (!response || !response.ok()) return null
-        await page.evaluate('document.fonts.ready.then(() => true)')
-        return await page.screenshot({ fullPage: true, animations: 'disabled', caret: 'hide' })
-      } finally {
-        await context.close()
-      }
-    },
+    capture: (url, width) =>
+      withPage(url, width, (page) =>
+        page.screenshot({ fullPage: true, animations: 'disabled', caret: 'hide' }),
+      ),
+    evaluate: (url, width, script, arg) =>
+      withPage(url, width, (page) => page.evaluate(`(${script})(${JSON.stringify(arg)})`)),
     close: () => browser.close(),
   }
 }

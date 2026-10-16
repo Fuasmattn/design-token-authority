@@ -210,7 +210,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [081](./081-diff-stories-config.md) | Stories adapter and the `diff` config section | High | S | 070, 080 | Done |
 | [082](./082-diff-dual-render-compare.md) | Render base and head in one run and compare | High | L | 081 | Done |
 | [083](./083-diff-attribution-spike.md) | Spike: record which CSS variables each element uses | High | S | 082 | Done |
-| [084](./084-diff-attribution.md) | Explain visual changes by token | High | L | 083 | Open |
+| [084](./084-diff-attribution.md) | Explain visual changes by token | High | L | 083 | Done |
 | [085](./085-diff-report.md) | Review report in the Drafting Table design | High | M | 084 | Open |
 | [086](./086-diff-github.md) | Publish hook and `dta diff` in pull requests | High | M | 085 | Open |
 | [087](./087-diff-dogfood-site.md) | Guard the DTA website with `dta diff` | Medium | S | 086 | Open |

@@ -82,7 +82,7 @@ packages/
   figma/     Figma REST client, variables ⇄ model, push planning, plugin-export importers
   build/     CSS, JS, Tailwind v3/v4 outputs
   lint/      lint rules and config
-  visual-diff/  token change sets for dta diff (screenshots and attribution follow in Epic 8)
+  visual-diff/  dta diff engine: token change sets, screenshots compared, changes explained by token
   cli/       commands (pull, push, build, lint, graph, analyze, clean, init, diff), config loader, UI
   testkit/   private test helpers: Figma fake, snapshot capture
 bin/dta.js   binary entry (runs packages/cli/src/bin.ts through tsx)

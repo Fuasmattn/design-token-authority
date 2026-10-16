@@ -33,6 +33,24 @@ const scopesOf = (token: unknown): string[] => {
   return figma?.scopes ?? []
 }
 
+/**
+ * CSS custom property name of a token path, without the leading `--`: kebab case, repeated
+ * neighbouring words collapsed (`Colors/Colors Brand/Primary` → `colors-brand-primary`).
+ */
+export function cssVariableName(path: readonly string[]): string {
+  const kebab = path
+    .map((segment) =>
+      segment
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, ''),
+    )
+    .join('-')
+  const parts = kebab.split('-').filter(Boolean)
+  return parts.filter((part, i) => i === 0 || part !== parts[i - 1]).join('-')
+}
+
 export const CSS_TRANSFORM_GROUP = 'design-system/css'
 
 /** Hooks registered per Style Dictionary instance (no global state). */
@@ -40,19 +58,7 @@ export const hooks: NonNullable<Config['hooks']> = {
   transforms: {
     'name/kebab-deduped': {
       type: 'name',
-      transform: (token) => {
-        const kebab = token.path
-          .map((segment: string) =>
-            segment
-              .toLowerCase()
-              .replace(/[^a-z0-9-]+/g, '-')
-              .replace(/-+/g, '-')
-              .replace(/^-|-$/g, ''),
-          )
-          .join('-')
-        const parts = kebab.split('-').filter(Boolean)
-        return parts.filter((part, i) => i === 0 || part !== parts[i - 1]).join('-')
-      },
+      transform: (token) => cssVariableName(token.path),
     },
     'value/dimension-px': {
       type: 'value',

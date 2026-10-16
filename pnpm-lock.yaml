@@ -21,6 +21,9 @@ importers:
       '@dta/testkit':
         specifier: workspace:*
         version: link:packages/testkit
+      '@dta/visual-diff':
+        specifier: workspace:*
+        version: link:packages/visual-diff
       '@figma/rest-api-spec':
         specifier: ^0.37.0
         version: 0.37.0

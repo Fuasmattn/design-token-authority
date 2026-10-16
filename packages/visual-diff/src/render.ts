@@ -1,4 +1,5 @@
 import type { StoryResult } from './compare.js'
+import type { Review, Verdict } from './review.js'
 import type { TokenChange, TokenChangeKind, TokenChangeSet, TokenState } from './token-changes.js'
 
 /** Identifies the shape of `toJson`'s output; bumped on breaking changes. */
@@ -119,18 +120,87 @@ export function summarizeStories(results: StoryResult[]): string {
   return parts.length > 0 ? parts.join(' · ') : 'no stories'
 }
 
-/** Markdown table of the stories that differ (all stories when `all`). */
-export function renderStoriesMarkdown(results: StoryResult[], options: { all?: boolean } = {}) {
+export const VERDICT_TEXT: Record<Verdict, string> = {
+  pass: 'Pass',
+  review: 'Changes to review',
+  fail: 'Fail: unexplained changes above the threshold',
+}
+
+/** `action.bg (Theme · Light)` → `` `action.bg` (Theme · Light) `` */
+const tokenLabel = (id: string) => {
+  const open = id.lastIndexOf(' (')
+  return open > 0 ? `${code(id.slice(0, open))}${id.slice(open)}` : code(id)
+}
+
+function cause(result: StoryResult): string {
+  if (result.status !== 'changed') return '—'
+  if (!result.attribution) return 'unexplained'
+  const names = result.attribution.tokens.map((t) => code(t.id.split(' (')[0]))
+  if (result.attribution.explained) return names.join(', ')
+  return names.length > 0 ? `unexplained (partly ${names.join(', ')})` : 'unexplained'
+}
+
+const list = (refs: string[], max = 6) =>
+  refs.slice(0, max).map(code).join(', ') +
+  (refs.length > max ? ` and ${refs.length - max} more` : '')
+
+/**
+ * Markdown for the stories: the verdict and the changes grouped by cause (with a review), then
+ * a table of the stories that differ (all stories when `all`).
+ */
+export function renderStoriesMarkdown(
+  results: StoryResult[],
+  options: { all?: boolean; review?: Review } = {},
+) {
   const shown = options.all ? results : results.filter((r) => r.status !== 'unchanged')
-  const lines = ['## dta diff: stories', '', `**${summarizeStories(results)}**`]
+  const lines = ['## dta diff: stories', '']
+  const review = options.review
+  if (review) {
+    const unexplained = review.changed - review.explained
+    lines.push(
+      `**${VERDICT_TEXT[review.verdict]}** · ${summarizeStories(results)}` +
+        (review.changed > 0
+          ? ` · ${review.explained} explained by token changes, ${unexplained} unexplained`
+          : ''),
+    )
+    if (review.tokens.length > 0) {
+      lines.push('', '### By token change', '')
+      for (const group of review.tokens) {
+        const values =
+          group.before || group.after
+            ? ` ${formatState(group.before)} → ${formatState(group.after)}`
+            : ''
+        const count = group.stories.length
+        lines.push(
+          `- ${tokenLabel(group.id)}${values} explains ${count} ${count === 1 ? 'story' : 'stories'}: ${list(group.stories)}`,
+        )
+      }
+    }
+    if (review.unexplained.length > 0) {
+      lines.push(
+        '',
+        '### Unexplained',
+        '',
+        '| Story | Changed pixels | Region | Over threshold |',
+        '| --- | --- | --- | --- |',
+        ...review.unexplained.map(
+          (u) =>
+            `| ${code(u.story)} | ${u.pixels} (${percent(u.ratio)}) | ${u.region ? `${u.region.width}×${u.region.height} at ${u.region.x},${u.region.y}` : '—'} | ${u.failing ? 'yes' : 'no'} |`,
+        ),
+      )
+    }
+  } else {
+    lines.push(`**${summarizeStories(results)}**`)
+  }
   if (shown.length > 0) {
     lines.push(
       '',
-      '| Story | Viewport | Status | Changed pixels |',
-      '| --- | --- | --- | --- |',
+      ...(review ? ['### Stories', ''] : []),
+      '| Story | Viewport | Status | Changed pixels | Cause |',
+      '| --- | --- | --- | --- | --- |',
       ...shown.map(
         (r) =>
-          `| ${code(r.id)} | ${r.viewport}px | ${r.status} | ${r.status === 'changed' || r.status === 'unchanged' ? percent(r.ratio) : '—'} |`,
+          `| ${code(r.id)} | ${r.viewport}px | ${r.status} | ${r.status === 'changed' || r.status === 'unchanged' ? percent(r.ratio) : '—'} | ${cause(r)} |`,
       ),
     )
   }
@@ -142,11 +212,13 @@ export function toDiffJson(
   set: TokenChangeSet,
   results: StoryResult[],
   labels: DiffLabels,
+  review?: Review,
 ): string {
   return `${JSON.stringify(
     {
       schema: DIFF_SCHEMA,
       base: labels.base,
+      ...(review ? { verdict: review.verdict, review } : {}),
       tokens: { counts: set.counts, changes: set.changes },
       stories: results.map(({ images, ...rest }) => ({
         ...rest,

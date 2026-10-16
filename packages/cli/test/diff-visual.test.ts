@@ -38,10 +38,22 @@ const page = (body: string) =>
 /** The site's "build": tokens.css from the token file, pages and manifest copied to dist/. */
 const BUILD = `
 import fs from 'node:fs'
-const tokens = JSON.parse(fs.readFileSync('tokens/Base.Value.json', 'utf8'))
+const read = (file) => JSON.parse(fs.readFileSync('tokens/' + file, 'utf8'))
+const base = read('Base.Value.json')
+// Aliases become var() references, as dta build writes them.
+const theme = (mode) =>
+  '[data-brand="' + mode.toLowerCase() + '"] { --accent: var(--' +
+  read('Theme.' + mode + '.json').accent.$value.replace(/[{}]/g, '') + '); }'
 fs.rmSync('dist', { recursive: true, force: true })
 fs.cpSync('pages', 'dist', { recursive: true })
-fs.writeFileSync('dist/tokens.css', ':root { --brand: ' + tokens.Brand.$value + '; }')
+fs.writeFileSync(
+  'dist/tokens.css',
+  [
+    ':root { --brand: ' + base.Brand.$value + '; --green: ' + base.green.$value + '; --purple: ' + base.purple.$value + '; }',
+    theme('A'),
+    theme('B'),
+  ].join(' '),
+)
 `
 
 function stories(ids: string[]) {
@@ -58,14 +70,28 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
       'dta.config.json',
       JSON.stringify({
         tokens: { dir: 'tokens' },
+        brands: ['A', 'B'],
         diff: { build: 'node build.mjs', outDir: 'dist' },
       }),
     )
     write('build.mjs', BUILD)
     write('.gitignore', 'dist\n.dta\n')
+    const baseTokens = (brand: string) =>
+      JSON.stringify({
+        Brand: { $type: 'color', $value: brand },
+        green: { $type: 'color', $value: '#3c7646' },
+        purple: { $type: 'color', $value: '#7a3cc8' },
+      })
+    write('tokens/Base.Value.json', baseTokens('#2f55d4'))
+    write('tokens/Theme.A.json', JSON.stringify({ accent: { $type: 'color', $value: '{green}' } }))
+    write('tokens/Theme.B.json', JSON.stringify({ accent: { $type: 'color', $value: '{green}' } }))
+    // Both themes side by side; only theme A's accent changes on the feature branch.
     write(
-      'tokens/Base.Value.json',
-      JSON.stringify({ Brand: { $type: 'color', $value: '#2f55d4' } }),
+      'pages/stories/themes/index.html',
+      page(
+        '<div data-brand="a"><div id="in-a" style="width:100px;height:40px;background:var(--accent)"></div></div>' +
+          '<div data-brand="b"><div id="in-b" style="width:100px;height:40px;background:var(--accent)"></div></div>',
+      ),
     )
     write(
       'pages/stories/card/index.html',
@@ -73,22 +99,21 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
     )
     write('pages/stories/text/index.html', page('<p>Unchanged text</p>'))
     write('pages/stories/button/index.html', page('<button style="padding:8px 16px">Save</button>'))
-    write('pages/stories/manifest.json', stories(['card', 'text', 'button']))
+    write('pages/stories/manifest.json', stories(['card', 'text', 'button', 'themes']))
     git('init', '-q', '-b', 'main')
     git('add', '.')
     git('commit', '-q', '-m', 'base')
     git('checkout', '-q', '-b', 'feature')
-    // A token change (card), a component change (button), a new story (new).
-    write(
-      'tokens/Base.Value.json',
-      JSON.stringify({ Brand: { $type: 'color', $value: '#e8632a' } }),
-    )
+    // A token change (card), a token change in one theme mode (themes), a component change
+    // (button), a new story (new).
+    write('tokens/Base.Value.json', baseTokens('#e8632a'))
+    write('tokens/Theme.A.json', JSON.stringify({ accent: { $type: 'color', $value: '{purple}' } }))
     write(
       'pages/stories/button/index.html',
       page('<button style="padding:12px 24px">Save</button>'),
     )
     write('pages/stories/new/index.html', page('<p>New story</p>'))
-    write('pages/stories/manifest.json', stories(['card', 'text', 'button', 'new']))
+    write('pages/stories/manifest.json', stories(['card', 'text', 'button', 'themes', 'new']))
     git('add', '.')
     git('commit', '-q', '-m', 'head')
   })
@@ -110,12 +135,48 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
     expect(exitCode).toBe(1) // changes found, --fail-on-change
     const result = JSON.parse(stdout)
     expect(result.schema).toBe('dta.diff/1')
-    expect(result.tokens.counts.changed).toBe(1)
+    expect(result.tokens.counts.changed).toBe(2)
     expect(
       Object.fromEntries(
         result.stories.map((s: { id: string; status: string }) => [s.id, s.status]),
       ),
-    ).toEqual({ card: 'changed', text: 'unchanged', button: 'changed', new: 'added' })
+    ).toEqual({
+      card: 'changed',
+      text: 'unchanged',
+      button: 'changed',
+      themes: 'changed',
+      new: 'added',
+    })
+
+    // Attribution: token changes explain their stories, the component change does not.
+    type Story = {
+      id: string
+      attribution?: {
+        explained: boolean
+        tokens: Array<{ id: string; dependents: number; elements: string[] }>
+        unexplainedPixels: number
+      }
+    }
+    const byId = Object.fromEntries((result.stories as Story[]).map((s) => [s.id, s]))
+    expect(byId.card.attribution).toMatchObject({
+      explained: true,
+      tokens: [{ id: 'Brand (Base · Value)' }],
+    })
+    expect(byId.themes.attribution).toMatchObject({
+      explained: true,
+      tokens: [{ id: 'accent (Theme · A)', dependents: 1, elements: ['div#in-a'] }],
+    })
+    expect(byId.button.attribution?.explained).toBe(false)
+    expect(byId.button.attribution?.tokens).toEqual([])
+    expect(byId.button.attribution?.unexplainedPixels).toBeGreaterThan(0)
+    expect(byId.text.attribution).toBeUndefined()
+    expect(result.verdict).toBe('fail') // the button change is unexplained
+    expect(
+      result.review.tokens.map((t: { id: string; stories: string[] }) => [t.id, t.stories]),
+    ).toEqual([
+      ['Brand (Base · Value)', ['card@320']],
+      ['accent (Theme · A)', ['themes@320']],
+    ])
 
     const report = path.join(dir, '.dta', 'diff')
     for (const file of [
@@ -130,7 +191,7 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
     }
     expect(fs.existsSync(path.join(report, 'diff/text@320.png'))).toBe(false)
     expect(fs.readFileSync(path.join(report, 'summary.md'), 'utf8')).toContain(
-      '**2 changed · 1 added · 1 unchanged**',
+      '**Fail: unexplained changes above the threshold** · 3 changed · 1 added · 1 unchanged · 2 explained by token changes, 1 unexplained',
     )
     // The working tree is untouched and the temporary worktree is gone.
     expect(

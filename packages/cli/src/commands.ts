@@ -154,7 +154,11 @@ export const COMMANDS: readonly CommandDefinition[] = [
         defaultValue: 'console',
       },
       { flags: '-o, --out <file>', description: 'Write the markdown or JSON report to a file' },
-      { flags: '--fail-on-change', description: 'Exit with code 1 when anything changed' },
+      {
+        flags: '--fail-on-change',
+        description:
+          'Exit with code 1 when something needs a look: unexplained story changes above the threshold, explained ones to review, new or removed stories (token changes without stories: any change)',
+      },
       CONFIG,
       VERBOSE,
     ],

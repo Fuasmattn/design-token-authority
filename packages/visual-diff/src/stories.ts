@@ -32,6 +32,16 @@ export const diffConfigSchema = z.strictObject({
   threshold: z.number().min(0).max(1).default(0),
   /** Per-pixel colour tolerance (0–1); 0 sees every colour change. */
   colorThreshold: z.number().min(0).max(1).default(0),
+  /**
+   * Review thresholds by cause, as changed-pixel ratios (0–1). A story explained by token
+   * changes needs a review above `explained`; an unexplained story fails above `unexplained`.
+   */
+  thresholds: z
+    .strictObject({
+      explained: z.number().min(0).max(1).default(0),
+      unexplained: z.number().min(0).max(1).default(0),
+    })
+    .prefault({}),
   /** Default base for `dta diff` (a git ref or directory); `--base` overrides it. */
   base: path.optional(),
 })

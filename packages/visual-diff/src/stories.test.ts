@@ -25,6 +25,7 @@ describe('diffConfigSchema', () => {
       viewports: [1280],
       threshold: 0,
       colorThreshold: 0,
+      thresholds: { explained: 0, unexplained: 0 },
     })
   })
 
@@ -36,6 +37,7 @@ describe('diffConfigSchema', () => {
       viewports: [1440, 390],
       threshold: 0.001,
       colorThreshold: 0.05,
+      thresholds: { explained: 0.01, unexplained: 0 },
       base: 'origin/main',
     }
     expect(diffConfigSchema.parse(config)).toEqual(config)
@@ -48,6 +50,12 @@ describe('diffConfigSchema', () => {
     ).toBe(false)
     expect(diffConfigSchema.safeParse({ outDir: 'dist', viewports: [0] }).success).toBe(false)
     expect(diffConfigSchema.safeParse({ outDir: 'dist', threshold: 2 }).success).toBe(false)
+    expect(
+      diffConfigSchema.safeParse({ outDir: 'dist', thresholds: { explained: -1 } }).success,
+    ).toBe(false)
+    expect(diffConfigSchema.safeParse({ outDir: 'dist', thresholds: { changed: 0 } }).success).toBe(
+      false,
+    )
     expect(diffConfigSchema.safeParse({}).success).toBe(false)
   })
 })

@@ -1,5 +1,6 @@
 import pixelmatch from 'pixelmatch'
 import { PNG } from 'pngjs'
+import type { Attribution } from './attribution.js'
 import type { StoryRef } from './stories.js'
 
 /** The redline orange of DTA Drafting Table, for changed pixels in diff images. */
@@ -17,6 +18,8 @@ export interface ImageComparison {
   sizeChanged: boolean
   /** PNG: the head image faded, changed pixels in redline orange. */
   diff: Uint8Array
+  /** One byte per pixel, row by row: 1 where the pixel counts as changed. */
+  mask: Uint8Array
 }
 
 /** Copies a PNG onto a canvas of the given size (transparent where it is smaller). */
@@ -53,6 +56,17 @@ export function compareImages(
     alpha: 0.2,
   })
   const sizeChanged = a.width !== b.width || a.height !== b.height
+  const mask = new Uint8Array(width * height)
+  for (let i = 0; i < mask.length; i++) {
+    const o = i * 4
+    if (
+      diff.data[o] === DIFF_COLOR[0] &&
+      diff.data[o + 1] === DIFF_COLOR[1] &&
+      diff.data[o + 2] === DIFF_COLOR[2]
+    ) {
+      mask[i] = 1
+    }
+  }
   // Padding is transparent on both sides where neither image reaches; where only one reaches,
   // pixelmatch already counts the pixels as different unless both are transparent there.
   if (sizeChanged && changedPixels === 0) changedPixels = 1
@@ -63,6 +77,7 @@ export function compareImages(
     ratio: width * height === 0 ? 0 : changedPixels / (width * height),
     sizeChanged,
     diff: PNG.sync.write(diff),
+    mask,
   }
 }
 
@@ -78,7 +93,16 @@ export interface StoryResult {
   changedPixels: number
   /** PNGs; absent on the side where the story does not exist. */
   images: { base?: Uint8Array; head?: Uint8Array; diff?: Uint8Array }
+  /** For changed stories, when an `attribute` step ran: which tokens explain the change. */
+  attribution?: Attribution
 }
+
+/** Explains the changed pixels of one changed story at one viewport. */
+export type AttributeStory = (
+  story: StoryRef,
+  viewport: number,
+  comparison: ImageComparison,
+) => Promise<Attribution>
 
 /** Renders one story at one width on one side; `null` if it cannot be rendered there. */
 export type CaptureStory = (
@@ -98,6 +122,8 @@ export async function compareStories(options: {
   capture: CaptureStory
   threshold: number
   colorThreshold?: number
+  /** Runs for changed stories only. */
+  attribute?: AttributeStory
 }): Promise<StoryResult[]> {
   const baseById = new Map(options.base.map((story) => [story.id, story]))
   const headIds = new Set(options.head.map((story) => story.id))
@@ -122,6 +148,9 @@ export async function compareStories(options: {
         ratio: comparison.ratio,
         changedPixels: comparison.changedPixels,
         images: { base, head, ...(changed ? { diff: comparison.diff } : {}) },
+        ...(changed && options.attribute
+          ? { attribution: await options.attribute(story, viewport, comparison) }
+          : {}),
       })
     }
   }

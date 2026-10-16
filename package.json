@@ -41,7 +41,7 @@
     "typecheck": "tsc --noEmit -p scripts/snapshots/tsconfig.json && tsc --noEmit -p scripts/figma/tsconfig.json && tsc --noEmit -p scripts/guardrails/tsconfig.json && pnpm -r typecheck",
     "snapshot:check": "vitest run --project @dta/cli packages/cli/test/snapshots.test.ts",
     "snapshot:record": "tsx scripts/snapshots/record.ts",
-    "schema:generate": "tsx scripts/figma/generate-token-file-schema.ts",
+    "schema:generate": "tsx scripts/generate-schemas.ts",
     "figma:recording": "tsx scripts/figma/build-recording.ts",
     "guardrails:boundaries": "tsx scripts/guardrails/package-boundaries.ts"
   },
@@ -52,6 +52,7 @@
     "@changesets/cli": "^3.0.3",
     "@dta/figma": "workspace:*",
     "@dta/testkit": "workspace:*",
+    "@dta/visual-diff": "workspace:*",
     "@figma/rest-api-spec": "^0.37.0",
     "@playwright/test": "^1.59.1",
     "@release-it/conventional-changelog": "^10.0.6",

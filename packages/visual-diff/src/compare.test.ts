@@ -33,6 +33,8 @@ describe('compareImages', () => {
     expect(result.ratio).toBeCloseTo(0.01)
     const diff = PNG.sync.read(Buffer.from(result.diff))
     expect([diff.width, diff.height]).toEqual([10, 10])
+    expect(result.mask[4 * 10 + 3]).toBe(1)
+    expect(result.mask.reduce((a, b) => a + b, 0)).toBe(1)
     // The changed pixel is painted in redline orange.
     expect([...diff.data.subarray((4 * 10 + 3) * 4, (4 * 10 + 3) * 4 + 3)]).toEqual([232, 99, 42])
   })
@@ -105,6 +107,23 @@ describe('compareStories', () => {
     })
     expect(card.status).toBe('unchanged')
     expect(card.ratio).toBeCloseTo(2 / 64)
+  })
+
+  it('attributes changed stories only, with their comparison', async () => {
+    const seen: string[] = []
+    const results = await compareStories({
+      base: [story('same'), story('card')],
+      head: [story('same'), story('card')],
+      capture,
+      threshold: 0,
+      attribute: async (s, viewport, comparison) => {
+        seen.push(`${s.id}@${viewport}:${comparison.mask.reduce((a, b) => a + b, 0)}`)
+        return { explained: true, tokens: [], unexplainedPixels: 0 }
+      },
+    })
+    expect(seen).toEqual(['card@100:2'])
+    expect(results[0].attribution).toBeUndefined()
+    expect(results[1].attribution?.explained).toBe(true)
   })
 
   it('renders each viewport of a story', async () => {

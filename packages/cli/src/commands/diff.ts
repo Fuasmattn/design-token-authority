@@ -1,9 +1,18 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { parseTokenFiles, type TokenFileInput } from '@dta/core'
+import { cssBindings, type BuildOptions } from '@dta/build'
+import { parseTokenFiles, type TokenFileInput, type TokenModel } from '@dta/core'
 import {
+  attributePixels,
   compareStories,
+  DEPENDENTS_SCRIPT,
   diffTokens,
+  planReverts,
+  reviewStories,
+  VERDICT_TEXT,
+  type Dependent,
+  type Review,
+  type RevertGroup,
   readStoriesManifest,
   renderStoriesMarkdown,
   storyImagePaths,
@@ -121,6 +130,7 @@ export async function runDiff(context: CommandContext): Promise<number> {
 
   // Visual comparison: needs a `diff` section and a git base (the base is built from it).
   let stories: StoryResult[] | null = null
+  let review: Review | undefined
   const diff = context.config?.diff
   const skip = (reason: string) => format === 'console' && ui.log.info(reason)
   if (context.options.tokensOnly) {
@@ -131,7 +141,9 @@ export async function runDiff(context: CommandContext): Promise<number> {
     skip('The base is a directory, so there is nothing to build: showing token changes only.')
   } else {
     try {
-      stories = await compareVisually(context, diff, baseInfo.sha, log)
+      const plan = await planAttribution(context, set, before.model, head.model)
+      stories = await compareVisually(context, diff, baseInfo.sha, plan.groups, log)
+      review = reviewStories(stories, plan.causes, diff.thresholds)
     } catch (error) {
       if (error instanceof BrowserUnavailableError) {
         context.stderr(`dta diff: ${error.message}\n`)
@@ -148,9 +160,10 @@ export async function runDiff(context: CommandContext): Promise<number> {
       context.cwd,
       typeof context.options.report === 'string' ? context.options.report : '.dta/diff',
     )
-    writeReport(reportDir, set, stories, labels)
+    writeReport(reportDir, set, stories, labels, review)
     if (format === 'console') {
       context.stdout(`\n${consoleStories(stories)}\n\n`)
+      if (review) context.stdout(`${consoleReview(review)}\n\n`)
       ui.log.message(`${pc.dim('Report:')} ${path.relative(context.cwd, reportDir) || '.'}`)
     }
   }
@@ -158,11 +171,11 @@ export async function runDiff(context: CommandContext): Promise<number> {
   const document =
     format === 'json'
       ? stories
-        ? toDiffJson(set, stories, labels)
+        ? toDiffJson(set, stories, labels, review)
         : toJson(set, labels)
       : format === 'markdown'
         ? renderTokenChangesMarkdown(set, labels) +
-          (stories ? `\n${renderStoriesMarkdown(stories)}` : '')
+          (stories ? `\n${renderStoriesMarkdown(stories, { review })}` : '')
         : null
   if (document !== null) {
     if (out) {
@@ -181,10 +194,48 @@ export async function runDiff(context: CommandContext): Promise<number> {
     const storiesLine = stories
       ? `  ${storiesChanged ? pc.yellow(storiesText) : pc.green(storiesText)}`
       : ''
-    ui.outro(`${tokensLine}${storiesLine}`)
+    const verdictLine = review
+      ? `  ${VERDICT_STYLE[review.verdict](VERDICT_TEXT[review.verdict])}`
+      : ''
+    ui.outro(`${tokensLine}${storiesLine}${verdictLine}`)
   }
 
-  return failOnChange && (total > 0 || storiesChanged) ? 1 : 0
+  if (!failOnChange) return 0
+  // With stories, only what needs a look fails: unexplained changes above the threshold and
+  // explained changes not yet reviewed. Without stories, any token change does.
+  if (review) return review.verdict === 'pass' ? 0 : 1
+  return total > 0 || storiesChanged ? 1 : 0
+}
+
+const VERDICT_STYLE: Record<Review['verdict'], (text: string) => string> = {
+  pass: pc.green,
+  review: pc.yellow,
+  fail: pc.red,
+}
+
+/** Build options as `dta build` uses them, so reverted variables match the project's CSS. */
+function buildOptions(context: CommandContext): BuildOptions {
+  const config = context.config
+  return {
+    brands: config?.brands ?? [],
+    collections: config?.collections,
+    css: { outDir: config?.outputs?.css?.outDir },
+  }
+}
+
+/** Which CSS to put back for each changed token (from the CSS DTA builds at both sides). */
+async function planAttribution(
+  context: CommandContext,
+  set: TokenChangeSet,
+  base: TokenModel,
+  head: TokenModel,
+) {
+  const options = buildOptions(context)
+  const [baseBindings, headBindings] = await Promise.all([
+    cssBindings(base, options),
+    cssBindings(head, options),
+  ])
+  return planReverts(set, baseBindings.bindings, headBindings.bindings)
 }
 
 /** A problem with the built output (missing manifest, broken story). */
@@ -214,6 +265,7 @@ async function compareVisually(
   context: CommandContext,
   diff: DiffConfig,
   sha: string,
+  groups: RevertGroup[],
   log: (text: string) => void,
 ): Promise<StoryResult[]> {
   const screenshotter = await launchScreenshotter()
@@ -262,6 +314,26 @@ async function compareVisually(
           `${(side === 'head' ? headServer : baseServer).url}${story.url}`,
           viewport,
         ),
+      // Changed stories only: revert each changed token in the head page and see what moves.
+      attribute: async (story, viewport, comparison) => {
+        const started = Date.now()
+        const dependents =
+          groups.length === 0
+            ? {}
+            : (((await screenshotter.evaluate(
+                `${headServer.url}${story.url}`,
+                viewport,
+                DEPENDENTS_SCRIPT,
+                groups,
+              )) as Record<string, Dependent[]> | null) ?? {})
+        const attribution = attributePixels(
+          comparison.mask,
+          comparison.width,
+          comparison.height,
+          dependents,
+        )
+        return { ...attribution, ms: Date.now() - started }
+      },
     })
   } finally {
     for (const step of cleanup.reverse()) {
@@ -279,6 +351,7 @@ function writeReport(
   set: ReturnType<typeof diffTokens>,
   stories: StoryResult[],
   labels: { base: string },
+  review?: Review,
 ) {
   fs.rmSync(dir, { recursive: true, force: true })
   for (const result of stories) {
@@ -291,10 +364,11 @@ function writeReport(
       fs.writeFileSync(path.join(dir, file), image)
     }
   }
-  fs.writeFileSync(path.join(dir, 'result.json'), toDiffJson(set, stories, labels))
+  fs.mkdirSync(dir, { recursive: true })
+  fs.writeFileSync(path.join(dir, 'result.json'), toDiffJson(set, stories, labels, review))
   fs.writeFileSync(
     path.join(dir, 'summary.md'),
-    `${renderTokenChangesMarkdown(set, labels)}\n${renderStoriesMarkdown(stories)}`,
+    `${renderTokenChangesMarkdown(set, labels)}\n${renderStoriesMarkdown(stories, { review })}`,
   )
 }
 
@@ -311,9 +385,26 @@ function consoleStories(results: StoryResult[]): string {
     .map((r) => {
       const label = STATUS_STYLE[r.status](r.status.padEnd(9))
       const ratio = r.status === 'changed' ? pc.dim(`${(r.ratio * 100).toFixed(2)}%`) : ''
-      return `${label} ${`${r.id}@${r.viewport}`.padEnd(width)}  ${ratio}`.trimEnd()
+      const a = r.attribution
+      const cause = !a
+        ? ''
+        : a.explained
+          ? pc.cyan(` explained by ${a.tokens.map((t) => t.id.split(' (')[0]).join(', ')}`)
+          : pc.red(` unexplained: ${a.unexplainedPixels} px`)
+      const ms = a?.ms !== undefined ? pc.dim(` (${a.ms} ms)`) : ''
+      return `${label} ${`${r.id}@${r.viewport}`.padEnd(width)}  ${ratio}${cause}${ms}`.trimEnd()
     })
     .join('\n')
+}
+
+function consoleReview(review: Review): string {
+  const lines = review.tokens.map(
+    (t) =>
+      `${pc.cyan(t.id)} explains ${t.stories.length} of ${review.changed} changed ${review.changed === 1 ? 'story' : 'stories'}`,
+  )
+  const unexplained = review.changed - review.explained
+  if (unexplained > 0) lines.push(pc.red(`${unexplained} unexplained`))
+  return lines.join('\n')
 }
 
 /** `dta diff --list`: the stories of the built output, as `dta diff` would render them. */
