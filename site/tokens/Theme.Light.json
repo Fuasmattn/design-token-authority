@@ -116,7 +116,7 @@
   "action": {
     "bg": {
       "$type": "color",
-      "$value": "{blueprint.600}",
+      "$value": "{blueprint.700}",
       "$description": "Primary buttons, links, active workflow station.",
       "$extensions": {
         "com.figma": {

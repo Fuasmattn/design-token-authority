@@ -1,0 +1,46 @@
+# Sample only (branch sample/dta-diff-demo): dta diff on the website's stories, in one job.
+# Real projects use the three workflows in actions/examples/ (fork-safe); this demo PR comes
+# from a branch of this repository, so one job may hold the write permissions.
+name: dta diff (sample)
+on:
+  pull_request:
+permissions:
+  contents: write # publish the report to the dta-diff-assets branch
+  pull-requests: write # the sticky comment
+  statuses: write # the "dta diff" status check
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Chromium for dta diff
+        run: pnpm --filter @dta/cli exec playwright-core install --with-deps chromium
+      - name: dta diff
+        uses: ./actions/diff
+        with:
+          command: node ../bin/dta.js
+          working-directory: site
+          args: --base origin/${{ github.base_ref }}
+      - name: Publish the report (GitHub assets branch recipe)
+        working-directory: site
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node ../bin/dta.js diff --from-report --report .dta/diff --publish "sh ../actions/recipes/github-assets-branch.sh"
+      - name: Status check and comment
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          node actions/lib/dta-diff.mjs report \
+            --dir site/.dta/diff \
+            --sha "${{ github.event.pull_request.head.sha }}" \
+            --pr "${{ github.event.pull_request.number }}" \
+            --artifact-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
