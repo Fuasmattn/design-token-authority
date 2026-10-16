@@ -160,6 +160,19 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [057](./057-lint-contrast-duplicates.md) | color-contrast and no-duplicate-values | High | M | 055 | Done |
 | [058](./058-lint-api-parity.md) | Public API and full parity test | High | S | 056, 057 | Done |
 
+**Epic 6 — CLI parity ([spec](../specs/cli-parity.md))**
+
+| # | Ticket | Priority | Effort | Blocked by | Status |
+|---|---|---|---|---|---|
+| [059](./059-cli-io-layer.md) | Shared I/O layer, UI helpers, config wiring | High | M | 058 | Open |
+| [060](./060-cli-lint-command.md) | `lint` command | High | S | 059 | Open |
+| [061](./061-cli-docs-html-port.md) | Docs HTML generator as a package function (decision needed) | High | M | 059 | Open |
+| [062](./062-cli-build-command.md) | `build` command | High | M | 059, 061 | Open |
+| [063](./063-cli-graph-command.md) | `graph` command (four formats) | High | M | 059 | Open |
+| [064](./064-cli-analyze-clean.md) | `analyze` and `clean` (new snapshots) | High | M | 059 | Open |
+| [065](./065-cli-pull-push.md) | `pull` and `push` | High | L | 059, 064 | Open |
+| [066](./066-cli-init-cutover.md) | `init`, `test:visual` decision, cut-over | High | L | 060–065 | Open |
+
 **Epic 6 — exit plan (written early on purpose)**
 
 | # | Ticket | Priority | Effort | Blocked by | Status |
