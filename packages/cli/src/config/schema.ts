@@ -1,20 +1,7 @@
+import { lintConfigSchema } from '@dta/lint'
 import { z } from 'zod'
 
 const name = z.string().min(1)
-
-const regex = z.string().refine(
-  (value) => {
-    try {
-      new RegExp(value)
-      return true
-    } catch {
-      return false
-    }
-  },
-  { error: 'must be a valid regular expression' },
-)
-
-const severity = z.enum(['error', 'warn', 'off'])
 
 const figma = z.strictObject({
   fileKey: name.optional(),
@@ -33,26 +20,21 @@ const outputs = z.strictObject({
   docs: z.strictObject({ outDir: name }).optional(),
 })
 
-const lintRules = z.strictObject({
-  'semantic-must-alias': z
-    .strictObject({ severity: severity.optional(), collections: z.array(name).optional() })
-    .optional(),
-  'naming-pattern': z
-    .strictObject({
-      severity: severity.optional(),
-      /** Collection name -> regex that token names must match. */
-      patterns: z.record(z.string(), regex).optional(),
-    })
-    .optional(),
-  'color-contrast': z
-    .strictObject({
-      severity: severity.optional(),
-      minRatio: z.number().positive().optional(),
-      /** [foreground, background] token paths. */
-      pairs: z.array(z.tuple([name, name])).optional(),
-    })
-    .optional(),
-  'no-duplicate-values': z.strictObject({ severity: severity.optional() }).optional(),
+/** The lint section is the schema of `@dta/lint`; a bad regular expression is rejected early. */
+const lint = lintConfigSchema.superRefine((value, context) => {
+  for (const [collection, pattern] of Object.entries(
+    value.rules?.['naming-pattern']?.patterns ?? {},
+  )) {
+    try {
+      new RegExp(pattern)
+    } catch {
+      context.addIssue({
+        code: 'custom',
+        message: 'must be a valid regular expression',
+        path: ['rules', 'naming-pattern', 'patterns', collection],
+      })
+    }
+  }
 })
 
 /** The shape of `dta.config.*`. Unknown keys are rejected so typos do not pass silently. */
@@ -77,7 +59,7 @@ export const configSchema = z.strictObject({
     })
     .prefault({}),
   outputs: outputs.optional(),
-  lint: z.strictObject({ rules: lintRules.optional() }).optional(),
+  lint: lint.optional(),
   push: z
     .strictObject({
       /** Skip the typed confirmation before pushing to Figma (CI, automation). */

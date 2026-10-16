@@ -16,7 +16,11 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@clack/prompts": "^1.2.0",
+    "@dta/core": "workspace:*",
+    "@dta/lint": "workspace:*",
     "commander": "^14.0.3",
+    "picocolors": "^1.1.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {

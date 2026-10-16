@@ -26,7 +26,7 @@ const ruleSchemas = {
 
 /** The `lint` section of the project config. */
 export const lintConfigSchema = z.strictObject({
-  rules: z.strictObject(ruleSchemas).optional(),
+  rules: z.strictObject(ruleSchemas).partial().optional(),
 })
 
 export type LintConfig = z.infer<typeof lintConfigSchema>

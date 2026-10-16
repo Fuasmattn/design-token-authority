@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { lintTokens } from './index.js'
+import { lintConfigSchema, lintTokens } from './index.js'
 import { color, fixtureModel, modelFrom, num } from './test-helpers.js'
 
 describe('lintTokens: result', () => {
@@ -300,5 +300,21 @@ describe('no-duplicate-values', () => {
       lintTokens(model, { rules: { 'no-duplicate-values': { severity } } })
     expect(run('off').violations).toEqual([])
     expect(run('error').errorCount).toBe(1)
+  })
+})
+
+describe('lintConfigSchema', () => {
+  it('accepts a config with only some rules', () => {
+    const result = lintConfigSchema.safeParse({ rules: { 'no-duplicate-values': {} } })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects unknown rules and bad options with the failing path', () => {
+    const unknownRule = lintConfigSchema.safeParse({ rules: { nope: {} } })
+    const badOption = lintConfigSchema.safeParse({
+      rules: { 'no-duplicate-values': { severity: 'fatal' } },
+    })
+    expect(unknownRule.success).toBe(false)
+    expect(badOption.error?.issues[0].path).toEqual(['rules', 'no-duplicate-values', 'severity'])
   })
 })
