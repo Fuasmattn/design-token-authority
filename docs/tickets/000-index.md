@@ -158,7 +158,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [055](./055-lint-scaffold-builtin-rules.md) | Scaffold, validated config, built-in rules | High | M | 033, 043 | Done |
 | [056](./056-lint-semantic-naming-rules.md) | semantic-must-alias and naming-pattern | High | S | 055 | Done |
 | [057](./057-lint-contrast-duplicates.md) | color-contrast and no-duplicate-values | High | M | 055 | Done |
-| [058](./058-lint-api-parity.md) | Public API and full parity test | High | S | 056, 057 | Open |
+| [058](./058-lint-api-parity.md) | Public API and full parity test | High | S | 056, 057 | Done |
 
 **Epic 6 — exit plan (written early on purpose)**
 

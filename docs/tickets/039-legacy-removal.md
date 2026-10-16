@@ -20,7 +20,7 @@ Every legacy command, module and behaviour needs an owner and a proof. "Dropped"
 | `build` (CSS, JS, Tailwind v3/v4, per-brand) | `@dta/build` (TICKETs 049–054) | Package parity against `test/snapshots/*/build/files/output/{css,js,tailwind}`; CLI snapshot `build` once wired (Epic 6) | package done; CLI wiring in Epic 6 (scenario stays PENDING); legacy `commands/build.ts`, `style-dictionary.config.ts` deleted with the CLI port |
 | `formatters/tailwind-v4.ts` | `@dta/build` (TICKET-052) | Snapshot parity (brand-ab, daisyui) and legacy formatter cases re-expressed through `buildOutputs` | build side done; legacy file deleted with the legacy build command |
 | `formatters/tailwind-v3.ts` | `@dta/build` (TICKET-053) | Same, for v3 | build side done; legacy file deleted with the legacy build command |
-| `lint` (rules, config validation; `linter.ts`, lint config types) | `@dta/lint` (TICKETs 055–058) | Package parity against the violations in `test/snapshots/*/lint/stdout.txt`; CLI snapshot `lint` once wired (Epic 6) | built-in rules done (055); semantic-must-alias and naming-pattern done (056); color-contrast and no-duplicate-values done (057); API parity open (058); `contrastRatio` duplicate covered by core |
+| `lint` (rules, config validation; `linter.ts`, lint config types) | `@dta/lint` (TICKETs 055–058) | Package parity against the violations in `test/snapshots/*/lint/stdout.txt`; CLI snapshot `lint` once wired (Epic 6) | package done (055–058); CLI wiring in Epic 6 (scenario stays PENDING); `contrastRatio` duplicate covered by core |
 | `graph` analysis (nodes, edges, cycles, dangling, orphans, depth, stats) | `@dta/core` (TICKET-043) | Core tests incl. numbers equal to legacy `graph-console` snapshots on both fixtures | core done; legacy `graph.ts` deleted with the formatters |
 | `graph` report formatters (console, dot, markdown, html) and directory reading | `@dta/cli` (CLI epic) | CLI snapshots `graph-*` | open |
 | `pull` (API and `--from-file`, importers, format detection) | `@dta/figma` | Package tests + fake-Figma roundtrip (037); add `pull` CLI snapshot | open |
@@ -54,6 +54,8 @@ Each legacy quirk is either copied (snapshot stays) or fixed (reviewed snapshot 
 | Version hardcoded as `0.1.0` in `theme.ts` / `cli.ts` | open |
 | Legacy export always writes `$description` (empty string if none) | copied (`variablesToModel`, TICKET-045) |
 | Legacy payload omits the alpha channel when it is 1 | copied (`planPush`, TICKET-046) |
+| `color-contrast` only compares raw hex, skips aliased/missing tokens, looks up by in-file name in any mode (last wins) | copied (`@dta/lint`, pinned by tests, TICKET-057) |
+| `no-duplicate-values` groups across all collections and modes by `type:value` | copied (`@dta/lint`, pinned by tests, TICKET-057) |
 | Other quirks listed in `test/snapshots/README.md` | open |
 
 ## Removal checklist
