@@ -1,5 +1,6 @@
 import type { Config } from './config/schema.js'
 import { runBuild } from './commands/build.js'
+import { runGraph } from './commands/graph.js'
 import { runLint } from './commands/lint.js'
 
 export interface CommandOption {
@@ -15,6 +16,8 @@ export interface CommandContext {
   options: Record<string, unknown>
   stdout: (text: string) => void
   stderr: (text: string) => void
+  /** Opens a file in the default application (a browser for HTML). */
+  openFile: (file: string) => void
 }
 
 export interface CommandDefinition {
@@ -89,6 +92,7 @@ export const COMMANDS: readonly CommandDefinition[] = [
   {
     name: 'graph',
     description: 'Build and visualize the token alias dependency graph',
+    run: runGraph,
     needsConfig: true,
     options: [
       {

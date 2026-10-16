@@ -34,12 +34,7 @@ const newCli: CliCommand = {
  * must match the snapshots exactly (or the snapshots are updated on purpose, in the
  * same PR, to document an intentional change).
  */
-const PENDING: ReadonlySet<string> = new Set([
-  'graph-console',
-  'graph-dot',
-  'graph-markdown',
-  'graph-html',
-])
+const PENDING: ReadonlySet<string> = new Set([])
 
 /**
  * Reviewed, intentional differences from the legacy output (see the quirk table in

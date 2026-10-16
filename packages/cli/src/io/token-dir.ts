@@ -6,7 +6,7 @@ import type { TokenFileInput } from '@dta/core'
 export class TokenDirError extends Error {
   constructor(readonly directory: string) {
     super(
-      `Tokens directory "${directory}" not found.\nRun "dta pull" to export tokens from Figma first.`,
+      `Tokens directory "${directory}" not found.\nRun dta pull to export tokens from Figma first.`,
     )
     this.name = 'TokenDirError'
   }

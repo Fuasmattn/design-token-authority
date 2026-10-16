@@ -73,7 +73,7 @@ describe('commands that are not ported yet', () => {
 
   it('accept the options of the legacy command', async () => {
     writeConfig()
-    const { exitCode } = await run(['graph', '--format', 'html', '--output', 'graph.html', '-v'])
+    const { exitCode } = await run(['push', '--dry-run', '--format', 'markdown', '-v'])
     expect(exitCode).toBe(3)
   })
 

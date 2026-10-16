@@ -2,6 +2,7 @@ import { Command, CommanderError } from 'commander'
 import { COMMANDS, type CommandDefinition } from './commands.js'
 import { ConfigError, loadConfig } from './config/load.js'
 import type { Config } from './config/schema.js'
+import { openWithSystem } from './open.js'
 
 /** Exit code for a command that exists in the legacy CLI but is not ported yet. */
 const EXIT_NOT_PORTED = 3
@@ -13,6 +14,8 @@ export interface CliIo {
   cwd?: string
   stdout?: (text: string) => void
   stderr?: (text: string) => void
+  /** Opens a file in the default application (default: the system's). */
+  openFile?: (file: string) => void
 }
 
 async function execute(
@@ -56,6 +59,7 @@ export async function runCli(argv: string[], io: CliIo = {}): Promise<number> {
     cwd: io.cwd ?? process.cwd(),
     stdout: io.stdout ?? ((text) => void process.stdout.write(text)),
     stderr: io.stderr ?? ((text) => void process.stderr.write(text)),
+    openFile: io.openFile ?? openWithSystem,
   }
 
   let exitCode = 0
