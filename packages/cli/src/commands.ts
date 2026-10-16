@@ -149,6 +149,15 @@ export const COMMANDS: readonly CommandDefinition[] = [
         description: 'Folder for screenshots and results (default: .dta/diff)',
       },
       {
+        flags: '--publish <command>',
+        description:
+          'Publish hook: runs on the report folder and prints its public URL (overrides diff.publish)',
+      },
+      {
+        flags: '--from-report',
+        description: 'Publish the report folder of an earlier run instead of rendering again',
+      },
+      {
         flags: '-f, --format <format>',
         description: 'Output format: console, markdown, json',
         defaultValue: 'console',

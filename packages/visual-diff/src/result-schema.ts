@@ -106,6 +106,13 @@ export const diffResultSchema = z
       .optional()
       .describe('pass: nothing to review; review: explained or new changes; fail: unexplained.'),
     review: review.optional(),
+    publish: z
+      .object({
+        url: z.string().describe('Base URL of the published report folder.'),
+        report: z.string().describe('URL of index.html.'),
+      })
+      .optional()
+      .describe('Set when a publish hook ran; image paths resolve against `url`.'),
     tokens: z.object({
       counts: z.object({
         changed: z.number().int(),

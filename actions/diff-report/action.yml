@@ -1,0 +1,65 @@
+name: dta diff (report)
+description: >-
+  Reports a `dta diff` run on its pull request: optionally publishes the report folder with
+  your publish hook, then sets the "dta diff" status check and updates one sticky comment.
+  Use it in a `workflow_run` workflow (trusted code, may hold secrets). It runs no code from
+  the pull request: the report folder is only read.
+inputs:
+  github-token:
+    description: Token with pull-requests:write, statuses:write and actions:read.
+    default: ${{ github.token }}
+  artifact-name:
+    description: Artifact uploaded by the `diff` action.
+    default: dta-diff-report
+  publish:
+    description: >-
+      Publish hook command (gets the report folder as argument and DTA_REPORT_DIR, prints the
+      public URL last). Empty: no publishing, the comment points to the artifact.
+    default: ''
+  command:
+    description: How to run DTA for publishing (e.g. `npx dta`).
+    default: npx dta
+  working-directory:
+    description: Folder with dta.config.* (only needed with `publish`).
+    default: .
+  label:
+    description: Label that approves the head commit.
+    default: dta-diff-approved
+outputs:
+  state:
+    description: State of the status check (success, pending, failure)
+    value: ${{ steps.report.outputs.state }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ runner.temp }}/dta-diff-report
+        run-id: ${{ github.event.workflow_run.id || github.run_id }}
+        github-token: ${{ inputs.github-token }}
+    - if: inputs.publish != ''
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        DTA: ${{ inputs.command }}
+        PUBLISH: ${{ inputs.publish }}
+      run: $DTA diff --from-report --report "$RUNNER_TEMP/dta-diff-report" --publish "$PUBLISH"
+    - id: report
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        RUN: ${{ github.event.workflow_run.id || github.run_id }}
+        SHA: ${{ github.event.workflow_run.head_sha || github.event.pull_request.head.sha || github.sha }}
+        HEAD_OWNER: ${{ github.event.workflow_run.head_repository.owner.login || github.event.pull_request.head.repo.owner.login }}
+        HEAD_BRANCH: ${{ github.event.workflow_run.head_branch || github.event.pull_request.head.ref }}
+        LABEL: ${{ inputs.label }}
+      run: |
+        dir="$RUNNER_TEMP/dta-diff-report"
+        # The PR number from the artifact is only a hint: it is checked against the head SHA.
+        pr=$(node -e "process.stdout.write(String(require(process.argv[1]).pr ?? ''))" "$dir/pull-request.json" 2>/dev/null || true)
+        node "$GITHUB_ACTION_PATH/../lib/dta-diff.mjs" report \
+          --dir "$dir" --sha "$SHA" ${pr:+--pr "$pr"} \
+          --head-owner "$HEAD_OWNER" --head-branch "$HEAD_BRANCH" \
+          --artifact-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$RUN" \
+          --label "$LABEL"

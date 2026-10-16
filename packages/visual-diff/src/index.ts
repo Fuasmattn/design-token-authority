@@ -45,3 +45,4 @@ export { renderSummaryMarkdown, SUMMARY_MAX_LENGTH, VERDICT_TEXT } from './rende
 export { renderReportHtml } from './report/html.js'
 export { diffResultJsonSchema, diffResultSchema } from './result-schema.js'
 export type { DiffResult } from './result-schema.js'
+export { extractPublishUrl } from './publish.js'

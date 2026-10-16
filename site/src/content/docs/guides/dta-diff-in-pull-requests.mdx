@@ -1,0 +1,120 @@
+---
+title: dta diff in pull requests
+description: A status check and one comment per pull request, with screenshots explained by token, hosted wherever you publish.
+---
+
+import { Code, Steps } from '@astrojs/starlight/components'
+import runWorkflow from '../../../../../actions/examples/dta-diff.yml?raw'
+import reportWorkflow from '../../../../../actions/examples/dta-diff-report.yml?raw'
+import approveWorkflow from '../../../../../actions/examples/dta-diff-approve.yml?raw'
+import cleanupWorkflow from '../../../../../actions/examples/dta-diff-cleanup.yml?raw'
+import vercel from '../../../../../actions/recipes/vercel.sh?raw'
+import assets from '../../../../../actions/recipes/github-assets-branch.sh?raw'
+import assetsCleanup from '../../../../../actions/recipes/github-assets-branch-cleanup.sh?raw'
+import staticServer from '../../../../../actions/recipes/static-server.sh?raw'
+
+`dta diff` renders your stories at the base and at the head of a pull request, compares them and explains each change by the token that caused it. In GitHub it shows up in two places:
+
+- **A status check, "dta diff"**: green when nothing needs a look, pending with _changes to review_, red with _unexplained changes_ above your threshold.
+- **One comment** that updates on every push: the changes grouped by token, a table per story and viewport, and a link to the full report (baseline, candidate, diff, drag-to-compare slider).
+
+Everything is rendered in your CI. Nothing is stored between runs: the baseline is built from the base commit in the same run. Where the report is hosted is up to you: DTA runs a **publish hook** you write, and this page has three recipes.
+
+## Before you start
+
+`dta diff` needs a `diff` section in `dta.config.ts` (the build command, the output folder and where its stories manifest is), and `playwright-core` as a dev dependency for the screenshots. Try it locally first:
+
+```sh
+npx dta diff --list   # the stories it would render
+npx dta diff          # report in .dta/diff/index.html
+```
+
+## Three workflows
+
+Pull requests from forks run with a read-only token and no secrets, so the work is split. The first workflow runs the diff with no permissions to speak of; the second reports it with the permissions and secrets it needs, without running any code from the pull request; the third handles approval.
+
+<Steps>
+
+1. **Run** on every pull request and upload the report as an artifact.
+
+   <Code code={runWorkflow} lang="yaml" title=".github/workflows/dta-diff.yml" />
+
+2. **Report** when the run finishes: publish (optional), status check, comment.
+
+   <Code code={reportWorkflow} lang="yaml" title=".github/workflows/dta-diff-report.yml" />
+
+3. **Approve** with a label.
+
+   <Code code={approveWorkflow} lang="yaml" title=".github/workflows/dta-diff-approve.yml" />
+
+</Steps>
+
+The actions only wrap `dta diff`: `diff` runs it and uploads the report folder, `diff-report` runs your publish hook with `dta diff --from-report --publish …` and posts the status and the comment, `diff-approve` reacts to the label. The comment is found again by a hidden marker and edited in place.
+
+## Approving changes
+
+Explained changes are reviewed once per token change, not once per screenshot: _"`action.bg` 600 → 700 explains 7 stories"_. When you have looked at them, add the **`dta-diff-approved`** label. The status of the head commit turns green and the comment says who approved it.
+
+An approval belongs to one commit. When you push again, the report workflow removes the label and the new commit needs a new review. Removing the label by hand withdraws the approval.
+
+Thresholds decide what needs a look at all (in the `diff` section, as changed-pixel ratios):
+
+```ts
+diff: {
+  thresholds: { explained: 0, unexplained: 0 }, // the defaults: every change counts
+}
+```
+
+## Publishing the report
+
+Without a hook, the comment has no images and points to the workflow run, where the report folder is an artifact (download it, open `index.html`). With a hook, the comment shows baseline, candidate and diff thumbnails and links the hosted report.
+
+A publish hook is any command. `dta diff` passes it the report folder (as the last argument and as `DTA_REPORT_DIR`) and reads the public URL from the **last line** it prints:
+
+```ts
+diff: {
+  publish: 'sh .github/dta-diff-publish.sh',
+  // or, when the URL is somewhere else in the output:
+  // publish: { command: 'sh publish.sh', url: '$.deployment.url' }, // JSON path, or a regex
+}
+```
+
+`dta diff` then rewrites `summary.md` and `result.json` with absolute links. A failing hook is reported and exits non-zero, but the diff result is still written and printed.
+
+:::caution[Forks]
+A report from a fork is built from untrusted code: its `index.html` can contain anything. The example report workflow therefore publishes only for branches of your own repository and falls back to the artifact for forks.
+:::
+
+### Vercel
+
+A preview deployment of the report folder. Create an empty Vercel project for the reports and turn off Deployment Protection for its previews; otherwise GitHub cannot load the thumbnails into the comment. Add `VERCEL_TOKEN` as a repository secret and set `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` (from the project settings) as environment variables of the report step.
+
+<Code code={vercel} lang="sh" title=".github/dta-diff-publish.sh" />
+
+### GitHub assets branch
+
+No extra service: the report is committed to a branch of the same repository (`dta-diff-assets`, one folder per pull request, replaced on every push). The thumbnails load from `github.com/<repo>/raw/…`. GitHub serves `index.html` from there as text, so to open the HTML report either download the artifact or let GitHub Pages serve the branch and set `DTA_DIFF_PAGES_URL`.
+
+The report workflow needs `contents: write` (add it to its `permissions`) and the token as `GITHUB_TOKEN` in the environment of the step.
+
+<Code code={assets} lang="sh" title=".github/dta-diff-publish.sh" />
+
+Remove a pull request's reports when it closes:
+
+<Code code={cleanupWorkflow} lang="yaml" title=".github/workflows/dta-diff-cleanup.yml" />
+
+<Code code={assetsCleanup} lang="sh" title=".github/dta-diff-cleanup.sh" />
+
+:::note[Private repositories]
+Whether the thumbnails render in pull-request comments of a private repository is not verified yet. Until it is, use the artifact or a host only your team can reach.
+:::
+
+### Static server
+
+For an on-premise host: copy the folder somewhere your web server serves (a mount, or `rsync` over SSH) and print its URL.
+
+<Code code={staticServer} lang="sh" title=".github/dta-diff-publish.sh" />
+
+## Without GitHub
+
+The report folder is plain files with relative links. `dta diff --publish "<command>"` works in any CI, and `--format json` or `summary.md` feed whatever posts your comments. The result format is documented with its JSON Schema in the repository (`docs/diff/result.md`).

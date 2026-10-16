@@ -1,0 +1,15 @@
+# 3/3 · Approval: adding the dta-diff-approved label turns the status of the head commit green.
+# A new push removes the label again (in the report workflow). Checks out nothing.
+name: dta diff approve
+on:
+  pull_request_target:
+    types: [labeled, unlabeled]
+permissions:
+  pull-requests: write
+  statuses: write
+jobs:
+  approve:
+    if: github.event.label.name == 'dta-diff-approved'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Fuasmattn/design-token-authority/actions/diff-approve@main

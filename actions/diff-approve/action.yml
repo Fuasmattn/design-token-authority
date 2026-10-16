@@ -1,0 +1,27 @@
+name: dta diff (approve)
+description: >-
+  Approval by label: when the label is added to a pull request, the "dta diff" status of its
+  head commit turns green; when it is removed, the status goes back to the verdict. Run it on
+  `pull_request_target: [labeled, unlabeled]`; it checks out nothing.
+inputs:
+  github-token:
+    description: Token with pull-requests:write and statuses:write.
+    default: ${{ github.token }}
+  label:
+    description: Label that approves the head commit.
+    default: dta-diff-approved
+runs:
+  using: composite
+  steps:
+    - if: github.event.label.name == inputs.label
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        PR: ${{ github.event.pull_request.number }}
+        SHA: ${{ github.event.pull_request.head.sha }}
+        USER_LOGIN: ${{ github.event.sender.login }}
+        LABEL: ${{ inputs.label }}
+        REMOVED: ${{ github.event.action == 'unlabeled' && '--removed' || '' }}
+      run: |
+        node "$GITHUB_ACTION_PATH/../lib/dta-diff.mjs" approve \
+          --pr "$PR" --sha "$SHA" --user "$USER_LOGIN" --label "$LABEL" $REMOVED

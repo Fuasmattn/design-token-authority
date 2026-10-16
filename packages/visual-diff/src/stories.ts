@@ -42,6 +42,12 @@ export const diffConfigSchema = z.strictObject({
       unexplained: z.number().min(0).max(1).default(0),
     })
     .prefault({}),
+  /**
+   * Publish hook: a command run on the report folder (path as argument and DTA_REPORT_DIR) that
+   * prints the public base URL as its last stdout line, or `{ command, url }` where `url` is a
+   * JSON path (`$.deployment.url`) or a regular expression to find it. `--publish` overrides it.
+   */
+  publish: z.union([path, z.strictObject({ command: path, url: path.optional() })]).optional(),
   /** Default base for `dta diff` (a git ref or directory); `--base` overrides it. */
   base: path.optional(),
 })

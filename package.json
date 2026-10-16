@@ -27,7 +27,7 @@
     "packages"
   ],
   "scripts": {
-    "prettier:check": "prettier --check packages/ scripts/ bin/ site/",
+    "prettier:check": "prettier --check packages/ scripts/ bin/ site/ actions/",
     "dta": "tsx packages/cli/src/bin.ts",
     "site:dev": "pnpm --filter dta-site dev",
     "site:build": "pnpm --filter dta-site build",
@@ -62,7 +62,8 @@
     "prettier": "^3.8.1",
     "release-it": "^19.2.4",
     "typescript": "^5.1.6",
-    "vitest": "^4.1.2"
+    "vitest": "^4.1.2",
+    "yaml": "2.8.3"
   },
   "packageManager": "pnpm@10.28.0"
 }

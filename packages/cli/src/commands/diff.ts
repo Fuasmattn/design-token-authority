@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import { cssBindings, type BuildOptions } from '@dta/build'
@@ -8,16 +9,17 @@ import {
   DEPENDENTS_SCRIPT,
   diffTokens,
   diffResultSchema,
+  extractPublishUrl,
   planReverts,
   renderReportHtml,
   renderSummaryMarkdown,
   reviewStories,
   VERDICT_TEXT,
   type Dependent,
+  type DiffResult,
   type Review,
   type RevertGroup,
   readStoriesManifest,
-  renderStoriesMarkdown,
   storyImagePaths,
   summarizeStories,
   toDiffJson,
@@ -98,6 +100,21 @@ export async function runDiff(context: CommandContext): Promise<number> {
   const format = requested as Format
 
   if (context.options.list) return listStories(context, format, fail)
+  const reportDir = path.resolve(
+    context.cwd,
+    typeof context.options.report === 'string' ? context.options.report : '.dta/diff',
+  )
+  const hook = publishHook(context)
+  if (context.options.fromReport) {
+    if (!hook) return fail('--from-report needs a publish hook (--publish or diff.publish).')
+    if (!fs.existsSync(path.join(reportDir, 'result.json'))) {
+      return fail(`no result.json in ${path.relative(context.cwd, reportDir) || '.'}.`)
+    }
+    const published = publishReport(context, reportDir, hook)
+    if (!published.ok) return fail(published.message)
+    context.stdout(`${published.url}\n`)
+    return 0
+  }
 
   let headFiles: TokenFileInput[]
   let baseInfo
@@ -158,12 +175,22 @@ export async function runDiff(context: CommandContext): Promise<number> {
       }
     }
   }
+  let result: DiffResult | null = null
+  let publishFailed = false
   if (stories) {
-    const reportDir = path.resolve(
-      context.cwd,
-      typeof context.options.report === 'string' ? context.options.report : '.dta/diff',
-    )
-    writeReport(reportDir, set, stories, labels, review)
+    result = writeReport(reportDir, set, stories, labels, review)
+    if (hook) {
+      log(`${pc.dim('Publishing:')} ${hook.command}`)
+      const published = publishReport(context, reportDir, hook)
+      if (published.ok) {
+        result = published.result
+        log(`${pc.dim('Published:')} ${published.result.publish?.report}`)
+      } else {
+        // Loud, but the diff result below is still printed and written.
+        publishFailed = true
+        context.stderr(`dta diff: ${published.message}\n`)
+      }
+    }
     if (format === 'console') {
       context.stdout(`\n${consoleStories(stories)}\n\n`)
       if (review) context.stdout(`${consoleReview(review)}\n\n`)
@@ -175,12 +202,13 @@ export async function runDiff(context: CommandContext): Promise<number> {
 
   const document =
     format === 'json'
-      ? stories
-        ? toDiffJson(set, stories, labels, review)
+      ? result
+        ? `${JSON.stringify(result, null, 2)}\n`
         : toJson(set, labels)
       : format === 'markdown'
-        ? renderTokenChangesMarkdown(set, labels) +
-          (stories ? `\n${renderStoriesMarkdown(stories, { review })}` : '')
+        ? result
+          ? renderSummaryMarkdown(result, { baseUrl: result.publish?.url })
+          : renderTokenChangesMarkdown(set, labels)
         : null
   if (document !== null) {
     if (out) {
@@ -205,6 +233,7 @@ export async function runDiff(context: CommandContext): Promise<number> {
     ui.outro(`${tokensLine}${storiesLine}${verdictLine}`)
   }
 
+  if (publishFailed) return 1
   if (!failOnChange) return 0
   // With stories, only what needs a look fails: unexplained changes above the threshold and
   // explained changes not yet reviewed. Without stories, any token change does.
@@ -357,7 +386,7 @@ function writeReport(
   stories: StoryResult[],
   labels: { base: string },
   review?: Review,
-) {
+): DiffResult {
   fs.rmSync(dir, { recursive: true, force: true })
   for (const result of stories) {
     const paths = storyImagePaths(result)
@@ -371,16 +400,65 @@ function writeReport(
   }
   fs.mkdirSync(dir, { recursive: true })
   const json = toDiffJson(set, stories, labels, review)
+  const result = diffResultSchema.parse(JSON.parse(json))
   fs.writeFileSync(path.join(dir, 'result.json'), json)
-  fs.writeFileSync(
-    path.join(dir, 'summary.md'),
-    renderSummaryMarkdown(set, stories, labels, review),
-  )
-  fs.writeFileSync(
-    path.join(dir, 'index.html'),
-    renderReportHtml(diffResultSchema.parse(JSON.parse(json))),
-  )
+  fs.writeFileSync(path.join(dir, 'summary.md'), renderSummaryMarkdown(result))
+  fs.writeFileSync(path.join(dir, 'index.html'), renderReportHtml(result))
+  return result
 }
+
+interface PublishHook {
+  command: string
+  url?: string
+}
+
+/** `--publish <command>` or `diff.publish`. */
+function publishHook(context: CommandContext): PublishHook | null {
+  if (typeof context.options.publish === 'string') return { command: context.options.publish }
+  const configured = context.config?.diff?.publish
+  if (!configured) return null
+  return typeof configured === 'string' ? { command: configured } : configured
+}
+
+/**
+ * Runs the publish hook on the report folder (path as last argument and DTA_REPORT_DIR), reads
+ * the public URL from its output and rewrites result.json and summary.md with absolute links.
+ */
+function publishReport(
+  context: CommandContext,
+  dir: string,
+  hook: PublishHook,
+): { ok: true; url: string; result: DiffResult } | { ok: false; message: string } {
+  const run = spawnSync(`${hook.command} ${shellQuote(dir)}`, {
+    cwd: context.cwd,
+    shell: true,
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+    env: { ...process.env, DTA_REPORT_DIR: dir, FORCE_COLOR: '0' },
+  })
+  const tail = (text: string) => text.trim().split('\n').slice(-10).join('\n')
+  if (run.status !== 0) {
+    return {
+      ok: false,
+      message: `the publish hook \`${hook.command}\` failed (exit ${run.status ?? 'signal'}):\n${tail(`${run.stdout ?? ''}${run.stderr ?? ''}`)}`,
+    }
+  }
+  const url = extractPublishUrl(run.stdout ?? '', hook.url)
+  if (!url) {
+    return {
+      ok: false,
+      message: `the publish hook \`${hook.command}\` printed no URL${hook.url ? ` matching ${hook.url}` : ' on its last line'}:\n${tail(run.stdout ?? '')}`,
+    }
+  }
+  const resultFile = path.join(dir, 'result.json')
+  const parsed = diffResultSchema.parse(JSON.parse(fs.readFileSync(resultFile, 'utf8')))
+  const result: DiffResult = { ...parsed, publish: { url, report: `${url}/index.html` } }
+  fs.writeFileSync(resultFile, `${JSON.stringify(result, null, 2)}\n`)
+  fs.writeFileSync(path.join(dir, 'summary.md'), renderSummaryMarkdown(result, { baseUrl: url }))
+  return { ok: true, url, result }
+}
+
+const shellQuote = (value: string) => `'${value.replace(/'/g, `'\\''`)}'`
 
 const STATUS_STYLE: Record<StoryResult['status'], (text: string) => string> = {
   changed: pc.yellow,

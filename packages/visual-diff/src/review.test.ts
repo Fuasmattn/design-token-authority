@@ -163,28 +163,54 @@ describe('result.json', () => {
 })
 
 describe('renderSummaryMarkdown', () => {
-  const many = Array.from({ length: 3000 }, (_, i) =>
-    result({ id: `story-${i}`, status: 'changed', ratio: 0.01, changedPixels: 10 }),
-  )
   const set = { changes: [], counts: { changed: 0, added: 0, removed: 0, affected: 0 } }
+  const parsed = (stories: StoryResult[]) =>
+    diffResultSchema.parse(JSON.parse(toDiffJson(set, stories, { base: 'main' })))
+  const many = parsed(
+    Array.from({ length: 3000 }, (_, i) =>
+      result({ id: `story-${i}`, status: 'changed', ratio: 0.01, changedPixels: 10 }),
+    ),
+  )
+  const withImages = parsed([
+    result({
+      id: 'card',
+      status: 'changed',
+      ratio: 0.01,
+      changedPixels: 1,
+      images: { base: new Uint8Array(1), head: new Uint8Array(1), diff: new Uint8Array(1) },
+    }),
+    result({ id: 'text', status: 'unchanged' }),
+  ])
 
-  it('keeps everything when it fits a pull-request comment', () => {
-    const markdown = renderSummaryMarkdown(set, results, { base: 'main' })
+  it('keeps everything when it fits a pull-request comment, without images unpublished', () => {
+    const markdown = renderSummaryMarkdown(parsed(results))
     expect(markdown).toContain('## dta diff: token changes')
     expect(markdown).toContain('| `card` | 1280px | changed |')
     expect(markdown).not.toContain('more |')
+    expect(renderSummaryMarkdown(withImages)).not.toContain('<img')
+  })
+
+  it('links the published report and shows thumbnails per story and viewport', () => {
+    const markdown = renderSummaryMarkdown(withImages, { baseUrl: 'https://r.example.com/pr-1/' })
+    expect(
+      markdown.startsWith('**[Open the full report](https://r.example.com/pr-1/index.html)**'),
+    ).toBe(true)
+    expect(markdown).toContain(
+      '| `card` | 1280px | 1.00% | <a href="https://r.example.com/pr-1/base/card@1280.png"><img src="https://r.example.com/pr-1/base/card@1280.png" width="120" alt="baseline"></a>',
+    )
+    expect(markdown).toContain('alt="candidate"')
+    expect(markdown).toContain('alt="diff"')
+    expect(markdown).not.toContain('| `text` | 1280px | 0.00% | <a')
   })
 
   it('cuts tables to fit, saying how many rows are left out', () => {
-    const markdown = renderSummaryMarkdown(set, many, { base: 'main' })
+    const markdown = renderSummaryMarkdown(many)
     expect(markdown.length).toBeLessThanOrEqual(SUMMARY_MAX_LENGTH)
     expect(markdown).toMatch(/\| … and \d+ more \|/)
     expect(markdown).toContain('**3000 changed**')
   })
 
   it('respects a smaller limit', () => {
-    expect(
-      renderSummaryMarkdown(set, many, { base: 'main' }, undefined, 2000).length,
-    ).toBeLessThanOrEqual(2000)
+    expect(renderSummaryMarkdown(many, { maxLength: 2000 }).length).toBeLessThanOrEqual(2000)
   })
 })

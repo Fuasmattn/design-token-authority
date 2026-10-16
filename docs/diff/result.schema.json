@@ -200,6 +200,25 @@
       ],
       "additionalProperties": false
     },
+    "publish": {
+      "description": "Set when a publish hook ran; image paths resolve against `url`.",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Base URL of the published report folder."
+        },
+        "report": {
+          "type": "string",
+          "description": "URL of index.html."
+        }
+      },
+      "required": [
+        "url",
+        "report"
+      ],
+      "additionalProperties": false
+    },
     "tokens": {
       "type": "object",
       "properties": {

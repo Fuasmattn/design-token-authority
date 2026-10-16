@@ -1,4 +1,10 @@
 import type { StoryResult } from './compare.js'
+import type { DiffResult } from './result-schema.js'
+
+/** What the story tables need: a story result, or one read back from result.json. */
+type StoryRow = Pick<StoryResult, 'id' | 'viewport' | 'status' | 'ratio' | 'attribution'> & {
+  images?: { base?: unknown; head?: unknown; diff?: unknown }
+}
 import type { Review, Verdict } from './review.js'
 import type { TokenChange, TokenChangeKind, TokenChangeSet, TokenState } from './token-changes.js'
 
@@ -8,6 +14,8 @@ export const TOKEN_CHANGES_SCHEMA = 'dta.diff.tokens/1'
 export interface DiffLabels {
   /** How the base was chosen, e.g. `tokens-base` or `merge base with origin/main (1a2b3c4)`. */
   base: string
+  /** Where the report folder was published (absolute URLs). */
+  publish?: { url: string; report: string }
 }
 
 const SECTIONS: ReadonlyArray<{ kind: TokenChangeKind; title: string }> = [
@@ -121,7 +129,7 @@ export function storyImagePaths(result: Pick<StoryResult, 'id' | 'viewport' | 'i
 const percent = (ratio: number) => `${(ratio * 100).toFixed(ratio < 0.001 && ratio > 0 ? 3 : 2)}%`
 
 /** `2 changed · 1 added · 7 unchanged` for story results. */
-export function summarizeStories(results: StoryResult[]): string {
+export function summarizeStories(results: StoryRow[]): string {
   const order = ['changed', 'added', 'removed', 'unchanged'] as const
   const parts = order
     .map((status) => [status, results.filter((r) => r.status === status).length] as const)
@@ -142,7 +150,7 @@ const tokenLabel = (id: string) => {
   return open > 0 ? `${code(id.slice(0, open))}${id.slice(open)}` : code(id)
 }
 
-function cause(result: StoryResult): string {
+function cause(result: StoryRow): string {
   if (result.status !== 'changed') return '—'
   if (!result.attribution) return 'unexplained'
   const names = result.attribution.tokens.map((t) => code(t.id.split(' (')[0]))
@@ -159,7 +167,7 @@ const list = (refs: string[], max = 6) =>
  * a table of the stories that differ (all stories when `all`).
  */
 export function renderStoriesMarkdown(
-  results: StoryResult[],
+  results: StoryRow[],
   options: { all?: boolean; review?: Review; limit?: number } = {},
 ) {
   const limit = options.limit ?? Infinity
@@ -239,6 +247,7 @@ export function toDiffJson(
       schema: DIFF_SCHEMA,
       base: labels.base,
       ...(review ? { verdict: review.verdict, review } : {}),
+      ...(labels.publish ? { publish: labels.publish } : {}),
       tokens: { counts: set.counts, changes: set.changes },
       stories: results.map(({ images, ...rest }) => ({
         ...rest,
@@ -253,24 +262,69 @@ export function toDiffJson(
 /** GitHub's limit for a comment body is 65,536 characters; leave room for a header. */
 export const SUMMARY_MAX_LENGTH = 60_000
 
+const THUMB_WIDTH = 120
+
+/** `<img>` thumbnails (baseline · candidate · diff) of a published story, for a table cell. */
+function thumbnails(story: DiffResult['stories'][number], baseUrl: string): string {
+  const img = (label: string, file?: string) =>
+    file
+      ? `<a href="${baseUrl}/${file}"><img src="${baseUrl}/${file}" width="${THUMB_WIDTH}" alt="${label}"></a>`
+      : ''
+  return [
+    img('baseline', story.images.base),
+    img('candidate', story.images.head),
+    img('diff', story.images.diff),
+  ]
+    .filter(Boolean)
+    .join(' ')
+}
+
+/** Changed, added and removed stories with their thumbnails (only with a published report). */
+function storyThumbnails(result: DiffResult, baseUrl: string, limit: number): string[] {
+  const shown = result.stories.filter((s) => s.status !== 'unchanged')
+  if (shown.length === 0) return []
+  const rows = shown
+    .slice(0, limit)
+    .map(
+      (s) =>
+        `| ${code(s.id)} | ${s.viewport}px | ${s.status === 'changed' ? percent(s.ratio) : s.status} | ${thumbnails(s, baseUrl)} |`,
+    )
+  return [
+    '',
+    '### Baseline · candidate · diff',
+    '',
+    '| Story | Viewport | Changed | Images |',
+    '| --- | --- | --- | --- |',
+    ...rows,
+    ...(shown.length > rows.length ? [`| … and ${shown.length - rows.length} more | | | |`] : []),
+  ]
+}
+
 /**
- * `summary.md`: token changes and stories, short enough for a pull-request comment. Tables are
- * cut (with "… and N more") until it fits; the full data stays in result.json and the report.
+ * `summary.md`, from a `result.json`: token changes and stories, short enough for a
+ * pull-request comment. With `baseUrl` (where the report folder was published) it links the
+ * full report and shows baseline / candidate / diff thumbnails per story and viewport; without
+ * it there are no images. Tables are cut (with "… and N more") until it fits.
  */
 export function renderSummaryMarkdown(
-  set: TokenChangeSet,
-  results: StoryResult[],
-  labels: DiffLabels,
-  review?: Review,
-  maxLength = SUMMARY_MAX_LENGTH,
+  result: DiffResult,
+  options: { baseUrl?: string; maxLength?: number } = {},
 ): string {
-  const render = (limit?: number) =>
-    `${renderTokenChangesMarkdown(set, labels, { limit })}\n${renderStoriesMarkdown(results, { review, limit })}`
+  const maxLength = options.maxLength ?? SUMMARY_MAX_LENGTH
+  const baseUrl = options.baseUrl?.replace(/\/+$/, '')
+  const set: TokenChangeSet = result.tokens
+  const labels = { base: result.base }
+  const render = (limit?: number) => {
+    const head = baseUrl ? `**[Open the full report](${baseUrl}/index.html)**\n\n` : ''
+    const thumbs = baseUrl ? storyThumbnails(result, baseUrl, limit ?? Infinity).join('\n') : ''
+    return `${head}${renderTokenChangesMarkdown(set, labels, { limit })}\n${renderStoriesMarkdown(result.stories, { review: result.review, limit })}${thumbs ? `${thumbs}\n` : ''}`
+  }
   let markdown = render()
   for (let limit = 200; markdown.length > maxLength && limit >= 1; limit = Math.floor(limit / 2)) {
     markdown = render(limit)
   }
-  if (markdown.length > maxLength)
+  if (markdown.length > maxLength) {
     markdown = `${markdown.slice(0, maxLength - 40)}\n\n… (cut, see the report)\n`
+  }
   return markdown
 }

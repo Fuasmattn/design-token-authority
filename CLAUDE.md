@@ -87,6 +87,7 @@ packages/
   testkit/   private test helpers: Figma fake, snapshot capture
 bin/dta.js   binary entry (runs packages/cli/src/bin.ts through tsx)
 site/        the DTA website (private workspace app); site/tokens = DTA Drafting Table tokens, built with dta build
+actions/     GitHub composite actions for dta diff (run, report, approve), example workflows, publish recipes
 scripts/     snapshot recorder, Figma recording/schema tools, guardrails
 test/        fixtures, Figma recordings, reference snapshots, Playwright visual tests (until Epic 8)
 ```
@@ -148,6 +149,7 @@ pnpm dta diff --tokens-only            # Token changes vs the merge base with ma
 pnpm dta diff --base <ref|dir> -f markdown   # ...against another base, as markdown
 pnpm dta diff --list                   # Stories dta diff would render (diff section in the config)
 pnpm dta diff                          # Tokens + screenshots of base and head (needs playwright-core + Chromium; report in .dta/diff)
+pnpm dta diff --publish "<command>"    # ...then run a publish hook on the report folder (prints its URL); --from-report reuses the last report
 pnpm site:dev                  # Website (Astro + Starlight) on its DTA-built tokens
 pnpm site:build                # Website build incl. link check (CI job "site")
 pnpm test                      # Run Vitest (all packages, scripts)

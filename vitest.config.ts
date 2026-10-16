@@ -10,6 +10,9 @@ export default defineConfig({
           include: ['scripts/guardrails/**/*.test.ts'],
         },
       },
+      {
+        test: { name: 'actions', environment: 'node', include: ['actions/**/*.test.ts'] },
+      },
       'packages/*',
       'site',
     ],
