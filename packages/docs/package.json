@@ -1,0 +1,26 @@
+{
+  "name": "@dta/docs",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Token documentation page (HTML) for Design Token Authority",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24.14.1"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@dta/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.2",
+    "typescript": "^5.1.6",
+    "vitest": "^4.1.2"
+  }
+}

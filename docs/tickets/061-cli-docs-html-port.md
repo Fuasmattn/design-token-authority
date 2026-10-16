@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** M
 **Blocked by:** 059
-**Status:** ready-for-agent
+**Status:** done
 **Spec:** [cli-parity](../specs/cli-parity.md)
 
 ## What to build
@@ -13,8 +13,13 @@ Resolve spec decision 9. Recommended: port `formatters/docs-html.ts` verbatim in
 
 ## Acceptance Criteria
 
-- [ ] Decision recorded in the spec (a or b)
-- [ ] (a) The function's output is byte-identical to `test/snapshots/*/build/files/output/docs/index.html`; package has a README and small public API
-- [ ] (b) The reviewed snapshot diff and the 039 row say "replaced by Epic 7"
-- [ ] 039 parity table rows updated in the same PR; legacy files stay until the cut-over (066): `snapshot:check` still drives the legacy CLI
-- [ ] All gates pass, and the GitHub run is green
+- [x] Decision recorded in the spec (a or b)
+- [x] (a) The function's output is byte-identical to `test/snapshots/*/build/files/output/docs/index.html`; package has a README and small public API
+- [x] (b) not taken (option a chosen) The reviewed snapshot diff and the 039 row say "replaced by Epic 7"
+- [x] 039 parity table rows updated in the same PR; legacy files stay until the cut-over (066): `snapshot:check` still drives the legacy CLI
+- [x] All gates pass, and the GitHub run is green
+
+## Implementation notes
+
+- New package `@dta/docs` (`generateDocsHtml(tokenFiles, brands)`): the legacy generator, with the two file-system reads replaced by `{fileName, content}` input (files sorted by name; invalid JSON skipped instead of throwing). Output is byte-identical to `output/docs/index.html` of both fixtures (tested).
+- Epic 7 owns any redesign.
