@@ -48,6 +48,13 @@ describe('static server recipe', () => {
   })
 })
 
+describe('template for any host', () => {
+  it('prints the folder URL as its last line and logs to stderr', () => {
+    const out = sh('template.sh', [report], { GITHUB_SHA: sha })
+    expect(out.trim().split('\n')).toEqual([`https://reports.example.com/${sha}`])
+  })
+})
+
 describe('GitHub assets branch recipe', () => {
   it('commits the report under pr-<n>/<sha>/, keeps one per PR, and cleans up on close', () => {
     const remote = path.join(tmp, 'remote.git')

@@ -12,6 +12,7 @@ import vercel from '../../../../../actions/recipes/vercel.sh?raw'
 import assets from '../../../../../actions/recipes/github-assets-branch.sh?raw'
 import assetsCleanup from '../../../../../actions/recipes/github-assets-branch-cleanup.sh?raw'
 import staticServer from '../../../../../actions/recipes/static-server.sh?raw'
+import template from '../../../../../actions/recipes/template.sh?raw'
 
 `dta diff` renders your stories at the base and at the head of a pull request, compares them and explains each change by the token that caused it. In GitHub it shows up in two places:
 
@@ -114,6 +115,26 @@ Whether the thumbnails render in pull-request comments of a private repository i
 For an on-premise host: copy the folder somewhere your web server serves (a mount, or `rsync` over SSH) and print its URL.
 
 <Code code={staticServer} lang="sh" title=".github/dta-diff-publish.sh" />
+
+### Any other host
+
+Any host that serves static files works the same way: its command line uploads a folder and prints where it went. Start from this template:
+
+<Code code={template} lang="sh" title=".github/dta-diff-publish.sh" />
+
+What the host needs to do:
+
+- **Serve the folder as it is.** All links in the report are relative, so any subfolder works.
+- **Be reachable by GitHub**, if you want thumbnails in the comment: GitHub loads the images through its own proxy, so they must be public. Behind a login or VPN, the thumbnails show as broken images; the report link still works for everyone who can reach the host.
+- **Keep one folder per commit or pull request**, and remove old ones when you like. DTA never deletes anything there.
+
+If the upload tool prints the URL somewhere other than the last line, tell DTA where to find it instead of rewriting the output: `publish: { command: 'sh publish.sh', url: '$.deploy_url' }` reads a field of the JSON it prints, and any other value is a regular expression whose first group is the URL.
+
+Try a hook on your last local report before wiring it into CI. Nothing is rendered again:
+
+```sh
+npx dta diff --from-report --publish "sh .github/dta-diff-publish.sh"
+```
 
 ## Without GitHub
 
