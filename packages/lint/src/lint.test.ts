@@ -133,3 +133,68 @@ describe('lintTokens: config validation', () => {
     expect(result.violations.map((v) => v.rule)).toEqual(['no-dangling-aliases'])
   })
 })
+
+describe('semantic-must-alias', () => {
+  const model = modelFrom({
+    'Base.Value.json': { Blue: color('#00f') },
+    'Brand.A.json': { Primary: color('{Blue}'), Raw: color('#fff') },
+    'Other.A.json': { Raw: color('#000') },
+  })
+  const rules = (options: object) => ({ rules: { 'semantic-must-alias': options } })
+
+  it('flags raw values in the listed collections as warnings by default', () => {
+    const result = lintTokens(model, rules({ collections: ['Brand'] }))
+    expect(result.violations).toEqual([
+      {
+        rule: 'semantic-must-alias',
+        severity: 'warn',
+        tokenPath: 'Brand.A/Raw',
+        file: 'Brand.A.json',
+        message: 'Token has a raw value "#fff" but should be an alias in collection "Brand"',
+      },
+    ])
+    expect(result.warningCount).toBe(1)
+    expect(result.errorCount).toBe(0)
+  })
+
+  it('respects error and off, and does nothing without collections', () => {
+    expect(lintTokens(model, rules({ collections: ['Brand'], severity: 'error' })).errorCount).toBe(
+      1,
+    )
+    expect(
+      lintTokens(model, rules({ collections: ['Brand'], severity: 'off' })).violations,
+    ).toEqual([])
+    expect(lintTokens(model, rules({})).violations).toEqual([])
+  })
+})
+
+describe('naming-pattern', () => {
+  const model = modelFrom({
+    'Brand.A.json': { Good: { Name: color('#fff') }, Group: { bad: color('#000') } },
+    'Other.A.json': { bad: color('#000') },
+  })
+  const rules = (patterns: Record<string, string>) => ({
+    rules: { 'naming-pattern': { patterns } },
+  })
+
+  it('reports the first failing segment per token and ignores collections without a pattern', () => {
+    const result = lintTokens(model, rules({ Brand: '^[A-Z]' }))
+    expect(result.violations).toEqual([
+      {
+        rule: 'naming-pattern',
+        severity: 'warn',
+        tokenPath: 'Brand.A/Group/bad',
+        file: 'Brand.A.json',
+        message: 'Token path segment "bad" does not match pattern /^[A-Z]/ for collection "Brand"',
+      },
+    ])
+  })
+
+  it('skips an invalid regular expression with a diagnostic and still runs the others', () => {
+    const result = lintTokens(model, rules({ Brand: '(', Other: '^[A-Z]' }))
+    expect(result.diagnostics).toHaveLength(1)
+    expect(result.diagnostics[0].code).toBe('invalid-config')
+    expect(result.diagnostics[0].message).toContain('Brand')
+    expect(result.violations.map((v) => v.tokenPath)).toEqual(['Other.A/bad'])
+  })
+})
