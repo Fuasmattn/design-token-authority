@@ -34,7 +34,7 @@ One colour change touches a hundred stories, and nobody reviews a hundred screen
 
 ## Open questions (need a maintainer call before the tickets start)
 
-1. **Attribution fallback:** if per-element variable recording proves unreliable for some CSS (shorthands, `calc()`, inherited values), is a coarser attribution acceptable for version 1 (story-level: "this story uses changed tokens X, Y") with element-level later? Recommended: yes.
+1. **Attribution fallback:** if per-element variable recording proves unreliable for some CSS (shorthands, `calc()`, inherited values), is a coarser attribution acceptable for version 1 (story-level: "this story uses changed tokens X, Y") with element-level later? Recommended: yes. **Settled by [TICKET-083](../tickets/083-diff-attribution-spike.md):** element-level attribution works for version 1 by reverting each changed token to its base value in the head page and recording which elements' computed styles or boxes change (shorthands, `calc()`, inheritance, alias chains and modes covered; values built as literals or read by JavaScript stay unexplained). Story-level summaries come from the same data.
 2. **Approval granularity:** version 1 approves a whole PR head; approving per token change (concept: "approve one token change across all affected stories") as a follow-up. Agree?
 3. **Container image:** publish to GitHub Container Registry with the release, or document a Dockerfile only for version 1? Recommended: Dockerfile first, published image with the first release.
 
