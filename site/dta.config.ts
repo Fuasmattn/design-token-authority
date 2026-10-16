@@ -10,6 +10,8 @@ export default {
   },
   // dta diff renders the design system stories of the built site (/stories/manifest.json).
   diff: {
+    // The base is checked out fresh in a temporary worktree: install from the store first.
+    setup: 'pnpm install --frozen-lockfile --prefer-offline',
     build: 'pnpm build',
     outDir: 'dist',
     stories: { type: 'static-site', manifest: 'stories/manifest.json' },

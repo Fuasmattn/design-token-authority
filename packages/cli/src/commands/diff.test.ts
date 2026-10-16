@@ -89,12 +89,19 @@ describe('dta diff with a base directory', () => {
     expect(stdout).toContain('changed  Colors.Foundation.Blue.500')
     expect(stdout).toContain('(because of Colors.Foundation.Blue.500)')
     expect(stdout).toContain('3 changed · 1 added · 1 removed · 2 affected')
-    expect(stdout).not.toContain('not available yet')
+    expect(stdout).not.toContain('showing token changes only')
   })
 
-  it('says that visual comparison is not available yet without --tokens-only', async () => {
+  it('says why it shows token changes only', async () => {
     const { stdout } = await diff(['--base', 'tokens-base'])
-    expect(stdout).toContain('Visual comparison of stories is not available yet')
+    expect(stdout).toContain('No `diff` section in the config: showing token changes only.')
+    fs.writeFileSync(
+      path.join(dir, 'dta.config.json'),
+      JSON.stringify({ tokens: { dir: 'tokens' }, diff: { outDir: 'dist' } }),
+    )
+    expect((await diff(['--base', 'tokens-base'])).stdout).toContain(
+      'The base is a directory, so there is nothing to build',
+    )
   })
 
   it('writes versioned JSON to a file', async () => {

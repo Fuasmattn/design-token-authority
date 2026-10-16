@@ -16,6 +16,8 @@ export interface DiffBase {
   files: TokenFileInput[]
   /** How the base was chosen, for reports, e.g. `merge base with origin/main (1a2b3c4)`. */
   label: string
+  /** The commit, when the base came from git (a directory base has none). */
+  sha?: string
 }
 
 function git(cwd: string, args: string[]): string | null {
@@ -88,7 +90,11 @@ export function resolveDiffBase(cwd: string, tokensDir: string, base?: string): 
   if (base !== undefined) {
     const sha = git(cwd, ['rev-parse', '--verify', '--quiet', `${base}^{commit}`])?.trim()
     if (!sha) throw new DiffBaseError(`"${base}" is neither a directory nor a git ref.`)
-    return { files: readTokensAtCommit(cwd, sha, tokensDir), label: `${base} (${shortSha(sha)})` }
+    return {
+      files: readTokensAtCommit(cwd, sha, tokensDir),
+      label: `${base} (${shortSha(sha)})`,
+      sha,
+    }
   }
 
   const branch = defaultBranch(cwd)
@@ -102,5 +108,6 @@ export function resolveDiffBase(cwd: string, tokensDir: string, base?: string): 
   return {
     files: readTokensAtCommit(cwd, sha, tokensDir),
     label: `merge base with ${branch} (${shortSha(sha)})`,
+    sha,
   }
 }

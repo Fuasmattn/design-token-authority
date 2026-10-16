@@ -24,6 +24,7 @@ describe('diffConfigSchema', () => {
       stories: { type: 'static-site', manifest: 'stories/manifest.json' },
       viewports: [1280],
       threshold: 0,
+      colorThreshold: 0,
     })
   })
 
@@ -34,6 +35,7 @@ describe('diffConfigSchema', () => {
       stories: { type: 'static-site', manifest: 'stories/index.json' },
       viewports: [1440, 390],
       threshold: 0.001,
+      colorThreshold: 0.05,
       base: 'origin/main',
     }
     expect(diffConfigSchema.parse(config)).toEqual(config)

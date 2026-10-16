@@ -41,3 +41,20 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Build the website (dta build on its tokens, astro build, internal link check)
         run: pnpm site:build
+  diff-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Chromium for dta diff
+        run: pnpm --filter @dta/cli exec playwright-core install --with-deps chromium
+      - name: dta diff end to end (two commits of a fixture site, real screenshots)
+        run: pnpm vitest run --project @dta/cli packages/cli/test/diff-visual.test.ts
+        env:
+          DTA_E2E: '1'

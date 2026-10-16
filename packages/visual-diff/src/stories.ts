@@ -12,7 +12,9 @@ const viewport = z.number().int().positive().max(8000)
  * Embedded by the CLI config schema.
  */
 export const diffConfigSchema = z.strictObject({
-  /** Command that builds the static output, run at the base and the head (TICKET-082). */
+  /** Command that prepares a fresh checkout of the base, run in its repo root (e.g. an install). */
+  setup: path.optional(),
+  /** Command that builds the static output, run at the base and the head. */
   build: path.optional(),
   /** Folder of the static output, relative to the project. */
   outDir: path,
@@ -28,6 +30,8 @@ export const diffConfigSchema = z.strictObject({
   viewports: z.array(viewport).min(1).default([1280]),
   /** Changed-pixel ratio (0–1) a story may differ by before it counts as changed. */
   threshold: z.number().min(0).max(1).default(0),
+  /** Per-pixel colour tolerance (0–1); 0 sees every colour change. */
+  colorThreshold: z.number().min(0).max(1).default(0),
   /** Default base for `dta diff` (a git ref or directory); `--base` overrides it. */
   base: path.optional(),
 })

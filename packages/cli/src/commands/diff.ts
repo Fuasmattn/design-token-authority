@@ -2,8 +2,16 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { parseTokenFiles, type TokenFileInput } from '@dta/core'
 import {
+  compareStories,
   diffTokens,
   readStoriesManifest,
+  renderStoriesMarkdown,
+  storyImagePaths,
+  summarizeStories,
+  toDiffJson,
+  type DiffConfig,
+  type StoryRef,
+  type StoryResult,
   formatState,
   renderTokenChangesMarkdown,
   summarizeCounts,
@@ -14,7 +22,11 @@ import {
 import pc from 'picocolors'
 import type { CommandContext } from '../commands.js'
 import { formatDiagnostic, hasErrors } from '../io/diagnostics.js'
+import { BrowserUnavailableError, launchScreenshotter } from '../io/browser.js'
 import { DiffBaseError, resolveDiffBase } from '../io/diff-base.js'
+import { CommandFailedError, runCommand } from '../io/run-command.js'
+import { serveStatic } from '../io/static-server.js'
+import { createBaseWorktree } from '../io/worktree.js'
 import { readTokenDir, TokenDirError } from '../io/token-dir.js'
 import { banner, createUi } from '../ui.js'
 
@@ -52,8 +64,8 @@ function consoleReport(set: TokenChangeSet): string {
 
 /**
  * `dta diff`: compares the project's tokens with a base (a directory, a git ref, or the merge
- * base with the default branch). For now it reports token changes; rendering and comparing
- * stories comes with the visual part of the epic.
+ * base with the default branch) and, with a `diff` section and a git base, renders the stories
+ * of the base and the head and compares the screenshots (report in `.dta/diff/`).
  */
 export async function runDiff(context: CommandContext): Promise<number> {
   const tokensDir = context.config?.tokens.dir ?? 'tokens'
@@ -99,20 +111,58 @@ export async function runDiff(context: CommandContext): Promise<number> {
   const set = diffTokens(before.model, head.model)
   const total = set.changes.length
   const labels = { base: baseInfo.label }
+  const log = (text: string) => format === 'console' && ui.log.message(text)
 
   if (format === 'console') {
     ui.intro(banner('diff'))
     ui.log.message(`${pc.dim('Base:')} ${baseInfo.label}`)
     if (total > 0) context.stdout(`\n${consoleReport(set)}\n\n`)
-    if (!context.options.tokensOnly) {
-      ui.log.info('Visual comparison of stories is not available yet; showing token changes.')
+  }
+
+  // Visual comparison: needs a `diff` section and a git base (the base is built from it).
+  let stories: StoryResult[] | null = null
+  const diff = context.config?.diff
+  const skip = (reason: string) => format === 'console' && ui.log.info(reason)
+  if (context.options.tokensOnly) {
+    // token changes only, on request
+  } else if (!diff) {
+    skip('No `diff` section in the config: showing token changes only.')
+  } else if (!baseInfo.sha) {
+    skip('The base is a directory, so there is nothing to build: showing token changes only.')
+  } else {
+    try {
+      stories = await compareVisually(context, diff, baseInfo.sha, log)
+    } catch (error) {
+      if (error instanceof BrowserUnavailableError) {
+        context.stderr(`dta diff: ${error.message}\n`)
+        skip('Showing token changes only.')
+      } else if (error instanceof CommandFailedError || error instanceof VisualDiffError) {
+        return fail(error.message)
+      } else {
+        throw error
+      }
     }
   }
+  if (stories) {
+    const reportDir = path.resolve(
+      context.cwd,
+      typeof context.options.report === 'string' ? context.options.report : '.dta/diff',
+    )
+    writeReport(reportDir, set, stories, labels)
+    if (format === 'console') {
+      context.stdout(`\n${consoleStories(stories)}\n\n`)
+      ui.log.message(`${pc.dim('Report:')} ${path.relative(context.cwd, reportDir) || '.'}`)
+    }
+  }
+
   const document =
     format === 'json'
-      ? toJson(set, labels)
+      ? stories
+        ? toDiffJson(set, stories, labels)
+        : toJson(set, labels)
       : format === 'markdown'
-        ? renderTokenChangesMarkdown(set, labels)
+        ? renderTokenChangesMarkdown(set, labels) +
+          (stories ? `\n${renderStoriesMarkdown(stories)}` : '')
         : null
   if (document !== null) {
     if (out) {
@@ -123,12 +173,147 @@ export async function runDiff(context: CommandContext): Promise<number> {
       context.stdout(document)
     }
   }
+  const storiesChanged = stories?.some((s) => s.status !== 'unchanged') ?? false
   if (format === 'console') {
     const summary = summarizeCounts(set.counts)
-    ui.outro(total > 0 ? pc.yellow(summary) : pc.green('No token changes.'))
+    const tokensLine = total > 0 ? pc.yellow(`Tokens: ${summary}`) : pc.green('No token changes.')
+    const storiesText = stories ? `Stories: ${summarizeStories(stories)}` : ''
+    const storiesLine = stories
+      ? `  ${storiesChanged ? pc.yellow(storiesText) : pc.green(storiesText)}`
+      : ''
+    ui.outro(`${tokensLine}${storiesLine}`)
   }
 
-  return failOnChange && total > 0 ? 1 : 0
+  return failOnChange && (total > 0 || storiesChanged) ? 1 : 0
+}
+
+/** A problem with the built output (missing manifest, broken story). */
+class VisualDiffError extends Error {}
+
+function readManifest(outDir: string, diff: DiffConfig, side: string) {
+  const file = path.join(outDir, diff.stories.manifest)
+  if (!fs.existsSync(file)) return null
+  let json: unknown
+  try {
+    json = JSON.parse(fs.readFileSync(file, 'utf8'))
+  } catch {
+    throw new VisualDiffError(`${side}: ${diff.stories.manifest} is not valid JSON.`)
+  }
+  const { stories, diagnostics } = readStoriesManifest(json, { viewports: diff.viewports })
+  if (hasErrors(diagnostics)) {
+    throw new VisualDiffError(`${side}: ${diagnostics.map(formatDiagnostic).join('; ')}`)
+  }
+  return stories
+}
+
+/**
+ * Builds the head and the base (in a temporary worktree), serves both outputs, renders every
+ * story at each viewport and compares the screenshots.
+ */
+async function compareVisually(
+  context: CommandContext,
+  diff: DiffConfig,
+  sha: string,
+  log: (text: string) => void,
+): Promise<StoryResult[]> {
+  const screenshotter = await launchScreenshotter()
+  const cleanup: Array<() => unknown> = [() => screenshotter.close()]
+  try {
+    if (diff.build) {
+      log(`${pc.dim('Building head:')} ${diff.build}`)
+      runCommand(diff.build, context.cwd)
+    }
+    const headOut = path.resolve(context.cwd, diff.outDir)
+    const headStories = readManifest(headOut, diff, 'head')
+    if (!headStories) {
+      throw new VisualDiffError(
+        `no stories manifest at ${path.join(diff.outDir, diff.stories.manifest)} after the build.`,
+      )
+    }
+
+    log(`${pc.dim('Building base:')} ${sha.slice(0, 7)} in a temporary worktree`)
+    const worktree = createBaseWorktree(context.cwd, sha)
+    cleanup.push(() => worktree.remove())
+    if (diff.setup) runCommand(diff.setup, worktree.root)
+    let baseStories: StoryRef[] = []
+    const baseOut = path.resolve(worktree.projectDir, diff.outDir)
+    try {
+      if (diff.build) runCommand(diff.build, worktree.projectDir)
+      baseStories = readManifest(baseOut, diff, 'base') ?? []
+    } catch (error) {
+      if (!(error instanceof CommandFailedError)) throw error
+      // A base that cannot be built (e.g. before the site existed) has no stories: all are new.
+      log(pc.yellow(`The base did not build, so every story counts as added.\n${error.message}`))
+    }
+
+    const headServer = await serveStatic(headOut)
+    cleanup.push(() => headServer.close())
+    const baseServer = await serveStatic(baseOut)
+    cleanup.push(() => baseServer.close())
+
+    log(`${pc.dim('Rendering:')} ${headStories.length} stories`)
+    return await compareStories({
+      base: baseStories,
+      head: headStories,
+      threshold: diff.threshold,
+      colorThreshold: diff.colorThreshold,
+      capture: (side, story, viewport) =>
+        screenshotter.capture(
+          `${(side === 'head' ? headServer : baseServer).url}${story.url}`,
+          viewport,
+        ),
+    })
+  } finally {
+    for (const step of cleanup.reverse()) {
+      try {
+        await step()
+      } catch {
+        // keep cleaning up
+      }
+    }
+  }
+}
+
+function writeReport(
+  dir: string,
+  set: ReturnType<typeof diffTokens>,
+  stories: StoryResult[],
+  labels: { base: string },
+) {
+  fs.rmSync(dir, { recursive: true, force: true })
+  for (const result of stories) {
+    const paths = storyImagePaths(result)
+    for (const side of ['base', 'head', 'diff'] as const) {
+      const image = result.images[side]
+      const file = paths[side]
+      if (!image || !file) continue
+      fs.mkdirSync(path.join(dir, path.dirname(file)), { recursive: true })
+      fs.writeFileSync(path.join(dir, file), image)
+    }
+  }
+  fs.writeFileSync(path.join(dir, 'result.json'), toDiffJson(set, stories, labels))
+  fs.writeFileSync(
+    path.join(dir, 'summary.md'),
+    `${renderTokenChangesMarkdown(set, labels)}\n${renderStoriesMarkdown(stories)}`,
+  )
+}
+
+const STATUS_STYLE: Record<StoryResult['status'], (text: string) => string> = {
+  changed: pc.yellow,
+  added: pc.green,
+  removed: pc.red,
+  unchanged: pc.dim,
+}
+
+function consoleStories(results: StoryResult[]): string {
+  const width = Math.max(...results.map((r) => `${r.id}@${r.viewport}`.length), 0)
+  return results
+    .map((r) => {
+      const label = STATUS_STYLE[r.status](r.status.padEnd(9))
+      const ratio = r.status === 'changed' ? pc.dim(`${(r.ratio * 100).toFixed(2)}%`) : ''
+      return `${label} ${`${r.id}@${r.viewport}`.padEnd(width)}  ${ratio}`.trimEnd()
+    })
+    .join('\n')
 }
 
 /** `dta diff --list`: the stories of the built output, as `dta diff` would render them. */

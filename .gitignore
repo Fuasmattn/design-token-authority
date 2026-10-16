@@ -8,6 +8,7 @@ build
 dist
 token-graph.html
 .astro
+.dta
 dta.config.ts
 test/visual/report
 test/visual/test-results

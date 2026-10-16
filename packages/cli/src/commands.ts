@@ -145,6 +145,10 @@ export const COMMANDS: readonly CommandDefinition[] = [
       { flags: '--tokens-only', description: 'Only compare token values, no screenshots' },
       { flags: '--list', description: 'List the stories dta diff would render, then exit' },
       {
+        flags: '--report <dir>',
+        description: 'Folder for screenshots and results (default: .dta/diff)',
+      },
+      {
         flags: '-f, --format <format>',
         description: 'Output format: console, markdown, json',
         defaultValue: 'console',

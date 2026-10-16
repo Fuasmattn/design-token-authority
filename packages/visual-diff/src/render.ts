@@ -1,3 +1,4 @@
+import type { StoryResult } from './compare.js'
 import type { TokenChange, TokenChangeKind, TokenChangeSet, TokenState } from './token-changes.js'
 
 /** Identifies the shape of `toJson`'s output; bumped on breaking changes. */
@@ -88,6 +89,70 @@ export function renderTokenChangesMarkdown(set: TokenChangeSet, labels: DiffLabe
 export function toJson(set: TokenChangeSet, labels: DiffLabels): string {
   return `${JSON.stringify(
     { schema: TOKEN_CHANGES_SCHEMA, base: labels.base, counts: set.counts, changes: set.changes },
+    null,
+    2,
+  )}\n`
+}
+
+/** Identifies the shape of `toDiffJson`'s output (tokens and stories). */
+export const DIFF_SCHEMA = 'dta.diff/1'
+
+/** Image paths of a story result inside the report folder, e.g. `head/button--variants@1280.png`. */
+export function storyImagePaths(result: Pick<StoryResult, 'id' | 'viewport' | 'images'>) {
+  const name = `${result.id}@${result.viewport}.png`
+  return {
+    ...(result.images.base ? { base: `base/${name}` } : {}),
+    ...(result.images.head ? { head: `head/${name}` } : {}),
+    ...(result.images.diff ? { diff: `diff/${name}` } : {}),
+  }
+}
+
+const percent = (ratio: number) => `${(ratio * 100).toFixed(ratio < 0.001 && ratio > 0 ? 3 : 2)}%`
+
+/** `2 changed · 1 added · 7 unchanged` for story results. */
+export function summarizeStories(results: StoryResult[]): string {
+  const order = ['changed', 'added', 'removed', 'unchanged'] as const
+  const parts = order
+    .map((status) => [status, results.filter((r) => r.status === status).length] as const)
+    .filter(([, count]) => count > 0)
+    .map(([status, count]) => `${count} ${status}`)
+  return parts.length > 0 ? parts.join(' · ') : 'no stories'
+}
+
+/** Markdown table of the stories that differ (all stories when `all`). */
+export function renderStoriesMarkdown(results: StoryResult[], options: { all?: boolean } = {}) {
+  const shown = options.all ? results : results.filter((r) => r.status !== 'unchanged')
+  const lines = ['## dta diff: stories', '', `**${summarizeStories(results)}**`]
+  if (shown.length > 0) {
+    lines.push(
+      '',
+      '| Story | Viewport | Status | Changed pixels |',
+      '| --- | --- | --- | --- |',
+      ...shown.map(
+        (r) =>
+          `| ${code(r.id)} | ${r.viewport}px | ${r.status} | ${r.status === 'changed' || r.status === 'unchanged' ? percent(r.ratio) : '—'} |`,
+      ),
+    )
+  }
+  return `${lines.join('\n')}\n`
+}
+
+/** Tokens and stories in one versioned JSON document (images as paths in the report folder). */
+export function toDiffJson(
+  set: TokenChangeSet,
+  results: StoryResult[],
+  labels: DiffLabels,
+): string {
+  return `${JSON.stringify(
+    {
+      schema: DIFF_SCHEMA,
+      base: labels.base,
+      tokens: { counts: set.counts, changes: set.changes },
+      stories: results.map(({ images, ...rest }) => ({
+        ...rest,
+        images: storyImagePaths({ ...rest, images }),
+      })),
+    },
     null,
     2,
   )}\n`
