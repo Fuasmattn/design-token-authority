@@ -60,7 +60,7 @@ Rewrite DTA as a set of small, deep packages behind a single CLI, using a strang
 - **Config:** `dta.config.ts` with `defineConfig` and Zod validation, JSON fallback, no TOML. Starts from the v1 schema; breaking changes are allowed and released as v2.0.0 with a migration note.
 - **Existing invariants kept:** variable names unique across collections; push never deletes; typed push confirmation, bypassable via flag or config.
 - **Release:** legacy keeps the `dta` binary until parity; the new CLI is not published before then. Changesets in fixed mode for all `@dta/*` packages.
-- **Epic order:** 1) workspace scaffold and snapshot harness, 2) core, 3) figma, 4) build, 5) lint, 6) CLI parity and legacy removal, 7) docs site, 8) visual-diff.
+- **Epic order:** 1) workspace scaffold and snapshot harness, 2) core, 3) figma, 4) build, 5) lint, 6) CLI parity and legacy removal, 7) website, 7b) playground, 8) visual-diff (`dta diff`).
 
 ## Testing Decisions
 
@@ -76,7 +76,7 @@ Rewrite DTA as a set of small, deep packages behind a single CLI, using a strang
 ## Out of Scope
 
 - Open feature tickets until parity: iOS/Android outputs (011–013), naming rules (019), prune (021), AI config generation (024), AI interop (028–032).
-- Docs site (Astro + Starlight on Vercel) and visual-diff (GitHub PR visual output): later epics, each with its own grilling session.
+- Docs site (Astro + Starlight on Vercel) and visual-diff (GitHub PR visual output): later epics with their own specs ([website](./docs-site.md), [playground](./playground.md), [visual-diff](./visual-diff.md)).
 - Replacing Style Dictionary as the build engine.
 - Turbo/Nx or other build orchestration.
 

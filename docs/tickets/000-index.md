@@ -179,7 +179,44 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 |---|---|---|---|---|---|
 | [039](./039-legacy-removal.md) | Remove the legacy code cleanly (parity table, quirk decisions, removal checklist) | High | M | Epics 2–6 | Done |
 
-Later epics (core, figma, build, lint, CLI parity, docs site, visual-diff) get tickets once the previous epic is near done. Every porting ticket must update its row in 039's parity table.
+**Epic 7 — Website ([spec](../specs/docs-site.md))**
+
+| # | Ticket | Priority | Effort | Blocked by | Status |
+|---|---|---|---|---|---|
+| [067](./067-site-remove-dta-docs.md) | Remove `@dta/docs` and the generated token docs page | High | S | 039 | Open |
+| [068](./068-site-design-tokens.md) | DTA Drafting Table as DTA token files, built with `dta build` | High | M | 039 | Open |
+| [069](./069-site-scaffold-theme.md) | Site scaffold: Astro + Starlight themed by the built tokens, built in CI | High | M | 068 | Open |
+| [070](./070-site-components-stories.md) | Drafting Table components and their story pages | High | M | 069 | Open |
+| [071](./071-site-landing-page.md) | Landing page from the "J · Drafting Table" mockup | High | L | 070 | Open |
+| [072](./072-site-docs-content.md) | Docs content (Start, Guides, Reference, Contribute) and a slim README | High | M | 067, 069 | Open |
+| [073](./073-site-learn.md) | Learn: DTCG intro and token pattern catalogue | Medium | M | 069 | Open |
+| [074](./074-site-generated-reference.md) | Generated reference, published schemas and `llms.txt` | Medium | M | 069 | Open |
+| [075](./075-site-deploy.md) | Deploy the website on Vercel | Medium | S | 069 | Open |
+
+**Epic 7b — Playground ([spec](../specs/playground.md))**
+
+| # | Ticket | Priority | Effort | Blocked by | Status |
+|---|---|---|---|---|---|
+| [076](./076-playground-browser-packages.md) | Run the `@dta/*` packages in the browser | High | M | 069 | Open |
+| [077](./077-playground-input-structure-lint.md) | Playground: input, structure and lint findings | High | M | 076 | Open |
+| [078](./078-playground-graph.md) | Playground: dependency graph with brand and breakpoint switcher | Medium | M | 077 | Open |
+| [079](./079-playground-outputs-config.md) | Playground: outputs, generated config and CLI handoff | High | M | 077 | Open |
+
+**Epic 8 — `dta diff`, token-aware visual regression ([spec](../specs/visual-diff.md))**
+
+| # | Ticket | Priority | Effort | Blocked by | Status |
+|---|---|---|---|---|---|
+| [080](./080-diff-token-change-set.md) | `dta diff` tracer: token change set | High | M | 039 | Open |
+| [081](./081-diff-stories-config.md) | Stories adapter and the `diff` config section | High | S | 070, 080 | Open |
+| [082](./082-diff-dual-render-compare.md) | Render base and head in one run and compare | High | L | 081 | Open |
+| [083](./083-diff-attribution-spike.md) | Spike: record which CSS variables each element uses | High | S | 082 | Open |
+| [084](./084-diff-attribution.md) | Explain visual changes by token | High | L | 083 | Open |
+| [085](./085-diff-report.md) | Review report in the Drafting Table design | High | M | 084 | Open |
+| [086](./086-diff-github.md) | Publish hook and `dta diff` in pull requests | High | M | 085 | Open |
+| [087](./087-diff-dogfood-site.md) | Guard the DTA website with `dta diff` | Medium | S | 086 | Open |
+| [088](./088-diff-retire-test-visual.md) | Retire `test:visual` | Medium | XS | 082 | Open |
+
+Order: Epic 7 first (068 → 069 → 070 unblock the rest); 7b and 8 can run in parallel once 069/070 are done; 080 can start right after 039. Design sources: the maintainer's concept doc, the DTA Drafting Table design system and the landing page mockup (see the specs).
 
 ---
 
