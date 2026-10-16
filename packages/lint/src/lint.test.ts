@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { lintTokens } from './index.js'
-import { color, fixtureModel, modelFrom } from './test-helpers.js'
+import { color, fixtureModel, modelFrom, num } from './test-helpers.js'
 
 describe('lintTokens: result', () => {
   it('finds nothing in a clean model', () => {
@@ -196,5 +196,109 @@ describe('naming-pattern', () => {
     expect(result.diagnostics[0].code).toBe('invalid-config')
     expect(result.diagnostics[0].message).toContain('Brand')
     expect(result.violations.map((v) => v.tokenPath)).toEqual(['Other.A/bad'])
+  })
+})
+
+describe('color-contrast', () => {
+  const model = modelFrom({
+    'Base.Value.json': { Dark: color('#000000'), Light: color('#ffffff'), Grey: color('#777777') },
+    'Brand.A.json': {
+      Text: { Main: color('#777777') },
+      Bg: color('#888888'),
+      Via: color('{Dark}'),
+    },
+    'Brand.B.json': { Text: { Main: color('#999999') } },
+  })
+  const rules = (options: object) => ({ rules: { 'color-contrast': options } })
+
+  it('flags pairs below the default 4.5 ratio, in dot or slash form', () => {
+    const result = lintTokens(model, rules({ pairs: [['Text.Main', 'Bg']] }))
+    expect(result.violations).toHaveLength(1)
+    expect(result.violations[0]).toMatchObject({
+      rule: 'color-contrast',
+      severity: 'warn',
+      tokenPath: 'Text.Main / Bg',
+      file: 'Brand.B.json',
+    })
+    expect(result.violations[0].message).toMatch(
+      /^Contrast ratio \d\.\d\d:1 between "Text\.Main" \(#999999\) and "Bg" \(#888888\) is below 4\.5:1$/,
+    )
+    expect(lintTokens(model, rules({ pairs: [['Text/Main', 'Bg']] })).violations).toHaveLength(1)
+  })
+
+  it('honours minRatio and passes sufficient contrast', () => {
+    expect(lintTokens(model, rules({ pairs: [['Dark', 'Light']] })).violations).toEqual([])
+    expect(
+      lintTokens(model, rules({ pairs: [['Dark', 'Light']], minRatio: 30 })).violations,
+    ).toHaveLength(1)
+  })
+
+  it('skips aliased and missing tokens (legacy quirk)', () => {
+    const pairs = [
+      ['Via', 'Light'],
+      ['Nope', 'Light'],
+    ]
+    expect(lintTokens(model, rules({ pairs })).violations).toEqual([])
+  })
+
+  it('looks tokens up by in-file name in any mode, the last one winning (legacy quirk)', () => {
+    // Text.Main exists in Brand.A (#000000, passes) and Brand.B (#999999, fails); Brand.B is last.
+    const result = lintTokens(model, rules({ pairs: [['Text.Main', 'Light']] }))
+    expect(result.violations).toHaveLength(1)
+    expect(result.violations[0].message).toContain('(#999999)')
+  })
+
+  it('skips unparseable colours without throwing', () => {
+    const odd = modelFrom({ 'Base.Value.json': { A: color('#zzz'), B: color('#fff') } })
+    expect(lintTokens(odd, rules({ pairs: [['A', 'B']] })).violations).toEqual([])
+  })
+
+  it('rejects invalid options in the config', () => {
+    const result = lintTokens(model, rules({ minRatio: 'high', pairs: [['A']] }))
+    expect(result.diagnostics.length).toBeGreaterThan(0)
+  })
+})
+
+describe('no-duplicate-values', () => {
+  const rules = { rules: { 'no-duplicate-values': {} } }
+
+  it('reports every member except the first, naming the others', () => {
+    const model = modelFrom({
+      'Base.Value.json': { A: color('#fff'), B: color('#fff'), C: color('#fff'), D: color('#000') },
+    })
+    const result = lintTokens(model, rules)
+    expect(result.violations.map((v) => [v.tokenPath, v.message])).toEqual([
+      ['Base.Value/B', 'Duplicate value "#fff" — also defined in: Base.Value/A, Base.Value/C'],
+      ['Base.Value/C', 'Duplicate value "#fff" — also defined in: Base.Value/A, Base.Value/B'],
+    ])
+    expect(result.violations[0]).toMatchObject({ severity: 'warn', file: 'Base.Value.json' })
+  })
+
+  it('ignores aliases and separates types (legacy quirk)', () => {
+    const model = modelFrom({
+      'Base.Value.json': { A: color('#fff'), N: num(1), S: { $type: 'string', $value: '1' } },
+      'Brand.A.json': { X: color('{A}'), Y: color('{A}') },
+    })
+    expect(lintTokens(model, rules).violations).toEqual([])
+  })
+
+  it('compares across collections and modes (legacy quirk)', () => {
+    const model = modelFrom({
+      'Base.Value.json': { A: color('#fff') },
+      'Other.One.json': { B: color('#fff') },
+      'Other.Two.json': { B: color('#fff') },
+    })
+    expect(lintTokens(model, rules).violations.map((v) => v.tokenPath)).toEqual([
+      'Other.One/B',
+      'Other.Two/B',
+    ])
+  })
+
+  it('respects severity off and error', () => {
+    const model = modelFrom({ 'Base.Value.json': { A: color('#fff'), B: color('#fff') } })
+    const run = (severity: string) =>
+      lintTokens(model, { rules: { 'no-duplicate-values': { severity } } })
+    expect(run('off').violations).toEqual([])
+    expect(run('error').errorCount).toBe(1)
   })
 })
