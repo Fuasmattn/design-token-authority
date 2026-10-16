@@ -145,8 +145,17 @@ describe('attributePixels', () => {
     const result = attributePixels(mask, 10, 4, { 'a (P · V)': [dep([0, 0, 3, 2])] }, 0)
     expect(result).toEqual({
       explained: false,
-      tokens: [{ id: 'a (P · V)', dependents: 1, pixels: 2, elements: ['div.card'] }],
+      tokens: [
+        {
+          id: 'a (P · V)',
+          dependents: 1,
+          pixels: 2,
+          elements: ['div.card'],
+          regions: [{ x: 0, y: 0, width: 3, height: 2 }],
+        },
+      ],
       unexplainedPixels: 1,
+      canvas: { width: 10, height: 4 },
       unexplainedRegion: { x: 8, y: 3, width: 1, height: 1 },
     })
   })
@@ -168,6 +177,26 @@ describe('attributePixels', () => {
     expect(result.tokens.map((t) => [t.id, t.pixels])).toEqual([
       ['a', 3],
       ['b', 1],
+    ])
+  })
+
+  it('keeps the five largest distinct head boxes, clipped to the image', () => {
+    const boxes = [
+      [0, 0, 1, 1],
+      [0, 0, 1, 1],
+      [0, 0, 20, 2],
+      [0, 0, 2, 2],
+      [0, 0, 3, 3],
+      [0, 0, 4, 3],
+      [0, 0, 5, 3],
+    ].map((b) => dep(b as [number, number, number, number]))
+    const [token] = attributePixels(mask, 10, 4, { a: boxes }, 0).tokens
+    expect(token.regions.map((r) => [r.width, r.height])).toEqual([
+      [10, 2],
+      [5, 3],
+      [4, 3],
+      [3, 3],
+      [2, 2],
     ])
   })
 

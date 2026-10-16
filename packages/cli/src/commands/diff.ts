@@ -7,7 +7,10 @@ import {
   compareStories,
   DEPENDENTS_SCRIPT,
   diffTokens,
+  diffResultSchema,
   planReverts,
+  renderReportHtml,
+  renderSummaryMarkdown,
   reviewStories,
   VERDICT_TEXT,
   type Dependent,
@@ -164,7 +167,9 @@ export async function runDiff(context: CommandContext): Promise<number> {
     if (format === 'console') {
       context.stdout(`\n${consoleStories(stories)}\n\n`)
       if (review) context.stdout(`${consoleReview(review)}\n\n`)
-      ui.log.message(`${pc.dim('Report:')} ${path.relative(context.cwd, reportDir) || '.'}`)
+      ui.log.message(
+        `${pc.dim('Report:')} ${path.join(path.relative(context.cwd, reportDir) || '.', 'index.html')}`,
+      )
     }
   }
 
@@ -365,10 +370,15 @@ function writeReport(
     }
   }
   fs.mkdirSync(dir, { recursive: true })
-  fs.writeFileSync(path.join(dir, 'result.json'), toDiffJson(set, stories, labels, review))
+  const json = toDiffJson(set, stories, labels, review)
+  fs.writeFileSync(path.join(dir, 'result.json'), json)
   fs.writeFileSync(
     path.join(dir, 'summary.md'),
-    `${renderTokenChangesMarkdown(set, labels)}\n${renderStoriesMarkdown(stories, { review })}`,
+    renderSummaryMarkdown(set, stories, labels, review),
+  )
+  fs.writeFileSync(
+    path.join(dir, 'index.html'),
+    renderReportHtml(diffResultSchema.parse(JSON.parse(json))),
   )
 }
 

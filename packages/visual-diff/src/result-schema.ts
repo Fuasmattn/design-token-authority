@@ -39,10 +39,16 @@ const attribution = z
         dependents: z.number().int().describe('Elements whose style or box the token changes.'),
         pixels: z.number().int().describe('Changed pixels inside those elements (may overlap).'),
         elements: z.array(z.string()).describe('Up to five element labels, e.g. "button.primary".'),
+        regions: z
+          .array(region)
+          .describe('Up to five dependent boxes in the head image, largest first.'),
       }),
     ),
     unexplainedPixels: z.number().int(),
     unexplainedRegion: region.optional(),
+    canvas: z
+      .object({ width: z.number().int(), height: z.number().int() })
+      .describe('Size of the compared image the regions refer to.'),
     ms: z.number().optional().describe('Time the attribution took.'),
   })
   .describe('Present on changed stories.')

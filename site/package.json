@@ -11,7 +11,8 @@
     "build": "pnpm tokens && astro build",
     "preview": "astro preview",
     "typecheck": "pnpm tokens && astro check",
-    "test": "vitest run"
+    "test": "vitest run",
+    "report:tokens": "tsx scripts/report-tokens.ts"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",

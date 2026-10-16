@@ -41,6 +41,7 @@ export type {
 } from './attribution.js'
 export { reviewStories } from './review.js'
 export type { Review, ReviewThresholds, TokenGroup, UnexplainedStory, Verdict } from './review.js'
-export { VERDICT_TEXT } from './render.js'
+export { renderSummaryMarkdown, SUMMARY_MAX_LENGTH, VERDICT_TEXT } from './render.js'
+export { renderReportHtml } from './report/html.js'
 export { diffResultJsonSchema, diffResultSchema } from './result-schema.js'
 export type { DiffResult } from './result-schema.js'

@@ -170,12 +170,42 @@ export interface Attribution {
   /** Every changed pixel lies in a box of a changed token's dependents. */
   explained: boolean
   /** Tokens with dependents in this story; a pixel may count for several tokens. */
-  tokens: Array<{ id: string; dependents: number; pixels: number; elements: string[] }>
+  tokens: Array<{
+    id: string
+    dependents: number
+    pixels: number
+    elements: string[]
+    /** Up to five dependent boxes in the head image (largest first), for labels in the report. */
+    regions: Region[]
+  }>
   unexplainedPixels: number
   /** Bounding box of the unexplained pixels. */
   unexplainedRegion?: Region
+  /** Size of the compared image the regions refer to. */
+  canvas: { width: number; height: number }
   /** Time the attribution took, in ms. */
   ms?: number
+}
+
+/** The largest distinct head boxes, clipped to the image, at most `max`. */
+function topRegions(dependents: Dependent[], width: number, height: number, max = 5): Region[] {
+  const seen = new Set<string>()
+  const regions: Region[] = []
+  for (const { box } of dependents) {
+    const x = Math.max(0, Math.round(box[0]))
+    const y = Math.max(0, Math.round(box[1]))
+    const region = {
+      x,
+      y,
+      width: Math.min(width, Math.round(box[2])) - x,
+      height: Math.min(height, Math.round(box[3])) - y,
+    }
+    const id = `${region.x},${region.y},${region.width},${region.height}`
+    if (region.width <= 0 || region.height <= 0 || seen.has(id)) continue
+    seen.add(id)
+    regions.push(region)
+  }
+  return regions.sort((a, b) => b.width * b.height - a.width * a.height).slice(0, max)
 }
 
 /** Extra pixels around each box: anti-aliased edges, outlines and shadows next to it. */
@@ -240,9 +270,11 @@ export function attributePixels(
         dependents: dependents[id].length,
         pixels: pixels[t],
         elements: [...new Set(dependents[id].map((d) => d.label))].slice(0, 5),
+        regions: topRegions(dependents[id], width, height),
       }))
       .filter((token) => token.pixels > 0),
     unexplainedPixels: unexplained,
+    canvas: { width, height },
     ...(unexplained > 0
       ? {
           unexplainedRegion: {

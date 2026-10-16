@@ -118,7 +118,12 @@ describe('compareStories', () => {
       threshold: 0,
       attribute: async (s, viewport, comparison) => {
         seen.push(`${s.id}@${viewport}:${comparison.mask.reduce((a, b) => a + b, 0)}`)
-        return { explained: true, tokens: [], unexplainedPixels: 0 }
+        return {
+          explained: true,
+          tokens: [],
+          unexplainedPixels: 0,
+          canvas: { width: 8, height: 8 },
+        }
       },
     })
     expect(seen).toEqual(['card@100:2'])

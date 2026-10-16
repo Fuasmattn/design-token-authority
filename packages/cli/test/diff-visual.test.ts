@@ -180,6 +180,7 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
 
     const report = path.join(dir, '.dta', 'diff')
     for (const file of [
+      'index.html',
       'result.json',
       'summary.md',
       'head/card@320.png',
@@ -190,6 +191,9 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
       expect(fs.existsSync(path.join(report, file)), file).toBe(true)
     }
     expect(fs.existsSync(path.join(report, 'diff/text@320.png'))).toBe(false)
+    const html = fs.readFileSync(path.join(report, 'index.html'), 'utf8')
+    expect(html).toContain('src="diff/card@320.png"')
+    expect(html).toContain('<span class="tag big">Brand</span>')
     expect(fs.readFileSync(path.join(report, 'summary.md'), 'utf8')).toContain(
       '**Fail: unexplained changes above the threshold** · 3 changed · 1 added · 1 unchanged · 2 explained by token changes, 1 unexplained',
     )

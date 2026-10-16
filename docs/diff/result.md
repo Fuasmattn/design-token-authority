@@ -1,6 +1,6 @@
 # `dta diff` result (`dta.diff/1`)
 
-`dta diff` writes `result.json` to its report folder (default `.dta/diff/`) and prints the same document with `--format json` when stories were rendered. [`result.schema.json`](./result.schema.json) is its JSON Schema (draft 2020-12), generated from `diffResultSchema` in `@dta/visual-diff` with `pnpm run schema:generate`; a test fails when it is out of date.
+`dta diff` writes `result.json` to its report folder (default `.dta/diff/`, next to `index.html`, `summary.md` and the PNGs) and prints the same document with `--format json` when stories were rendered. [`result.schema.json`](./result.schema.json) is its JSON Schema (draft 2020-12), generated from `diffResultSchema` in `@dta/visual-diff` with `pnpm run schema:generate`; a test fails when it is out of date.
 
 Within version `dta.diff/1` fields are only added. A change that removes or renames a field, or changes its meaning, bumps the version.
 
@@ -28,13 +28,13 @@ Within version `dta.diff/1` fields are only added. A change that removes or rena
 
 `attribution`:
 
-| Field               | Meaning                                                                                                                                                                                          |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `explained`         | Every changed pixel lies in the box of an element a changed token affects                                                                                                                        |
-| `tokens`            | Per token change (`id`: `name (Collection · Mode)`): `dependents` (elements), `pixels` it explains, `elements` (up to five labels such as `button.primary`). Pixels may count for several tokens |
-| `unexplainedPixels` | Changed pixels no token change explains                                                                                                                                                          |
-| `unexplainedRegion` | `{ x, y, width, height }` around them                                                                                                                                                            |
-| `ms`                | Time the attribution took for this story                                                                                                                                                         |
+| Field               | Meaning                                                                                                                                                                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `explained`         | Every changed pixel lies in the box of an element a changed token affects                                                                                                                                                                              |
+| `tokens`            | Per token change (`id`: `name (Collection · Mode)`): `dependents` (elements), `pixels` it explains, `elements` (up to five labels such as `button.primary`), `regions` (up to five of their boxes, largest first). Pixels may count for several tokens |
+| `unexplainedPixels` | Changed pixels no token change explains                                                                                                                                                                                                                |
+| `unexplainedRegion` | `{ x, y, width, height }` around them                                                                                                                                                                                                                  |
+| `ms`                | Time the attribution took for this story                                                                                                                                                                                                               |
 
 ## Review
 

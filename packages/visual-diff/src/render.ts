@@ -39,7 +39,13 @@ export function formatState(state: TokenState | undefined): string {
 
 const where = (change: TokenChange) => `${change.collection} · ${change.mode}`
 
-function table(kind: TokenChangeKind, changes: TokenChange[]): string[] {
+function table(kind: TokenChangeKind, all: TokenChange[], limit = Infinity): string[] {
+  const changes = all.slice(0, limit)
+  const more = all.length > changes.length ? [`| … and ${all.length - changes.length} more |`] : []
+  return [...rows(kind, changes), ...more]
+}
+
+function rows(kind: TokenChangeKind, changes: TokenChange[]): string[] {
   switch (kind) {
     case 'changed':
       return [
@@ -74,14 +80,18 @@ function table(kind: TokenChangeKind, changes: TokenChange[]): string[] {
   }
 }
 
-/** Markdown for a pull request comment or a CI summary. */
-export function renderTokenChangesMarkdown(set: TokenChangeSet, labels: DiffLabels): string {
+/** Markdown for a pull request comment or a CI summary (`limit`: rows per table). */
+export function renderTokenChangesMarkdown(
+  set: TokenChangeSet,
+  labels: DiffLabels,
+  options: { limit?: number } = {},
+): string {
   const lines = ['## dta diff: token changes', '']
   lines.push(`Base: ${code(labels.base)} · **${summarizeCounts(set.counts)}**`)
   for (const { kind, title } of SECTIONS) {
     const changes = set.changes.filter((change) => change.kind === kind)
     if (changes.length === 0) continue
-    lines.push('', `### ${title} (${changes.length})`, '', ...table(kind, changes))
+    lines.push('', `### ${title} (${changes.length})`, '', ...table(kind, changes, options.limit))
   }
   return `${lines.join('\n')}\n`
 }
@@ -150,9 +160,11 @@ const list = (refs: string[], max = 6) =>
  */
 export function renderStoriesMarkdown(
   results: StoryResult[],
-  options: { all?: boolean; review?: Review } = {},
+  options: { all?: boolean; review?: Review; limit?: number } = {},
 ) {
-  const shown = options.all ? results : results.filter((r) => r.status !== 'unchanged')
+  const limit = options.limit ?? Infinity
+  const listed = options.all ? results : results.filter((r) => r.status !== 'unchanged')
+  const shown = listed.slice(0, limit)
   const lines = ['## dta diff: stories', '']
   const review = options.review
   if (review) {
@@ -183,10 +195,15 @@ export function renderStoriesMarkdown(
         '',
         '| Story | Changed pixels | Region | Over threshold |',
         '| --- | --- | --- | --- |',
-        ...review.unexplained.map(
-          (u) =>
-            `| ${code(u.story)} | ${u.pixels} (${percent(u.ratio)}) | ${u.region ? `${u.region.width}×${u.region.height} at ${u.region.x},${u.region.y}` : '—'} | ${u.failing ? 'yes' : 'no'} |`,
-        ),
+        ...review.unexplained
+          .slice(0, limit)
+          .map(
+            (u) =>
+              `| ${code(u.story)} | ${u.pixels} (${percent(u.ratio)}) | ${u.region ? `${u.region.width}×${u.region.height} at ${u.region.x},${u.region.y}` : '—'} | ${u.failing ? 'yes' : 'no'} |`,
+          ),
+        ...(review.unexplained.length > limit
+          ? [`| … and ${review.unexplained.length - limit} more | | | |`]
+          : []),
       )
     }
   } else {
@@ -202,6 +219,9 @@ export function renderStoriesMarkdown(
         (r) =>
           `| ${code(r.id)} | ${r.viewport}px | ${r.status} | ${r.status === 'changed' || r.status === 'unchanged' ? percent(r.ratio) : '—'} | ${cause(r)} |`,
       ),
+      ...(listed.length > shown.length
+        ? [`| … and ${listed.length - shown.length} more | | | | |`]
+        : []),
     )
   }
   return `${lines.join('\n')}\n`
@@ -228,4 +248,29 @@ export function toDiffJson(
     null,
     2,
   )}\n`
+}
+
+/** GitHub's limit for a comment body is 65,536 characters; leave room for a header. */
+export const SUMMARY_MAX_LENGTH = 60_000
+
+/**
+ * `summary.md`: token changes and stories, short enough for a pull-request comment. Tables are
+ * cut (with "… and N more") until it fits; the full data stays in result.json and the report.
+ */
+export function renderSummaryMarkdown(
+  set: TokenChangeSet,
+  results: StoryResult[],
+  labels: DiffLabels,
+  review?: Review,
+  maxLength = SUMMARY_MAX_LENGTH,
+): string {
+  const render = (limit?: number) =>
+    `${renderTokenChangesMarkdown(set, labels, { limit })}\n${renderStoriesMarkdown(results, { review, limit })}`
+  let markdown = render()
+  for (let limit = 200; markdown.length > maxLength && limit >= 1; limit = Math.floor(limit / 2)) {
+    markdown = render(limit)
+  }
+  if (markdown.length > maxLength)
+    markdown = `${markdown.slice(0, maxLength - 40)}\n\n… (cut, see the report)\n`
+  return markdown
 }

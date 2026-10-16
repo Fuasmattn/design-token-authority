@@ -41,6 +41,7 @@
     "typecheck": "tsc --noEmit -p scripts/snapshots/tsconfig.json && tsc --noEmit -p scripts/figma/tsconfig.json && tsc --noEmit -p scripts/guardrails/tsconfig.json && pnpm -r typecheck",
     "snapshot:check": "vitest run --project @dta/cli packages/cli/test/snapshots.test.ts",
     "snapshot:record": "tsx scripts/snapshots/record.ts",
+    "report:tokens": "pnpm --filter dta-site report:tokens",
     "schema:generate": "tsx scripts/generate-schemas.ts",
     "figma:recording": "tsx scripts/figma/build-recording.ts",
     "guardrails:boundaries": "tsx scripts/guardrails/package-boundaries.ts"

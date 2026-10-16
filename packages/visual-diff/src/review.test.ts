@@ -5,7 +5,9 @@ import {
   diffResultJsonSchema,
   diffResultSchema,
   renderStoriesMarkdown,
+  renderSummaryMarkdown,
   reviewStories,
+  SUMMARY_MAX_LENGTH,
   toDiffJson,
   type StoryResult,
   type TokenCause,
@@ -33,8 +35,17 @@ const cause: TokenCause = {
 }
 const explainedBy = (id: string, pixels = 10) => ({
   explained: true,
-  tokens: [{ id, dependents: 1, pixels, elements: ['button.primary'] }],
+  tokens: [
+    {
+      id,
+      dependents: 1,
+      pixels,
+      elements: ['button.primary'],
+      regions: [{ x: 10, y: 10, width: 100, height: 40 }],
+    },
+  ],
   unexplainedPixels: 0,
+  canvas: { width: 400, height: 200 },
 })
 
 const results: StoryResult[] = [
@@ -52,8 +63,9 @@ const results: StoryResult[] = [
     changedPixels: 2,
     attribution: {
       explained: false,
-      tokens: [{ id: cause.id, dependents: 1, pixels: 1, elements: ['a.link'] }],
+      tokens: [{ id: cause.id, dependents: 1, pixels: 1, elements: ['a.link'], regions: [] }],
       unexplainedPixels: 1,
+      canvas: { width: 400, height: 200 },
       unexplainedRegion: { x: 4, y: 5, width: 1, height: 1 },
     },
   }),
@@ -147,5 +159,32 @@ describe('result.json', () => {
       fs.readFileSync(path.join(repoRoot, 'docs', 'diff', 'result.schema.json'), 'utf-8'),
     ) as unknown
     expect(committed).toEqual(JSON.parse(JSON.stringify(diffResultJsonSchema())))
+  })
+})
+
+describe('renderSummaryMarkdown', () => {
+  const many = Array.from({ length: 3000 }, (_, i) =>
+    result({ id: `story-${i}`, status: 'changed', ratio: 0.01, changedPixels: 10 }),
+  )
+  const set = { changes: [], counts: { changed: 0, added: 0, removed: 0, affected: 0 } }
+
+  it('keeps everything when it fits a pull-request comment', () => {
+    const markdown = renderSummaryMarkdown(set, results, { base: 'main' })
+    expect(markdown).toContain('## dta diff: token changes')
+    expect(markdown).toContain('| `card` | 1280px | changed |')
+    expect(markdown).not.toContain('more |')
+  })
+
+  it('cuts tables to fit, saying how many rows are left out', () => {
+    const markdown = renderSummaryMarkdown(set, many, { base: 'main' })
+    expect(markdown.length).toBeLessThanOrEqual(SUMMARY_MAX_LENGTH)
+    expect(markdown).toMatch(/\| … and \d+ more \|/)
+    expect(markdown).toContain('**3000 changed**')
+  })
+
+  it('respects a smaller limit', () => {
+    expect(
+      renderSummaryMarkdown(set, many, { base: 'main' }, undefined, 2000).length,
+    ).toBeLessThanOrEqual(2000)
   })
 })

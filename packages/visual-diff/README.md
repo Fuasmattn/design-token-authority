@@ -2,7 +2,7 @@
 
 The engine behind `dta diff`. Spec: [docs/specs/visual-diff.md](../../docs/specs/visual-diff.md). Internal package: only `@dta/cli` uses it.
 
-It answers "which tokens changed?" (`diffTokens`), "which stories look different?" (`compareStories`, `compareImages`) and "which token change explains it?" (`planReverts`, `attributePixels`, `reviewStories`). The HTML report follows in 085.
+It answers "which tokens changed?" (`diffTokens`), "which stories look different?" (`compareStories`, `compareImages`) and "which token change explains it?" (`planReverts`, `attributePixels`, `reviewStories`). `renderReportHtml(result)` renders the review report.
 
 ```ts
 import { parseTokenFiles } from '@dta/core'
@@ -58,6 +58,16 @@ Element-level attribution by revert ([TICKET-083](../../docs/tickets/083-diff-at
 3. `attributePixels(mask, width, height, dependents)` maps the changed pixels of the comparison to those boxes (2 px tolerance). A story is **explained** when every changed pixel lies in some dependent's box; otherwise it reports the unexplained pixel count and their bounding region. A pixel may count for several tokens.
 4. `reviewStories(results, causes, thresholds)` groups explained stories by token change and lists unexplained ones, with a verdict: `fail` when an unexplained story changed more than `thresholds.unexplained`, else `review` when an explained story changed more than `thresholds.explained` or stories were added or removed, else `pass`.
 
+Attribution is by region: a component change inside an element that a changed token also restyles or moves counts as explained by that token (in the dogfood run, a Chip radius change next to a `space.2` change). Review the token group's samples with that in mind.
+
 Values a build writes out as literals (JS, Tailwind config) or that JavaScript reads at runtime cannot be reverted in CSS; the pixels they change stay unexplained.
 
 `result.json` (`toDiffJson`, schema `dta.diff/1`) is documented in [docs/diff/result.md](../../docs/diff/result.md); its JSON Schema is generated from `diffResultSchema`.
+
+## Report
+
+The CLI writes the report folder (default `.dta/diff/`): `index.html`, `result.json`, `summary.md` and `base/`, `head/`, `diff/` PNGs per story and viewport. Everything links relatively, so the folder opens from disk or from any static host.
+
+- `renderReportHtml(result)` (from a parsed `result.json`): verdict and counts, then explained changes grouped by token change (before → after with swatches, two samples, a contact sheet of the rest), unexplained stories one by one (dashed redline around the region), added and removed stories, a table of all stories and the token changes. Each changed story shows baseline, candidate and diff, and a drag-to-compare slider (a native range input, so it works with the keyboard) with a diff overlay toggle and redline labels naming the tokens on their elements.
+- Styled with DTA Drafting Table, the website's design system: `src/report/tokens-css.ts` is built by DTA from `site/tokens` (`pnpm report:tokens`; a site test fails when it is stale). Light by default, Graphite with the system's dark preference or the toggle. Fonts fall back to system fonts (the report ships no font files).
+- `renderSummaryMarkdown` writes `summary.md` for a pull-request comment: within GitHub's 65,536-character limit, tables are cut with "… and N more" when needed.
