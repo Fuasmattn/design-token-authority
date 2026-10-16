@@ -1,0 +1,292 @@
+{
+  "bg": {
+    "canvas": {
+      "$type": "color",
+      "$value": "{graphite.900}",
+      "$description": "Page background.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "surface": {
+      "$type": "color",
+      "$value": "{graphite.850}",
+      "$description": "Cards, panels, inputs.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "subtle": {
+      "$type": "color",
+      "$value": "{graphite.800}",
+      "$description": "Wells, segmented controls, grid-paper areas.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "grid": {
+      "$type": "color",
+      "$value": "{graphite.825}",
+      "$description": "Grid paper lines (16px pitch) on bg-subtle or bg-surface. Decoration only.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "border": {
+    "default": {
+      "$type": "color",
+      "$value": "{graphite.700}",
+      "$description": "1px hairlines around surfaces.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "strong": {
+      "$type": "color",
+      "$value": "{paper.200}",
+      "$description": "2px ink outlines on interactive elements and rules.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "fg": {
+    "default": {
+      "$type": "color",
+      "$value": "{graphite.100}",
+      "$description": "Body text and headings on bg-canvas and bg-surface.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "muted": {
+      "$type": "color",
+      "$value": "{graphite.300}",
+      "$description": "Secondary text on bg-canvas and bg-surface.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "subtle": {
+      "$type": "color",
+      "$value": "{graphite.400}",
+      "$description": "Captions, meta, mono labels on bg-canvas and bg-surface.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "action": {
+    "bg": {
+      "$type": "color",
+      "$value": "{blueprint.400}",
+      "$description": "Primary buttons, links, active workflow station.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "fg": {
+      "$type": "color",
+      "$value": "{graphite.900}",
+      "$description": "Text on action-bg.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "subtle": {
+      "$type": "color",
+      "$value": "{blueprint.950}",
+      "$description": "Info chips, selection, focus ring fill.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "text": {
+      "$type": "color",
+      "$value": "{blueprint.200}",
+      "$description": "Text on action-subtle.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "signal": {
+    "bg": {
+      "$type": "color",
+      "$value": "{redline.400}",
+      "$description": "Redlines, redline labels, diffs, the moving packet. Never for errors.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "fg": {
+      "$type": "color",
+      "$value": "{graphite.950}",
+      "$description": "Text on signal-bg (redline labels).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "subtle": {
+      "$type": "color",
+      "$value": "{redline.950}",
+      "$description": "Changed-state chips, diff highlight fills.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "text": {
+      "$type": "color",
+      "$value": "{redline.200}",
+      "$description": "Text on signal-subtle.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "success": {
+    "fg": {
+      "$type": "color",
+      "$value": "{sage.400}",
+      "$description": "Passed checks: text and dots on bg-surface or success-subtle.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "subtle": {
+      "$type": "color",
+      "$value": "{sage.950}",
+      "$description": "Pass chips.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "rail": {
+    "$type": "color",
+    "$value": "{graphite.600}",
+    "$description": "Dashed workflow rail lines. Decoration only.",
+    "$extensions": {
+      "com.figma": {
+        "hiddenFromPublishing": false,
+        "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+        "codeSyntax": {}
+      }
+    }
+  },
+  "terminal": {
+    "bg": {
+      "$type": "color",
+      "$value": "{graphite.950}",
+      "$description": "Terminal and command button background.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "fg": {
+      "$type": "color",
+      "$value": "{graphite.100}",
+      "$description": "Text on terminal-bg.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "prompt": {
+      "$type": "color",
+      "$value": "{redline.400}",
+      "$description": "The $ prompt glyph on terminal-bg.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  }
+}

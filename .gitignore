@@ -17,3 +17,6 @@ test/visual/test-results
 !test/fixtures/**/dta.config.ts
 # Reference snapshots are committed on purpose, including build/, output/ and tokens/ inside them
 !test/snapshots/**
+# The website's design tokens and their config are source
+!site/tokens
+!site/dta.config.ts

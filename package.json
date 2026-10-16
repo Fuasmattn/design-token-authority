@@ -27,7 +27,7 @@
     "packages"
   ],
   "scripts": {
-    "prettier:check": "prettier --check packages/ scripts/ bin/",
+    "prettier:check": "prettier --check packages/ scripts/ bin/ site/",
     "dta": "tsx packages/cli/src/bin.ts",
     "test": "vitest run",
     "test:watch": "vitest",

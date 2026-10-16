@@ -38,4 +38,15 @@ describe('package boundaries', () => {
       findViolations('scripts/a.ts', `import x from '@dta/testkit/src/capture.js'\n`),
     ).toHaveLength(1)
   })
+
+  it('keeps the website inside its own folder', () => {
+    expect(
+      findViolations('site/src/a.ts', `import x from './b.js'\nimport y from '@dta/core'\n`),
+    ).toEqual([])
+    const [v] = findViolations(
+      'site/src/a.ts',
+      `import x from '../../packages/core/src/index.js'\n`,
+    )
+    expect(v.reason).toContain('leaves the package')
+  })
 })

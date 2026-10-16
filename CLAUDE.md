@@ -86,6 +86,7 @@ packages/
   cli/       commands (pull, push, build, lint, graph, analyze, clean, init, diff), config loader, UI
   testkit/   private test helpers: Figma fake, snapshot capture
 bin/dta.js   binary entry (runs packages/cli/src/bin.ts through tsx)
+site/        the DTA website (private workspace app); site/tokens = DTA Drafting Table tokens, built with dta build
 scripts/     snapshot recorder, Figma recording/schema tools, guardrails
 test/        fixtures, Figma recordings, reference snapshots, Playwright visual tests (until Epic 8)
 ```
@@ -181,7 +182,7 @@ These are tracked as tickets — do not work around them, fix them at the source
 
 ## Testing
 
-- Framework: Vitest (one project per package, plus `scripts/guardrails`)
+- Framework: Vitest (one project per package, plus `site` and `scripts/guardrails`)
 - Test files live alongside source (`packages/*/src/**/*.test.ts`); CLI-level tests in `packages/cli/test/`, testkit tests in `packages/testkit/test/`
 - Run: `pnpm test`
 - When adding new source files, add a corresponding `*.test.ts`

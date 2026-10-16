@@ -1,0 +1,21 @@
+{
+  "name": "dta-site",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The Design Token Authority website (Astro + Starlight); its design tokens are built with DTA",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "tokens": "node ../bin/dta.js build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@dta/build": "workspace:*",
+    "@dta/core": "workspace:*",
+    "@dta/lint": "workspace:*",
+    "@types/node": "^24.12.2",
+    "typescript": "^5.1.6",
+    "vitest": "^4.1.2"
+  }
+}

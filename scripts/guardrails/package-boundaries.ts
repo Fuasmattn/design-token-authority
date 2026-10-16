@@ -26,10 +26,15 @@ function stripComments(source: string): string {
     .replace(/^\s*\/\/.*$/gm, '')
 }
 
+/** The workspace member a repo-relative path belongs to: `packages/<name>` or `site`. */
+function ownerOf(file: string): string | undefined {
+  return /^(packages\/[^/]+|site)\//.exec(file)?.[1]
+}
+
 /** `file` is repo-relative with forward slashes. */
 export function findViolations(file: string, source: string): Violation[] {
   const violations: Violation[] = []
-  const owner = /^packages\/([^/]+)\//.exec(file)?.[1]
+  const owner = ownerOf(file)
   const text = stripComments(source)
   for (const match of text.matchAll(SPECIFIER)) {
     const specifier = match[2]
@@ -43,8 +48,7 @@ export function findViolations(file: string, source: string): Violation[] {
       })
     } else if (specifier.startsWith('.') && owner) {
       const target = path.posix.normalize(path.posix.join(path.posix.dirname(file), specifier))
-      const targetPackage = /^packages\/([^/]+)(\/|$)/.exec(target)?.[1]
-      if (targetPackage !== owner) {
+      if (ownerOf(`${target}/`) !== owner) {
         violations.push({
           file,
           line,
@@ -58,7 +62,7 @@ export function findViolations(file: string, source: string): Violation[] {
 }
 
 const SOURCE_FILE = /\.(?:[cm]?[jt]sx?)$/
-const SKIP = new Set(['node_modules', 'dist', '.git'])
+const SKIP = new Set(['node_modules', 'dist', '.git', '.astro', 'output'])
 
 function* walk(dir: string): Generator<string> {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -70,7 +74,7 @@ function* walk(dir: string): Generator<string> {
 }
 
 export function checkBoundaries(repoRoot: string): Violation[] {
-  const roots = ['packages', 'scripts'].map((d) => path.join(repoRoot, d))
+  const roots = ['packages', 'scripts', 'site'].map((d) => path.join(repoRoot, d))
   return (
     roots
       .filter((root) => fs.existsSync(root))
