@@ -9,7 +9,7 @@ const tailwind = (tokens: Record<string, Spec>) =>
 
 describe('Tailwind v3 output', () => {
   for (const fixture of ['brand-ab', 'daisyui']) {
-    it(`matches the legacy snapshots for ${fixture}`, async () => {
+    it(`matches the v1 snapshots for ${fixture}`, async () => {
       const { files } = await buildOutputs(fixtureModel(fixture), {
         brands: fixture === 'brand-ab' ? ['BrandA', 'BrandB'] : [],
       })

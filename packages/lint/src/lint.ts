@@ -114,7 +114,7 @@ function colorContrast(
   severity: 'error' | 'warn',
 ): LintViolation[] {
   const minRatio = options.minRatio ?? 4.5
-  // Legacy quirk (pinned by tests): raw hex tokens only, looked up by their in-file name in any
+  // v1 quirk (pinned by tests): raw hex tokens only, looked up by their in-file name in any
   // mode; when several modes define the same name, the last one wins.
   const lookup = new Map<string, { hex: string; file: string }>()
   for (const node of graph.nodes) {
@@ -151,7 +151,7 @@ function colorContrast(
 }
 
 function noDuplicateValues(graph: GraphAnalysis, severity: 'error' | 'warn'): LintViolation[] {
-  // Legacy quirk (pinned by tests): groups across all collections and modes.
+  // v1 quirk (pinned by tests): groups across all collections and modes.
   const groups = new Map<string, GraphAnalysis['nodes']>()
   for (const node of graph.nodes) {
     if (node.aliasTarget !== null) continue

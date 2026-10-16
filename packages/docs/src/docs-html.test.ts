@@ -29,7 +29,7 @@ const snapshot = (fixture: string) =>
     'utf8',
   )
 
-describe('generateDocsHtml: parity with the legacy build snapshots', () => {
+describe('generateDocsHtml: parity with the v1 build snapshots', () => {
   it.each([
     ['brand-ab', ['BrandA', 'BrandB']],
     ['daisyui', []],

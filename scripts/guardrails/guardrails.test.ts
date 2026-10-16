@@ -1,30 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { checkLegacyFrozen } from './legacy-frozen.js'
 import { findViolations } from './package-boundaries.js'
-
-describe('legacy is frozen', () => {
-  it('passes when only packages and docs change', () => {
-    const result = checkLegacyFrozen(['packages/core/src/index.ts', 'docs/x.md'], [])
-    expect(result.ok).toBe(true)
-  })
-
-  it('fails when legacy source or its tests change, and names the files', () => {
-    const result = checkLegacyFrozen(['src/color.ts', 'src/color.test.ts', 'README.md'], [])
-    expect(result.ok).toBe(false)
-    expect(result.changed).toEqual(['src/color.ts', 'src/color.test.ts'])
-    expect(result.message).toContain('src/color.ts')
-    expect(result.message).toContain('legacy-exception')
-  })
-
-  it('passes with the exception label', () => {
-    expect(checkLegacyFrozen(['src/color.ts'], ['legacy-exception']).ok).toBe(true)
-  })
-
-  it('ignores other labels and look-alike paths', () => {
-    expect(checkLegacyFrozen(['src/color.ts'], ['bug']).ok).toBe(false)
-    expect(checkLegacyFrozen(['packages/cli/src/run.ts', 'scripts/src/a.ts'], []).ok).toBe(true)
-  })
-})
 
 describe('package boundaries', () => {
   const file = 'packages/cli/src/run.ts'

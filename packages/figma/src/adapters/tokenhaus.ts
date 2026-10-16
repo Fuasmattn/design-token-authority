@@ -3,7 +3,7 @@ import { z } from 'zod'
 import type { Adapter } from './types.js'
 
 /**
- * Adapter for exports of the tokenHaus Figma plugin (kept for parity with the legacy
+ * Adapter for exports of the tokenHaus Figma plugin (kept for parity with v1
  * `pull --from-file`; whether it stays is decided in TICKET-039).
  *
  * Format: one JSON file whose top-level keys are Figma collection names, with

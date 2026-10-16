@@ -233,7 +233,7 @@ describe('color-contrast', () => {
     ).toHaveLength(1)
   })
 
-  it('skips aliased and missing tokens (legacy quirk)', () => {
+  it('skips aliased and missing tokens (v1 quirk)', () => {
     const pairs = [
       ['Via', 'Light'],
       ['Nope', 'Light'],
@@ -241,7 +241,7 @@ describe('color-contrast', () => {
     expect(lintTokens(model, rules({ pairs })).violations).toEqual([])
   })
 
-  it('looks tokens up by in-file name in any mode, the last one winning (legacy quirk)', () => {
+  it('looks tokens up by in-file name in any mode, the last one winning (v1 quirk)', () => {
     // Text.Main exists in Brand.A (#000000, passes) and Brand.B (#999999, fails); Brand.B is last.
     const result = lintTokens(model, rules({ pairs: [['Text.Main', 'Light']] }))
     expect(result.violations).toHaveLength(1)
@@ -274,7 +274,7 @@ describe('no-duplicate-values', () => {
     expect(result.violations[0]).toMatchObject({ severity: 'warn', file: 'Base.Value.json' })
   })
 
-  it('ignores aliases and separates types (legacy quirk)', () => {
+  it('ignores aliases and separates types (v1 quirk)', () => {
     const model = modelFrom({
       'Base.Value.json': { A: color('#fff'), N: num(1), S: { $type: 'string', $value: '1' } },
       'Brand.A.json': { X: color('{A}'), Y: color('{A}') },
@@ -282,7 +282,7 @@ describe('no-duplicate-values', () => {
     expect(lintTokens(model, rules).violations).toEqual([])
   })
 
-  it('compares across collections and modes (legacy quirk)', () => {
+  it('compares across collections and modes (v1 quirk)', () => {
     const model = modelFrom({
       'Base.Value.json': { A: color('#fff') },
       'Other.One.json': { B: color('#fff') },

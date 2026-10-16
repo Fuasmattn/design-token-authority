@@ -18,7 +18,7 @@ function packageVersion(): string {
   }
 }
 
-/** Exit code for an invalid config (same as the legacy CLI). */
+/** Exit code for an invalid config (same as the v1 CLI). */
 const EXIT_INVALID_CONFIG = 2
 
 export interface CliIo {

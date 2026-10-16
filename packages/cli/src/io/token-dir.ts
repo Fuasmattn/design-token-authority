@@ -14,7 +14,7 @@ export class TokenDirError extends Error {
 
 /**
  * Reads the `*.json` token files of a directory (relative paths resolve against `cwd`),
- * sorted by name. Blank files are skipped, as in the legacy CLI.
+ * sorted by name. Blank files are skipped, as in the v1 CLI.
  */
 export function readTokenDir(directory: string, cwd: string): TokenFileInput[] {
   const absolute = path.resolve(cwd, directory)

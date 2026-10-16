@@ -1,5 +1,5 @@
 /**
- * Style Dictionary formatter: Tailwind v4 @theme CSS output (ported from the legacy formatter)
+ * Style Dictionary formatter: Tailwind v4 @theme CSS output (ported from the v1 formatter)
  *
  * Generates a `tailwind.css` file with a Tailwind v4 `@theme {}` block.
  * Tailwind v4 reads CSS custom properties under `@theme` at build time to

@@ -5,7 +5,7 @@ import type { TokenModel, TokenName, TokenType, TokenValue } from './types.js'
 
 /** One token in one mode. */
 export interface GraphNode {
-  /** `Collection.Mode/Group/Sub/Token`, the same id legacy `dta graph` printed. */
+  /** `Collection.Mode/Group/Sub/Token`, the same id v1 `dta graph` printed. */
   id: string
   collection: string
   mode: string

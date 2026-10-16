@@ -37,7 +37,7 @@ export function variablesToModel(
     const local = Object.values(variables).filter(
       (variable) => !variable.remote && variable.variableCollectionId === figmaCollection.id,
     )
-    // Like legacy: a collection without local variables produces no files.
+    // Like v1: a collection without local variables produces no files.
     if (local.length === 0) continue
 
     const modes: { id: string; name: string }[] = []

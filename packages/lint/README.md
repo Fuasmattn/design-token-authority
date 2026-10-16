@@ -33,7 +33,7 @@ Configurable rules default to `warn`, run only when present in the config, and c
 | `color-contrast`      | `pairs`: `[foreground, background]` token names (dot or slash form); `minRatio` (default 4.5)                                                                                                  |
 | `no-duplicate-values` | none                                                                                                                                                                                           |
 
-## Behaviour kept from the legacy linter (for parity)
+## Behaviour kept from the v1 linter (for parity)
 
 - `color-contrast` only compares raw hex tokens; aliased or missing tokens are skipped. Tokens are found by their name inside the file, in any mode; if several modes define the same name, the last one wins.
 - `no-duplicate-values` groups non-alias tokens by `type:value` across all collections and modes, and reports every member except the first.

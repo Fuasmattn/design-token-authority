@@ -5,7 +5,7 @@ import pc from 'picocolors'
 import type { CommandContext } from '../commands.js'
 import { formatDiagnostic, hasErrors } from '../io/diagnostics.js'
 import { readTokenDir, TokenDirError } from '../io/token-dir.js'
-import { inLegacyOrder } from '../graph/shared.js'
+import { inV1Order } from '../graph/shared.js'
 import { formatConsoleReport } from '../graph/console.js'
 import { formatDotGraph } from '../graph/dot.js'
 import { generateHtmlVisualization } from '../graph/html.js'
@@ -43,7 +43,7 @@ export async function runGraph(context: CommandContext): Promise<number> {
   spinner.start('Reading token files...')
   const { model, diagnostics } = parseTokenFiles(files)
   spinner.message('Building dependency graph...')
-  const graph = inLegacyOrder(analyzeGraph(model))
+  const graph = inV1Order(analyzeGraph(model))
   spinner.stop('Graph built')
 
   if (hasErrors(diagnostics)) {

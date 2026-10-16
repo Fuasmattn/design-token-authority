@@ -98,7 +98,7 @@ export async function runBuild(context: CommandContext): Promise<number> {
   }
   writeFiles(context.cwd, [...files, docs])
 
-  // The package builds everything in one go; the steps are reported in the legacy order.
+  // The package builds everything in one go; the steps are reported in the v1 order.
   const order = reportOrder(files, brands, config)
   const step = (start: string, done: string) => {
     const spinner = ui.spinner()

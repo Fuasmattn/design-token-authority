@@ -177,7 +177,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 | # | Ticket | Priority | Effort | Blocked by | Status |
 |---|---|---|---|---|---|
-| [039](./039-legacy-removal.md) | Remove the legacy code cleanly (parity table, quirk decisions, removal checklist) | High | M | Epics 2–6 | Blocked |
+| [039](./039-legacy-removal.md) | Remove the legacy code cleanly (parity table, quirk decisions, removal checklist) | High | M | Epics 2–6 | Done |
 
 Later epics (core, figma, build, lint, CLI parity, docs site, visual-diff) get tickets once the previous epic is near done. Every porting ticket must update its row in 039's parity table.
 

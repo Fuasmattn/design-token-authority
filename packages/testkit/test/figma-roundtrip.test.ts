@@ -1,5 +1,5 @@
 /**
- * Proves the Figma recording is faithful, using the frozen legacy CLI as the judge:
+ * Proves the Figma recording is faithful, using the CLI as the judge:
  *  - `pull` against the fake reproduces the fixture's token files;
  *  - `push` of unchanged tokens finds nothing to change;
  *  - `push` of an edited token sends the expected payload.
@@ -25,12 +25,12 @@ const recording = JSON.parse(
 
 const FILE_KEY = 'TESTFILEKEY-brand-ab'
 const TOKEN = 'fake-token'
-const legacyCli: CliCommand = {
+const cli: CliCommand = {
   command: process.execPath,
   args: [
     '--import',
     pathToFileURL(createRequire(import.meta.url).resolve('tsx')).href,
-    path.join(repoRoot, 'src', 'cli.ts'),
+    path.join(repoRoot, 'packages', 'cli', 'src', 'bin.ts'),
   ],
 }
 
@@ -62,7 +62,7 @@ function project(name: string, withTokens: boolean): string {
   return dir
 }
 
-/** Legacy export always writes `$description`; the fixtures omit empty ones. */
+/** Pull always writes `$description` (as v1 did); the fixtures omit empty ones. */
 function withoutEmptyDescriptions(node: unknown): unknown {
   if (Array.isArray(node)) return node.map(withoutEmptyDescriptions)
   if (node && typeof node === 'object') {
@@ -75,12 +75,12 @@ function withoutEmptyDescriptions(node: unknown): unknown {
   return node
 }
 
-describe('legacy pull against the recording', () => {
+describe('pull against the recording', () => {
   it('reproduces the fixture token files', async () => {
     const result = await captureScenario({
       fixtureDir: project('pull', false),
       scenario: { name: 'pull', args: ['pull'] },
-      cli: legacyCli,
+      cli,
       repoRoot,
       figmaApiUrl: fake.url,
     })
@@ -106,13 +106,13 @@ describe('legacy pull against the recording', () => {
   })
 })
 
-describe('legacy push against the recording', () => {
+describe('push against the recording', () => {
   it('has nothing to change when tokens equal the recording', async () => {
     const before = fake.requests.length
     const result = await captureScenario({
       fixtureDir: project('push-unchanged', true),
       scenario: { name: 'push', args: ['push', '--yes', '--skip-lint'] },
-      cli: legacyCli,
+      cli,
       repoRoot,
       figmaApiUrl: fake.url,
     })
@@ -133,7 +133,7 @@ describe('legacy push against the recording', () => {
     const result = await captureScenario({
       fixtureDir: dir,
       scenario: { name: 'push', args: ['push', '--yes', '--skip-lint'] },
-      cli: legacyCli,
+      cli,
       repoRoot,
       figmaApiUrl: fake.url,
     })
@@ -142,7 +142,7 @@ describe('legacy push against the recording', () => {
     const posts = fake.requests.slice(before).filter((r) => r.method === 'POST')
     expect(posts).toHaveLength(1)
     expect(posts[0].token).toBe(TOKEN)
-    // Legacy omits the alpha channel when it is 1.
+    // The payload omits the alpha channel when it is 1 (as v1 did).
     expect(posts[0].body?.variableModeValues).toEqual([
       {
         variableId: 'VariableID:1:1',

@@ -10,11 +10,11 @@ export const entries = (record: Record<string, number>): Array<[string, number]>
   Object.entries(record)
 
 /**
- * Puts the analysis in the order the legacy reports used: files sorted by their full file
+ * Puts the analysis in the order the v1 reports used: files sorted by their full file
  * name (`Collection.Mode.json`), tokens in file order. The model sorts modes on their own,
  * which differs for modes such as `1` and `1.5`. Everything derived from the nodes follows.
  */
-export function inLegacyOrder(graph: GraphAnalysis): GraphAnalysis {
+export function inV1Order(graph: GraphAnalysis): GraphAnalysis {
   const files = [...new Set(graph.nodes.map(fileOf))].sort((a, b) => {
     const [x, y] = [`${a}.json`, `${b}.json`]
     return x < y ? -1 : x > y ? 1 : 0

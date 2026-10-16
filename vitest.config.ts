@@ -5,14 +5,6 @@ export default defineConfig({
     projects: [
       {
         test: {
-          name: 'legacy',
-          environment: 'node',
-          globals: true,
-          include: ['src/**/*.test.ts'],
-        },
-      },
-      {
-        test: {
           name: 'guardrails',
           environment: 'node',
           include: ['scripts/guardrails/**/*.test.ts'],

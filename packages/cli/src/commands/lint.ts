@@ -7,7 +7,7 @@ import { formatDiagnostic, hasErrors } from '../io/diagnostics.js'
 import { readTokenDir, TokenDirError } from '../io/token-dir.js'
 import { banner, createUi } from '../ui.js'
 
-/** Same exit code as the legacy CLI: 2 when there are lint errors. */
+/** Same exit code as the v1 CLI: 2 when there are lint errors. */
 const EXIT_LINT_ERRORS = 2
 
 function formatViolation(violation: LintViolation): string {

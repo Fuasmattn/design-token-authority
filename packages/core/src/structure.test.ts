@@ -32,7 +32,7 @@ function collection(name: string, modes: string[], count: number, aliasRatio: nu
 const model = (...collections: ReturnType<typeof collection>[]): TokenModel => ({ collections })
 
 describe('analyzeStructure: the BrandA/BrandB fixture', () => {
-  it('finds the three layers, as legacy `dta analyze` does for the same data', () => {
+  it('finds the three layers, as v1 `dta analyze` does for the same data', () => {
     const result = analyzeStructure(fixtureModel('brand-ab'))
 
     expect(result).toEqual({

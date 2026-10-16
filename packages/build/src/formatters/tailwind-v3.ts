@@ -1,5 +1,5 @@
 /**
- * Style Dictionary formatter: Tailwind v3 theme output (ported from the legacy formatter)
+ * Style Dictionary formatter: Tailwind v3 theme output (ported from the v1 formatter)
  *
  * Generates a `tailwind.tokens.ts` file that exports a Tailwind v3-compatible
  * `theme.extend` object. Color tokens are output as CSS variable references

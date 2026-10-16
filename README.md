@@ -83,9 +83,9 @@ dta <cmd> -v                    # verbose logging
 - **CLI flag:** `dta push --yes` (one-off, useful for CI)
 - **Config:** `push: { skipConfirmation: true }` in `dta.config.ts` (permanent)
 
-### Replaced scripts
+### Upgrading from v1
 
-The old `sync-figma-to-tokens` and `sync-tokens-to-figma` npm scripts are gone: use `dta pull` and `dta push`.
+v2 keeps the commands, flags, token files and build outputs of v1. The config is validated more strictly and a few outputs were fixed; see the [v1 → v2 migration note](docs/migration/v1-to-v2.md). The old `sync-figma-to-tokens` and `sync-tokens-to-figma` npm scripts are gone: use `dta pull` and `dta push`.
 
 ## Configuration
 

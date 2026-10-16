@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased (2.0.0)
+
+### ⚠ Breaking changes
+
+* Rewrite as `@dta/*` packages behind one CLI; the v1 source tree is removed (TICKET-039). Config validation is stricter (unknown keys are rejected). See [docs/migration/v1-to-v2.md](docs/migration/v1-to-v2.md).
+* Removed the repository scripts `build`, `build:cli` and `prepare` that only served v1.
+
 ## 1.0.0 (2026-04-07)
 
 ### Features

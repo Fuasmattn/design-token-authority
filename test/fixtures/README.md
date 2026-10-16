@@ -1,6 +1,6 @@
-# Parity fixtures
+# Fixtures
 
-Two self-contained projects that the legacy and the new (`@dta/*`) pipeline are both run against. Snapshots (TICKET-035) are captured from these. Run commands from inside a fixture folder.
+Two self-contained projects the CLI snapshot test runs against (reference snapshots in `test/snapshots/`, originally captured from v1 to prove parity, TICKET-035). Run commands from inside a fixture folder.
 
 | Fixture | Source | What it covers |
 |---|---|---|
@@ -17,7 +17,7 @@ From `test/fixtures/daisyui/`:
 
 (`brand-ab/tokens/` is hand-authored; edit the files directly.)
 
-## Expected legacy behaviour
+## Expected behaviour
 
 | Command | `brand-ab` | `daisyui` |
 |---|---|---|

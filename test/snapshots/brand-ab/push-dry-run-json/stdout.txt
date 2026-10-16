@@ -2,7 +2,6 @@ T   ⤴  dta push
 |
 !  8 lint warnings found.
 |
-Local variable collections in Figma file: [ 'Primitives', 'Brand(Alias)', 'ScreenType' ]
 o  Diff computed
 {
   "summary": {

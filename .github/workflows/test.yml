@@ -16,7 +16,7 @@ jobs:
       - run: pnpm run typecheck
       - run: pnpm run guardrails:boundaries
       - run: pnpm run test
-      - name: Snapshots match the frozen legacy pipeline
+      - name: CLI output matches the reference snapshots
         run: |
           set +e
           pnpm run snapshot:check > snapshot-check.log 2>&1

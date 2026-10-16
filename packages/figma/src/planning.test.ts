@@ -69,7 +69,7 @@ describe('planPush: the BrandA/BrandB recording', () => {
     })
   })
 
-  it('plans exactly one value update for an edited color, with the payload legacy sent', () => {
+  it('plans exactly one value update for an edited color, with the payload v1 sent', () => {
     const model = fixtureModel()
     findToken(model, 'Primitives', 'Colors.Foundation.Blue.500').values.Value = '#010203'
 

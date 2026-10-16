@@ -41,7 +41,7 @@ const figma = (scopes: string[]) => ({ 'com.figma': { scopes } })
 
 describe('buildOutputs: base layer', () => {
   for (const fixture of ['brand-ab', 'daisyui']) {
-    it(`writes output/css/base.css for ${fixture} exactly as the legacy build did`, async () => {
+    it(`writes output/css/base.css for ${fixture} exactly as the v1 build did`, async () => {
       const { files } = await buildOutputs(fixtureModel(fixture), { brands: [] })
       expect(find(files, 'output/css/base.css')).toBe(snapshot(fixture, 'output/css/base.css'))
     })
@@ -117,7 +117,7 @@ describe('buildOutputs: base layer', () => {
 
 describe('buildOutputs: shared outputs', () => {
   for (const fixture of ['brand-ab', 'daisyui']) {
-    it(`writes variables.css and the JS palette for ${fixture} exactly as the legacy build did`, async () => {
+    it(`writes variables.css and the JS palette for ${fixture} exactly as the v1 build did`, async () => {
       const { files } = await buildOutputs(fixtureModel(fixture), { brands: [] })
       for (const file of ['output/css/variables.css', 'output/js/colorpalette.js']) {
         expect(find(files, file), file).toBe(snapshot(fixture, file))
@@ -158,7 +158,7 @@ describe('buildOutputs: shared outputs', () => {
 })
 
 describe('buildOutputs: brand themes', () => {
-  it('writes one theme per brand exactly as the legacy build did', async () => {
+  it('writes one theme per brand exactly as the v1 build did', async () => {
     const { files, diagnostics } = await buildOutputs(fixtureModel('brand-ab'), {
       brands: ['BrandA', 'BrandB'],
     })
@@ -266,7 +266,7 @@ describe('buildOutputs: options', () => {
   })
 })
 
-describe('buildOutputs: parity with the legacy build', () => {
+describe('buildOutputs: parity with the v1 build', () => {
   const walk = (dir: string): string[] =>
     fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
       const full = path.join(dir, entry.name)

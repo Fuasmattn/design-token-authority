@@ -4,8 +4,8 @@
  * There is no live Figma file behind the fixtures, so the "recording" is synthesized from
  * the fixture's token files into the response shape of
  * `GET /v1/files/:key/variables/local` (see @figma/rest-api-spec). The round-trip tests in
- * packages/testkit/test/ prove it is faithful: legacy `pull` against the fake reproduces the
- * fixture's tokens, and legacy `push` of the unchanged tokens finds nothing to change.
+ * packages/testkit/test/ prove it is faithful: `pull` against the fake reproduces the
+ * fixture's tokens, and `push` of the unchanged tokens finds nothing to change.
  *
  *   pnpm figma:recording            rewrite test/recordings/brand-ab/variables-local.json
  */

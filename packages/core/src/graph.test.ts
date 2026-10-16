@@ -142,8 +142,8 @@ describe('analyzeGraph: output', () => {
   })
 })
 
-/** Numbers printed by the frozen legacy `dta graph` for a fixture. */
-function legacyReport(fixture: string) {
+/** Numbers printed by the v1 `dta graph` for a fixture. */
+function v1Report(fixture: string) {
   const text = fs.readFileSync(
     path.join(repoRoot, 'test', 'snapshots', fixture, 'graph-console', 'stdout.txt'),
     'utf-8',
@@ -172,12 +172,12 @@ function legacyReport(fixture: string) {
 }
 
 describe.each(['brand-ab', 'daisyui'])(
-  'analyzeGraph agrees with legacy `dta graph` on %s',
+  'analyzeGraph agrees with v1 `dta graph` on %s',
   (fixture) => {
     it('reports the same totals, per-file and per-type counts', () => {
       const { model: parsed } = parseTokenFiles(readFixtureFiles(fixture))
       const { stats } = analyzeGraph(parsed)
-      const legacy = legacyReport(fixture)
+      const v1 = v1Report(fixture)
       expect({
         totalTokens: stats.totalTokens,
         aliasTokens: stats.aliasTokens,
@@ -187,15 +187,15 @@ describe.each(['brand-ab', 'daisyui'])(
         orphanedTokens: stats.orphanedTokens,
         tokensByType: stats.tokensByType,
       }).toEqual({
-        totalTokens: legacy.totalTokens,
-        aliasTokens: legacy.aliasTokens,
-        maxChainDepth: legacy.maxChainDepth,
-        circularRefs: legacy.circularRefs,
-        danglingAliases: legacy.danglingAliases,
-        orphanedTokens: legacy.orphanedTokens,
-        tokensByType: legacy.tokensByType,
+        totalTokens: v1.totalTokens,
+        aliasTokens: v1.aliasTokens,
+        maxChainDepth: v1.maxChainDepth,
+        circularRefs: v1.circularRefs,
+        danglingAliases: v1.danglingAliases,
+        orphanedTokens: v1.orphanedTokens,
+        tokensByType: v1.tokensByType,
       })
-      expect(stats.tokensByFile).toEqual(legacy.tokensByFile)
+      expect(stats.tokensByFile).toEqual(v1.tokensByFile)
     })
   },
 )

@@ -8,4 +8,4 @@ import { generateDocsHtml } from '@dta/docs'
 const html = generateDocsHtml(tokenFiles, ['BrandA', 'BrandB']) // [{ fileName, content }], brand modes
 ```
 
-This is a straight port of the legacy generator (output is byte-identical to the recorded `build` snapshots). The redesign belongs to the docs site epic. Files that are not valid JSON are skipped; validate with `@dta/core` first to report them.
+This is a straight port of the v1 generator (output is byte-identical to the recorded `build` snapshots). The redesign belongs to the docs site epic. Files that are not valid JSON are skipped; validate with `@dta/core` first to report them.

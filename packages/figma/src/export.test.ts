@@ -194,7 +194,7 @@ describe('variablesToModel: conversion rules', () => {
     expect(flag).toMatchObject({ type: 'boolean', values: { mode1: true, mode2: false } })
   })
 
-  it('writes legacy-shaped files for new tokens (description always present)', () => {
+  it('writes v1-shaped files for new tokens (description always present)', () => {
     const { model } = variablesToModel(
       response([modes[0]], {
         V1: { name: 'g/x', resolvedType: 'FLOAT', valuesByMode: { '1:0': 1 } },

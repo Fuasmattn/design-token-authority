@@ -86,7 +86,7 @@ describe('dta build', () => {
     expect(exists('dist/tw/tailwind.css')).toBe(true)
     expect(exists('dist/docs/index.html')).toBe(true)
     expect(exists('output/css')).toBe(false)
-    // The JS directory is not configurable (legacy quirk, kept).
+    // The JS directory is not configurable (v1 quirk, kept).
     expect(exists('output/js/colorpalette.js')).toBe(true)
   })
 

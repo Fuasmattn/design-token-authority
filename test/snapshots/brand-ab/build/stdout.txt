@@ -20,7 +20,7 @@ o  Generated files ---------------------------+
 |  output/tailwind/brandb/tailwind.tokens.ts  |
 |  output/tailwind/brandb/tailwind.css        |
 |  output/css/variables.css                   |
-|  build/js/colorpalette.js                   |
+|  output/js/colorpalette.js                  |
 |  output/tailwind/tailwind.tokens.ts         |
 |  output/tailwind/tailwind.css               |
 |  output/docs/index.html                     |

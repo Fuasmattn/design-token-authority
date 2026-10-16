@@ -165,7 +165,7 @@ describe('importPluginExport: tokenHaus exports', () => {
 
     expect(format).toBe('tokenhaus')
     expect(diagnostics.filter((d) => d.severity === 'error')).toEqual([])
-    // the same 22 collections and 41 collection/mode files the legacy fixture holds
+    // the same 22 collections and 41 collection/mode files the fixture holds
     expect(model.collections).toHaveLength(22)
     expect(model.collections.reduce((sum, c) => sum + c.modes.length, 0)).toBe(41)
     for (const file of serializeTokenFiles(model)) {

@@ -20,7 +20,7 @@ const { files, diagnostics } = await buildOutputs(model, { brands: ['BrandA', 'B
 | `css.outDir`      | CSS directory (default `output/css`)                                    |
 | `tailwind.outDir` | Tailwind directory (default `output/tailwind`)                          |
 
-The JS palette is always `output/js/colorpalette.js` (same as the legacy build).
+The JS palette is always `output/js/colorpalette.js` (same as the v1 build).
 
 ## Files
 
@@ -29,7 +29,7 @@ The JS palette is always `output/js/colorpalette.js` (same as the legacy build).
 
 ## Contract
 
-- **Parity:** for both fixtures the files are byte-identical to the legacy `build` snapshots in `test/snapshots/*/build/files/output/{css,js,tailwind}`. The docs HTML (`output/docs`) is not part of this package; the docs site is Epic 7.
+- **Parity:** for both fixtures the files are byte-identical to the v1 `build` snapshots in `test/snapshots/*/build/files/output/{css,js,tailwind}`. The docs HTML (`output/docs`) is not part of this package; the docs site is Epic 7.
 - **Deterministic:** the same model gives the same files in the same order.
 - **No throwing for data problems:** diagnostics with codes `broken-reference`, `unknown-brand`, `unknown-collection`, `invalid-option` (all warnings).
-- Known output quirks of the legacy build are kept on purpose and listed in TICKET-039.
+- Known output quirks of the v1 build are kept on purpose and listed in TICKET-039.

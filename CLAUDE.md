@@ -74,7 +74,7 @@ Example: `Brand(Alias).BrandA.json`, `ScreenType.Desktop.json`
 
 ## Source code structure
 
-**Active code lives in `packages/*`** (all commands are ported; `dta` and `design-token-authority` start `packages/cli`):
+All code lives in `packages/*` (pnpm workspace). `dta` and `design-token-authority` start `packages/cli`:
 
 ```
 packages/
@@ -85,43 +85,12 @@ packages/
   docs/      docs-site HTML generator
   cli/       commands (pull, push, build, lint, graph, analyze, clean, init), config loader, UI
   testkit/   private test helpers: Figma fake, snapshot capture
-bin/dta.js   binary entry (runs packages/cli/src/bin.ts)
+bin/dta.js   binary entry (runs packages/cli/src/bin.ts through tsx)
+scripts/     snapshot recorder, Figma recording/schema tools, guardrails
+test/        fixtures, Figma recordings, reference snapshots, Playwright visual tests (until Epic 8)
 ```
 
-The `src/` tree below is the **frozen legacy reference** that `pnpm snapshot:check` still records from. TICKET-039 deletes it.
-
-```
-src/
-  cli.ts                CLI entrypoint (design-token-authority / dta)
-  analyze.ts            Figma structure autodiscovery — analyzeCollections()
-  figma_api.ts          Figma REST API wrapper — getLocalVariables(), postVariables()
-  token_types.ts        TypeScript interfaces: Token, TokensFile, TokenOrTokenGroup
-  token_export.ts       Figma API response → token JSON files (export direction)
-  token_import.ts       Token JSON files → Figma API POST payload (import direction)
-  color.ts              Color utilities: parseColor(), rgbToHex(), colorApproximatelyEqual()
-  utils.ts              Console color helpers, areSetsEqual()
-  config/
-    schema.ts           Config type definitions + validation (dta.config.ts)
-    loader.ts           Runtime config file loader
-    index.ts            Public re-exports
-  graph.ts              Token dependency graph: build, analyze, detect cycles/dangling/orphans, visualize
-  commands/
-    pull.ts             dta pull
-    push.ts             dta push
-    build.ts            dta build
-    clean.ts            dta clean (remove tokens + output)
-    init.ts             dta init (wizard)
-    analyze.ts          dta analyze
-    graph.ts            dta graph (dependency analysis + visualization)
-  importers/
-    tokenhaus.ts        tokenHaus plugin export → per-mode token files
-    detect.ts           Auto-detect import file format (tokenhaus vs dtcg-per-mode)
-    index.ts            Public re-exports
-  formatters/
-    tailwind-v3.ts      Tailwind v3 theme.extend formatter
-    tailwind-v4.ts      Tailwind v4 @theme CSS formatter
-  *.test.ts             Vitest tests alongside source files
-```
+The v1 tree (`src/`) was removed in TICKET-039; `docs/tickets/039-legacy-removal.md` records where each v1 behaviour went.
 
 ---
 
@@ -131,11 +100,11 @@ src/
 
 - **In JSON token files:** `{Group.SubGroup.Token}` (dot-separated)
 - **In Figma:** `Group/SubGroup/Token` (slash-separated)
-- Conversion happens in `token_export.ts` (Figma → JSON) and `token_import.ts` (JSON → Figma)
+- Conversion happens in `@dta/figma`: `variablesToModel` (Figma → JSON) and `planPush` (JSON → Figma)
 
 ### Variable uniqueness assumption
 
-`token_import.ts` assumes variable names are unique across all collections. This assumption enables alias resolution without needing collection-qualified names. Do not break this.
+Push planning (`@dta/figma`) and alias resolution (`@dta/core`) assume variable names are unique across all collections. This assumption enables alias resolution without needing collection-qualified names. Do not break this.
 
 ### Conservative sync
 
@@ -147,7 +116,7 @@ The push direction (`dta push`) **never deletes** variables from Figma. It only 
 
 ### TypeScript imports
 
-Source files use `.js` extensions in imports (e.g. `import { rgbToHex } from './color.js'`) despite being `.ts` files. This is required for ESM compatibility with `tsx`. Do not change this pattern.
+Source files use `.js` extensions in imports (e.g. `import { parseColor } from './color.js'`) despite being `.ts` files. This is required for ESM compatibility with `tsx` (which is also why `bin/dta.js` registers tsx). Do not change this pattern.
 
 ---
 
@@ -174,9 +143,12 @@ pnpm dta analyze         # Inspect Figma file structure
 pnpm dta graph           # Token dependency graph (console summary)
 pnpm dta graph --format html   # Interactive HTML visualization
 pnpm dta init            # Interactive project setup wizard
-pnpm test                      # Run Vitest (legacy + all packages)
-pnpm typecheck                 # Typecheck legacy + all packages
-pnpm prettier:check         # Check code formatting
+pnpm test                      # Run Vitest (all packages, scripts)
+pnpm typecheck                 # Typecheck all packages and scripts
+pnpm prettier:check            # Check code formatting
+pnpm snapshot:check            # CLI output against the reference snapshots
+pnpm snapshot:record --scenario <fixture>/<scenario>   # intentional output change only
+pnpm test:visual               # Playwright visual tests (replaced by Epic 8)
 ```
 
 ### Figma plan requirements
@@ -195,36 +167,21 @@ pnpm dta pull --from-file <exported.json>
 
 The `dta init` wizard asks which Figma plan you have and adjusts the setup flow accordingly.
 
-### Build pipeline (current, pre-v4)
-
-`pnpm build` runs `removedollarsigns.sh` (strips `$` from token keys) then `style-dictionary build`.
-⚠️ This mutates token files. After a build run, token files may have `type`/`value` instead of `$type`/`$value`.
-**This will be fixed by TICKET-002 (upgrade to Style Dictionary v4).**
-
----
-
 ## Known tech debt
 
 These are tracked as tickets — do not work around them, fix them at the source:
 
-| Issue                                              | Ticket                   |
-| -------------------------------------------------- | ------------------------ |
-| Credentials in `.env` committed to git             | TICKET-001               |
-| Style Dictionary v3 (use v4)                       | TICKET-002               |
-| `removedollarsigns.sh` mutates source files        | TICKET-002 (fixed by v4) |
-| CSS blur/opacity values missing units              | TICKET-003               |
-| Redundant segment names in CSS vars (`blur-blur-`) | TICKET-004               |
-| Inconsistent env var names across local and CI     | TICKET-005               |
-| `meta.Mode1.json` uses Figma default mode name     | TICKET-006               |
+| Issue                                              | Ticket     |
+| -------------------------------------------------- | ---------- |
+| `meta.Mode1.json` uses Figma default mode name     | TICKET-006 |
 
 ---
 
 ## Testing
 
-- Framework: Vitest
-- Test files live alongside source: `color.test.ts`, `token_export.test.ts`, `token_import.test.ts`, `config/schema.test.ts`, `analyze.test.ts`, `cli.test.ts`, `commands/init.test.ts`, `graph.test.ts`
+- Framework: Vitest (one project per package, plus `scripts/guardrails`)
+- Test files live alongside source (`packages/*/src/**/*.test.ts`); CLI-level tests in `packages/cli/test/`, testkit tests in `packages/testkit/test/`
 - Run: `pnpm test`
-- Coverage: color parsing, export conversion, import payload generation, alias resolution, edge cases
 - When adding new source files, add a corresponding `*.test.ts`
 
 ---
@@ -243,29 +200,26 @@ These are tracked as tickets — do not work around them, fix them at the source
 ## CI / GitHub Actions
 
 - `.github/workflows/test.yml` — runs on every push: prettier check + typecheck + package-boundary check + vitest + snapshot check (pnpm, Node from .nvmrc)
-- `.github/workflows/guardrails.yml` — on pull requests: fails if legacy `src/` changes (unless labeled `legacy-exception`)
 
-CI secret name: `FIGMA_PERSONAL_ACCESS_TOKEN` (see TICKET-005 — currently inconsistent).
+CI needs no Figma secrets (Figma is faked from `test/recordings/`). Locally the variable is `FIGMA_PERSONAL_ACCESS_TOKEN`.
 
 ---
 
 ## Token Engine Overhaul (Phase 8) — read before touching code
 
-The project is being rewritten package by package (strangler). Background: [spec](docs/specs/token-engine-overhaul.md), [ADR 0001](docs/adr/0001-strangler-rewrite.md), [ADR 0002](docs/adr/0002-pnpm-monorepo-single-cli.md). Tickets 033+ in `docs/tickets/000-index.md` (Phase 8). Work one ticket at a time; open feature tickets wait until parity.
+The project was rewritten package by package (strangler); parity is reached and the v1 tree is gone (TICKET-039). Epic 7 (docs site) and Epic 8 (visual-diff) follow. Background: [spec](docs/specs/token-engine-overhaul.md), [ADR 0001](docs/adr/0001-strangler-rewrite.md), [ADR 0002](docs/adr/0002-pnpm-monorepo-single-cli.md). Tickets 033+ in `docs/tickets/000-index.md` (Phase 8). Work one ticket at a time; open feature tickets wait until parity.
 
 **Rules**
 
-- Legacy `src/` is **frozen**: it is the parity reference. Do not edit it (CI fails the PR unless a maintainer adds the `legacy-exception` label). New code goes in `packages/*`.
-- Packages (`@dta/core`, `@dta/testkit`, `@dta/cli`; later `figma`, `build`, `lint`) expose a small public API through their entry point. Import other packages only by name (`@dta/core`), never `@dta/core/src/...` or `../../core/...`. `pnpm run guardrails:boundaries` checks this.
+- Packages (`@dta/core`, `@dta/figma`, `@dta/build`, `@dta/lint`, `@dta/docs`, `@dta/cli`, `@dta/testkit`) expose a small public API through their entry point. Import other packages only by name (`@dta/core`), never `@dta/core/src/...` or `../../core/...`. `pnpm run guardrails:boundaries` checks this.
 - `@dta/core` depends on no other `@dta/*` package. Only `@dta/cli` is user-facing; `@dta/testkit` is private and dev-only.
-- Porting a legacy behaviour? Update its row in `docs/tickets/039-legacy-removal.md` (parity table) in the same PR; delete the matching legacy files in that same PR (label `legacy-exception`) once its row is proven.
 - Don't commit or push without the maintainer's explicit go-ahead.
 - Never use real customer brand names in files; use BrandA/BrandB. Say "snapshot", not "golden".
 
 **Test seams**
 
 - Package seam (primary): test each package through its public API only, with thorough tests inside the package.
-- CLI seam (parity): `test/snapshots/` holds reference snapshots recorded from the frozen legacy CLI on `test/fixtures/*`. Never regenerate them from new code or "update to pass"; an intentional output change is a reviewed snapshot diff. Reviewed, intentional differences are listed in `INTENDED_CHANGES` in `packages/cli/test/snapshots.test.ts` (and in the quirk table of TICKET-039); the `PENDING` list is empty.
+- CLI seam: `test/snapshots/` holds reference snapshots of the CLI on `test/fixtures/*` (recorded from v1 to prove parity). A failing snapshot means the output changed: fix the code, never "re-record to pass". An intentional output change is re-recorded with `pnpm snapshot:record --scenario <fixture>/<scenario>` (every scenario named, no record-all) and reviewed as a snapshot diff in the same PR.
 - Figma boundary: use `startFigmaFake` from `@dta/testkit` with `test/recordings/`; CI needs no Figma secrets. Real-Figma check: `docs/testing/figma-smoke-test.md`.
 
 **Gates every ticket must pass** (same as CI)
@@ -290,9 +244,4 @@ All feature work is documented in `docs/tickets/`. Each ticket has:
 
 **Always check the index before starting new work:** `docs/tickets/000-index.md`
 
-Recommended starting sequence:
-
-1. TICKET-001 + TICKET-005 (credentials + env names, one PR)
-2. TICKET-002 (Style Dictionary v4 — unblocks most other work)
-3. TICKET-008 → TICKET-007 (config schema then CLI)
-4. Output targets (009–013) based on immediate project needs
+Next up: Epic 7 (docs site) and Epic 8 (visual-diff) in Phase 8 of the index; the open feature tickets of Phases 1–7 come after.

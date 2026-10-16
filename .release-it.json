@@ -13,8 +13,7 @@
     "publish": false
   },
   "hooks": {
-    "before:init": ["npm test", "npm run prettier:check"],
-    "after:bump": "npm run build:cli"
+    "before:init": ["pnpm test", "pnpm run prettier:check"]
   },
   "plugins": {
     "@release-it/conventional-changelog": {
