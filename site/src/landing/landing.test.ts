@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { COMMANDS, REVIEW_TABS, TRUST_RUN } from './content'
+import { COMMANDS, NPM_RELEASED, REVIEW_TABS, TRUST_RUN } from './content'
 
 const cli = fs.readFileSync(
   path.resolve(import.meta.dirname, '../../../packages/cli/src/commands.ts'),
@@ -10,11 +10,18 @@ const cli = fs.readFileSync(
 const registered = new Set([...cli.matchAll(/name: '([a-z:-]+)'/g)].map((m) => m[1]))
 
 describe('landing page honesty rule', () => {
-  it('shows only shipped commands as shipped; the rest are labelled coming', () => {
+  it('shows only commands that work as written as shipped; the rest are labelled coming', () => {
     for (const command of Object.values(COMMANDS)) {
       const exists = command.uses.every((name) => registered.has(name))
-      expect(exists, `${command.text} is marked shipped: ${command.shipped}`).toBe(command.shipped)
+      const runnable = !command.text.startsWith('npx ') || NPM_RELEASED
+      expect(exists && runnable, `${command.text} is marked shipped: ${command.shipped}`).toBe(
+        command.shipped,
+      )
     }
+  })
+
+  it('never shows `npx dta` (that npm name belongs to another package)', () => {
+    for (const command of Object.values(COMMANDS)) expect(command.text).not.toMatch(/npx dta\b/)
   })
 
   it('marks checks that are not released yet', () => {

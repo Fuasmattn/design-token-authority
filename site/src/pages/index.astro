@@ -145,6 +145,14 @@ const cards = [
             <a href="#review" class="btn-outline">See a review</a>
             <a href="#use" class="link-mono">or let your agent set it up →</a>
           </div>
+          {
+            !COMMANDS.init.shipped && (
+              <p class="release-note in4">
+                <span class="coming">coming</span> The npm release is on its way. Until then, run
+                DTA from a clone: <a href="/start/quick-start/">Quick start</a>
+              </p>
+            )
+          }
         </div>
       </section>
 
@@ -309,6 +317,14 @@ const cards = [
           <div>
             <p class="band-title">Start in one command.</p>
             <CommandButton command={COMMANDS.init.text} />
+            {
+              !COMMANDS.init.shipped && (
+                <p class="band-note">
+                  <span class="coming">coming</span> with the npm release ·{' '}
+                  <a href="/start/quick-start/">run it from a clone today</a>
+                </p>
+              )
+            }
           </div>
           <nav class="band-nav" aria-label="Footer">
             <a href="/start/">Docs</a>

@@ -294,6 +294,30 @@ h1 {
   color: var(--action-bg);
 }
 
+.release-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 0;
+  color: var(--fg-muted);
+  font-size: 15px;
+}
+.release-note a,
+.band-note a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+.band-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
 /* Sections */
 .sec {
   border-top: var(--stroke-hairline) solid var(--border-default);

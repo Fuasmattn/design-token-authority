@@ -4,19 +4,27 @@
  * coming, and the review demo is marked as example data.
  */
 
+/**
+ * DTA is not on npm yet (TICKET-090). Until it is, a command that runs through `npx` does not
+ * work as written and is shown as coming. (The npm name `dta` belongs to another package, so
+ * the page never shows `npx dta`.)
+ */
+export const NPM_RELEASED = false
+
 /** A CLI command the page shows. `shipped: false` renders with a "coming" label. */
 export interface Command {
   text: string
   /** The `dta` subcommands it uses (checked against the CLI in landing.test.ts). */
   uses: string[]
+  /** Works as written today: the subcommands exist and, for `npx`, the package is released. */
   shipped: boolean
 }
 
 export const COMMANDS = {
-  init: { text: 'npx dta init', uses: ['init'], shipped: true },
-  build: { text: 'npx dta build', uses: ['build'], shipped: true },
-  govern: { text: 'npx dta lint && npx dta diff', uses: ['lint', 'diff'], shipped: true },
-  skill: { text: 'npx dta skill add', uses: ['skill'], shipped: false },
+  init: { text: 'npx design-token-authority init', uses: ['init'], shipped: NPM_RELEASED },
+  build: { text: 'dta build', uses: ['build'], shipped: true },
+  govern: { text: 'dta lint && dta diff', uses: ['lint', 'diff'], shipped: true },
+  skill: { text: 'dta skill add', uses: ['skill'], shipped: false },
 } satisfies Record<string, Command>
 
 export type Severity = 'error' | 'warning' | 'breaking' | 'expected' | 'needs review'

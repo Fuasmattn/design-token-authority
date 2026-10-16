@@ -217,6 +217,14 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [088](./088-diff-retire-test-visual.md) | Retire `test:visual` | Medium | XS | 082 | Done |
 | [089](./089-diff-storybook-adapter.md) | Storybook adapter for `dta diff` | Medium | M | 082 | Done |
 
+**Follow-ups found while writing the docs (072)**
+
+| # | Ticket | Priority | Effort | Blocked by | Status |
+|---|---|---|---|---|---|
+| [090](./090-first-npm-release.md) | First npm release (compiled CLI, `npx design-token-authority`) | High | M | — | Open |
+| [091](./091-build-breakpoint-modes.md) | Breakpoint modes in the build output | Medium | M | — | Open |
+| [092](./092-lint-contrast-per-mode.md) | `color-contrast` per mode, through aliases | Medium | S | — | Open |
+
 Order: Epic 7 first (068 → 069 → 070 unblock the rest); 7b and 8 can run in parallel once 069/070 are done; 080 can start right after 039. Design sources: the maintainer's concept doc, the DTA Drafting Table design system and the landing page mockup (see the specs).
 
 ---
