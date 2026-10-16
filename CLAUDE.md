@@ -89,7 +89,7 @@ bin/dta.js   binary entry (runs packages/cli/src/bin.ts through tsx)
 site/        the DTA website (private workspace app); site/tokens = DTA Drafting Table tokens, built with dta build
 actions/     GitHub composite actions for dta diff (run, report, approve), example workflows, publish recipes
 scripts/     snapshot recorder, Figma recording/schema tools, guardrails
-test/        fixtures, Figma recordings, reference snapshots, Playwright visual tests (until Epic 8)
+test/        fixtures, Figma recordings, reference snapshots
 ```
 
 The v1 tree (`src/`) was removed in TICKET-039; `docs/tickets/039-legacy-removal.md` records where each v1 behaviour went.
@@ -157,7 +157,6 @@ pnpm typecheck                 # Typecheck all packages and scripts
 pnpm prettier:check            # Check code formatting
 pnpm snapshot:check            # CLI output against the reference snapshots
 pnpm snapshot:record --scenario <fixture>/<scenario>   # intentional output change only
-pnpm test:visual               # Playwright visual tests (replaced by Epic 8)
 ```
 
 ### Figma plan requirements

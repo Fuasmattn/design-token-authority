@@ -23,17 +23,17 @@ Your `dta.config.ts` keeps working. What is new or stricter:
 
 Each change is a reviewed snapshot diff, listed with its reason in the quirk table of [TICKET-039](../tickets/039-legacy-removal.md).
 
-| Command | v1 | v2 |
-|---|---|---|
-| `dta build` | Summary listed `build/js/colorpalette.js` | Lists the path it writes: `output/js/colorpalette.js` |
-| `dta pull` | Token files had no final newline | New files end with a newline; existing files keep their formatting |
-| `dta push` | Printed a debug line `Local variable collections in Figma file: [...]` | Removed |
-| `dta clean` | Deleted the whole top-level folder of an output dir (`src/styles` removed `src/`) | Deletes only configured output folders and the build defaults, then empty parents; refuses folders outside the project |
-| `dta --version` | Always `0.1.0` | The version from `package.json` |
-| `dta build` | Also wrote a token docs page (`output/docs/index.html`) | No docs page; `outputs.docs` in a config is an error ("removed in v2"), delete the key. The DTA website replaces it |
-| `dta init` | Animated logo, opened `build/docs/index.html`, `.env.example` named old scripts | Static banner, opens nothing, names `dta pull` / `dta push` |
-| `dta clean` | Treated `output/docs` as a build folder | Only `output/css`, `output/js`, `output/tailwind` and configured folders |
-| `dta test:visual` | Ran the Playwright tests | Prints where the tests moved and exits 3 (visual-diff replaces it, Epic 8) |
+| Command           | v1                                                                                | v2                                                                                                                          |
+| ----------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `dta build`       | Summary listed `build/js/colorpalette.js`                                         | Lists the path it writes: `output/js/colorpalette.js`                                                                       |
+| `dta pull`        | Token files had no final newline                                                  | New files end with a newline; existing files keep their formatting                                                          |
+| `dta push`        | Printed a debug line `Local variable collections in Figma file: [...]`            | Removed                                                                                                                     |
+| `dta clean`       | Deleted the whole top-level folder of an output dir (`src/styles` removed `src/`) | Deletes only configured output folders and the build defaults, then empty parents; refuses folders outside the project      |
+| `dta --version`   | Always `0.1.0`                                                                    | The version from `package.json`                                                                                             |
+| `dta build`       | Also wrote a token docs page (`output/docs/index.html`)                           | No docs page; `outputs.docs` in a config is an error ("removed in v2"), delete the key. The DTA website replaces it         |
+| `dta init`        | Animated logo, opened `build/docs/index.html`, `.env.example` named old scripts   | Static banner, opens nothing, names `dta pull` / `dta push`                                                                 |
+| `dta clean`       | Treated `output/docs` as a build folder                                           | Only `output/css`, `output/js`, `output/tailwind` and configured folders                                                    |
+| `dta test:visual` | Ran the Playwright tests                                                          | Removed (TICKET-088): use `dta diff`, which renders your stories at the base and the head and explains the changes by token |
 
 ## Removed
 

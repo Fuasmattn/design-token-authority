@@ -214,7 +214,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [085](./085-diff-report.md) | Review report in the Drafting Table design | High | M | 084 | Done |
 | [086](./086-diff-github.md) | Publish hook and `dta diff` in pull requests | High | M | 085 | In progress |
 | [087](./087-diff-dogfood-site.md) | Guard the DTA website with `dta diff` | Medium | S | 086 | Open |
-| [088](./088-diff-retire-test-visual.md) | Retire `test:visual` | Medium | XS | 082 | Open |
+| [088](./088-diff-retire-test-visual.md) | Retire `test:visual` | Medium | XS | 082 | Done |
 | [089](./089-diff-storybook-adapter.md) | Storybook adapter for `dta diff` | Medium | M | 082 | Open |
 
 Order: Epic 7 first (068 → 069 → 070 unblock the rest); 7b and 8 can run in parallel once 069/070 are done; 080 can start right after 039. Design sources: the maintainer's concept doc, the DTA Drafting Table design system and the landing page mockup (see the specs).

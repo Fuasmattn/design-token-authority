@@ -12,7 +12,6 @@ type CommandName =
   | 'lint'
   | 'init'
   | 'diff'
-  | 'test:visual'
 
 const STYLES: Record<CommandName, { icon: string; paint: (text: string) => string }> = {
   pull: { icon: '⤵', paint: (s) => pc.bgCyan(pc.black(s)) },
@@ -24,7 +23,6 @@ const STYLES: Record<CommandName, { icon: string; paint: (text: string) => strin
   lint: { icon: '✔', paint: (s) => pc.bgYellow(pc.black(s)) },
   init: { icon: '✨', paint: (s) => pc.bgCyan(pc.black(s)) },
   diff: { icon: '◑', paint: (s) => pc.bgYellow(pc.black(s)) },
-  'test:visual': { icon: '◐', paint: (s) => pc.bgBlue(pc.white(s)) },
 }
 
 /** Intro banner of a command, e.g. ` ✔  dta lint ` on a coloured background. */

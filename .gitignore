@@ -10,8 +10,6 @@ token-graph.html
 .astro
 .dta
 dta.config.ts
-test/visual/report
-test/visual/test-results
 # The @dta/build package is source code, not build output
 !packages/build
 # Parity fixtures are committed on purpose (see test/fixtures/README.md)

@@ -9,7 +9,6 @@ import { runInit } from './commands/init.js'
 import { runLint } from './commands/lint.js'
 import { runPull } from './commands/pull.js'
 import { runPush } from './commands/push.js'
-import { runTestVisual } from './commands/test-visual.js'
 
 export interface CommandOption {
   flags: string
@@ -172,19 +171,7 @@ export const COMMANDS: readonly CommandDefinition[] = [
       VERBOSE,
     ],
   },
-  {
-    name: 'test:visual',
-    description: 'Run visual regression tests against build output',
-    needsConfig: false,
-    run: runTestVisual,
-    options: [
-      {
-        flags: '--update-baseline',
-        description: 'Update baseline screenshots after intentional changes',
-      },
-      VERBOSE,
-    ],
-  },
+
   {
     name: 'init',
     description: 'Create a new dta.config.ts in the current directory',

@@ -38,18 +38,7 @@ describe('help and usage', () => {
 
   it('offers the v1 commands plus diff', () => {
     expect([...COMMAND_NAMES].sort()).toEqual(
-      [
-        'analyze',
-        'build',
-        'clean',
-        'diff',
-        'graph',
-        'init',
-        'lint',
-        'pull',
-        'push',
-        'test:visual',
-      ].sort(),
+      ['analyze', 'build', 'clean', 'diff', 'graph', 'init', 'lint', 'pull', 'push'].sort(),
     )
   })
 
@@ -84,12 +73,11 @@ describe('--version', () => {
   })
 })
 
-describe('test:visual', () => {
-  it('points to the repository script and exits with code 3', async () => {
-    const { exitCode, stdout, stderr } = await run(['test:visual'])
-    expect(exitCode).toBe(3)
-    expect(stdout).toContain('pnpm test:visual')
-    expect(stderr).toContain('no longer a CLI command')
+describe('removed commands', () => {
+  it('no longer knows test:visual (dta diff replaces it)', async () => {
+    const { exitCode, stderr } = await run(['test:visual'])
+    expect(exitCode).toBe(1)
+    expect(stderr).toContain('test:visual')
   })
 })
 
