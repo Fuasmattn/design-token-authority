@@ -15,6 +15,7 @@ Your `dta.config.ts` keeps working. What is new or stricter:
 - **`figma` is optional.** v1 required a `figma` object even for file-based imports; v2 defaults it to `{}`.
 - **`lint.rules.naming-pattern.patterns` must be valid regular expressions.** An invalid pattern is a config error at load time instead of a failure during `dta lint`.
 - **`layers` is still accepted** but deprecated; use `collections`.
+- **`outputs.docs` is rejected**: the token docs page is gone (see below).
 
 `defineConfig` is still imported from `design-token-authority`.
 
@@ -29,7 +30,9 @@ Each change is a reviewed snapshot diff, listed with its reason in the quirk tab
 | `dta push` | Printed a debug line `Local variable collections in Figma file: [...]` | Removed |
 | `dta clean` | Deleted the whole top-level folder of an output dir (`src/styles` removed `src/`) | Deletes only configured output folders and the build defaults, then empty parents; refuses folders outside the project |
 | `dta --version` | Always `0.1.0` | The version from `package.json` |
-| `dta init` | Animated logo, opened `build/docs/index.html`, `.env.example` named old scripts | Static banner, opens the configured docs folder, names `dta pull` / `dta push` |
+| `dta build` | Also wrote a token docs page (`output/docs/index.html`) | No docs page; `outputs.docs` in a config is an error ("removed in v2"), delete the key. The DTA website replaces it |
+| `dta init` | Animated logo, opened `build/docs/index.html`, `.env.example` named old scripts | Static banner, opens nothing, names `dta pull` / `dta push` |
+| `dta clean` | Treated `output/docs` as a build folder | Only `output/css`, `output/js`, `output/tailwind` and configured folders |
 | `dta test:visual` | Ran the Playwright tests | Prints where the tests moved and exits 3 (visual-diff replaces it, Epic 8) |
 
 ## Removed

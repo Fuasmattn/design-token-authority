@@ -1,7 +1,6 @@
 import { buildOutputs } from '@dta/build'
 import type { OutputFile } from '@dta/build'
 import { parseTokenFiles } from '@dta/core'
-import { generateDocsHtml } from '@dta/docs'
 import pc from 'picocolors'
 import type { CommandContext } from '../commands.js'
 import type { Config } from '../config/schema.js'
@@ -13,7 +12,7 @@ import { banner, createUi } from '../ui.js'
 const withSlash = (dir: string | undefined, fallback: string) =>
   dir ? `${dir.replace(/\/+$/, '')}/` : fallback
 
-/** Files in the order the build reports them: base, each brand, shared outputs, docs. */
+/** Files in the order the build reports them: base, each brand, shared outputs. */
 function reportOrder(files: readonly OutputFile[], brands: string[], config: Config | null) {
   const css = withSlash(config?.outputs?.css?.outDir, 'output/css/')
   const tailwind = withSlash(config?.outputs?.tailwind?.outDir, 'output/tailwind/')
@@ -91,12 +90,7 @@ export async function runBuild(context: CommandContext): Promise<number> {
     return 1
   }
 
-  const docsDir = withSlash(config?.outputs?.docs?.outDir, 'output/docs/')
-  const docs: OutputFile = {
-    path: `${docsDir}index.html`,
-    content: generateDocsHtml(tokenFiles, brands),
-  }
-  writeFiles(context.cwd, [...files, docs])
+  writeFiles(context.cwd, files)
 
   // The package builds everything in one go; the steps are reported in the v1 order.
   const order = reportOrder(files, brands, config)
@@ -110,13 +104,11 @@ export async function runBuild(context: CommandContext): Promise<number> {
     if (brandFiles.length > 0) step(`Building brand: ${brand}...`, `Brand ${brand} complete`)
   }
   if (order.shared.length > 0) step('Building shared outputs...', 'Shared outputs complete')
-  step('Generating token docs...', 'Token docs complete')
 
   const generated = [
     ...order.base,
     ...order.perBrand.flatMap((entry) => entry.files),
     ...order.shared,
-    docs.path,
   ]
   ui.note(generated.map((path) => pc.dim(path)).join('\n'), 'Generated files')
   ui.outro(pc.green('Build complete!'))

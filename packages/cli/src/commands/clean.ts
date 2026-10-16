@@ -5,7 +5,7 @@ import type { CommandContext } from '../commands.js'
 import { banner, createUi } from '../ui.js'
 
 /** Where `dta build` writes when nothing else is configured. */
-const DEFAULT_OUTPUT_DIRS = ['output/css', 'output/js', 'output/tailwind', 'output/docs']
+const DEFAULT_OUTPUT_DIRS = ['output/css', 'output/js', 'output/tailwind']
 
 const inside = (root: string, target: string) =>
   target !== root && target.startsWith(root + path.sep)
@@ -49,7 +49,6 @@ export async function runClean(context: CommandContext): Promise<number> {
   const configured = [
     config?.outputs?.css?.outDir,
     config?.outputs?.tailwind?.outDir,
-    config?.outputs?.docs?.outDir,
     config?.outputs?.ios?.outDir,
     config?.outputs?.android?.outDir,
   ].filter((dir): dir is string => Boolean(dir))

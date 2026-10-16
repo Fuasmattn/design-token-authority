@@ -79,9 +79,6 @@ importers:
       '@dta/core':
         specifier: workspace:*
         version: link:../core
-      '@dta/docs':
-        specifier: workspace:*
-        version: link:../docs
       '@dta/figma':
         specifier: workspace:*
         version: link:../figma
@@ -115,22 +112,6 @@ importers:
         version: 4.1.2(@types/node@24.12.2)(vite@8.0.3(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@24.12.2)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.9.1))
 
   packages/core:
-    devDependencies:
-      '@types/node':
-        specifier: ^24.12.2
-        version: 24.12.2
-      typescript:
-        specifier: ^5.1.6
-        version: 5.1.6
-      vitest:
-        specifier: ^4.1.2
-        version: 4.1.2(@types/node@24.12.2)(vite@8.0.3(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@24.12.2)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.9.1))
-
-  packages/docs:
-    dependencies:
-      '@dta/core':
-        specifier: workspace:*
-        version: link:../core
     devDependencies:
       '@types/node':
         specifier: ^24.12.2

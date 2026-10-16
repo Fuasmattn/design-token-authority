@@ -409,22 +409,7 @@ async function wizard(ui: Ui, context: CommandContext): Promise<void> {
   ) {
     return
   }
-  if (!(await runFollowUp(ui, context, 'Build', runBuild, {}))) return
-
-  const loaded = await loadConfig({ cwd }).catch(() => null)
-  const docsDir = loaded?.config.outputs?.docs?.outDir ?? 'output/docs'
-  const docsPath = path.resolve(cwd, docsDir, 'index.html')
-  if (
-    fs.existsSync(docsPath) &&
-    answered(
-      await ui.confirm({
-        message: 'Open token documentation in your browser?',
-        initialValue: true,
-      }),
-    )
-  ) {
-    context.openFile(docsPath)
-  }
+  await runFollowUp(ui, context, 'Build', runBuild, {})
 }
 
 export async function runInit(context: CommandContext): Promise<number> {

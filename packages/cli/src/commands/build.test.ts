@@ -40,7 +40,7 @@ const tokens = {
 }
 
 describe('dta build', () => {
-  it('writes css, js, tailwind and docs and lists them in build order', async () => {
+  it('writes css, js and tailwind and lists them in build order', async () => {
     project(tokens, { brands: ['A', 'B'] })
     const { exitCode, stdout } = await build()
     expect(exitCode).toBe(0)
@@ -52,7 +52,6 @@ describe('dta build', () => {
       'output/js/colorpalette.js',
       'output/tailwind/a/tailwind.css',
       'output/tailwind/tailwind.tokens.ts',
-      'output/docs/index.html',
     ]) {
       expect(exists(file), file).toBe(true)
     }
@@ -61,7 +60,9 @@ describe('dta build', () => {
     expect(listed.indexOf('output/css/themes/a.css')).toBeLessThan(
       listed.indexOf('output/css/themes/b.css'),
     )
-    expect(listed.at(-1)).toBe('output/docs/index.html')
+    expect(listed.at(-1)).toBe('output/tailwind/tailwind.css')
+    expect(exists('output/docs')).toBe(false)
+    expect(stdout).not.toContain('docs')
     expect(stdout).toContain('Build complete!')
   })
 
@@ -77,14 +78,12 @@ describe('dta build', () => {
       outputs: {
         css: { outDir: 'dist/css' },
         tailwind: { outDir: 'dist/tw' },
-        docs: { outDir: 'dist/docs' },
       },
     })
     const { exitCode } = await build()
     expect(exitCode).toBe(0)
     expect(exists('dist/css/base.css')).toBe(true)
     expect(exists('dist/tw/tailwind.css')).toBe(true)
-    expect(exists('dist/docs/index.html')).toBe(true)
     expect(exists('output/css')).toBe(false)
     // The JS directory is not configurable (v1 quirk, kept).
     expect(exists('output/js/colorpalette.js')).toBe(true)

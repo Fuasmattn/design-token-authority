@@ -17,7 +17,12 @@ const outputs = z.strictObject({
   android: z
     .strictObject({ outDir: name, lang: z.enum(['xml', 'compose']).default('xml') })
     .optional(),
-  docs: z.strictObject({ outDir: name }).optional(),
+  /** Removed in v2 (TICKET-067): rejected with a message that says so instead of "unrecognized key". */
+  docs: z
+    .never({
+      error: 'was removed in v2: DTA no longer generates a token docs page. Delete this key.',
+    })
+    .optional(),
 })
 
 /** The lint section is the schema of `@dta/lint`; a bad regular expression is rejected early. */

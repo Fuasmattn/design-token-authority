@@ -90,6 +90,14 @@ describe('config handling', () => {
     expect(stderr).toContain('--config')
   })
 
+  it('fails with code 2 when a v1 config still has outputs.docs', async () => {
+    writeConfig({ outputs: { docs: { outDir: 'output/docs' } } })
+    const { exitCode, stderr } = await run(['build'])
+    expect(exitCode).toBe(2)
+    expect(stderr).toContain('outputs.docs')
+    expect(stderr).toContain('removed in v2')
+  })
+
   it('fails with code 2 and names each invalid field', async () => {
     writeConfig({ outputs: { css: { outDir: 1 } }, brands: 'A' })
     const { exitCode, stderr } = await run(['lint'])

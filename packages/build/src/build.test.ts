@@ -281,7 +281,6 @@ describe('buildOutputs: parity with the v1 build', () => {
       const root = path.join(repoRoot, 'test', 'snapshots', fixture, 'build', 'files')
       const expected = walk(root)
         .map((file) => path.relative(root, file).split(path.sep).join('/'))
-        .filter((file) => !file.startsWith('output/docs/'))
         .sort()
 
       const { files, diagnostics } = await buildOutputs(fixtureModel(fixture), {

@@ -4,6 +4,5 @@ export default {
   outputs: {
     css: { outDir: 'output/css' },
     tailwind: { outDir: 'output/tailwind', version: 4 },
-    docs: { outDir: 'output/docs' },
   },
 }

@@ -121,7 +121,6 @@ describe('loadConfig: validation and defaults', () => {
           tailwind: { outDir: 'out/tw' },
           ios: { outDir: 'out/ios' },
           android: { outDir: 'out/android' },
-          docs: { outDir: 'out/docs' },
         },
       }),
     )
@@ -131,7 +130,6 @@ describe('loadConfig: validation and defaults', () => {
       tailwind: { outDir: 'out/tw', version: 4 },
       ios: { outDir: 'out/ios', lang: 'swift' },
       android: { outDir: 'out/android', lang: 'xml' },
-      docs: { outDir: 'out/docs' },
     })
   })
 
@@ -183,6 +181,14 @@ describe('loadConfig: validation and defaults', () => {
     const error = await invalid({ outputs: { css: { outDir: 'a', prefx: '--' } } })
     expect(error.issues[0].path).toBe('outputs.css')
     expect(error.message).toContain('prefx')
+  })
+
+  it('rejects outputs.docs with a message that it was removed in v2', async () => {
+    const error = await invalid({ outputs: { docs: { outDir: 'output/docs' } } })
+    expect(error.issues).toEqual([
+      { path: 'outputs.docs', message: expect.stringContaining('removed in v2') },
+    ])
+    expect(error.message).toContain('Delete this key')
   })
 
   it('rejects values outside the allowed set', async () => {

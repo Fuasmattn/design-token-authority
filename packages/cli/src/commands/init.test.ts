@@ -182,7 +182,7 @@ describe('dta init', () => {
       expect(read('dta.config.ts')).toContain("collections: ['Primitives', 'Brand']")
     })
 
-    it('pulls, builds and opens the docs when asked to', async () => {
+    it('pulls and builds when asked to, without opening anything', async () => {
       process.env.FIGMA_FILE_KEY = KEY
       process.env.FIGMA_PERSONAL_ACCESS_TOKEN = 'secret'
       const { exitCode, stdout, opened } = await init([
@@ -194,13 +194,12 @@ describe('dta init', () => {
         ['Which formats should dta generate?', `${SPACE}`],
         ['Run dta pull now?', ENTER],
         ['Run dta build now?', ENTER],
-        ['Open token documentation', ENTER],
       ])
       expect(exitCode).toBe(0)
       expect(stdout).toContain('Tokens written to tokens/')
       expect(exists('tokens/Primitives.Value.json')).toBe(true)
       expect(exists('build/css/base.css')).toBe(true)
-      expect(opened).toEqual([path.join(dir, 'output/docs/index.html')])
+      expect(opened).toEqual([])
     })
   })
 

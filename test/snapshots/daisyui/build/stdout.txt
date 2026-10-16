@@ -4,8 +4,6 @@ o  Base layer complete
 |
 o  Shared outputs complete
 |
-o  Token docs complete
-|
 o  Generated files --------------------+
 |                                      |
 |  output/css/base.css                 |
@@ -13,7 +11,6 @@ o  Generated files --------------------+
 |  output/js/colorpalette.js           |
 |  output/tailwind/tailwind.tokens.ts  |
 |  output/tailwind/tailwind.css        |
-|  output/docs/index.html              |
 |                                      |
 +--------------------------------------+
 |

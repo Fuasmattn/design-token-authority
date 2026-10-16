@@ -183,7 +183,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 | # | Ticket | Priority | Effort | Blocked by | Status |
 |---|---|---|---|---|---|
-| [067](./067-site-remove-dta-docs.md) | Remove `@dta/docs` and the generated token docs page | High | S | 039 | Open |
+| [067](./067-site-remove-dta-docs.md) | Remove `@dta/docs` and the generated token docs page | High | S | 039 | Done |
 | [068](./068-site-design-tokens.md) | DTA Drafting Table as DTA token files, built with `dta build` | High | M | 039 | Open |
 | [069](./069-site-scaffold-theme.md) | Site scaffold: Astro + Starlight themed by the built tokens, built in CI | High | M | 068 | Open |
 | [070](./070-site-components-stories.md) | Drafting Table components and their story pages | High | M | 069 | Open |

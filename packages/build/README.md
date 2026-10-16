@@ -29,7 +29,7 @@ The JS palette is always `output/js/colorpalette.js` (same as the v1 build).
 
 ## Contract
 
-- **Parity:** for both fixtures the files are byte-identical to the v1 `build` snapshots in `test/snapshots/*/build/files/output/{css,js,tailwind}`. The docs HTML (`output/docs`) is not part of this package; the docs site is Epic 7.
+- **Parity:** for both fixtures the files are byte-identical to the v1 `build` snapshots in `test/snapshots/*/build/files/output/{css,js,tailwind}`.
 - **Deterministic:** the same model gives the same files in the same order.
 - **No throwing for data problems:** diagnostics with codes `broken-reference`, `unknown-brand`, `unknown-collection`, `invalid-option` (all warnings).
 - Known output quirks of the v1 build are kept on purpose and listed in TICKET-039.
