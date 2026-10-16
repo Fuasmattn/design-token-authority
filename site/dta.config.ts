@@ -8,6 +8,13 @@ export default {
   outputs: {
     css: { outDir: 'output/css' },
   },
+  // dta diff renders the design system stories of the built site (/stories/manifest.json).
+  diff: {
+    build: 'pnpm build',
+    outDir: 'dist',
+    stories: { type: 'static-site', manifest: 'stories/manifest.json' },
+    viewports: [1280],
+  },
   lint: {
     rules: {
       'semantic-must-alias': { severity: 'error', collections: ['Theme'] },

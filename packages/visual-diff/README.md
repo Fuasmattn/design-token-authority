@@ -23,3 +23,20 @@ renderTokenChangesMarkdown(set, { base: 'merge base with main (1a2b3c4)' })
 Each change carries `before` / `after` as `{ raw, resolved? }`. A token resolves in its own mode; aliases into other collections read their first mode (as `resolve` in `@dta/core` does). Descriptions and `$extensions` are not compared, they do not change how a token looks.
 
 `toJson` output is versioned by `schema: "dta.diff.tokens/1"`.
+
+## Config and stories
+
+`diffConfigSchema` is the `diff` section of `dta.config.*` (embedded by the CLI):
+
+```ts
+diff: {
+  build: 'pnpm build',        // builds the static output (base and head, TICKET-082)
+  outDir: 'dist',             // where the static output is
+  stories: { type: 'static-site', manifest: 'stories/manifest.json' },
+  viewports: [1280],          // for stories that suggest none
+  threshold: 0,               // changed-pixel ratio that still counts as unchanged
+  base: 'origin/main',        // optional default for --base
+}
+```
+
+`readStoriesManifest(json, { viewports })` is the static-site adapter: it reads a `dta.stories/1` manifest (the DTA website writes one at `/stories/manifest.json`) into `StoryRef`s (`id`, `title`, `url`, `viewports`) and returns problems as diagnostics. A Storybook adapter follows (TICKET-089).

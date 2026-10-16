@@ -3,6 +3,7 @@ import path from 'node:path'
 import { parseTokenFiles, type TokenFileInput } from '@dta/core'
 import {
   diffTokens,
+  readStoriesManifest,
   formatState,
   renderTokenChangesMarkdown,
   summarizeCounts,
@@ -58,7 +59,8 @@ export async function runDiff(context: CommandContext): Promise<number> {
   const tokensDir = context.config?.tokens.dir ?? 'tokens'
   const requested = String(context.options.format ?? 'console')
   const out = typeof context.options.out === 'string' ? context.options.out : undefined
-  const base = typeof context.options.base === 'string' ? context.options.base : undefined
+  const base =
+    typeof context.options.base === 'string' ? context.options.base : context.config?.diff?.base
   const failOnChange = Boolean(context.options.failOnChange)
   const ui = createUi(context.stdout)
   const fail = (message: string) => {
@@ -70,6 +72,8 @@ export async function runDiff(context: CommandContext): Promise<number> {
     return fail(`unknown format "${requested}". Use one of: ${FORMATS.join(', ')}.`)
   }
   const format = requested as Format
+
+  if (context.options.list) return listStories(context, format, fail)
 
   let headFiles: TokenFileInput[]
   let baseInfo
@@ -125,4 +129,61 @@ export async function runDiff(context: CommandContext): Promise<number> {
   }
 
   return failOnChange && total > 0 ? 1 : 0
+}
+
+/** `dta diff --list`: the stories of the built output, as `dta diff` would render them. */
+function listStories(
+  context: CommandContext,
+  format: Format,
+  fail: (message: string) => number,
+): number {
+  const diff = context.config?.diff
+  if (!diff) {
+    return fail(
+      'no `diff` section in the config. Add at least `diff: { outDir: "dist" }` (see the docs).',
+    )
+  }
+  const manifestPath = path.join(diff.outDir, diff.stories.manifest)
+  const absolute = path.resolve(context.cwd, manifestPath)
+  if (!fs.existsSync(absolute)) {
+    const build = diff.build ? `run \`${diff.build}\` first` : 'build the project first'
+    return fail(`no stories manifest at ${manifestPath}; ${build}.`)
+  }
+  let json: unknown
+  try {
+    json = JSON.parse(fs.readFileSync(absolute, 'utf8'))
+  } catch {
+    return fail(`${manifestPath} is not valid JSON.`)
+  }
+  const { stories, diagnostics } = readStoriesManifest(json, { viewports: diff.viewports })
+  if (hasErrors(diagnostics)) {
+    for (const d of diagnostics) context.stderr(`${manifestPath}: ${formatDiagnostic(d)}\n`)
+    return 1
+  }
+
+  if (format === 'json') {
+    context.stdout(`${JSON.stringify({ manifest: manifestPath, stories }, null, 2)}\n`)
+    return 0
+  }
+  if (format === 'markdown') {
+    const rows = stories.map(
+      (s) => `| \`${s.id}\` | ${s.title} | \`${s.url}\` | ${s.viewports.join(', ')} |`,
+    )
+    context.stdout(
+      ['| Story | Title | URL | Viewports |', '| --- | --- | --- | --- |', ...rows].join('\n') +
+        '\n',
+    )
+    return 0
+  }
+  const ui = createUi(context.stdout)
+  ui.intro(banner('diff'))
+  ui.log.message(`${pc.dim('Manifest:')} ${manifestPath}`)
+  const idWidth = Math.max(...stories.map((s) => s.id.length), 0)
+  const urlWidth = Math.max(...stories.map((s) => s.url.length), 0)
+  const rows = stories.map(
+    (s) => `${s.id.padEnd(idWidth)}  ${pc.dim(s.url.padEnd(urlWidth))}  ${s.viewports.join(' · ')}`,
+  )
+  context.stdout(`\n${rows.join('\n')}\n\n`)
+  ui.outro(`${stories.length} ${stories.length === 1 ? 'story' : 'stories'}`)
+  return 0
 }

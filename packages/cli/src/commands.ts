@@ -143,6 +143,7 @@ export const COMMANDS: readonly CommandDefinition[] = [
         description: 'Base to compare with (default: merge base of HEAD and the default branch)',
       },
       { flags: '--tokens-only', description: 'Only compare token values, no screenshots' },
+      { flags: '--list', description: 'List the stories dta diff would render, then exit' },
       {
         flags: '-f, --format <format>',
         description: 'Output format: console, markdown, json',

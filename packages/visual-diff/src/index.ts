@@ -8,3 +8,5 @@ export {
   TOKEN_CHANGES_SCHEMA,
 } from './render.js'
 export type { DiffLabels } from './render.js'
+export { diffConfigSchema, readStoriesManifest, STORIES_SCHEMA } from './stories.js'
+export type { DiffConfig, DiffConfigInput, StoryRef } from './stories.js'

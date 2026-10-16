@@ -207,7 +207,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | # | Ticket | Priority | Effort | Blocked by | Status |
 |---|---|---|---|---|---|
 | [080](./080-diff-token-change-set.md) | `dta diff` tracer: token change set | High | M | 039 | Done |
-| [081](./081-diff-stories-config.md) | Stories adapter and the `diff` config section | High | S | 070, 080 | Open |
+| [081](./081-diff-stories-config.md) | Stories adapter and the `diff` config section | High | S | 070, 080 | Done |
 | [082](./082-diff-dual-render-compare.md) | Render base and head in one run and compare | High | L | 081 | Open |
 | [083](./083-diff-attribution-spike.md) | Spike: record which CSS variables each element uses | High | S | 082 | Open |
 | [084](./084-diff-attribution.md) | Explain visual changes by token | High | L | 083 | Open |
@@ -215,6 +215,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [086](./086-diff-github.md) | Publish hook and `dta diff` in pull requests | High | M | 085 | Open |
 | [087](./087-diff-dogfood-site.md) | Guard the DTA website with `dta diff` | Medium | S | 086 | Open |
 | [088](./088-diff-retire-test-visual.md) | Retire `test:visual` | Medium | XS | 082 | Open |
+| [089](./089-diff-storybook-adapter.md) | Storybook adapter for `dta diff` | Medium | M | 082 | Open |
 
 Order: Epic 7 first (068 → 069 → 070 unblock the rest); 7b and 8 can run in parallel once 069/070 are done; 080 can start right after 039. Design sources: the maintainer's concept doc, the DTA Drafting Table design system and the landing page mockup (see the specs).
 

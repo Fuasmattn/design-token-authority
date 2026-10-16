@@ -205,3 +205,87 @@ describe('dta diff outside git', () => {
     expect(stderr).toContain('--base <dir>')
   })
 })
+
+describe('dta diff --list', () => {
+  const manifest = {
+    schema: 'dta.stories/1',
+    themes: ['light'],
+    stories: [
+      {
+        id: 'button--variants',
+        title: 'Buttons',
+        url: '/stories/button/variants/',
+        viewports: [1280, 390],
+      },
+      { id: 'chip--states', title: 'Chips', url: '/stories/chip/states/' },
+    ],
+  }
+  const site = (config: unknown, withManifest = true) => {
+    fs.writeFileSync(path.join(dir, 'dta.config.json'), JSON.stringify(config))
+    if (withManifest) {
+      fs.mkdirSync(path.join(dir, 'dist', 'stories'), { recursive: true })
+      fs.writeFileSync(path.join(dir, 'dist', 'stories', 'manifest.json'), JSON.stringify(manifest))
+    }
+  }
+
+  it('lists the stories of the built output with their viewports', async () => {
+    site({ diff: { outDir: 'dist', viewports: [1440] } })
+    const { exitCode, stdout } = await diff(['--list'])
+    expect(exitCode).toBe(0)
+    expect(stdout).toContain('Manifest: dist/stories/manifest.json')
+    expect(stdout).toMatch(/button--variants\s+\/stories\/button\/variants\/\s+1280 · 390/)
+    expect(stdout).toMatch(/chip--states\s+\/stories\/chip\/states\/\s+1440/)
+    expect(stdout).toContain('2 stories')
+  })
+
+  it('lists as JSON and markdown', async () => {
+    site({ diff: { outDir: 'dist' } })
+    const json = JSON.parse((await diff(['--list', '--format', 'json'])).stdout)
+    expect(json.stories.map((s: { id: string }) => s.id)).toEqual([
+      'button--variants',
+      'chip--states',
+    ])
+    expect(json.stories[1].viewports).toEqual([1280])
+    const markdown = (await diff(['--list', '--format', 'markdown'])).stdout
+    expect(markdown).toContain('| `chip--states` | Chips | `/stories/chip/states/` | 1280 |')
+  })
+
+  it('explains what is missing', async () => {
+    site({}, false)
+    expect((await diff(['--list'])).stderr).toContain('no `diff` section in the config')
+    site({ diff: { outDir: 'dist', build: 'pnpm build' } }, false)
+    const missing = await diff(['--list'])
+    expect(missing.exitCode).toBe(1)
+    expect(missing.stderr).toContain(
+      'no stories manifest at dist/stories/manifest.json; run `pnpm build` first',
+    )
+  })
+
+  it('reports an invalid manifest', async () => {
+    site({ diff: { outDir: 'dist' } })
+    fs.writeFileSync(
+      path.join(dir, 'dist', 'stories', 'manifest.json'),
+      JSON.stringify({ schema: 'other/1', stories: [] }),
+    )
+    const { exitCode, stderr } = await diff(['--list'])
+    expect(exitCode).toBe(1)
+    expect(stderr).toContain('invalid-manifest')
+  })
+
+  it('rejects an invalid diff section with exit code 2', async () => {
+    site({ diff: { outDir: 'dist', viewports: [] } })
+    expect((await diff(['--list'])).exitCode).toBe(2)
+  })
+
+  it('uses diff.base from the config when --base is not given', async () => {
+    fs.writeFileSync(
+      path.join(dir, 'dta.config.json'),
+      JSON.stringify({ tokens: { dir: 'tokens' }, diff: { outDir: 'dist', base: 'tokens-base' } }),
+    )
+    writeTokens('#0000cc')
+    writeTokens('#0000ff', 'tokens-base')
+    const { exitCode, stdout } = await diff(['--format', 'json'])
+    expect(exitCode).toBe(0)
+    expect(JSON.parse(stdout).base).toBe('tokens-base')
+  })
+})

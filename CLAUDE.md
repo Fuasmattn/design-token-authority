@@ -146,6 +146,7 @@ pnpm dta graph --format html   # Interactive HTML visualization
 pnpm dta init            # Interactive project setup wizard
 pnpm dta diff --tokens-only            # Token changes vs the merge base with main
 pnpm dta diff --base <ref|dir> -f markdown   # ...against another base, as markdown
+pnpm dta diff --list                   # Stories dta diff would render (diff section in the config)
 pnpm site:dev                  # Website (Astro + Starlight) on its DTA-built tokens
 pnpm site:build                # Website build incl. link check (CI job "site")
 pnpm test                      # Run Vitest (all packages, scripts)

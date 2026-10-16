@@ -1,4 +1,5 @@
 import { lintConfigSchema } from '@dta/lint'
+import { diffConfigSchema } from '@dta/visual-diff'
 import { z } from 'zod'
 
 const name = z.string().min(1)
@@ -65,6 +66,8 @@ export const configSchema = z.strictObject({
     .prefault({}),
   outputs: outputs.optional(),
   lint: lint.optional(),
+  /** What `dta diff` builds and renders (schema owned by @dta/visual-diff). */
+  diff: diffConfigSchema.optional(),
   push: z
     .strictObject({
       /** Skip the typed confirmation before pushing to Figma (CI, automation). */
