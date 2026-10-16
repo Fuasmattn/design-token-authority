@@ -15,7 +15,7 @@ The goal is a **whitelabel design token pipeline tool** that:
 
 All planned work is tracked as tickets in `docs/tickets/`. Start with `docs/tickets/000-index.md` for an overview and recommended implementation order.
 
-**User documentation lives on the website** (`site/src/content/docs/`: Start, Guides, Reference, Contribute); the README is only pitch, quick start and links. Update the docs pages with every user-visible change, and copy command output from real runs on the fixtures.
+**User documentation lives on the website** (`site/src/content/docs/`: Start, Guides, Reference, Contribute); the README is only pitch, quick start and links. Update the docs pages with every user-visible change, and copy command output from real runs on the fixtures. The Commands and Configuration reference pages, the published JSON Schemas and `llms.txt` are generated at site build (`site/scripts/generate-reference.ts`) from the CLI's `--help` and the config schema: change the code (option descriptions, `.describe()` on config keys), never the generated files.
 
 ---
 

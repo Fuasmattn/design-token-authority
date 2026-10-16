@@ -16,6 +16,7 @@ The site is live: previews per pull request, production from `main`, linked from
 - [ ] Vercel project configured with the mechanism chosen in open question 1; one-time manual steps written down
 - [ ] Preview on a pull request and production from `main` verified once
 - [ ] The test workflow still needs no secrets; deploy secrets (if any) are scoped to the deploy job
+- [ ] With the domain known: `site` set in `astro.config.mjs` (sitemap), absolute links in `llms.txt` (written by `site/scripts/generate-reference.ts`, relative until then), and `$id` on the published schemas (`/schemas/dta.config.schema.json`, `/schemas/token-file.schema.json`)
 - [ ] All gates pass, and the GitHub run is green
 
 ## Implementation notes

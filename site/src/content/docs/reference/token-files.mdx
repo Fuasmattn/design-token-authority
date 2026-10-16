@@ -2,7 +2,7 @@
 title: Token files
 description: The per-mode DTCG format DTA reads and writes, its JSON Schema, and the exports it converts.
 sidebar:
-  order: 1
+  order: 3
 ---
 
 DTA reads and writes one JSON file per collection and mode. This page describes that format, lists ways to get your Figma variables into it, and explains which third-party exports DTA can convert for you.
@@ -37,7 +37,7 @@ A token that exists in several modes of a collection appears in several files wi
 
 ### JSON Schema
 
-[`token-file.schema.json`](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/token-files/token-file.schema.json) describes one file (JSON Schema draft 2020-12). Use it to validate files in your editor or in a script, or when you write your own exporter. It is generated from the Zod schema in `@dta/figma` with `pnpm run schema:generate`, and a test fails when it is out of date.
+[`/schemas/token-file.schema.json`](/schemas/token-file.schema.json) describes one file (JSON Schema draft 2020-12; the source is [`docs/token-files/token-file.schema.json`](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/token-files/token-file.schema.json) in the repository). Use it to validate files in your editor or in a script, or when you write your own exporter. It is generated from the Zod schema in `@dta/figma` with `pnpm run schema:generate`, and a test fails when it is out of date.
 
 The schema checks the shape only. `dta` additionally checks things a schema cannot, such as unknown alias targets, type mismatches between modes and duplicate variable names.
 

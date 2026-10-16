@@ -1,32 +1,59 @@
 import type { Diagnostic } from '@dta/core'
 import { z } from 'zod'
 
-const Severity = z.enum(['error', 'warn', 'off'])
+const Severity = z
+  .enum(['error', 'warn', 'off'])
+  .describe('`error` fails `dta lint`, `warn` (the default) reports, `off` disables the rule.')
 
 const ruleSchemas = {
-  'semantic-must-alias': z.strictObject({
-    severity: Severity.optional(),
-    /** Collections whose tokens must all be aliases. */
-    collections: z.array(z.string()).optional(),
-  }),
-  'naming-pattern': z.strictObject({
-    severity: Severity.optional(),
-    /** Collection name → regular expression every path segment must match. */
-    patterns: z.record(z.string(), z.string()).optional(),
-  }),
-  'color-contrast': z.strictObject({
-    severity: Severity.optional(),
-    /** Minimum WCAG contrast ratio (default 4.5, level AA). */
-    minRatio: z.number().positive().optional(),
-    /** `[foreground, background]` token names. */
-    pairs: z.array(z.tuple([z.string(), z.string()])).optional(),
-  }),
-  'no-duplicate-values': z.strictObject({ severity: Severity.optional() }),
+  'semantic-must-alias': z
+    .strictObject({
+      severity: Severity.optional(),
+      collections: z
+        .array(z.string())
+        .optional()
+        .describe('Collections whose tokens must all be aliases.'),
+    })
+    .describe(
+      'Fails when a token in the listed collections holds a raw value instead of an alias.',
+    ),
+  'naming-pattern': z
+    .strictObject({
+      severity: Severity.optional(),
+      patterns: z
+        .record(z.string(), z.string())
+        .optional()
+        .describe('Collection name → regular expression every path segment must match.'),
+    })
+    .describe('Fails when a path segment does not match the pattern of its collection.'),
+  'color-contrast': z
+    .strictObject({
+      severity: Severity.optional(),
+      minRatio: z
+        .number()
+        .positive()
+        .optional()
+        .describe('Minimum WCAG contrast ratio (default 4.5, level AA).'),
+      pairs: z
+        .array(z.tuple([z.string(), z.string()]))
+        .optional()
+        .describe('`[foreground, background]` token names.'),
+    })
+    .describe('Checks the contrast of text and background pairs.'),
+  'no-duplicate-values': z
+    .strictObject({ severity: Severity.optional() })
+    .describe('Reports raw values that appear more than once, across all collections and modes.'),
 }
 
 /** The `lint` section of the project config. */
 export const lintConfigSchema = z.strictObject({
-  rules: z.strictObject(ruleSchemas).partial().optional(),
+  rules: z
+    .strictObject(ruleSchemas)
+    .partial()
+    .optional()
+    .describe(
+      'Configurable rules by name, with their options. A configured rule is a warning unless its severity says otherwise.',
+    ),
 })
 
 export type LintConfig = z.infer<typeof lintConfigSchema>

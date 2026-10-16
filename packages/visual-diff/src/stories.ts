@@ -12,36 +12,34 @@ const viewport = z.number().int().positive().max(8000)
  * Embedded by the CLI config schema.
  */
 export const diffConfigSchema = z.strictObject({
-  /** Command that prepares a fresh checkout of the base, run in its repo root (e.g. an install). */
-  setup: path.optional(),
-  /** Command that builds the static output, run at the base and the head. */
-  build: path.optional(),
-  /** Folder of the static output, relative to the project. */
-  outDir: path,
-  /**
-   * Where the stories come from: a `dta.stories/1` manifest in the static output (`static-site`,
-   * the default) or the `index.json` of a static Storybook build (`storybook`).
-   */
-  stories: z.preprocess(
-    (value) =>
-      value === undefined
-        ? { type: 'static-site' }
-        : typeof value === 'object' && value !== null && !('type' in value)
-          ? { ...value, type: 'static-site' }
-          : value,
-    z.discriminatedUnion('type', [
+  setup: path
+    .optional()
+    .describe(
+      'Command that prepares a fresh checkout of the base, run in its repo root (e.g. an install).',
+    ),
+  build: path
+    .optional()
+    .describe('Command that builds the static output, run at the base and the head.'),
+  outDir: path.describe('Folder of the static output, relative to the project.'),
+  // A union rather than a preprocessed discriminated union, so that the JSON Schema of the
+  // config describes the input: `stories` and its `type` may be left out.
+  stories: z
+    .union([
       z.strictObject({
-        type: z.literal('static-site'),
-        /** Manifest path inside `outDir`. */
-        manifest: path.default('stories/manifest.json'),
+        type: z.literal('static-site').default('static-site'),
+        manifest: path
+          .default('stories/manifest.json')
+          .describe('Path of the dta.stories/1 manifest inside `outDir`.'),
       }),
       z.strictObject({
         type: z.literal('storybook'),
-        /** Storybook's index inside `outDir` (the `storybook build` output). */
-        index: path.default('index.json'),
-        /** Stories with one of these tags are not rendered. */
-        excludeTags: z.array(z.string().min(1)).default(['skip-dta-diff']),
-        /** Regular expressions; stories whose id matches one are not rendered. */
+        index: path
+          .default('index.json')
+          .describe("Storybook's index inside `outDir` (the `storybook build` output)."),
+        excludeTags: z
+          .array(z.string().min(1))
+          .default(['skip-dta-diff'])
+          .describe('Stories with one of these tags are not rendered.'),
         exclude: z
           .array(
             z.string().refine((pattern) => {
@@ -53,34 +51,65 @@ export const diffConfigSchema = z.strictObject({
               }
             }, 'not a valid regular expression'),
           )
-          .default([]),
+          .default([])
+          .describe('Regular expressions; stories whose id matches one are not rendered.'),
       }),
-    ]),
-  ),
-  /** Viewport widths for stories that do not suggest their own. */
-  viewports: z.array(viewport).min(1).default([1280]),
-  /** Changed-pixel ratio (0–1) a story may differ by before it counts as changed. */
-  threshold: z.number().min(0).max(1).default(0),
-  /** Per-pixel colour tolerance (0–1); 0 sees every colour change. */
-  colorThreshold: z.number().min(0).max(1).default(0),
-  /**
-   * Review thresholds by cause, as changed-pixel ratios (0–1). A story explained by token
-   * changes needs a review above `explained`; an unexplained story fails above `unexplained`.
-   */
+    ])
+    .default({ type: 'static-site', manifest: 'stories/manifest.json' })
+    .describe(
+      'Where the stories come from: a dta.stories/1 manifest in the static output (`static-site`, the default) or the index of a static Storybook build (`storybook`).',
+    ),
+  viewports: z
+    .array(viewport)
+    .min(1)
+    .default([1280])
+    .describe('Viewport widths for stories that do not suggest their own.'),
+  threshold: z
+    .number()
+    .min(0)
+    .max(1)
+    .default(0)
+    .describe('Changed-pixel ratio (0–1) a story may differ by before it counts as changed.'),
+  colorThreshold: z
+    .number()
+    .min(0)
+    .max(1)
+    .default(0)
+    .describe('Per-pixel colour tolerance (0–1); 0 sees every colour change.'),
   thresholds: z
     .strictObject({
-      explained: z.number().min(0).max(1).default(0),
-      unexplained: z.number().min(0).max(1).default(0),
+      explained: z
+        .number()
+        .min(0)
+        .max(1)
+        .default(0)
+        .describe('A story explained by token changes needs a review above this ratio.'),
+      unexplained: z
+        .number()
+        .min(0)
+        .max(1)
+        .default(0)
+        .describe('A story no token change explains fails above this ratio.'),
     })
-    .prefault({}),
-  /**
-   * Publish hook: a command run on the report folder (path as argument and DTA_REPORT_DIR) that
-   * prints the public base URL as its last stdout line, or `{ command, url }` where `url` is a
-   * JSON path (`$.deployment.url`) or a regular expression to find it. `--publish` overrides it.
-   */
-  publish: z.union([path, z.strictObject({ command: path, url: path.optional() })]).optional(),
-  /** Default base for `dta diff` (a git ref or directory); `--base` overrides it. */
-  base: path.optional(),
+    .prefault({})
+    .describe('Review thresholds by cause, as changed-pixel ratios (0–1).'),
+  publish: z
+    .union([
+      path,
+      z.strictObject({
+        command: path.describe('The publish command.'),
+        url: path
+          .optional()
+          .describe('JSON path or regular expression that finds the URL in its output.'),
+      }),
+    ])
+    .optional()
+    .describe(
+      'Publish hook: a command run on the report folder (path as argument and DTA_REPORT_DIR) that prints the public base URL as its last stdout line, or `{ command, url }` where `url` is a JSON path (`$.deployment.url`) or a regular expression to find it. `--publish` overrides it.',
+    ),
+  base: path
+    .optional()
+    .describe('Default base for `dta diff` (a git ref or directory); `--base` overrides it.'),
 })
 
 export type DiffConfigInput = z.input<typeof diffConfigSchema>

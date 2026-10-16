@@ -182,3 +182,15 @@ export const COMMANDS: readonly CommandDefinition[] = [
 ]
 
 export const COMMAND_NAMES: readonly string[] = COMMANDS.map((command) => command.name)
+
+/** What the reference documents about a command: its name, description and options. */
+export interface CommandReference {
+  name: string
+  description: string
+  options: readonly CommandOption[]
+}
+
+/** Every command with its options, without the implementations (for generated docs). */
+export function commandReference(): CommandReference[] {
+  return COMMANDS.map(({ name, description, options }) => ({ name, description, options }))
+}
