@@ -187,7 +187,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [068](./068-site-design-tokens.md) | DTA Drafting Table as DTA token files, built with `dta build` | High | M | 039 | Done |
 | [069](./069-site-scaffold-theme.md) | Site scaffold: Astro + Starlight themed by the built tokens, built in CI | High | M | 068 | Done |
 | [070](./070-site-components-stories.md) | Design system section: token pages, component docs and stories | High | L | 069 | Done |
-| [071](./071-site-landing-page.md) | Landing page from the "J · Drafting Table" mockup | High | L | 070 | Open |
+| [071](./071-site-landing-page.md) | Landing page from the "J · Drafting Table" mockup | High | L | 070 | Done |
 | [072](./072-site-docs-content.md) | Docs content (Start, Guides, Reference, Contribute) and a slim README | High | M | 067, 069 | Open |
 | [073](./073-site-learn.md) | Learn: DTCG intro and token pattern catalogue | Medium | M | 069 | Open |
 | [074](./074-site-generated-reference.md) | Generated reference, published schemas and `llms.txt` | Medium | M | 069 | Open |

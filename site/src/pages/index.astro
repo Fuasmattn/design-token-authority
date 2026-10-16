@@ -1,0 +1,345 @@
+---
+/**
+ * The landing page (TICKET-071), from the mockup "J · Drafting Table". Its own page rather than
+ * a Starlight splash: the same tokens (dta build), fonts and theme as the docs. The hero has no
+ * key visual for now (maintainer decision): the visual is still being designed.
+ */
+import '../../output/css/base.css'
+import '../../output/css/themes/light.css'
+import '../../output/css/themes/graphite.css'
+import '../styles/fonts.css'
+import '../styles/landing.css'
+import sansUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wdth-normal.woff2?url'
+import monoUrl from '@fontsource-variable/martian-mono/files/martian-mono-latin-wght-normal.woff2?url'
+import CommandButton from '../components/ds/CommandButton.astro'
+import Terminal from '../components/ds/Terminal.astro'
+import ReviewDemo from '../components/landing/ReviewDemo.astro'
+import { COMMANDS, TRUST_RUN } from '../landing/content'
+
+const title = 'Design Token Authority'
+const description =
+  'The deterministic backbone for design token workflows, built for humans and agents.'
+const github = 'https://github.com/Fuasmattn/design-token-authority'
+
+const problems = [
+  {
+    title: 'Structure drifts',
+    text: 'New variables break naming and layering. Nobody notices until a theme breaks.',
+  },
+  {
+    title: 'Code breaks quietly',
+    text: 'A renamed or deleted token still has fourteen references in code.',
+  },
+  {
+    title: 'Screenshots pile up',
+    text: 'One colour change touches a hundred stories. Nobody reviews a hundred screenshots.',
+  },
+]
+const steps = [
+  ['Change', 'Figma, code or a token file'],
+  ['Check', 'same input, same result'],
+  ['See', 'every story against main'],
+  ['Decide', 'approve by token, not by screenshot'],
+  ['Ship', 'every output rebuilt'],
+]
+const trust = [
+  ['Deterministic', 'Same input, same result. Every run, every machine, every agent.'],
+  ['Your structure', 'Your layers and names, in the open DTCG format. No model forced on you.'],
+  [
+    'Runs where you are',
+    'Locally, in your CI or through an agent. No SaaS, nothing leaves your infrastructure.',
+  ],
+]
+const cards = [
+  {
+    eyebrow: 'Playground',
+    title: 'Drop in tokens, get outputs',
+    text: 'Runs in your browser. Nothing leaves your device.',
+    href: '/playground/',
+    coming: true,
+  },
+  {
+    eyebrow: 'Learn',
+    title: 'DTCG and token patterns',
+    text: 'Multi-brand, theming and override patterns with trade-offs.',
+    href: '/learn/',
+  },
+  {
+    eyebrow: 'Docs',
+    title: 'CLI and config reference',
+    text: 'Every command and option, generated from the code.',
+    href: '/reference/',
+  },
+]
+---
+
+<!doctype html>
+<html lang="en" data-theme="light" data-brand="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href={sansUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={monoUrl} as="font" type="font/woff2" crossorigin />
+    <script is:inline>
+      // Same theme as the docs: Starlight keeps the choice in localStorage ('light' | 'dark').
+      ;(() => {
+        let stored = null
+        try {
+          stored = localStorage.getItem('starlight-theme')
+        } catch {}
+        const dark =
+          stored === 'dark' ||
+          ((!stored || stored === 'auto') && matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+        document.documentElement.dataset.brand = dark ? 'graphite' : 'light'
+      })()
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a href="/" class="logo" aria-label="dta, home">
+        <span class="mark" aria-hidden="true"><span class="mark-o"></span><span class="mark-f"></span></span>
+        dta
+      </a>
+      <div class="header-end">
+        <nav class="nav" aria-label="Main">
+          <a href="#how" class="navl">How it works</a>
+          <a href="#review" class="navl">Review</a>
+          <a href="#use" class="navl">Use cases</a>
+          <a href="/start/" class="navl">Docs</a>
+        </nav>
+        <div class="theme" role="group" aria-label="Theme">
+          <button type="button" data-set-theme="light">Light</button>
+          <button type="button" data-set-theme="dark">Graphite</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="grid-paper" aria-hidden="true"></div>
+        <div class="wrap hero-inner">
+          <p class="eyebrows in1">
+            <span class="eyebrow info">Figma → pull request → production</span>
+            <span class="eyebrow signal">for designers, engineers and agents</span>
+          </p>
+          <h1 id="hero-title" class="in2">
+            The deterministic backbone for design token workflows, built for humans and <span
+              class="redlined"
+              >agents.<span class="redline" aria-hidden="true"></span><span
+                class="redline-tag"
+                aria-hidden="true">color.action</span
+              ></span
+            >
+          </h1>
+          <p class="lede in3">
+            A design change in Figma becomes a pull request: validated, built, visually diffed and
+            approved by the people who care about it.
+          </p>
+          <div class="cta in4">
+            <CommandButton command={COMMANDS.init.text} />
+            <a href="#review" class="btn-outline">See a review</a>
+            <a href="#use" class="link-mono">or let your agent set it up →</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="problem" class="sec" aria-labelledby="problem-title">
+        <div class="wrap">
+          <p class="kicker">The problem</p>
+          <h2 id="problem-title">Design changes are easy to make and hard to review.</h2>
+          <div class="cols">
+            {
+              problems.map((p, i) => (
+                <div class="ruled">
+                  <p class="num">{String(i + 1).padStart(2, '0')}</p>
+                  <h3>{p.title}</h3>
+                  <p class="muted">{p.text}</p>
+                </div>
+              ))
+            }
+          </div>
+          <p class="after muted">
+            Design and engineering end up arguing about hand-offs instead of making decisions.
+          </p>
+        </div>
+      </section>
+
+      <section id="how" class="sec" aria-labelledby="how-title">
+        <div class="wrap">
+          <p class="kicker">How it works</p>
+          <h2 id="how-title">One loop for every change.</h2>
+          <ol class="steps">
+            {
+              steps.map(([name, text], i) => (
+                <li>
+                  <span class="num action">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="step-name">{name}</span>
+                  <span class="step-text">{text}</span>
+                </li>
+              ))
+            }
+          </ol>
+          <p class="after muted">
+            Every step is a single dta command. Same input, same result, wherever it runs.
+          </p>
+        </div>
+      </section>
+
+      <section id="review" class="sec" aria-labelledby="review-title">
+        <div class="wrap">
+          <p class="kicker subtle">See it · one design change, three kinds of findings</p>
+          <h2 id="review-title">Catch it in review, not in production.</h2>
+          <p class="example-note">
+            <span class="example">Example data</span> An interactive preview of a review: the
+            findings, numbers and names are made up.
+          </p>
+          <ReviewDemo />
+        </div>
+      </section>
+
+      <section id="use" class="sec" aria-labelledby="use-title">
+        <div class="wrap">
+          <p class="kicker">Ways to use it</p>
+          <h2 id="use-title">Start small. Grow into governance.</h2>
+          <div class="use-cards">
+            <article class="use-card">
+              <p class="num action">01 · Try</p>
+              <h3>Try</h3>
+              <p class="who">anyone with a token file</p>
+              <p class="muted">
+                Drop a token file into the playground or run one command. Outputs and a structure
+                check, no setup. Enough for a prototype or a hand-over.
+              </p>
+              <p class="cmd"><span class="prompt" aria-hidden="true">$</span>{COMMANDS.build.text}</p>
+            </article>
+            <article class="use-card featured">
+              <p class="num action">
+                02 · Govern <span class="badge">most teams</span>
+              </p>
+              <h3>Govern</h3>
+              <p class="who">teams shipping design changes every week</p>
+              <p class="muted">
+                Run dta in CI on every change. Structure checks and visual diffs explained by
+                token, reviewed and approved in the pull request.
+              </p>
+              <p class="cmd">
+                <span class="prompt" aria-hidden="true">$</span>{COMMANDS.govern.text}
+              </p>
+            </article>
+            <article class="use-card">
+              <p class="num action">
+                03 · Delegate <span class="coming">coming</span>
+              </p>
+              <h3>Delegate</h3>
+              <p class="who">teams working with coding agents</p>
+              <p class="muted">
+                Your agent sets up and fixes tokens through the dta skill or MCP server. The same
+                checks decide what passes.
+              </p>
+              <div class="agent" aria-label="Example: an agent fixing a finding">
+                <p class="bubble">
+                  <span class="who-agent">Agent</span>button.bg skips the semantic layer. Pointing it
+                  to color.action, then re-running the checks.
+                </p>
+                <p class="pass-pill">checks · pass</p>
+              </div>
+              <p class="cmd">
+                <span class="prompt" aria-hidden="true">$</span>{COMMANDS.skill.text}
+                <span class="coming">coming</span>
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="why" class="sec" aria-labelledby="why-title">
+        <div class="wrap why">
+          <div class="why-text">
+            <p class="kicker">Why trust it</p>
+            <h2 id="why-title">Governance with AI, not by AI.</h2>
+            <dl class="trust">
+              {
+                trust.map(([term, text]) => (
+                  <div>
+                    <dt>{term}</dt>
+                    <dd>{text}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+          </div>
+          <div class="why-terminal">
+            <Terminal lines={TRUST_RUN.lines} cursor label={TRUST_RUN.label} />
+            <p class="caption">From a real run on this website's own design tokens.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="learn" class="sec" aria-labelledby="learn-title">
+        <div class="wrap">
+          <h2 id="learn-title" class="smaller">
+            Your structure, your names. With good blueprints if you want them.
+          </h2>
+          <div class="cards">
+            {
+              cards.map((c, i) => (
+                <a href={c.href} class:list={['card', { grid: i === 0 }]}>
+                  <span class="num action">
+                    {c.eyebrow} {c.coming && <span class="coming">coming</span>}
+                  </span>
+                  <span class="card-title">{c.title}</span>
+                  <span class="uline" aria-hidden="true" />
+                  <span class="muted">{c.text}</span>
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="band">
+      <div class="wrap">
+        <div class="band-top">
+          <div>
+            <p class="band-title">Start in one command.</p>
+            <CommandButton command={COMMANDS.init.text} />
+          </div>
+          <nav class="band-nav" aria-label="Footer">
+            <a href="/start/">Docs</a>
+            <a href="/reference/">CLI reference</a>
+            <a href={github}>GitHub</a>
+          </nav>
+        </div>
+        <p class="titleblock">
+          <span>Drawn by: design</span><span>Checked by: dta</span><span>Approved by: your team</span>
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      const root = document.documentElement
+      const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-set-theme]')]
+      const show = () => {
+        for (const b of buttons) b.setAttribute('aria-pressed', String(b.dataset.setTheme === root.dataset.theme))
+      }
+      for (const b of buttons) {
+        b.addEventListener('click', () => {
+          const theme = b.dataset.setTheme === 'dark' ? 'dark' : 'light'
+          root.dataset.theme = theme
+          root.dataset.brand = theme === 'dark' ? 'graphite' : 'light'
+          try {
+            localStorage.setItem('starlight-theme', theme)
+          } catch {}
+          show()
+        })
+      }
+      show()
+    </script>
+  </body>
+</html>
