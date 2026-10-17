@@ -135,25 +135,6 @@ a {
   gap: 24px;
   align-items: center;
 }
-.nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  font-size: 15px;
-  font-weight: 600;
-}
-.navl {
-  text-decoration: none;
-  padding-bottom: 3px;
-  background-image: linear-gradient(currentColor, currentColor);
-  background-size: 0 1.5px;
-  background-repeat: no-repeat;
-  background-position: 0 100%;
-  transition: background-size 0.3s ease;
-}
-.navl:hover {
-  background-size: 100% 1.5px;
-}
 .theme {
   display: inline-flex;
   padding: 3px;
@@ -735,8 +716,9 @@ h3 {
     padding: 16px max(16px, env(safe-area-inset-right, 0px)) 16px
       max(16px, env(safe-area-inset-left, 0px));
   }
-  .nav {
-    display: none;
+  /* The menu button goes last, so its panel opens from the right edge. */
+  .header-end .dta-nav {
+    order: 1;
   }
   .hero-inner {
     padding-top: 120px;

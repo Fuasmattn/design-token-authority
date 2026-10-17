@@ -5,19 +5,19 @@ import { STORIES, STORIES_SCHEMA, storiesManifest, storyId } from './stories.js'
 
 const here = import.meta.dirname
 const docs = path.join(here, '..', 'content', 'docs', 'design-system', 'components')
-const COMPONENTS = [
-  'button',
-  'command-button',
-  'chip',
-  'text-field',
-  'terminal',
-  'redline',
-  'diff-card',
-  'workflow-rail',
-]
+/** Every component in src/components/ds, as a slug: CommandButton.astro → command-button. */
+const COMPONENTS = fs
+  .readdirSync(path.join(here, '..', 'components', 'ds'))
+  .filter((name) => name.endsWith('.astro'))
+  .map((name) =>
+    name
+      .replace(/\.astro$/, '')
+      .replace(/([a-z])([A-Z])/g, '$1-$2')
+      .toLowerCase(),
+  )
 
 describe('design system stories', () => {
-  it('cover every component of the design system', () => {
+  it('cover every component in src/components/ds (a new component needs a story)', () => {
     expect([...new Set(STORIES.map((s) => s.component))].sort()).toEqual([...COMPONENTS].sort())
   })
 

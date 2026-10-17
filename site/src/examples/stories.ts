@@ -82,6 +82,20 @@ export const STORIES: readonly Story[] = [
     viewports: [DESKTOP],
   },
   {
+    component: 'nav',
+    variant: 'default',
+    title: 'Links, or a menu button on phones',
+    example: 'NavDefault',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
+    component: 'nav',
+    variant: 'open',
+    title: 'Menu open on a phone',
+    example: 'NavOpen',
+    viewports: [MOBILE],
+  },
+  {
     component: 'workflow-rail',
     variant: 'default',
     title: 'Stations on the rail',

@@ -232,6 +232,12 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [093](./093-build-nested-brand-single-mode-aliases.md) | Nested brands reach single-mode tokens that alias brand tokens | Medium | S | — | Open |
 | [094](./094-dtcg-2025-10-conformance.md) | Read DTCG 2025.10 token files and resolver documents | Medium | L | — | Open |
 
+**Found on the first deploy (075)**
+
+| # | Ticket | Priority | Effort | Blocked by | Status |
+|---|---|---|---|---|---|
+| [095](./095-site-nav-component.md) | Navigation component with a mobile menu | High | S | — | Done |
+
 Order: Epic 7 first (068 → 069 → 070 unblock the rest); 7b and 8 can run in parallel once 069/070 are done; 080 can start right after 039. Design sources: the maintainer's concept doc, the DTA Drafting Table design system and the landing page mockup (see the specs).
 
 ---

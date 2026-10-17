@@ -12,6 +12,7 @@ import '../styles/landing.css'
 import sansUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wdth-normal.woff2?url'
 import monoUrl from '@fontsource-variable/martian-mono/files/martian-mono-latin-wght-normal.woff2?url'
 import CommandButton from '../components/ds/CommandButton.astro'
+import Nav from '../components/ds/Nav.astro'
 import Terminal from '../components/ds/Terminal.astro'
 import ReviewDemo from '../components/landing/ReviewDemo.astro'
 import { COMMANDS, TRUST_RUN } from '../landing/content'
@@ -71,6 +72,12 @@ const cards = [
     href: '/reference/',
   },
 ]
+const NAV = [
+  { href: '#how', label: 'How it works' },
+  { href: '#review', label: 'Review' },
+  { href: '#use', label: 'Use cases' },
+  { href: '/start/', label: 'Docs' },
+]
 ---
 
 <!doctype html>
@@ -106,12 +113,7 @@ const cards = [
         dta
       </a>
       <div class="header-end">
-        <nav class="nav" aria-label="Main">
-          <a href="#how" class="navl">How it works</a>
-          <a href="#review" class="navl">Review</a>
-          <a href="#use" class="navl">Use cases</a>
-          <a href="/start/" class="navl">Docs</a>
-        </nav>
+        <Nav links={NAV} idPrefix="site" />
         <div class="theme" role="group" aria-label="Theme">
           <button type="button" data-set-theme="light">Light</button>
           <button type="button" data-set-theme="dark">Graphite</button>

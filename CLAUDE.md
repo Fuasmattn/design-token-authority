@@ -17,6 +17,14 @@ All planned work is tracked as tickets in `docs/tickets/`. Start with `docs/tick
 
 **User documentation lives on the website** (`site/src/content/docs/`: Start, Guides, Reference, Contribute); the README is only pitch, quick start and links. Update the docs pages with every user-visible change, and copy command output from real runs on the fixtures. The Commands and Configuration reference pages, the published JSON Schemas and `llms.txt` are generated at site build (`site/scripts/generate-reference.ts`) from the CLI's `--help` and the config schema: change the code (option descriptions, `.describe()` on config keys), never the generated files.
 
+**Website UI follows the tokens and the design system, so it does not drift.** The site (landing page, docs, stories) and the `dta diff` report are styled only with the DTA Drafting Table tokens (`site/tokens`, built with `dta build`) and the components in `site/src/components/ds`. Anything the design system does not have yet becomes a design-system component first, then gets used:
+
+- token variables only: no colour literals, borders instead of shadows (`components.test.ts` checks); a value the tokens lack becomes a token in `site/tokens`, not a literal;
+- a docs page under `site/src/content/docs/design-system/components/` (guidelines, tokens used);
+- at least one story in `site/src/examples/stories.ts` (phone width too when the layout changes there), so `dta diff` guards it; `stories.test.ts` fails for a component without one.
+
+Page-level CSS (`landing.css`) only places components; it does not invent new UI.
+
 ---
 
 ## Architecture — the 3-layer token model

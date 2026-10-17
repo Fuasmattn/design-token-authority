@@ -1,0 +1,27 @@
+---
+import Nav from '../components/ds/Nav.astro'
+
+interface Props {
+  idPrefix: string
+}
+const { idPrefix } = Astro.props
+const links = [
+  { href: '#how', label: 'How it works' },
+  { href: '#review', label: 'Review' },
+  { href: '#use', label: 'Use cases' },
+  { href: '/start/', label: 'Docs' },
+]
+---
+
+<div class="frame">
+  <Nav links={links} idPrefix={idPrefix} open />
+</div>
+
+<style>
+  /* Room for the open menu, which hangs below the button. */
+  .frame {
+    display: flex;
+    justify-content: flex-end;
+    min-height: 280px;
+  }
+</style>

@@ -1,0 +1,168 @@
+---
+/**
+ * Main navigation: the links in a row; below 760px one Menu button that opens them as a list
+ * (a disclosure). Closes on Escape, on a link and on a click outside.
+ */
+interface Link {
+  href: string
+  label: string
+}
+interface Props {
+  links: readonly Link[]
+  /** Accessible name of the navigation landmark. */
+  label?: string
+  /** Keeps the menu id unique when a page shows several navs (docs examples). */
+  idPrefix?: string
+  /** Start with the menu open (stories only). */
+  open?: boolean
+}
+const { links, label = 'Main', idPrefix = 'dta-nav', open = false } = Astro.props
+const menuId = `${idPrefix}-menu`
+---
+
+<nav class="dta-nav" aria-label={label} data-dta-nav data-open={open ? '' : undefined}>
+  <button type="button" class="toggle" aria-expanded={open ? 'true' : 'false'} aria-controls={menuId}>
+    <span class="bars" aria-hidden="true"></span>
+    Menu
+  </button>
+  <ul class="links" id={menuId}>
+    {
+      links.map((link) => (
+        <li>
+          <a href={link.href}>{link.label}</a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<script>
+  for (const nav of document.querySelectorAll<HTMLElement>('[data-dta-nav]')) {
+    const toggle = nav.querySelector<HTMLButtonElement>('.toggle')
+    if (!toggle) continue
+    const setOpen = (open: boolean) => {
+      nav.toggleAttribute('data-open', open)
+      toggle.setAttribute('aria-expanded', String(open))
+    }
+    toggle.addEventListener('click', () => setOpen(!nav.hasAttribute('data-open')))
+    nav.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && nav.hasAttribute('data-open')) {
+        setOpen(false)
+        toggle.focus()
+      }
+    })
+    for (const link of nav.querySelectorAll('a')) link.addEventListener('click', () => setOpen(false))
+    document.addEventListener('click', (event) => {
+      if (event.target instanceof Node && !nav.contains(event.target)) setOpen(false)
+    })
+  }
+</script>
+
+<style>
+  .dta-nav {
+    position: relative;
+    font-family: var(--font-sans);
+    font-size: calc(var(--type-label-size) * 1px);
+    font-weight: var(--type-label-weight);
+    line-height: var(--type-label-line-height);
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--fg-default);
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0 var(--stroke-redline);
+    background-repeat: no-repeat;
+    background-position: 0 calc(100% - 10px);
+    transition: background-size 0.3s ease;
+  }
+  .links a:hover {
+    background-size: 100% var(--stroke-redline);
+  }
+  .links a:focus-visible,
+  .toggle:focus-visible {
+    outline: none;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+  }
+  .toggle {
+    display: none;
+  }
+
+  /* Phone: one button, the links in a panel below it. */
+  @media (max-width: 760px) {
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      box-sizing: border-box;
+      min-height: 44px;
+      padding: 0 var(--space-4);
+      border: var(--stroke-ink) solid var(--border-strong);
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--fg-default);
+      font: inherit;
+      cursor: pointer;
+    }
+    .bars,
+    .bars::before,
+    .bars::after {
+      display: block;
+      width: 16px;
+      height: var(--stroke-ink);
+      background: currentColor;
+    }
+    .bars {
+      position: relative;
+    }
+    .bars::before,
+    .bars::after {
+      content: '';
+      position: absolute;
+      left: 0;
+    }
+    .bars::before {
+      top: -5px;
+    }
+    .bars::after {
+      top: 5px;
+    }
+    .links {
+      display: none;
+    }
+    [data-open] .links {
+      position: absolute;
+      top: calc(100% + var(--space-2));
+      right: 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      min-width: 220px;
+      padding: var(--space-2);
+      border: var(--stroke-hairline) solid var(--border-default);
+      border-radius: var(--radius-lg);
+      background: var(--bg-surface);
+    }
+    [data-open] .links a {
+      display: flex;
+      padding: 0 var(--space-3);
+      border-radius: var(--radius-sm);
+      background-image: none;
+    }
+    [data-open] .links a:hover {
+      background: var(--bg-subtle);
+    }
+  }
+</style>
