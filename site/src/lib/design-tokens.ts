@@ -88,8 +88,8 @@ export function colorScales(): Array<{ scale: string; tokens: PrimitiveToken[] }
   return [...scales].map(([scale, tokens]) => ({ scale, tokens }))
 }
 
-/** Number primitives of one group (`space`, `radius`, `stroke`); values are in px. */
-export function dimension(group: 'space' | 'radius' | 'stroke'): PrimitiveToken[] {
+/** Number primitives of one group (`space`, `radius`, `stroke`, `layout`); values are in px. */
+export function dimension(group: 'space' | 'radius' | 'stroke' | 'layout'): PrimitiveToken[] {
   return primitives()
     .filter((t) => t.name[0] === group)
     .map(primitive)

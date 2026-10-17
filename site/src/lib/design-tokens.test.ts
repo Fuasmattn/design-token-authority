@@ -45,7 +45,9 @@ describe('design tokens for the Design system pages', () => {
   })
 
   it('reads spacing, radius and stroke in px', () => {
-    expect(dimension('space').map((t) => t.value)).toEqual([4, 8, 12, 16, 24, 32, 48, 64, 96])
+    expect(dimension('space').map((t) => t.value)).toEqual([
+      4, 8, 12, 16, 24, 32, 40, 48, 56, 64, 80, 96, 144,
+    ])
     expect(dimension('radius').map((t) => t.name)).toEqual([
       'radius-sm',
       'radius-md',
@@ -53,6 +55,12 @@ describe('design tokens for the Design system pages', () => {
       'radius-full',
     ])
     expect(dimension('stroke').find((t) => t.name === 'stroke-redline')!.value).toBe(1.5)
+    expect(dimension('layout').map((t) => t.name)).toEqual([
+      'layout-content',
+      'layout-heading',
+      'layout-measure',
+      'layout-title',
+    ])
   })
 
   it('assembles the type scale from its tokens', () => {

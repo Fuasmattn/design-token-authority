@@ -5,6 +5,7 @@
  * findings as pressed buttons) and drives the drag-to-compare slider. Example data.
  */
 import { REVIEW_TABS, type Finding, type Severity } from '../../landing/content'
+import Badge from '../ds/Badge.astro'
 
 const severityTone: Record<Severity, 'signal' | 'muted' | 'ok'> = {
   error: 'signal',
@@ -49,7 +50,7 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
       >
         {tab.coming && (
           <p class="coming-note">
-            <span class="coming">coming</span>
+            <Badge tone="coming">coming</Badge>
             {tab.coming}
           </p>
         )}
@@ -65,7 +66,7 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
                 <span class={`sev ${severityTone[f.severity]}`}>
                   <span class="dot" aria-hidden="true" />
                   {f.severity}
-                  {f.coming && <span class="coming">coming</span>}
+                  {f.coming && <Badge tone="coming">coming</Badge>}
                 </span>
                 <span class="f-title">{f.title}</span>
                 <span class="f-sub">{f.sub}</span>
@@ -84,7 +85,7 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
                 <div>
                   <p class={`sev ${severityTone[f.severity]}`}>
                     {f.severity} · {f.rule}
-                    {f.coming && <span class="coming">coming</span>}
+                    {f.coming && <Badge tone="coming">coming</Badge>}
                   </p>
                   <h3>{f.title}</h3>
                   <p class="text">{f.text}</p>
@@ -287,37 +288,46 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
 </script>
 
 <style>
+  /*
+   * The demo uses the design-system tokens. Values that are part of the made-up example (the
+   * reviewed pricing card before and after its radius change) are demo variables, not tokens.
+   */
   .demo {
+    --demo-radius-base: 6px;
+    --demo-radius-head: 14px;
+    --demo-bar-radius: 2px;
     display: grid;
-    gap: 20px;
+    gap: var(--space-6);
   }
   .tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: var(--space-1);
     width: fit-content;
     max-width: 100%;
-    padding: 4px;
-    border-radius: 12px;
+    padding: var(--space-1);
+    border-radius: var(--radius-md);
     background: var(--bg-subtle);
   }
   [role='tab'] {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-2);
     min-height: 44px;
-    padding: 0 14px;
+    padding: 0 var(--space-3);
     border: 0;
-    border-radius: 9px;
+    border-radius: var(--radius-sm);
     background: transparent;
     color: var(--fg-muted);
-    font: 600 14px var(--font-sans);
+    font-family: var(--font-sans);
+    font-size: calc(var(--type-body-sm-size) * 1px);
+    font-weight: var(--type-label-weight);
+    line-height: var(--type-label-line-height);
     cursor: pointer;
   }
   [role='tab'][aria-selected='true'] {
     background: var(--bg-surface);
     color: var(--fg-default);
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
   }
   .count {
     display: inline-flex;
@@ -325,45 +335,30 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
     justify-content: center;
     min-width: 20px;
     height: 20px;
-    padding: 0 5px;
-    border-radius: 10px;
+    padding: 0 var(--space-1);
+    border-radius: var(--radius-md);
     background: var(--bg-surface);
     color: var(--fg-muted);
-    font: 400 11px var(--font-mono);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
   }
   [aria-selected='true'] .count {
     background: var(--signal-subtle);
     color: var(--signal-text);
   }
-  .coming {
-    display: inline-flex;
-    align-items: center;
-    height: 20px;
-    margin-left: 6px;
-    padding: 0 6px;
-    border-radius: 4px;
-    background: var(--action-subtle);
-    color: var(--action-text);
-    font: 400 10.5px var(--font-mono);
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-  }
   .coming-note {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
-    margin: 0 0 16px;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-4);
     color: var(--fg-muted);
-    font-size: 15px;
-  }
-  .coming-note .coming {
-    margin-left: 0;
+    font-size: calc(var(--type-label-size) * 1px);
   }
   .rep {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: var(--space-6);
     align-items: stretch;
   }
   .findings {
@@ -371,31 +366,32 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: var(--space-2);
   }
   .finding {
-    padding: 16px 18px;
-    border: 0;
-    border-radius: 14px;
+    padding: var(--space-4);
+    border: var(--stroke-hairline) solid var(--border-default);
+    border-radius: var(--radius-lg);
     background: var(--bg-surface);
     color: var(--fg-default);
-    box-shadow: inset 0 0 0 1px var(--border-default);
     font-family: var(--font-sans);
     text-align: left;
     cursor: pointer;
   }
   .finding[aria-pressed='true'] {
-    box-shadow:
-      inset 0 0 0 2px var(--action-bg),
-      0 0 0 4px var(--action-subtle);
+    border-color: var(--action-bg);
+    box-shadow: 0 0 0 var(--stroke-hairline) var(--action-bg);
+    outline: var(--space-1) solid var(--action-subtle);
+    outline-offset: var(--stroke-hairline);
   }
   .sev {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-2);
     margin: 0;
-    font: 400 11px var(--font-mono);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
   }
   .sev.signal {
     color: var(--signal-text);
@@ -409,19 +405,19 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
   .dot {
     width: 7px;
     height: 7px;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     background: currentColor;
   }
   .f-title {
     display: block;
-    margin-top: 6px;
-    font-weight: 700;
-    font-size: 16px;
+    margin-top: var(--space-1);
+    font-weight: var(--type-title-weight);
+    font-size: calc(var(--type-body-size) * 1px);
   }
   .f-sub {
     display: block;
-    margin-top: 4px;
-    font-size: 13.5px;
+    margin-top: var(--space-1);
+    font-size: calc(var(--type-body-sm-size) * 1px);
     color: var(--fg-muted);
   }
   .details {
@@ -434,24 +430,24 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 18px;
-    padding: 26px;
-    border-radius: 18px;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    border: var(--stroke-hairline) solid var(--border-default);
+    border-radius: var(--radius-lg);
     background: var(--bg-surface);
-    box-shadow: inset 0 0 0 1px var(--border-default);
   }
   .detail[hidden] {
     display: none;
   }
   .detail h3 {
-    margin: 8px 0 0;
-    font-size: 22px;
-    line-height: 1.2;
+    margin: var(--space-2) 0 0;
+    font-size: calc(var(--type-title-size) * 1px);
+    line-height: var(--type-title-line-height);
   }
   .text {
-    margin: 8px 0 0;
-    font-size: 15.5px;
-    line-height: 1.55;
+    margin: var(--space-2) 0 0;
+    font-size: calc(var(--type-label-size) * 1px);
+    line-height: var(--type-body-line-height);
     color: var(--fg-muted);
   }
   /* The "sheet": a piece of the reviewed UI, always on paper (like a screenshot). */
@@ -459,12 +455,12 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 12px;
+    gap: var(--space-3);
     min-height: 150px;
-    padding: 22px;
-    border-radius: 12px;
+    padding: var(--space-6);
+    border: var(--stroke-hairline) solid var(--border-default);
+    border-radius: var(--radius-md);
     background: var(--paper-50);
-    box-shadow: inset 0 0 0 1px var(--border-default);
     color: var(--ink-900);
   }
   .sheet p {
@@ -472,10 +468,10 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
   }
   .mono {
     font-family: var(--font-mono);
-    font-size: 13px;
+    font-size: calc(var(--type-meta-size) * 1px);
   }
   .small {
-    font-size: 11px;
+    font-size: calc(var(--type-redline-size) * 1px);
     color: var(--ink-600);
   }
   .subtle {
@@ -485,7 +481,7 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
     color: var(--ink-900);
   }
   .label {
-    font-size: 10.5px;
+    font-size: calc(var(--type-redline-size) * 1px);
   }
   .found {
     color: var(--redline-800);
@@ -497,12 +493,13 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: 4px;
-    font: 400 18px var(--font-mono);
+    gap: var(--space-1);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-body-size) * 1px);
   }
   .part {
-    padding: 2px 4px;
-    border-radius: 4px;
+    padding: 0 var(--space-1);
+    border-radius: var(--radius-sm);
     white-space: pre;
   }
   .part.bad {
@@ -510,8 +507,8 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
     color: var(--redline-800);
   }
   .fix {
-    padding: 2px 6px;
-    border-radius: 4px;
+    padding: 0 var(--space-1);
+    border-radius: var(--radius-sm);
     background: var(--sage-100);
     color: var(--sage-600);
   }
@@ -519,40 +516,41 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
-    font: 400 12.5px var(--font-mono);
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
   }
   .node {
-    padding: 6px 10px;
-    border-radius: 6px;
+    padding: var(--space-1) var(--space-2);
+    border: var(--stroke-hairline) solid var(--paper-300);
+    border-radius: var(--radius-sm);
     background: var(--paper-0);
-    box-shadow: inset 0 0 0 1px var(--paper-300);
   }
   .node.strong {
-    box-shadow: inset 0 0 0 1.5px var(--ink-900);
+    border: var(--stroke-redline) solid var(--ink-900);
   }
   .node.semantic {
+    border-color: var(--blueprint-100);
     background: var(--blueprint-100);
     color: var(--blueprint-800);
-    box-shadow: none;
   }
   .gap {
     position: relative;
     display: inline-block;
     width: 120px;
-    margin-top: 22px;
-    border-top: 1.5px dashed var(--redline-500);
+    margin-top: var(--space-6);
+    border-top: var(--stroke-redline) dashed var(--redline-500);
   }
   .gap-tag {
     position: absolute;
     left: 50%;
-    top: -22px;
+    top: calc(var(--space-6) * -1);
     transform: translateX(-50%);
-    padding: 1px 6px;
-    border-radius: 4px;
+    padding: 0 var(--space-1);
+    border-radius: var(--radius-sm);
     background: var(--redline-500);
     color: var(--graphite-950);
-    font-size: 10px;
+    font-size: calc(var(--type-redline-size) * 1px);
     white-space: nowrap;
   }
   .arrow {
@@ -565,14 +563,15 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
-    font: 400 15px var(--font-mono);
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-label-size) * 1px);
   }
   .old {
     color: var(--ink-600);
     text-decoration: line-through;
     text-decoration-color: var(--redline-500);
-    text-decoration-thickness: 2px;
+    text-decoration-thickness: var(--stroke-ink);
   }
   .next {
     font-weight: 500;
@@ -580,34 +579,35 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
   .uses {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: var(--space-1);
   }
   .use {
     display: inline-flex;
     align-items: center;
-    height: 26px;
-    padding: 0 8px;
-    border-radius: 6px;
+    min-height: var(--space-6);
+    padding: 0 var(--space-2);
+    border: var(--stroke-hairline) solid var(--paper-300);
+    border-radius: var(--radius-sm);
     background: var(--paper-0);
-    box-shadow: inset 0 0 0 1px var(--paper-300);
-    font: 400 11px var(--font-mono);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
   }
   .tiles {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 6px;
+    gap: var(--space-1);
   }
   .tile {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 54px;
-    border-radius: 6px;
+    border: var(--stroke-hairline) solid var(--paper-300);
+    border-radius: var(--radius-sm);
     background: var(--paper-0);
-    box-shadow: inset 0 0 0 1px var(--paper-300);
   }
   .tile.flagged {
-    box-shadow: inset 0 0 0 2px var(--redline-500);
+    border: var(--stroke-ink) solid var(--redline-500);
   }
   .mini {
     display: flex;
@@ -615,15 +615,15 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
     box-sizing: border-box;
     width: 64%;
     height: 30px;
-    padding: 4px;
+    padding: var(--space-1);
+    border: var(--stroke-hairline) solid var(--paper-300);
     background: var(--paper-0);
-    box-shadow: 0 0 0 1px var(--paper-300);
   }
   .bar {
     display: block;
     width: 100%;
     height: 8px;
-    border-radius: 2px;
+    border-radius: var(--demo-bar-radius);
   }
   .bar.blue-700 {
     background: var(--blueprint-700);
@@ -642,13 +642,15 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    gap: var(--space-2);
   }
   .act {
     min-height: 44px;
-    padding: 0 16px;
+    padding: 0 var(--space-4);
     border-radius: var(--radius-md);
-    font: 600 14px var(--font-sans);
+    font-family: var(--font-sans);
+    font-size: calc(var(--type-body-sm-size) * 1px);
+    font-weight: var(--type-label-weight);
     cursor: pointer;
   }
   .act.primary {
@@ -664,13 +666,14 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
   .recorded {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    height: 30px;
-    padding: 0 10px;
-    border-radius: 6px;
+    gap: var(--space-1);
+    min-height: var(--space-8);
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-sm);
     background: var(--success-subtle);
     color: var(--success-fg);
-    font: 400 11.5px var(--font-mono);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
   }
   .recorded[hidden] {
     display: none;
@@ -678,10 +681,10 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
   .compare {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    margin-top: 20px;
-    padding: 20px;
-    border-radius: 18px;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
     background: var(--bg-surface);
   }
   .compare-head {
@@ -689,16 +692,17 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: var(--space-2);
   }
   .overlay-toggle {
     min-height: 44px;
-    padding: 0 12px;
+    padding: 0 var(--space-3);
     border: var(--stroke-ink) solid var(--border-strong);
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     background: transparent;
     color: var(--fg-default);
-    font: 400 12px var(--font-mono);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
     cursor: pointer;
   }
   .overlay-toggle::after {
@@ -712,16 +716,23 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
   .overlay-toggle[aria-pressed='true']::after {
     content: ' · on';
   }
+  .stage,
+  .baseline {
+    background-color: var(--paper-50);
+    background-image:
+      linear-gradient(var(--paper-150) var(--stroke-hairline), transparent var(--stroke-hairline)),
+      linear-gradient(
+        90deg,
+        var(--paper-150) var(--stroke-hairline),
+        transparent var(--stroke-hairline)
+      );
+    background-size: var(--space-4) var(--space-4);
+  }
   .stage {
     position: relative;
     height: 320px;
     overflow: hidden;
-    border-radius: 12px;
-    background-color: var(--paper-50);
-    background-image:
-      linear-gradient(var(--paper-150) 1px, transparent 1px),
-      linear-gradient(90deg, var(--paper-150) 1px, transparent 1px);
-    background-size: 16px 16px;
+    border-radius: var(--radius-md);
   }
   .side {
     position: absolute;
@@ -733,53 +744,48 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
   /* Baseline on the left of the divider, candidate on the right. */
   .baseline {
     clip-path: inset(0 calc(100% - var(--split)) 0 0);
-    background-color: var(--paper-50);
-    background-image:
-      linear-gradient(var(--paper-150) 1px, transparent 1px),
-      linear-gradient(90deg, var(--paper-150) 1px, transparent 1px);
-    background-size: 16px 16px;
   }
   .card {
     position: relative;
     width: 260px;
-    max-width: calc(100% - 40px);
+    max-width: calc(100% - var(--space-10));
     box-sizing: border-box;
-    padding: 22px;
+    padding: var(--space-6);
+    border: var(--stroke-hairline) solid var(--paper-300);
     background: var(--paper-0);
     color: var(--ink-900);
-    box-shadow: 0 0 0 1px var(--paper-300);
   }
   .card p {
     margin: 0;
   }
   .card-title {
-    margin-bottom: 6px !important;
-    font-weight: 700;
-    font-size: 18px;
+    margin-bottom: var(--space-1) !important;
+    font-weight: var(--type-title-weight);
+    font-size: calc(var(--type-body-size) * 1px);
   }
   .card-text {
-    margin-bottom: 18px !important;
-    font-size: 14px;
+    margin-bottom: var(--space-4) !important;
+    font-size: calc(var(--type-body-sm-size) * 1px);
     color: var(--ink-700);
   }
   .card-cta {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 46px;
+    min-height: var(--space-12);
     color: var(--paper-0);
-    font-weight: 600;
+    font-weight: var(--type-label-weight);
   }
   .baseline-card,
   .baseline-card .card-cta {
-    border-radius: 6px;
+    border-radius: var(--demo-radius-base);
   }
   .baseline-card .card-cta {
     background: var(--blueprint-600);
   }
   .candidate-card,
   .candidate-card .card-cta {
-    border-radius: 14px;
+    border-radius: var(--demo-radius-head);
   }
   .candidate-card .card-cta {
     background: var(--blueprint-700);
@@ -792,36 +798,36 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
     display: block;
   }
   .hot-cta {
-    left: 22px;
-    right: 22px;
-    bottom: 22px;
-    height: 46px;
-    border-radius: 14px;
+    left: var(--space-6);
+    right: var(--space-6);
+    bottom: var(--space-6);
+    height: var(--space-12);
+    border-radius: var(--demo-radius-head);
     background: repeating-linear-gradient(
       45deg,
-      rgb(232 99 42 / 0.75) 0 4px,
-      rgb(255 228 210 / 0.6) 4px 8px
+      color-mix(in srgb, var(--redline-500) 75%, transparent) 0 4px,
+      color-mix(in srgb, var(--redline-100) 60%, transparent) 4px 8px
     );
   }
   .hot-tl,
   .hot-br {
-    width: 22px;
-    height: 22px;
-    border: 3px solid var(--redline-500);
+    width: var(--space-6);
+    height: var(--space-6);
+    border: var(--stroke-focus) solid var(--redline-500);
   }
   .hot-tl {
-    left: -2px;
-    top: -2px;
+    left: calc(var(--stroke-ink) * -1);
+    top: calc(var(--stroke-ink) * -1);
     border-right: 0;
     border-bottom: 0;
-    border-top-left-radius: 14px;
+    border-top-left-radius: var(--demo-radius-head);
   }
   .hot-br {
-    right: -2px;
-    bottom: -2px;
+    right: calc(var(--stroke-ink) * -1);
+    bottom: calc(var(--stroke-ink) * -1);
     border-left: 0;
     border-top: 0;
-    border-bottom-right-radius: 14px;
+    border-bottom-right-radius: var(--demo-radius-head);
   }
   .knob {
     position: absolute;
@@ -831,14 +837,16 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
+    width: var(--space-8);
+    height: var(--space-8);
+    border-radius: var(--radius-full);
     background: var(--redline-500);
     color: var(--graphite-950);
-    font: 500 13px var(--font-mono);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    font-weight: 500;
     transform: translate(-50%, -50%);
-    box-shadow: 0 0 0 4px rgb(255 228 210 / 0.9);
+    box-shadow: 0 0 0 var(--space-1) var(--redline-100);
   }
   .knob::before {
     content: '';
@@ -847,32 +855,34 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
     top: -400px;
     bottom: -400px;
     z-index: -1;
-    border-left: 2px solid var(--redline-500);
+    border-left: var(--stroke-ink) solid var(--redline-500);
   }
   .tag {
     position: absolute;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font: 400 10.5px var(--font-mono);
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-redline-size) * 1px);
   }
   .tag-base {
-    left: 12px;
-    top: 12px;
+    left: var(--space-3);
+    top: var(--space-3);
     background: var(--ink-900);
     color: var(--paper-100);
   }
   .tag-head {
-    right: 12px;
-    bottom: 12px;
+    right: var(--space-3);
+    bottom: var(--space-3);
     background: var(--blueprint-600);
     color: var(--paper-0);
   }
   .range-label {
     display: flex;
     justify-content: space-between;
-    margin-bottom: -10px;
+    margin-bottom: calc(var(--space-2) * -1);
     color: var(--fg-subtle);
-    font: 400 11px var(--font-mono);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
   }
   input[type='range'] {
     width: 100%;
@@ -882,14 +892,14 @@ const isTiles = (f: Finding): f is Extract<Finding, { kind: 'tiles' }> => f.kind
   button:focus-visible,
   input:focus-visible {
     outline: var(--stroke-focus) solid var(--action-bg);
-    outline-offset: 2px;
+    outline-offset: var(--stroke-ink);
   }
   @media (max-width: 760px) {
     .rep {
       flex-direction: column;
     }
     .detail {
-      padding: 20px;
+      padding: var(--space-4);
     }
     .tiles {
       grid-template-columns: repeat(3, minmax(0, 1fr));

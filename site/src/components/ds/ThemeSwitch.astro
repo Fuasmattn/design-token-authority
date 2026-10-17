@@ -1,0 +1,65 @@
+---
+/**
+ * Light / Graphite switch for the whole page: a segmented control of two pressed buttons. It
+ * shares the choice with the docs (Starlight's `starlight-theme` in localStorage) and sets
+ * `data-theme` and `data-brand` on the root element.
+ */
+---
+
+<div class="dta-theme-switch" role="group" aria-label="Theme" data-dta-theme-switch>
+  <button type="button" data-set-theme="light" aria-pressed="false">Light</button>
+  <button type="button" data-set-theme="dark" aria-pressed="false">Graphite</button>
+</div>
+
+<script>
+  const root = document.documentElement
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-set-theme]')]
+  const show = () => {
+    for (const button of buttons) {
+      button.setAttribute('aria-pressed', String(button.dataset.setTheme === root.dataset.theme))
+    }
+  }
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      const theme = button.dataset.setTheme === 'dark' ? 'dark' : 'light'
+      root.dataset.theme = theme
+      root.dataset.brand = theme === 'dark' ? 'graphite' : 'light'
+      try {
+        localStorage.setItem('starlight-theme', theme)
+      } catch {}
+      show()
+    })
+  }
+  show()
+</script>
+
+<style>
+  .dta-theme-switch {
+    display: inline-flex;
+    gap: var(--space-1);
+    padding: var(--space-1);
+    border-radius: var(--radius-md);
+    background: var(--bg-subtle);
+  }
+  button {
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--fg-muted);
+    font-family: var(--font-sans);
+    font-size: calc(var(--type-body-sm-size) * 1px);
+    font-weight: var(--type-label-weight);
+    line-height: var(--type-label-line-height);
+    cursor: pointer;
+  }
+  button[aria-pressed='true'] {
+    background: var(--bg-surface);
+    color: var(--fg-default);
+  }
+  button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+  }
+</style>

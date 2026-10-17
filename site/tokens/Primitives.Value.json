@@ -600,10 +600,34 @@
         }
       }
     },
+    "10": {
+      "$type": "number",
+      "$value": 40,
+      "$description": "Between columns of a grid.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["GAP"],
+          "codeSyntax": {}
+        }
+      }
+    },
     "12": {
       "$type": "number",
       "$value": 48,
       "$description": "Between blocks in a section.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["GAP"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "14": {
+      "$type": "number",
+      "$value": 56,
+      "$description": "Between a heading and its content.",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -624,10 +648,34 @@
         }
       }
     },
+    "20": {
+      "$type": "number",
+      "$value": 80,
+      "$description": "Section padding on mobile, landing page.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["GAP"],
+          "codeSyntax": {}
+        }
+      }
+    },
     "24": {
       "$type": "number",
       "$value": 96,
       "$description": "Section padding on desktop.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["GAP"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "36": {
+      "$type": "number",
+      "$value": 144,
+      "$description": "Section padding on desktop, landing page.",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -732,6 +780,56 @@
         "com.figma": {
           "hiddenFromPublishing": false,
           "scopes": ["STROKE_FLOAT"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "layout": {
+    "content": {
+      "$type": "number",
+      "$value": 1240,
+      "$description": "Maximum width of page content.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["WIDTH_HEIGHT"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "heading": {
+      "$type": "number",
+      "$value": 900,
+      "$description": "Maximum width of a section heading.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["WIDTH_HEIGHT"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "measure": {
+      "$type": "number",
+      "$value": 640,
+      "$description": "Maximum width of running text (about 70 characters).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["WIDTH_HEIGHT"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "title": {
+      "$type": "number",
+      "$value": 760,
+      "$description": "Maximum width of the page title.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["WIDTH_HEIGHT"],
           "codeSyntax": {}
         }
       }

@@ -1,0 +1,70 @@
+---
+/**
+ * A surface for one idea: hairline border, large radius, card padding. With `href` the whole
+ * card is a link and lifts on hover; `featured` draws it in the action colour; `grid` lays
+ * grid paper under the content.
+ */
+interface Props {
+  href?: string
+  featured?: boolean
+  grid?: boolean
+  class?: string
+}
+const { href, featured = false, grid = false, class: className } = Astro.props
+const Tag = href ? 'a' : 'div'
+---
+
+<Tag class:list={['dta-card', { featured, grid, link: Boolean(href) }, className]} href={href}>
+  <slot />
+</Tag>
+
+<style>
+  .dta-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    box-sizing: border-box;
+    padding: var(--space-8);
+    border: var(--stroke-hairline) solid var(--border-default);
+    border-radius: var(--radius-lg);
+    background-color: var(--bg-surface);
+    color: var(--fg-default);
+  }
+  .featured {
+    border: var(--stroke-ink) solid var(--action-bg);
+  }
+  .grid {
+    background-image:
+      linear-gradient(var(--bg-grid) var(--stroke-hairline), transparent var(--stroke-hairline)),
+      linear-gradient(
+        90deg,
+        var(--bg-grid) var(--stroke-hairline),
+        transparent var(--stroke-hairline)
+      );
+    background-size: var(--space-4) var(--space-4);
+  }
+  .link {
+    text-decoration: none;
+    transition:
+      transform 0.25s ease,
+      border-color 0.25s ease;
+  }
+  .link:hover {
+    transform: translateY(calc(var(--space-1) * -1));
+    border-color: var(--border-strong);
+  }
+  .link:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+  }
+  @media (max-width: 760px) {
+    .dta-card {
+      padding: var(--space-6);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .link {
+      transition: none;
+    }
+  }
+</style>

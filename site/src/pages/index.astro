@@ -11,8 +11,13 @@ import '../styles/fonts.css'
 import '../styles/landing.css'
 import sansUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wdth-normal.woff2?url'
 import monoUrl from '@fontsource-variable/martian-mono/files/martian-mono-latin-wght-normal.woff2?url'
+import Badge from '../components/ds/Badge.astro'
+import Button from '../components/ds/Button.astro'
+import Card from '../components/ds/Card.astro'
 import CommandButton from '../components/ds/CommandButton.astro'
+import Logo from '../components/ds/Logo.astro'
 import Nav from '../components/ds/Nav.astro'
+import ThemeSwitch from '../components/ds/ThemeSwitch.astro'
 import Terminal from '../components/ds/Terminal.astro'
 import ReviewDemo from '../components/landing/ReviewDemo.astro'
 import { COMMANDS, TRUST_RUN } from '../landing/content'
@@ -108,16 +113,10 @@ const NAV = [
   <body>
     <a class="skip" href="#main">Skip to content</a>
     <header class="site-header">
-      <a href="/" class="logo" aria-label="dta, home">
-        <span class="mark" aria-hidden="true"><span class="mark-o"></span><span class="mark-f"></span></span>
-        dta
-      </a>
+      <Logo />
       <div class="header-end">
         <Nav links={NAV} idPrefix="site" />
-        <div class="theme" role="group" aria-label="Theme">
-          <button type="button" data-set-theme="light">Light</button>
-          <button type="button" data-set-theme="dark">Graphite</button>
-        </div>
+        <ThemeSwitch />
       </div>
     </header>
 
@@ -144,13 +143,13 @@ const NAV = [
           </p>
           <div class="cta in4">
             <CommandButton command={COMMANDS.init.text} />
-            <a href="#review" class="btn-outline">See a review</a>
+            <Button variant="outline" href="#review">See a review</Button>
             <a href="#use" class="link-mono">or let your agent set it up →</a>
           </div>
           {
             !COMMANDS.init.shipped && (
               <p class="release-note in4">
-                <span class="coming">coming</span> The npm release is on its way. Until then, run
+                <Badge tone="coming">coming</Badge> The npm release is on its way. Until then, run
                 DTA from a clone: <a href="/start/quick-start/">Quick start</a>
               </p>
             )
@@ -205,7 +204,7 @@ const NAV = [
           <p class="kicker subtle">See it · one design change, three kinds of findings</p>
           <h2 id="review-title">Catch it in review, not in production.</h2>
           <p class="example-note">
-            <span class="example">Example data</span> An interactive preview of a review: the
+            <Badge tone="example">Example data</Badge> An interactive preview of a review: the
             findings, numbers and names are made up.
           </p>
           <ReviewDemo />
@@ -217,7 +216,7 @@ const NAV = [
           <p class="kicker">Ways to use it</p>
           <h2 id="use-title">Start small. Grow into governance.</h2>
           <div class="use-cards">
-            <article class="use-card">
+            <Card class="use-card">
               <p class="num action">01 · Try</p>
               <h3>Try</h3>
               <p class="who">anyone with a token file</p>
@@ -226,10 +225,10 @@ const NAV = [
                 check, no setup. Enough for a prototype or a hand-over.
               </p>
               <p class="cmd"><span class="prompt" aria-hidden="true">$</span>{COMMANDS.build.text}</p>
-            </article>
-            <article class="use-card featured">
+            </Card>
+            <Card class="use-card" featured>
               <p class="num action">
-                02 · Govern <span class="badge">most teams</span>
+                02 · Govern <Badge tone="note">most teams</Badge>
               </p>
               <h3>Govern</h3>
               <p class="who">teams shipping design changes every week</p>
@@ -240,10 +239,10 @@ const NAV = [
               <p class="cmd">
                 <span class="prompt" aria-hidden="true">$</span>{COMMANDS.govern.text}
               </p>
-            </article>
-            <article class="use-card">
+            </Card>
+            <Card class="use-card">
               <p class="num action">
-                03 · Delegate <span class="coming">coming</span>
+                03 · Delegate <Badge tone="coming">coming</Badge>
               </p>
               <h3>Delegate</h3>
               <p class="who">teams working with coding agents</p>
@@ -260,9 +259,9 @@ const NAV = [
               </div>
               <p class="cmd">
                 <span class="prompt" aria-hidden="true">$</span>{COMMANDS.skill.text}
-                <span class="coming">coming</span>
+                <Badge tone="coming">coming</Badge>
               </p>
-            </article>
+            </Card>
           </div>
         </div>
       </section>
@@ -298,14 +297,16 @@ const NAV = [
           <div class="cards">
             {
               cards.map((c, i) => (
-                <a href={c.href} class:list={['card', { grid: i === 0 }]}>
+                <Card href={c.href} grid={i === 0} class="link-card">
                   <span class="num action">
-                    {c.eyebrow} {c.coming && <span class="coming">coming</span>}
+                    {c.eyebrow} {c.coming && <Badge tone="coming">coming</Badge>}
                   </span>
-                  <span class="card-title">{c.title}</span>
-                  <span class="uline" aria-hidden="true" />
-                  <span class="muted">{c.text}</span>
-                </a>
+                  <span class="card-body">
+                    <span class="card-title">{c.title}</span>
+                    <span class="uline" aria-hidden="true" />
+                    <span class="muted">{c.text}</span>
+                  </span>
+                </Card>
               ))
             }
           </div>
@@ -322,7 +323,7 @@ const NAV = [
             {
               !COMMANDS.init.shipped && (
                 <p class="band-note">
-                  <span class="coming">coming</span> with the npm release ·{' '}
+                  <Badge tone="coming">coming</Badge> with the npm release ·{' '}
                   <a href="/start/quick-start/">run it from a clone today</a>
                 </p>
               )
@@ -340,24 +341,5 @@ const NAV = [
       </div>
     </footer>
 
-    <script>
-      const root = document.documentElement
-      const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-set-theme]')]
-      const show = () => {
-        for (const b of buttons) b.setAttribute('aria-pressed', String(b.dataset.setTheme === root.dataset.theme))
-      }
-      for (const b of buttons) {
-        b.addEventListener('click', () => {
-          const theme = b.dataset.setTheme === 'dark' ? 'dark' : 'light'
-          root.dataset.theme = theme
-          root.dataset.brand = theme === 'dark' ? 'graphite' : 'light'
-          try {
-            localStorage.setItem('starlight-theme', theme)
-          } catch {}
-          show()
-        })
-      }
-      show()
-    </script>
   </body>
 </html>
