@@ -1,22 +1,10 @@
-import fs from 'node:fs'
 import type { Readable } from 'node:stream'
-import { fileURLToPath } from 'node:url'
 import { Command, CommanderError } from 'commander'
 import { COMMAND_GROUPS, COMMANDS, type CommandDefinition } from './commands.js'
 import { ConfigError, loadConfig } from './config/load.js'
 import type { Config } from './config/schema.js'
 import { openWithSystem } from './open.js'
-
-/** The version of the published package (the repository root), `unknown` if it cannot be read. */
-function packageVersion(): string {
-  try {
-    const file = fileURLToPath(new URL('../../../package.json', import.meta.url))
-    const { version } = JSON.parse(fs.readFileSync(file, 'utf8')) as { version?: string }
-    return version ?? 'unknown'
-  } catch {
-    return 'unknown'
-  }
-}
+import { packageVersion } from './version.js'
 
 /** Exit code for an invalid config (same as the v1 CLI). */
 const EXIT_INVALID_CONFIG = 2

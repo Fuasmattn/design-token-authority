@@ -31,5 +31,7 @@ export function normalizeOutput(text: string, workDir: string, repoRoot: string)
   // The real path first: on macOS the temp dir is a symlink (/var -> /private/var).
   const variants = new Set([fs.realpathSync(workDir), workDir])
   for (const variant of variants) result = result.split(variant).join('<cwd>')
-  return result.split(repoRoot).join('<repo>')
+  result = result.split(repoRoot).join('<repo>')
+  // The skill file records the DTA version; a release must not change the snapshots.
+  return result.replace(/\(DTA \d+\.\d+\.\d+[^)]*\)/g, '(DTA <version>)')
 }

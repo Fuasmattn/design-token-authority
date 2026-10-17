@@ -9,6 +9,7 @@ import { runInit } from './commands/init.js'
 import { runLint } from './commands/lint.js'
 import { runPull } from './commands/pull.js'
 import { runPush } from './commands/push.js'
+import { runSkillAdd } from './commands/skill.js'
 import { runTokenFind, runTokenGet, runTokenList } from './commands/token.js'
 
 export interface CommandOption {
@@ -54,6 +55,7 @@ export interface CommandDefinition {
 /** Commands that only group subcommands. */
 export const COMMAND_GROUPS = {
   token: 'Look up tokens: what a token resolves to, which tokens have a value, which exist',
+  skill: 'Install the DTA skill that teaches coding agents the token workflow',
 } as const
 
 const CONFIG: CommandOption = { flags: '-c, --config <path>', description: 'Path to config file' }
@@ -255,6 +257,26 @@ export const COMMANDS: readonly CommandDefinition[] = [
       FORMAT_JSON,
       CONFIG,
       VERBOSE,
+    ],
+  },
+
+  {
+    name: 'add',
+    parent: 'skill',
+    description:
+      'Write the DTA skill for coding agents (SKILL.md: look tokens up, lint, build, diff, never push)',
+    needsConfig: false,
+    run: runSkillAdd,
+    options: [
+      {
+        flags: '--dir <path>',
+        description: 'Folder to write SKILL.md to (other agents than Claude Code)',
+        defaultValue: '.claude/skills/dta',
+      },
+      {
+        flags: '--check',
+        description: 'Exit 1 when the installed skill is missing or out of date',
+      },
     ],
   },
 

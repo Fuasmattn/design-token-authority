@@ -36,7 +36,7 @@ describe('help and usage', () => {
     for (const name of COMMAND_NAMES) expect(stdout).toContain(name.split(' ')[0])
   })
 
-  it('offers the v1 commands plus diff and the token queries', () => {
+  it('offers the v1 commands plus diff, the token queries and the skill', () => {
     expect([...COMMAND_NAMES].sort()).toEqual(
       [
         'analyze',
@@ -48,6 +48,7 @@ describe('help and usage', () => {
         'lint',
         'pull',
         'push',
+        'skill add',
         'token find',
         'token get',
         'token list',
