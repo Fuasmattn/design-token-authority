@@ -1,5 +1,6 @@
 ---
 import Nav from '../components/ds/Nav.astro'
+import ThemeSwitch from '../components/ds/ThemeSwitch.astro'
 
 interface Props {
   idPrefix: string
@@ -13,4 +14,6 @@ const links = [
 ]
 ---
 
-<Nav links={links} idPrefix={idPrefix} />
+<Nav links={links} idPrefix={idPrefix}>
+  <ThemeSwitch />
+</Nav>

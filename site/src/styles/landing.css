@@ -79,7 +79,7 @@ a {
   padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
 }
 
-/* Header: logo, navigation and theme switch */
+/* Header: logo, then the navigation (with the theme switch in it) */
 .site-header {
   position: absolute;
   left: 0;
@@ -95,12 +95,6 @@ a {
   gap: var(--space-4);
   align-items: center;
   justify-content: space-between;
-}
-.header-end {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-6);
-  align-items: center;
 }
 
 /* Hero (no key visual for now) */
@@ -624,12 +618,10 @@ h3 {
     padding-top: var(--space-4);
     padding-bottom: var(--space-4);
   }
-  .header-end {
-    gap: var(--space-2);
-  }
-  /* The menu button goes last, so its panel opens from the right edge. */
-  .header-end .dta-nav {
-    order: 1;
+  /* The logo stays above the open full-screen menu. */
+  .site-header .dta-logo {
+    position: relative;
+    z-index: 21;
   }
   .hero-inner {
     padding-top: calc(var(--space-24) + var(--space-6));

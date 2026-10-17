@@ -238,6 +238,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 |---|---|---|---|---|---|
 | [095](./095-site-nav-component.md) | Navigation component with a mobile menu | High | S | — | Done |
 | [096](./096-site-landing-on-tokens.md) | Landing page on tokens and design-system components only | Medium | M | 095 | Done |
+| [097](./097-site-nav-fullscreen-menu.md) | Nav: burger button and full-screen menu on phones | Medium | S | 095 | Done |
 
 Order: Epic 7 first (068 → 069 → 070 unblock the rest); 7b and 8 can run in parallel once 069/070 are done; 080 can start right after 039. Design sources: the maintainer's concept doc, the DTA Drafting Table design system and the landing page mockup (see the specs).
 

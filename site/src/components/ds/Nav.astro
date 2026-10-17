@@ -1,7 +1,10 @@
 ---
 /**
- * Main navigation: the links in a row; below 760px one Menu button that opens them as a list
- * (a disclosure). Closes on Escape, on a link and on a click outside.
+ * Main navigation. On tablets and desktops: the links in a row, then whatever is passed in the
+ * default slot (the theme switch). Below 760px: a burger button that opens a full-screen menu
+ * on grid paper; the sheet wipes down, a redline draws under the header and the links rise one
+ * after another. Closes on Escape, on a link and when the screen gets wide; keeps focus inside
+ * while open.
  */
 interface Link {
   href: string
@@ -21,50 +24,97 @@ const menuId = `${idPrefix}-menu`
 ---
 
 <nav class="dta-nav" aria-label={label} data-dta-nav data-open={open ? '' : undefined}>
-  <button type="button" class="toggle" aria-expanded={open ? 'true' : 'false'} aria-controls={menuId}>
-    <span class="bars" aria-hidden="true"></span>
-    Menu
+  <button
+    type="button"
+    class="toggle"
+    aria-label="Menu"
+    aria-expanded={open ? 'true' : 'false'}
+    aria-controls={menuId}
+  >
+    <span class="burger" aria-hidden="true"><span></span><span></span><span></span></span>
   </button>
-  <ul class="links" id={menuId}>
+  <div class="panel" id={menuId}>
+    <ul class="links">
+      {
+        links.map((link, i) => (
+          <li style={`--i: ${i}`}>
+            <a href={link.href}>
+              <span class="index" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span class="label">{link.label}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
     {
-      links.map((link) => (
-        <li>
-          <a href={link.href}>{link.label}</a>
-        </li>
-      ))
+      Astro.slots.has('default') && (
+        <div class="extra" style={`--i: ${links.length}`}>
+          <slot />
+        </div>
+      )
     }
-  </ul>
+  </div>
 </nav>
 
 <script>
+  const PHONE = '(max-width: 760px)'
   for (const nav of document.querySelectorAll<HTMLElement>('[data-dta-nav]')) {
     const toggle = nav.querySelector<HTMLButtonElement>('.toggle')
     if (!toggle) continue
+    const isOpen = () => nav.hasAttribute('data-open')
     const setOpen = (open: boolean) => {
       nav.toggleAttribute('data-open', open)
       toggle.setAttribute('aria-expanded', String(open))
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Menu')
+      // The full-screen menu owns the screen: the page behind it does not scroll.
+      document.documentElement.toggleAttribute('data-dta-nav-open', open && matchMedia(PHONE).matches)
+      if (open) nav.querySelector<HTMLElement>('.links a')?.focus({ preventScroll: true })
     }
-    toggle.addEventListener('click', () => setOpen(!nav.hasAttribute('data-open')))
+    toggle.addEventListener('click', () => setOpen(!isOpen()))
     nav.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && nav.hasAttribute('data-open')) {
+      if (!isOpen()) return
+      if (event.key === 'Escape') {
         setOpen(false)
         toggle.focus()
+        return
+      }
+      // Keep focus inside the open menu: the button, the links and the extra controls.
+      if (event.key === 'Tab' && matchMedia(PHONE).matches) {
+        const focusable = [...nav.querySelectorAll<HTMLElement>('button, a[href]')]
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault()
+          last.focus()
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault()
+          first.focus()
+        }
       }
     })
-    for (const link of nav.querySelectorAll('a')) link.addEventListener('click', () => setOpen(false))
-    document.addEventListener('click', (event) => {
-      if (event.target instanceof Node && !nav.contains(event.target)) setOpen(false)
+    for (const link of nav.querySelectorAll('.links a')) {
+      link.addEventListener('click', () => setOpen(false))
+    }
+    // Rotating a phone to a wide screen shows the row again: close the menu.
+    matchMedia(PHONE).addEventListener('change', (event) => {
+      if (!event.matches && isOpen()) setOpen(false)
     })
   }
 </script>
 
 <style>
   .dta-nav {
-    position: relative;
     font-family: var(--font-sans);
     font-size: calc(var(--type-label-size) * 1px);
     font-weight: var(--type-label-weight);
     line-height: var(--type-label-line-height);
+  }
+  .panel {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
   }
   .links {
     display: flex;
@@ -89,6 +139,9 @@ const menuId = `${idPrefix}-menu`
   .links a:hover {
     background-size: 100% var(--stroke-redline);
   }
+  .index {
+    display: none;
+  }
   .links a:focus-visible,
   .toggle:focus-visible {
     outline: none;
@@ -99,70 +152,190 @@ const menuId = `${idPrefix}-menu`
     display: none;
   }
 
-  /* Phone: one button, the links in a panel below it. */
+  /* Phone: a burger, and a full-screen sheet for the links. */
   @media (max-width: 760px) {
     .toggle {
+      position: relative;
+      z-index: 21;
       display: inline-flex;
       align-items: center;
-      gap: var(--space-2);
+      justify-content: center;
       box-sizing: border-box;
-      min-height: 44px;
-      padding: 0 var(--space-4);
-      border: var(--stroke-ink) solid var(--border-strong);
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border: var(--stroke-ink) solid transparent;
       border-radius: var(--radius-md);
       background: transparent;
       color: var(--fg-default);
-      font: inherit;
       cursor: pointer;
+      transition: border-color 0.2s ease;
     }
-    .bars,
-    .bars::before,
-    .bars::after {
-      display: block;
-      width: 16px;
-      height: var(--stroke-ink);
-      background: currentColor;
+    .toggle:hover,
+    .toggle:focus-visible {
+      border-color: var(--border-strong);
     }
-    .bars {
+    .burger {
       position: relative;
+      display: block;
+      width: 20px;
+      height: 14px;
     }
-    .bars::before,
-    .bars::after {
-      content: '';
+    .burger span {
       position: absolute;
       left: 0;
+      width: 100%;
+      height: var(--stroke-ink);
+      border-radius: var(--radius-full);
+      background: currentColor;
+      transition:
+        transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+        opacity 0.2s ease;
     }
-    .bars::before {
-      top: -5px;
+    .burger span:nth-child(1) {
+      top: 0;
     }
-    .bars::after {
-      top: 5px;
+    .burger span:nth-child(2) {
+      top: calc(50% - var(--stroke-ink) / 2);
     }
-    .links {
-      display: none;
+    .burger span:nth-child(3) {
+      bottom: 0;
     }
-    [data-open] .links {
-      position: absolute;
-      top: calc(100% + var(--space-2));
-      right: 0;
-      z-index: 10;
-      display: flex;
+    [data-open] .burger span:nth-child(1) {
+      transform: translateY(6px) rotate(45deg);
+    }
+    [data-open] .burger span:nth-child(2) {
+      opacity: 0;
+    }
+    [data-open] .burger span:nth-child(3) {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+
+    /* The sheet: closed it is wiped up and out of reach (visibility after the wipe). */
+    .panel {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
       flex-direction: column;
+      align-items: stretch;
       gap: 0;
-      min-width: 220px;
-      padding: var(--space-2);
-      border: var(--stroke-hairline) solid var(--border-default);
-      border-radius: var(--radius-lg);
-      background: var(--bg-surface);
+      padding: calc(var(--space-16) + var(--space-8)) var(--space-4) var(--space-8);
+      overflow-y: auto;
+      background-color: var(--bg-canvas);
+      background-image:
+        linear-gradient(var(--bg-grid) var(--stroke-hairline), transparent var(--stroke-hairline)),
+        linear-gradient(
+          90deg,
+          var(--bg-grid) var(--stroke-hairline),
+          transparent var(--stroke-hairline)
+        );
+      background-size: var(--space-8) var(--space-8);
+      clip-path: inset(0 0 100% 0);
+      visibility: hidden;
+      transition:
+        clip-path 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 0s linear 0.3s;
     }
-    [data-open] .links a {
+    [data-open] .panel {
+      clip-path: inset(0 0 0 0);
+      visibility: visible;
+      transition:
+        clip-path 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+        visibility 0s;
+    }
+    /* A redline drawn across the sheet, under the header. */
+    .panel::before {
+      content: '';
+      position: absolute;
+      left: var(--space-4);
+      right: var(--space-4);
+      top: calc(var(--space-16) + var(--space-2));
+      border-top: var(--stroke-redline) solid var(--signal-bg);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.2s ease;
+    }
+    [data-open] .panel::before {
+      transform: scaleX(1);
+      transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s;
+    }
+
+    .links {
+      flex-direction: column;
+      flex-wrap: nowrap;
+      gap: 0;
+    }
+    .links li,
+    .extra {
+      opacity: 0;
+      transform: translateY(var(--space-2));
+      transition: opacity 0.15s ease;
+    }
+    [data-open] .links li,
+    [data-open] .extra {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 0.4s ease-out calc(0.2s + var(--i) * 0.06s),
+        transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) calc(0.2s + var(--i) * 0.06s);
+    }
+    .links li {
+      border-bottom: var(--stroke-hairline) solid var(--border-default);
+    }
+    .links a {
       display: flex;
-      padding: 0 var(--space-3);
-      border-radius: var(--radius-sm);
+      align-items: baseline;
+      gap: var(--space-3);
+      min-height: var(--space-16);
+      padding: var(--space-4) 0;
+      font-size: calc(var(--type-heading-size) * 1px);
+      font-weight: var(--type-heading-weight);
+      font-stretch: 85%;
+      line-height: var(--type-heading-line-height);
+      letter-spacing: -0.02em;
       background-image: none;
     }
-    [data-open] .links a:hover {
-      background: var(--bg-subtle);
+    .index {
+      display: inline;
+      font-family: var(--font-mono);
+      font-size: calc(var(--type-meta-size) * 1px);
+      font-weight: var(--type-meta-weight);
+      font-stretch: 100%;
+      letter-spacing: 0;
+      color: var(--action-bg);
+    }
+    /* Hover and focus: the label gets its redline. */
+    .label {
+      background-image: linear-gradient(var(--signal-bg), var(--signal-bg));
+      background-size: 0 var(--stroke-redline);
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+      transition: background-size 0.3s ease;
+    }
+    .links a:hover .label,
+    .links a:focus-visible .label {
+      background-size: 100% var(--stroke-redline);
+    }
+    .extra {
+      margin-top: auto;
+      padding-top: var(--space-8);
+    }
+  }
+
+  /* No scrolling behind the open full-screen menu. */
+  :global(html[data-dta-nav-open]) {
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel,
+    .panel::before,
+    .links li,
+    .extra,
+    .burger span,
+    .links a,
+    .label {
+      transition: none !important;
     }
   }
 </style>

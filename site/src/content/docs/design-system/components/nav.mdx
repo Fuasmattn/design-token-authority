@@ -8,16 +8,19 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-The main navigation of a page: its links in a row, and below 760px one **Menu** button that opens them as a list.
+The main navigation of a page. On tablets and desktops its links sit in a row, followed by the controls passed to it (the [theme switch](/design-system/components/theme-switch/)). Below 760px a burger button opens them as a full-screen menu.
 
 <Examples component="nav" />
 
+The examples on this page are wide, so they show the row; open the story of "Menu open on a phone" at phone width to see the menu.
+
 ## Guidelines
 
-- Four links or fewer, labelled with the place they lead to ("Docs"), not an action.
-- The menu is a disclosure: the button says whether it is open (`aria-expanded`), Escape closes it and returns focus to the button, and so does following a link or clicking outside.
+- Four links or fewer, labelled with the place they lead to ("Docs"), not an action. With so few links, tablets keep the row.
+- The burger has no outline until it is hovered or focused, and turns into a cross while the menu is open. Its accessible name says what it does ("Menu", "Close menu").
+- The menu is a disclosure that takes the whole screen: the page behind it does not scroll, focus stays inside it, Escape closes it and returns focus to the button, and so does following a link.
+- Motion follows the rest of the site: the sheet wipes down, a redline draws under the header, the links rise one after another. Reduced motion shows the menu at once.
 - Links and the button are at least 44px high, so they work as touch targets.
-- The open menu is a surface with a hairline border, not a shadow, like every panel in this system.
 
 ## Tokens used
 
