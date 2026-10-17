@@ -3,6 +3,7 @@
 **Phase:** 7 — AI Interop
 **Priority:** High
 **Effort:** M
+**Status:** deferred ([agent-interop spec](../specs/agent-interop.md), decision 1): rewrite as a thin adapter over the token queries of TICKET-100 when a client without a terminal needs it
 
 ## Summary
 

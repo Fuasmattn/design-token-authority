@@ -1,6 +1,6 @@
 # Spec: DTA for coding agents — token queries, a skill, project context and a code audit
 
-**Status:** draft (2026-10-16), waiting for the maintainer's calls on the open questions
+**Status:** approved (2026-10-16); the open questions are settled below
 **Depends on:** [TICKET-090](../tickets/090-first-npm-release.md) (an agent can only use what it can install), [docs-site](./docs-site.md) (generated reference, `llms.txt`)
 **Replaces:** the plans in TICKET-028 (`DESIGN.md` generator) and TICKET-030 (`dta audit`), written before the overhaul; defers TICKET-029 (MCP server)
 **Related:** landing page section "With your agent" (TICKET-099), which promises what this spec delivers
@@ -46,7 +46,7 @@ Order: 1 → 2 → 3 → 4. The queries come first because the skill and the con
    - Brands and themes and how to switch them (`data-brand` values, the theme files), the collections and their tiers, the semantic tokens to use in code (CSS custom property and Tailwind key), the rules taken from the lint config (`semantic-must-alias`, `naming-pattern`, contrast pairs), and "do not invent tokens: ask `dta token find`".
    - A size budget (default about 2,000 tokens of text): the semantic tier is listed in full when it fits, otherwise by group with counts and a pointer to `dta token list`. Primitives are never listed: code should not use them.
    - `AGENTS.md`: DTA adds or updates one marked block that points to `DESIGN.md` and the skill, and never touches the rest of the file. Agents that read `AGENTS.md` but have no skill support still find the context.
-   - Generated, idempotent, with a header naming the command. Optionally refreshed by `dta build` (`context: { out }` in the config); off by default.
+   - Generated, idempotent, with a header naming the command. Optionally refreshed by `dta build` (`context: { out }` in the config); off by default. `dta context --check` exits 1 when the file is out of date.
 
 5. **Code audit (replaces TICKET-030).** `dta audit [paths…]` scans source files for values that should be tokens:
    - Version 1 languages: CSS, SCSS, JS/TS, JSX/TSX, the `<style>` blocks of `.astro`, `.vue` and `.svelte` files, and Tailwind arbitrary values in class strings (`bg-[#2f55d4]`, `p-[12px]`). Swift, Kotlin and Android XML later.
@@ -59,13 +59,13 @@ Order: 1 → 2 → 3 → 4. The queries come first because the skill and the con
 
 7. **Docs and landing page.** A guide "DTA with coding agents" (install the skill, generate the context, the loop, CI with `dta audit`); the commands and config in the generated reference; `llms.txt` lists the guide. The landing page item "A skill and an MCP server" becomes "A skill and token queries", marked coming until they ship.
 
-## Open questions (need a maintainer call before the tickets start)
+## Settled questions (maintainer, 2026-10-16)
 
-1. **Skill location:** `.claude/skills/dta/` as the default plus `--dir` for other agents, and the `AGENTS.md` pointer (decision 4) for agents without skills? Recommended: yes.
-2. **Command names:** `dta token get|find|list` (recommended: one noun, subcommands, room for more), or top-level `dta get` / `dta find`?
-3. **Context file name:** `DESIGN.md` plus a pointer block in `AGENTS.md` (recommended), or write everything into `AGENTS.md`?
-4. **`dta build` writes the context:** off by default with a config switch (recommended), or always?
-5. **Audit in pull requests:** report audit findings in the `dta diff` comment and status check (one place to review), or keep `dta audit` a separate CI step for version 1 (recommended)?
+1. **Skill location:** `.claude/skills/dta/` by default, `--dir` for other agents, and the `AGENTS.md` pointer (decision 4) for agents without skills.
+2. **Command names:** `dta token get|find|list`: one noun with subcommands, room for more queries later.
+3. **Context file:** `DESIGN.md`, plus one marked pointer block in `AGENTS.md` that DTA owns; the rest of `AGENTS.md` stays the team's.
+4. **`dta build` and the context:** off by default, `context: { out }` in the config turns it on; `dta context --check` exits 1 in CI when the file is stale.
+5. **Audit in pull requests:** a separate CI step and status in version 1 (advisory first, blocking later with the baseline); reporting it in the `dta diff` comment is a possible follow-up.
 
 ## Public API changes
 
@@ -84,6 +84,6 @@ Order: 1 → 2 → 3 → 4. The queries come first because the skill and the con
 
 The MCP server (deferred, decision 1), the brand brief for AI design tools (TICKET-031), agents writing tokens or pushing to Figma, a hosted service, IDE extensions, and audit for Swift, Kotlin and Android XML (later).
 
-## Tickets (after approval)
+## Tickets
 
-Token queries · skill · project context (closes 028) · code audit (closes 030) · guide and landing copy.
+[100](../tickets/100-agent-token-queries.md) · [101](../tickets/101-agent-skill.md) · [102](../tickets/102-agent-project-context.md) · [103](../tickets/103-agent-code-audit.md) · [104](../tickets/104-agent-guide-landing.md)

@@ -3,6 +3,7 @@
 **Phase:** 7 — AI Interop
 **Priority:** High
 **Effort:** M
+**Status:** replaced by TICKET-103 ([agent-interop spec](../specs/agent-interop.md)); kept for its background
 
 ## Summary
 

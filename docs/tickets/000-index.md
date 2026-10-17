@@ -96,9 +96,9 @@ Figma and the design/coding AI tools will not build themselves.
 
 | # | Ticket | Priority | Effort | Status |
 |---|---|---|---|---|
-| [028](./028-design-md-generator.md) | `DESIGN.md` / `AGENTS.md` generator for AI coding agents | **High** | M | Open |
-| [029](./029-mcp-server.md) | MCP server exposing token graph to AI tools | **High** | M | Open |
-| [030](./030-ai-code-audit.md) | `dta audit` — detect hardcoded values in AI-generated code | **High** | M | Open |
+| [028](./028-design-md-generator.md) | `DESIGN.md` / `AGENTS.md` generator for AI coding agents | **High** | M | Replaced by 102 |
+| [029](./029-mcp-server.md) | MCP server exposing token graph to AI tools | **High** | M | Deferred (agent-interop spec, decision 1) |
+| [030](./030-ai-code-audit.md) | `dta audit` — detect hardcoded values in AI-generated code | **High** | M | Replaced by 103 |
 | [031](./031-ai-design-brief-export.md) | Brand brief export for AI design generators (Stitch, v0, …) | Medium | S | Open |
 | [032](./032-native-figma-dtcg-migration.md) | Migrate to Figma's native W3C DTCG export/import | Medium | M | Open |
 
@@ -243,6 +243,20 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [099](./099-site-landing-github-agents.md) | Landing page: GitHub and agents instead of the review demo; token cycle in the headline | Medium | S | 098 | Done |
 
 Order: Epic 7 first (068 → 069 → 070 unblock the rest); 7b and 8 can run in parallel once 069/070 are done; 080 can start right after 039. Design sources: the maintainer's concept doc, the DTA Drafting Table design system and the landing page mockup (see the specs).
+
+## Phase 9 — Agent interop
+
+Spec: [agent-interop](../specs/agent-interop.md) (approved 2026-10-16). Needs the first npm release (090) to reach users. The MCP server (029) is deferred: the token queries are written so it can wrap them later.
+
+| # | Ticket | Priority | Effort | Blocked by | Status |
+|---|---|---|---|---|---|
+| [100](./100-agent-token-queries.md) | `dta token get \| find \| list` | High | M | — | Open |
+| [101](./101-agent-skill.md) | `dta skill add`: the DTA skill for coding agents | High | S | 100 | Open |
+| [102](./102-agent-project-context.md) | `dta context`: `DESIGN.md` and the `AGENTS.md` pointer | High | M | 100 | Open |
+| [103](./103-agent-code-audit.md) | `dta audit`: hard-coded values in code | High | L | 100 | Open |
+| [104](./104-agent-guide-landing.md) | Guide "DTA with coding agents" and the landing page copy | Medium | S | 101, 102 | Open |
+
+Order: 100 → 101 → 102 → 103 → 104 (the audit section of the guide follows 103).
 
 ---
 
