@@ -18,16 +18,16 @@ dta graph --format dot -o graph.dot # Write to file instead of stdout
 
 ### Files added
 
-| File                    | Purpose                                                                                                                                                   |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/graph.ts`          | Core graph module: token file reading, graph construction, cycle detection, chain depth computation, all output formatters (console, DOT, markdown, HTML) |
-| `src/graph.test.ts`     | 19 tests covering graph building, cycle detection, dangling aliases, orphaned tokens, chain depth, cross-file resolution, all formatters, edge cases      |
-| `src/commands/graph.ts` | CLI command handler with `@clack/prompts` UI, format routing, and auto-open for HTML                                                                      |
+| File | Purpose |
+|------|---------|
+| `src/graph.ts` | Core graph module: token file reading, graph construction, cycle detection, chain depth computation, all output formatters (console, DOT, markdown, HTML) |
+| `src/graph.test.ts` | 19 tests covering graph building, cycle detection, dangling aliases, orphaned tokens, chain depth, cross-file resolution, all formatters, edge cases |
+| `src/commands/graph.ts` | CLI command handler with `@clack/prompts` UI, format routing, and auto-open for HTML |
 
 ### Files modified
 
-| File         | Change                                |
-| ------------ | ------------------------------------- |
+| File | Change |
+|------|--------|
 | `src/cli.ts` | Added `graph` subcommand registration |
 
 ---
@@ -36,24 +36,24 @@ dta graph --format dot -o graph.dot # Write to file instead of stdout
 
 Running against the project's actual Figma export (7 files, 1,537 tokens):
 
-| Metric              | Value       |
-| ------------------- | ----------- |
-| Total tokens        | 1,537       |
-| Alias tokens        | 1,115 (73%) |
-| Raw value tokens    | 422 (27%)   |
-| Max chain depth     | 3           |
-| Circular references | 0           |
-| Dangling aliases    | 0           |
-| Orphaned tokens     | 231         |
+| Metric | Value |
+|--------|-------|
+| Total tokens | 1,537 |
+| Alias tokens | 1,115 (73%) |
+| Raw value tokens | 422 (27%) |
+| Max chain depth | 3 |
+| Circular references | 0 |
+| Dangling aliases | 0 |
+| Orphaned tokens | 231 |
 
 ### Chain depth distribution
 
-| Depth | Count | Meaning                                  |
-| ----- | ----- | ---------------------------------------- |
-| 0     | 422   | Raw primitive values (colors, numbers)   |
-| 1     | 390   | Direct alias to a primitive              |
-| 2     | 703   | Alias → alias → primitive (most common!) |
-| 3     | 22    | Deepest chains: 3 hops to resolve        |
+| Depth | Count | Meaning |
+|-------|-------|---------|
+| 0 | 422 | Raw primitive values (colors, numbers) |
+| 1 | 390 | Direct alias to a primitive |
+| 2 | 703 | Alias → alias → primitive (most common!) |
+| 3 | 22 | Deepest chains: 3 hops to resolve |
 
 ### Key observations
 
@@ -84,7 +84,6 @@ Running against the project's actual Figma export (7 files, 1,537 tokens):
 ### For developers consuming tokens
 
 - **The DOT output integrates with Graphviz** and CI. You can generate SVG diagrams automatically:
-
   ```bash
   dta graph --format dot | dot -Tsvg > token-deps.svg
   ```

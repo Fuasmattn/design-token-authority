@@ -12,7 +12,6 @@ The `.env` file containing a live Figma Personal Access Token and file key is co
 ## Background
 
 The current `.env` file contains:
-
 ```
 FILE_KEY=<live value>
 PERSONAL_ACCESS_TOKEN=<live value>
@@ -31,7 +30,6 @@ Even on a private repository, committing secrets is a bad practice — it leaks 
 ## Implementation Notes
 
 `.env.example`:
-
 ```env
 # Figma file key — found in the Figma file URL: figma.com/file/<FILE_KEY>/...
 FIGMA_FILE_KEY=
@@ -41,7 +39,6 @@ FIGMA_PERSONAL_ACCESS_TOKEN=
 ```
 
 `.gitignore` addition:
-
 ```
 .env
 .env.local

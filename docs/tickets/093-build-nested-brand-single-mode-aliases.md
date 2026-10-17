@@ -11,12 +11,8 @@
 Found while writing the Learn pattern pages (073). A single-mode collection that aliases a multi-mode one, such as a `Component` tier over a `Brand` tier, is built into `variables.css` on `:root`:
 
 ```css
-:root {
-  --button-background: var(--action-background);
-} /* variables.css */
-[data-brand='brandb'] {
-  --action-background: var(--color-green-600);
-} /* themes/brandb.css */
+:root { --button-background: var(--action-background); }          /* variables.css */
+[data-brand="brandb"] { --action-background: var(--color-green-600); } /* themes/brandb.css */
 ```
 
 CSS resolves `var()` where the custom property is declared, so `--button-background` takes the brand of the root element and is inherited from there. On `<html data-brand="branda">` with a nested `<section data-brand="brandb">`, the section gets BrandB's `--action-background` but BrandA's `--button-background` (checked in Chromium with the `multi-brand` example plus a single-mode `Component.Value.json`). Switching the brand on `<html>` works. The Brands and themes guide says brands work "on any element"; that holds for the brand tokens only.

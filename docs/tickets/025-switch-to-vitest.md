@@ -14,7 +14,6 @@ Replace Jest + ts-jest with Vitest. Vitest is faster, requires no TypeScript pre
 The current test setup uses `jest` + `ts-jest` + a `jest.config.ts` with module name mapping to handle `.js` ESM imports in TypeScript. This configuration is fiddly and adds two heavy dev dependencies. Vitest handles ESM and TypeScript natively without a preprocessor step.
 
 Additional benefits:
-
 - Built-in watch mode is faster (uses Vite's module graph)
 - `vitest ui` provides a browser-based test runner
 - Compatible with the same `expect` and `vi` (jest-compatible) APIs — minimal migration effort
@@ -35,14 +34,12 @@ Additional benefits:
 ## Implementation Notes
 
 **Install:**
-
 ```bash
 npm remove jest ts-jest @types/jest
 npm install -D vitest @vitest/coverage-v8
 ```
 
 **`vitest.config.ts`:**
-
 ```ts
 import { defineConfig } from 'vitest/config'
 
@@ -55,7 +52,6 @@ export default defineConfig({
 ```
 
 **`package.json` scripts:**
-
 ```json
 {
   "test": "vitest run",
@@ -65,7 +61,6 @@ export default defineConfig({
 ```
 
 **Test file changes:** The existing tests use `describe`, `it`, `expect` — all available in Vitest without imports. If any test file uses `jest.fn()`, replace with `vi.fn()` from `'vitest'`. Check with:
-
 ```bash
 grep -r "jest\." src/
 ```

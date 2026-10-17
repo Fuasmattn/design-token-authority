@@ -43,7 +43,6 @@ A well-structured brief, copy-pasted into the design tool as part of the prompt,
 **Identity:** Calm, trustworthy, institutional. (Example string — set via `brief.identity` in config.)
 
 ## Colors
-
 - Primary: `#003F8A` — use for CTAs, headers, branded surfaces
 - Secondary: `#6AA6D9` — supporting surfaces, info states
 - Accent: `#E2A82F` — used sparingly, for emphasis only
@@ -51,31 +50,26 @@ A well-structured brief, copy-pasted into the design tool as part of the prompt,
 - Neutrals: `#0A0A0A` `#3B3B3B` `#8A8A8A` `#E5E5E5` `#FAFAFA`
 
 ## Typography
-
 - Font: Inter
 - Sizes: 12, 14, 16, 20, 28, 40 (px)
 - Weights: 400, 500, 700
 
 ## Spacing
-
 4, 8, 12, 16, 24, 32, 48, 64 (px)
 
 ## Radius
-
 4, 8, 12, 24 (px)
 
 ## Breakpoints
-
 Mobile <768, Tablet 768–1024, Desktop 1024+
 
 ## Rules
-
 - Never use pure black — use `#0A0A0A`
 - Primary color is the only blue; all other blues must defer to secondary
 - Radius is never 0 on interactive surfaces
 ```
 
-**Token → brief compression:** This is _selective export_, not full dump. Heuristics:
+**Token → brief compression:** This is *selective export*, not full dump. Heuristics:
 
 - Colors with a role name (`primary`, `secondary`, `accent`, `success`, etc.) → featured
 - Spacing: show the unique resolved values, not the semantic names

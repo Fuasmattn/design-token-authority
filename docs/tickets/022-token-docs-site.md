@@ -38,7 +38,6 @@ Design token documentation is a common pain point: tokens live in JSON files or 
 **Recommendation:** Start with a custom formatter (option 1). It's self-contained and keeps dependencies minimal. Add framework if interactivity needs grow.
 
 **Color swatch component (HTML):**
-
 ```html
 <div class="token-swatch">
   <div class="swatch-color" style="background: #003f8a"></div>

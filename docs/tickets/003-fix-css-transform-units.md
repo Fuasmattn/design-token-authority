@@ -12,10 +12,9 @@ Several token categories output unit-less numeric values to CSS, making them unu
 ## Background
 
 Current CSS output:
-
 ```css
---effects-blur-blur-3xl: 64; /* should be 64px */
---effects-blur-blur-md: 12; /* should be 12px */
+--effects-blur-blur-3xl: 64;       /* should be 64px */
+--effects-blur-blur-md: 12;        /* should be 12px */
 --effects-opacity-opacity-100: 100; /* should be 100% */
 ```
 

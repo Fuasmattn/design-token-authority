@@ -13,7 +13,6 @@ Define and implement a formal composition model for how brand tokens layer over 
 The current project has two brands (BrandA, BrandB) defined as modes in the `Brand(Alias)` collection. The layering is: Primitives → Brand Aliases → Screen Type overrides. This is the right pattern, but it's implicit — the build just flattens all token files into one StyleDictionary run, which can cause alias resolution issues across brands.
 
 Each output target has a different way to express "brand switching":
-
 - **CSS:** Separate `:root` blocks or scoped classes (`.theme-brand-a`, `.theme-brand-b`)
 - **Tailwind:** CSS variable references + Tailwind's `class` strategy for dark mode
 - **iOS:** Protocol/struct per brand, or separate Swift packages
@@ -24,12 +23,8 @@ Each output target has a different way to express "brand switching":
 - [ ] The `build` command runs Style Dictionary once per brand (not once globally)
 - [ ] For CSS: generates one `:root` block per brand as scoped class selectors
   ```css
-  .theme-brand-a {
-    --color-primary: #003f8a;
-  }
-  .theme-brand-b {
-    --color-primary: #e2001a;
-  }
+  .theme-brand-a { --color-primary: #003f8a; }
+  .theme-brand-b { --color-primary: #e2001a; }
   ```
 - [ ] For Tailwind: CSS variable references in the theme so brand switching works at runtime via class
 - [ ] For iOS: one Swift file per brand conforming to a shared `BrandTheme` protocol
@@ -50,13 +45,11 @@ for (const brand of config.brands) {
     platforms: {
       css: {
         transformGroup: 'css',
-        files: [
-          {
-            destination: `${brand.toLowerCase()}.css`,
-            format: 'css/variables',
-            options: { selector: `.theme-${brand.toLowerCase()}` },
-          },
-        ],
+        files: [{
+          destination: `${brand.toLowerCase()}.css`,
+          format: 'css/variables',
+          options: { selector: `.theme-${brand.toLowerCase()}` },
+        }],
       },
     },
   })
@@ -67,15 +60,10 @@ for (const brand of config.brands) {
 **Token merge order:** primitives → brand aliases → dimension overrides (per screen type)
 
 **Responsive + brand:** For the combination of brand × screen type, consider generating CSS with nested selectors:
-
 ```css
-.theme-brand-a {
-  --spacing-base: 16px;
-}
+.theme-brand-a { --spacing-base: 16px; }
 @media (max-width: 768px) {
-  .theme-brand-a {
-    --spacing-base: 12px;
-  }
+  .theme-brand-a { --spacing-base: 12px; }
 }
 ```
 

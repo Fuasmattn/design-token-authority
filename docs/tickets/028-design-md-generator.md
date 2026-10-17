@@ -55,8 +55,8 @@ available in this project and the rules for using them in code.
 **Token table row example:**
 
 ```markdown
-| Semantic      | Value     | Alias chain                                                                      | CSS                          | Tailwind             | Swift                       |
-| ------------- | --------- | -------------------------------------------------------------------------------- | ---------------------------- | -------------------- | --------------------------- |
+| Semantic | Value | Alias chain | CSS | Tailwind | Swift |
+|---|---|---|---|---|---|
 | Brand primary | `#003F8A` | `Colors.Text.Default → Colors.Brand.BrandA.Primary → Colors.Foundation.Blue.700` | `var(--color-brand-primary)` | `text-brand-primary` | `BrandTheme.BrandA.primary` |
 ```
 

@@ -42,7 +42,7 @@ export async function runInit() {
 
   const figmaKey = await p.text({
     message: 'Figma file key or URL',
-    validate: (v) => (extractFileKey(v) ? undefined : 'Invalid Figma URL or key'),
+    validate: (v) => extractFileKey(v) ? undefined : 'Invalid Figma URL or key',
   })
 
   const token = await p.password({

@@ -50,11 +50,20 @@
         "properties": {
           "$type": {
             "type": "string",
-            "enum": ["color", "number", "string", "boolean"]
+            "enum": [
+              "color",
+              "number",
+              "string",
+              "boolean"
+            ]
           },
           "$value": {
             "description": "A raw value, or an alias such as \"{Colors.Brand.Primary}\".",
-            "type": ["string", "number", "boolean"]
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
           },
           "$description": {
             "type": "string"
@@ -97,7 +106,10 @@
             "additionalProperties": {}
           }
         },
-        "required": ["$type", "$value"],
+        "required": [
+          "$type",
+          "$value"
+        ],
         "additionalProperties": false,
         "description": "A design token: one variable in one mode."
       },

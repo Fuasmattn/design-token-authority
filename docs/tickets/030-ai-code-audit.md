@@ -46,10 +46,7 @@ This is the governance layer. Without it, AI-assisted teams slowly drift off-sys
 ```ts
 import { parseColor, colorApproximatelyEqual } from './color.js'
 
-function findNearestToken(
-  hex: string,
-  tokens: ColorToken[],
-): { token: ColorToken; distance: number } | null {
+function findNearestToken(hex: string, tokens: ColorToken[]): { token: ColorToken; distance: number } | null {
   let best: { token: ColorToken; distance: number } | null = null
   const target = parseColor(hex)
   for (const t of tokens) {

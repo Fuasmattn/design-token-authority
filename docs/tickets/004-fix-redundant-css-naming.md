@@ -12,10 +12,9 @@ Several generated CSS variables repeat the same word because Figma group names a
 ## Background
 
 Current output examples:
-
 ```css
---effects-blur-blur-3xl: 64px; /* "blur" repeated */
---effects-opacity-opacity-100: 1; /* "opacity" repeated */
+--effects-blur-blur-3xl: 64px;      /* "blur" repeated */
+--effects-opacity-opacity-100: 1;   /* "opacity" repeated */
 ```
 
 The cause is the Figma variable structure `Effects/Blur/blur-3xl` — the group name `Blur` and the variable prefix `blur-` are both included when the path is flattened. The same pattern likely exists elsewhere in the token tree.
@@ -29,15 +28,14 @@ The cause is the Figma variable structure `Effects/Blur/blur-3xl` — the group 
 ## Implementation Notes
 
 **Option A — Style Dictionary name transform (recommended, no Figma changes needed):**
-
 ```ts
 sd.registerTransform({
   name: 'name/dedupe-segments',
   type: 'name',
   transform: (token) => {
     const segments = token.path
-    const deduped = segments.filter(
-      (seg, i) => i === 0 || seg.toLowerCase() !== segments[i - 1].toLowerCase(),
+    const deduped = segments.filter((seg, i) =>
+      i === 0 || seg.toLowerCase() !== segments[i - 1].toLowerCase()
     )
     return deduped.join('-')
   },

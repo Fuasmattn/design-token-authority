@@ -10,10 +10,9 @@ Build an analyzer that reads a Figma file's variable collections and infers the 
 
 ## Background
 
-Currently the collection-to-layer mapping is implicit: the filename convention `{Collection}.{Mode}.json` carries structure, but nothing in the code understands _what role_ each collection plays. When onboarding a new project, the user has to figure this out manually.
+Currently the collection-to-layer mapping is implicit: the filename convention `{Collection}.{Mode}.json` carries structure, but nothing in the code understands *what role* each collection plays. When onboarding a new project, the user has to figure this out manually.
 
 Good heuristics for each layer type:
-
 - **Primitives:** High alias-to-value ratio is low (mostly raw values); mode count is 1; variable names are concrete (`grey-50`, `12px`)
 - **Semantic/alias:** High alias ratio (>80% of values are `VARIABLE_ALIAS`); modes correspond to themes
 - **Brand:** Multiple modes with identical variable names; mode names match brand names (contain company names, or named arbitrarily but consistently)
@@ -42,34 +41,24 @@ interface CollectionAnalysis {
   modeCount: number
   modeNames: string[]
   variableCount: number
-  aliasRatio: number // 0–1
+  aliasRatio: number       // 0–1
   inferredRole: LayerRole
-  confidence: number // 0–1
-  notes: string[] // human-readable observations
+  confidence: number       // 0–1
+  notes: string[]          // human-readable observations
 }
 
-const DIMENSION_MODE_PATTERNS = [
-  /desktop/i,
-  /mobile/i,
-  /tablet/i,
-  /^sm$/i,
-  /^md$/i,
-  /^lg$/i,
-  /^xl$/i,
-]
-const BRAND_MODE_PATTERNS = [/^[A-Z][a-z]+$/] // proper nouns, arbitrary names
+const DIMENSION_MODE_PATTERNS = [/desktop/i, /mobile/i, /tablet/i, /^sm$/i, /^md$/i, /^lg$/i, /^xl$/i]
+const BRAND_MODE_PATTERNS = [/^[A-Z][a-z]+$/]  // proper nouns, arbitrary names
 
 function inferRole(analysis: Partial<CollectionAnalysis>): LayerRole {
   if (analysis.modeCount === 1 && analysis.aliasRatio! < 0.1) return 'primitives'
-  if (analysis.modeNames!.every((n) => DIMENSION_MODE_PATTERNS.some((p) => p.test(n))))
-    return 'dimension'
+  if (analysis.modeNames!.every(n => DIMENSION_MODE_PATTERNS.some(p => p.test(n)))) return 'dimension'
   if (analysis.aliasRatio! > 0.8) return analysis.modeCount! > 1 ? 'brand' : 'semantic'
   return 'unknown'
 }
 ```
 
 **Console output:**
-
 ```
 Collection Analysis
 ───────────────────────────────────────────────────────

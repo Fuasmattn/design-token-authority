@@ -55,4 +55,4 @@ Getting this right matters because it's the one area where the project is most e
 
 ## Why this is important
 
-This is the ticket that prevents `design-token-authority` from being framed as "a Figma import-export convenience" — a positioning that becomes indefensible once Figma ships native DTCG. Adopting the native format early keeps the project at the layer _above_ import/export: governance, multi-brand composition, code-side enforcement, and AI interop. That layer is not something Figma will build.
+This is the ticket that prevents `design-token-authority` from being framed as "a Figma import-export convenience" — a positioning that becomes indefensible once Figma ships native DTCG. Adopting the native format early keeps the project at the layer *above* import/export: governance, multi-brand composition, code-side enforcement, and AI interop. That layer is not something Figma will build.

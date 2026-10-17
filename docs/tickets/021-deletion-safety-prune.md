@@ -31,13 +31,12 @@ Deletion via the Figma Variables API requires care: variables that are used in d
 ## Implementation Notes
 
 Orphan detection:
-
 ```ts
 function findOrphanedVariables(
   figmaVariables: LocalVariable[],
-  localTokens: FlatTokenMap,
+  localTokens: FlatTokenMap
 ): LocalVariable[] {
-  return figmaVariables.filter((v) => {
+  return figmaVariables.filter(v => {
     const tokenKey = v.name.replace(/\//g, '.')
     return !localTokens.has(tokenKey)
   })

@@ -16,7 +16,6 @@ The current build pipeline requires running `removedollarsigns.sh` before Style 
 Style Dictionary v4 (released 2024) handles `$type`/`$value` natively and has a fully TypeScript-native API.
 
 Key v4 changes relevant to this project:
-
 - Native DTCG `$type`/`$value` support — no preprocessing needed
 - Config written in TypeScript (`style-dictionary.config.ts`)
 - Improved transform/format API with async support
@@ -34,7 +33,6 @@ Key v4 changes relevant to this project:
 ## Implementation Notes
 
 v4 config shape (TypeScript):
-
 ```ts
 import StyleDictionary from 'style-dictionary'
 
@@ -44,23 +42,19 @@ const sd = new StyleDictionary({
     css: {
       transformGroup: 'css',
       buildPath: 'build/css/',
-      files: [
-        {
-          destination: 'variables.css',
-          format: 'css/variables',
-          options: { outputReferences: true },
-        },
-      ],
+      files: [{
+        destination: 'variables.css',
+        format: 'css/variables',
+        options: { outputReferences: true },
+      }],
     },
     js: {
       transformGroup: 'js',
       buildPath: 'build/js/',
-      files: [
-        {
-          destination: 'tokens.mjs',
-          format: 'javascript/es6',
-        },
-      ],
+      files: [{
+        destination: 'tokens.mjs',
+        format: 'javascript/es6',
+      }],
     },
   },
 })
