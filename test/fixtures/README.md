@@ -9,6 +9,8 @@ Two self-contained projects the CLI snapshot test runs against (reference snapsh
 
 `brand-ab/tokens-base/` is an earlier version of the same token set, the base for `dta diff` (scenario `diff-tokens`): `Colors.Foundation.Blue.500` and `Dimensions.spacing.8` have other values, BrandB's `Colors.Brand.Accent` aliases another colour, `Dimensions.radius.pill` does not exist yet and `Colors.Foundation.Red.500` still exists. Other commands only read `tokens/`.
 
+`brand-ab/src/` holds a few hard-coded values (and one line marked `dta-audit-ignore`) for the `dta audit` scenarios; no other command reads it.
+
 All brand names are generic placeholders (BrandA, BrandB). Never add real customer names here.
 
 ## Regenerating `daisyui/tokens/`

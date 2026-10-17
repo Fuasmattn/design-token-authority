@@ -132,6 +132,30 @@ export const configSchema = z.strictObject({
   diff: diffConfigSchema
     .optional()
     .describe('What `dta diff` builds and renders: the project build and its stories.'),
+  audit: z
+    .strictObject({
+      paths: z
+        .array(name)
+        .optional()
+        .describe('Files and folders `dta audit` scans when no paths are given (default `src`).'),
+      ignore: z
+        .array(name)
+        .optional()
+        .describe('Globs of files not to scan, relative to the project (`**/*.test.ts`).'),
+      languages: z
+        .array(z.enum(['css', 'scss', 'js', 'astro', 'vue', 'svelte', 'html']))
+        .optional()
+        .describe('Languages to scan (default: all). `js` covers JS, TS, JSX and TSX.'),
+      near: z
+        .boolean()
+        .optional()
+        .describe('Also report colours within about 2 % per channel of a token (like `--near`).'),
+      baseline: name
+        .default('.dta/audit-baseline.json')
+        .describe('Accepted findings; `dta audit --update-baseline` writes it.'),
+    })
+    .optional()
+    .describe('`dta audit`: where to look for hard-coded values that should be tokens.'),
   context: z
     .strictObject({
       out: name

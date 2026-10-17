@@ -174,8 +174,8 @@ export function listTokens(model: TokenModel, filter: ListFilter = {}): TokenSum
   return result.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
 }
 
-/** `#rrggbb[aa]`, `#rgb[a]`, `rgb(r g b)` or `rgb(r, g, b)` (0–255). */
-function toColor(value: string): Color | null {
+/** `#rrggbb[aa]`, `#rgb[a]`, `rgb(r g b)` or `rgb(r, g, b)` (0–255); null for anything else. */
+export function toColor(value: string): Color | null {
   const hex = parseColor(value)
   if (hex.ok) return hex.color
   const rgb = /^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)\s*(?:[,/]\s*([\d.]+%?))?\s*\)$/i.exec(
@@ -203,9 +203,14 @@ function colorMatches(a: Color, b: Color, near: boolean): boolean {
   return near ? diff <= NEAR : diff < 0.5 / 255
 }
 
-function valueMatcher(
+/**
+ * A predicate that says whether a token value (of a type) equals the query, with the same rules
+ * as `findTokensByValue`: colours as hex or `rgb()` (`near`: within about 2 % per channel),
+ * numbers with or without `px`, strings and booleans exactly.
+ */
+export function valueMatcher(
   query: string,
-  options: FindOptions,
+  options: FindOptions = {},
 ): (value: TokenValue, type: TokenType) => boolean {
   const color = toColor(query)
   const number = /^-?\d*\.?\d+(px)?$/.test(query.trim()) ? parseFloat(query) : null

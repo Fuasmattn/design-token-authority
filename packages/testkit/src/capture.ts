@@ -99,6 +99,13 @@ export const SCENARIOS: readonly Scenario[] = [
   { name: 'token-list', args: ['token', 'list', '--match', 'Colors.**'], fixtures: ['brand-ab'] },
   { name: 'skill-add', args: ['skill', 'add'], fixtures: ['brand-ab'] },
   { name: 'context', args: ['context'], fixtures: ['brand-ab'] },
+  { name: 'audit', args: ['audit'], fixtures: ['brand-ab'] },
+  {
+    name: 'audit-json',
+    args: ['audit', 'src/Card.tsx', '--format', 'json'],
+    fixtures: ['brand-ab'],
+  },
+  { name: 'audit-baseline', args: ['audit', '--update-baseline'], fixtures: ['brand-ab'] },
   {
     name: 'push-yes',
     args: ['push', '--yes'],

@@ -70,6 +70,9 @@ describe('SCENARIOS', () => {
       'token-list',
       'skill-add',
       'context',
+      'audit',
+      'audit-json',
+      'audit-baseline',
       'push-yes',
     ])
   })

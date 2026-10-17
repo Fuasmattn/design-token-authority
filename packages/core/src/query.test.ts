@@ -5,6 +5,8 @@ import {
   listTokens,
   parseTokenFiles,
   suggestTokenNames,
+  toColor,
+  valueMatcher,
 } from './index.js'
 
 const file = (fileName: string, tree: unknown) => ({ fileName, content: JSON.stringify(tree) })
@@ -139,5 +141,22 @@ describe('suggestTokenNames', () => {
   it('suggests close names first', () => {
     expect(suggestTokenNames(model, 'action.background', 2)).toEqual(['action.bg', 'button.bg'])
     expect(suggestTokenNames(model, 'blue', 2)).toEqual(['blue.600', 'blue.700'])
+  })
+})
+
+describe('valueMatcher and toColor', () => {
+  it('compares values like findTokensByValue', () => {
+    const matches = valueMatcher('rgb(47 85 212)')
+    expect(matches('#2F55D4', 'color')).toBe(true)
+    expect(matches('#2f55d5', 'color')).toBe(false)
+    expect(valueMatcher('#2f55d5', { near: true })('#2f55d4', 'color')).toBe(true)
+    expect(valueMatcher('16px')(16, 'number')).toBe(true)
+    expect(valueMatcher('16', { type: 'color' })(16, 'number')).toBe(false)
+  })
+
+  it('parses hex and rgb() colours, and nothing else', () => {
+    expect(toColor('#fff')).toEqual({ r: 1, g: 1, b: 1 })
+    expect(toColor('rgb(255, 0, 0)')).toEqual({ r: 1, g: 0, b: 0 })
+    expect(toColor('red')).toBeNull()
   })
 })

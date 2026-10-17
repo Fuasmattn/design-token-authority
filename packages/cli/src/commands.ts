@@ -9,6 +9,7 @@ import { runInit } from './commands/init.js'
 import { runLint } from './commands/lint.js'
 import { runPull } from './commands/pull.js'
 import { runPush } from './commands/push.js'
+import { runAudit } from './commands/audit.js'
 import { runContext } from './commands/context.js'
 import { runSkillAdd } from './commands/skill.js'
 import { runTokenFind, runTokenGet, runTokenList } from './commands/token.js'
@@ -278,6 +279,41 @@ export const COMMANDS: readonly CommandDefinition[] = [
         flags: '--check',
         description: 'Exit 1 when the installed skill is missing or out of date',
       },
+    ],
+  },
+
+  {
+    name: 'audit',
+    description:
+      'Find hard-coded colours, lengths and fonts in code that equal a token, and name the token to use',
+    needsConfig: true,
+    run: runAudit,
+    arguments: [
+      {
+        name: '[paths...]',
+        description: 'Files and folders to scan (default: audit.paths, else src)',
+      },
+    ],
+    options: [
+      {
+        flags: '--near',
+        description: 'Also report colours within about 2% per channel of a token',
+      },
+      {
+        flags: '-f, --format <format>',
+        description: 'Output format: console, markdown, json',
+        defaultValue: 'console',
+      },
+      {
+        flags: '--update-baseline',
+        description: 'Record the current findings as accepted; later runs report only new ones',
+      },
+      {
+        flags: '--baseline <file>',
+        description: 'Baseline file (default: audit.baseline, else .dta/audit-baseline.json)',
+      },
+      CONFIG,
+      VERBOSE,
     ],
   },
 

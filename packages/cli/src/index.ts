@@ -12,6 +12,7 @@ export type {
 export { configJsonSchema } from './config/schema.js'
 export type { Config, ConfigInput } from './config/schema.js'
 export { runCli } from './run.js'
+export { auditJsonSchema } from './audit-schema.js'
 export { tokenJsonSchema } from './token-schema.js'
 export type { CliIo } from './run.js'
 

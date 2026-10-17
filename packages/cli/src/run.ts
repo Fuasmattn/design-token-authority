@@ -89,7 +89,12 @@ export async function runCli(argv: string[], io: CliIo = {}): Promise<number> {
     // Commander passes the positional arguments first, then the options and the command.
     command.action(async (...values: unknown[]) => {
       const options = values[values.length - 2] as Record<string, unknown>
-      const args = values.slice(0, -2).map(String)
+      // A variadic argument arrives as an array, a missing optional one as undefined.
+      const args = values
+        .slice(0, -2)
+        .flatMap((value) =>
+          Array.isArray(value) ? value.map(String) : value === undefined ? [] : [String(value)],
+        )
       exitCode = await execute(definition, options, args, resolved)
     })
   }

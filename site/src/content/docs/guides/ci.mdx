@@ -14,7 +14,7 @@ All exit codes: [Exit codes](/reference/exit-codes/).
 
 ## Workflow
 
-Until DTA is on npm, the workflow checks out the DTA repository next to yours and runs its CLI (Node.js 24, pnpm). After the release, the second checkout and the install step become `npx dta`.
+Until DTA is on npm, the workflow checks out the DTA repository into `.dta-cli` and runs its CLI (Node.js 24, pnpm). Not `.dta`: that folder is DTA's own, for the `dta diff` report and the audit baseline. After the release, the second checkout and the install step become `npx dta`.
 
 ```yaml title=".github/workflows/tokens.yml"
 name: tokens
@@ -29,19 +29,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Fuasmattn/design-token-authority
-          path: .dta
+          path: .dta-cli
       - uses: pnpm/action-setup@v4
         with:
-          package_json_file: .dta/package.json
+          package_json_file: .dta-cli/package.json
       - uses: actions/setup-node@v4
         with:
           node-version: 24
       - run: pnpm install --frozen-lockfile
-        working-directory: .dta
+        working-directory: .dta-cli
       - name: Lint tokens
-        run: node .dta/bin/dta.js lint
+        run: node .dta-cli/bin/dta.js lint
       - name: Build outputs
-        run: node .dta/bin/dta.js build
+        run: node .dta-cli/bin/dta.js build
 ```
 
 Commit the `tokens/` folder, not the build output: CI rebuilds it, and `dta clean` removes it locally.
@@ -53,3 +53,34 @@ Commit the `tokens/` folder, not the build output: CI rebuilds it, and `dta clea
 - **Pushing to Figma from CI** (Enterprise): `dta push --yes` skips the typed confirmation. Run `dta push --dry-run --format markdown` on the pull request and the real push only on the main branch.
 
 The token diff needs the base commit: check out with `fetch-depth: 0`, or pass `--base <ref|folder>`.
+
+## Hard-coded values in code
+
+`dta audit` scans your source for colours, lengths and font families that equal a token and names the token to use (CSS, SCSS, JS/TS/JSX/TSX, the `<style>` blocks of Astro, Vue and Svelte files, and Tailwind arbitrary values such as `bg-[#2f55d4]`). It exits with **1** when it finds something. On the `brand-ab` test fixture:
+
+```text
+$ dta audit
+src/Button.css
+  3:15  #0057b8  background → Colors.Brand.Primary  var(--colors-brand-primary)
+  5:12  16px     padding → Dimensions.spacing.4  var(--dimensions-spacing-4)
+
+src/Card.tsx
+  3:30  #f3f4f6  bg-[…] → Colors.Surface.Muted  var(--colors-surface-muted)
+  3:42  16px     p-[…] → Dimensions.spacing.4  var(--dimensions-spacing-4)
+  3:71  Inter    fontFamily → Typography.Body.Family  var(--typography-body-family)
+
+5 hard-coded values in 2 files could be tokens.
+```
+
+Lengths are compared with the tokens of their kind only: spacing (margin, padding, gap, inset), radius, stroke (border and outline widths) and font size, recognised by Figma scope or by name. Comments, `0`, percentages, `var()` fallbacks, `@font-face`, tests (`*.test.*`, `*.spec.*`), the token files and the build output are skipped; a deliberate value gets a `dta-audit-ignore` comment on its line or the line before. The scanned folders, ignore globs and languages are the `audit` section of the config ([Configuration](/reference/configuration/#audit)).
+
+Add it as its own step, so its status is separate from lint and build. Start advisory, with today's findings recorded as accepted, and tighten it once the count is down:
+
+```yaml
+# Once, locally: dta audit --update-baseline, then commit .dta/audit-baseline.json
+- name: Audit hard-coded values
+  run: node .dta-cli/bin/dta.js audit --format markdown >> $GITHUB_STEP_SUMMARY
+  continue-on-error: true # advisory; remove to make new findings fail the job
+```
+
+With the baseline, later runs report only new findings (a finding is recognised by file, value and property, so moving lines does not make it new). `--format json` prints the findings for scripts and agents ([schema](/schemas/dta.audit.schema.json)).

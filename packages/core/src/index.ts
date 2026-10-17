@@ -15,7 +15,14 @@ export type {
 export { analyzeStructure } from './structure.js'
 export type { CollectionStructure, LayerRole, StructureAnalysis } from './structure.js'
 export { checkUniqueNames, resolve } from './resolve.js'
-export { describeToken, findTokensByValue, listTokens, suggestTokenNames } from './query.js'
+export {
+  describeToken,
+  findTokensByValue,
+  listTokens,
+  suggestTokenNames,
+  toColor,
+  valueMatcher,
+} from './query.js'
 export type {
   FindOptions,
   ListFilter,

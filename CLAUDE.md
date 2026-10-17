@@ -93,7 +93,7 @@ packages/
   build/     CSS, JS, Tailwind v3/v4 outputs
   lint/      lint rules and config
   visual-diff/  dta diff engine: token change sets, screenshots compared, changes explained by token
-  cli/       commands (pull, push, build, lint, graph, analyze, clean, init, diff), config loader, UI
+  cli/       commands (pull, push, build, lint, graph, analyze, clean, init, diff, token, skill, context, audit), config loader, UI
   testkit/   private test helpers: Figma fake, snapshot capture
 bin/dta.js   binary entry (runs packages/cli/src/bin.ts through tsx)
 site/        the DTA website (private workspace app); site/tokens = DTA Drafting Table tokens, built with dta build
@@ -155,6 +155,11 @@ pnpm dta analyze         # Inspect Figma file structure
 pnpm dta graph           # Token dependency graph (console summary)
 pnpm dta graph --format html   # Interactive HTML visualization
 pnpm dta init            # Interactive project setup wizard
+pnpm dta token get <name>        # A token's value and alias chain per mode, its CSS/Tailwind names
+pnpm dta token find '<value>'    # Tokens that resolve to a value (aliases first)
+pnpm dta skill add               # Install the DTA skill for coding agents (.claude/skills/dta)
+pnpm dta context                 # DESIGN.md for coding agents + pointer block in AGENTS.md
+pnpm dta audit [paths]           # Hard-coded values in code that equal a token (baseline: --update-baseline)
 pnpm dta diff --tokens-only            # Token changes vs the merge base with main
 pnpm dta diff --base <ref|dir> -f markdown   # ...against another base, as markdown
 pnpm dta diff --list                   # Stories dta diff would render (diff section in the config)

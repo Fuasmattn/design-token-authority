@@ -31,6 +31,7 @@ If \`DESIGN.md\` exists at the project root, read it first: it lists this projec
 1. Find the token for the value: \`dta token find '#2f55d4'\` (colours as hex or \`rgb(…)\`, numbers such as \`16\`). Add \`--near\` for colours that are only close. Use the first line it prints: tokens the build writes come first, semantic tokens before primitives.
 2. Check a token before you use it: \`dta token get Colors.Brand.Primary\` shows its value per brand or mode, its alias chain, and the CSS custom property and Tailwind name to write.
 3. Browse: \`dta token list --match 'Colors.**'\`. Every query takes \`--format json\`.
+4. After writing styles, run \`dta audit src\` (or the files you changed): it lists hard-coded values that equal a token and names the token to use. Exit code 1 means it found some; fix them, or mark a deliberate one with a \`dta-audit-ignore\` comment on its line.
 
 Rules:
 
