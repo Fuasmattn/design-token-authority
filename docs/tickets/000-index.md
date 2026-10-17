@@ -258,6 +258,20 @@ Spec: [agent-interop](../specs/agent-interop.md) (approved 2026-10-16). Needs th
 
 Order: 100 → 101 → 102 → 103 → 104 (the audit section of the guide follows 103).
 
+## Phase 10 — Landing redesign
+
+Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17). One story, quietly told: hero, the two-lane loop, one change in four scenes with the Orbit Burger example, facts, final call. Reference mockups in `docs/specs/landing-redesign/`.
+
+| # | Ticket | Priority | Effort | Blocked by | Status |
+|---|---|---|---|---|---|
+| [105](./105-orbit-burger-example.md) | Orbit Burger: example brand as a real token set and fixture | High | M | — | Open |
+| [106](./106-landing-components.md) | Design-system components for the redesigned landing page | High | M | 105 | Open |
+| [107](./107-loop-path-diagram.md) | `LoopPath`: the two-lane loop diagram, flat or risen | High | M | 106 | Open |
+| [108](./108-landing-rebuild.md) | Rebuild the landing page | High | M | 106, 107 | Open |
+| [109](./109-diff-report-before-after.md) | `dta diff` report: before/after with the change outlined | Medium | M | 108 | Open |
+
+Order: 105 → 106 → 107 → 108; 109 later.
+
 ---
 
 ## Dependency Map

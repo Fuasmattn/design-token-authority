@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Finishes</title>
+<link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500&family=Instrument+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F5F1E8;--cream2:#EDE7DA;--cream3:#E2DBCB;--hi:#FFFDF8;--ink:#13213F;--ink2:#22304F;--ink3:#3E4A66;--muted:#5A6480;--blue:#2F55D4;--blue2:#7590E6;--red:#E8632A;--green:#4F915A;--void:#15122b;--void2:#241d4a;--star:#f4efe6;--dust:#a79fc4;--nova:#ff7a1a;--nova2:#e0600a;--mint:#8fe3c0}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:'Instrument Sans',sans-serif}
+.idea{position:relative;width:1240px;padding:44px 56px 60px;box-sizing:border-box;overflow:hidden}
+.lab{font:400 11px 'Martian Mono',monospace;color:var(--red);margin:0 0 14px;position:relative}
+h2{margin:0 0 6px;font-size:34px;font-weight:700;letter-spacing:-.02em;font-stretch:85%;position:relative}
+.sub{margin:0 0 36px;color:var(--muted);max-width:620px;line-height:1.5;position:relative}
+.mono{font:400 11px 'Martian Mono',monospace}
+.stage{position:relative;height:300px}
+.lanelab{position:absolute;left:0;transform:translateY(-50%);padding-right:12px;color:var(--muted)}
+.node{position:absolute;transform:translate(-50%,-50%)}
+.dot{width:12px;height:12px;border-radius:50%;display:block}
+.pr{position:absolute;top:150px;transform:translate(-50%,-50%);width:118px;padding:9px 11px;border-radius:10px}
+.pr .t{display:block;font-size:12px;font-weight:600;margin-bottom:4px}
+.pr .mono{display:block;line-height:1.6}
+svg.wire{position:absolute;left:0;top:0;overflow:visible}
+.cap{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--red);transform:translate(-50%,-50%);offset-rotate:0deg}
+
+.cards{display:flex;gap:26px;align-items:center;margin-top:34px;position:relative}
+.card{width:168px;padding:14px 16px;border-radius:14px;background:var(--void);color:var(--star);font-size:13px;font-weight:600;position:relative}
+.card .k{display:block;font:400 8px 'Martian Mono',monospace;color:var(--mint);margin-bottom:4px}
+.card .m{display:block;font-weight:400;font-size:10px;color:var(--dust);margin-top:2px}
+.card .b{display:inline-block;margin-top:9px;padding:5px 10px;border-radius:7px;background:var(--nova);color:#1a0f00;font-size:9px}
+.card.after{border-radius:24px}.card.after .b{background:var(--nova2)}
+.caplabel{font:400 11px 'Martian Mono',monospace;color:var(--muted);margin-bottom:8px;display:block}
+.redl{display:inline-block;margin-top:10px;padding:2px 7px;border-radius:3px;background:var(--red);color:#0F0E0D;font:400 10px 'Martian Mono',monospace}
+
+/* ===== A · MATERIAL ===== */
+.A{background:radial-gradient(ellipse 80% 70% at 50% 40%, #FBF9F4 0%, #F5F1E8 55%, #EAE4D6 100%)}
+.A .grain{position:absolute;inset:0;pointer-events:none;opacity:.5}
+.A .lane{position:absolute;left:0;right:0;height:10px;border-radius:5px;background:linear-gradient(180deg,#D9D0BC,#EDE7DA 60%,#FBF9F4);box-shadow:inset 0 2px 3px rgba(19,33,63,.18), 0 1px 0 #fff}
+.A .lane.d{top:55px}.A .lane.p{top:235px}
+.A .lanelab{background:transparent}
+.A .pr{background:linear-gradient(160deg,#3E4A66 0%,#22304F 45%,#13213F 100%);color:var(--cream);box-shadow:0 14px 24px -10px rgba(19,33,63,.45), 0 2px 0 #0B1630, inset 0 1px 0 rgba(255,255,255,.14)}
+.A .pr .mono{color:var(--blue2)}
+.A .dot{box-shadow:0 4px 8px -2px rgba(19,33,63,.4), inset 0 -2px 2px rgba(0,0,0,.25), inset 0 1px 1px rgba(255,255,255,.5)}
+.A .dot.blue{background:radial-gradient(circle at 35% 30%,#8FA6F0,#2F55D4 70%)}.A .dot.ink{background:radial-gradient(circle at 35% 30%,#56658A,#13213F 70%)}.A .dot.red{background:radial-gradient(circle at 35% 30%,#FFB38A,#E8632A 70%)}.A .dot.green{background:radial-gradient(circle at 35% 30%,#9CCBA4,#4F915A 70%)}
+.A .cap{background:radial-gradient(circle at 35% 30%,#FFB38A,#E8632A 70%);box-shadow:0 6px 10px -3px rgba(232,99,42,.6), 0 0 0 7px rgba(232,99,42,.14)}
+.A .card{background:linear-gradient(160deg,#2a2352 0%,#15122b 60%);box-shadow:0 18px 28px -12px rgba(19,33,63,.5), 0 2px 0 #0a0818, inset 0 1px 0 rgba(255,255,255,.08)}
+.A .card .b{box-shadow:0 2px 0 #a8420a, inset 0 1px 0 rgba(255,255,255,.35)}
+.A .plinth{position:absolute;left:-6px;right:-6px;top:-10px;bottom:-16px;border-radius:18px;background:linear-gradient(180deg,#FBF9F4,#EDE7DA);box-shadow:0 1px 0 #fff inset, 0 10px 20px -14px rgba(19,33,63,.35);z-index:-1}
+.A .frame{position:relative;padding:18px 18px 16px}
+.A .wire path{filter:drop-shadow(0 2px 1px rgba(255,255,255,.8))}
+
+/* ===== B · NEUMORPHIC ===== */
+.B{background:var(--cream)}
+.B .lane{position:absolute;left:0;right:0;height:14px;border-radius:7px;background:var(--cream);box-shadow:inset 4px 4px 8px rgba(19,33,63,.14), inset -4px -4px 8px rgba(255,255,255,.95)}
+.B .lane.d{top:53px}.B .lane.p{top:233px}
+.B .pr{background:var(--cream);color:var(--ink);box-shadow:none}
+.B .pr .mono{color:var(--muted)}
+.B .pr .ok{color:var(--green)}.B .pr .warn{color:var(--red)}.B .pr .pend{color:var(--blue)}
+.B .dot{background:var(--cream);position:relative;width:20px;height:20px}
+.B .dot::after{content:'';position:absolute;inset:6px;border-radius:50%}
+.B .dot.blue::after{background:var(--blue)}.B .dot.ink::after{background:var(--ink)}.B .dot.red::after{background:var(--red)}.B .dot.green::after{background:var(--green)}
+.B .cap{background:var(--red);box-shadow:3px 3px 8px rgba(232,99,42,.35), -2px -2px 6px rgba(255,255,255,.9)}
+.B .wire path{stroke:#9AA2B4}
+.B .wire path.red{stroke:var(--red)}
+.B .card{box-shadow:inset 0 0 0 1px rgba(255,255,255,.06), 10px 10px 22px rgba(19,33,63,.16), -8px -8px 18px rgba(255,255,255,.9)}
+.B .frame{position:relative;padding:18px 18px 16px;border-radius:22px;background:var(--cream)}
+.B .redl{background:var(--cream);color:var(--red)}
+
+#V1 .lane{display:none}
+#V1 .lanelab{color:var(--ink);font-weight:500}
+
+#V2 .lane{height:64px;border-radius:32px;top:28px;box-shadow:inset 6px 6px 14px rgba(19,33,63,.08), inset -6px -6px 14px rgba(255,255,255,.9);background:var(--cream)}
+#V2 .lane.p{top:208px}
+#V2 .lanelab{padding-left:22px;color:var(--muted)}
+
+#V3 .lane{display:none}
+#V3 .lanelab{display:none}
+#V3 .well{position:absolute;transform:translate(-50%,-50%);padding:7px 10px 7px 8px;border-radius:999px;background:var(--cream);box-shadow:none;display:flex;gap:8px;align-items:center;font:400 11px 'Martian Mono',monospace;color:var(--ink);white-space:nowrap}
+#V3 .well i{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+#V3 .cap{animation:go 14s cubic-bezier(.4,0,.2,1) infinite, glow 14s linear infinite}
+@keyframes go{0.00%{offset-distance:0.00%}6.00%{offset-distance:0.00%}15.67%{offset-distance:16.67%}21.67%{offset-distance:16.67%}31.33%{offset-distance:33.33%}37.33%{offset-distance:33.33%}47.00%{offset-distance:50.00%}53.00%{offset-distance:50.00%}62.67%{offset-distance:66.67%}68.67%{offset-distance:66.67%}78.33%{offset-distance:83.33%}84.33%{offset-distance:83.33%}94.00%{offset-distance:100.00%}100.00%{offset-distance:100.00%}}
+@keyframes glow{0%,100%{box-shadow:4px 4px 10px rgba(232,99,42,.35), -2px -2px 6px rgba(255,255,255,.9)}50%{box-shadow:6px 6px 14px rgba(232,99,42,.45), -2px -2px 6px rgba(255,255,255,.9), 0 0 0 8px rgba(232,99,42,.12)}}
+#V3 .well{animation:pop 14s ease-out infinite both}
+@keyframes pop{0%,0.5%{transform:translate(-50%,-50%);box-shadow:0 0 0 rgba(19,33,63,0), 0 0 0 rgba(255,255,255,0)}2.5%,6.5%{transform:translate(-50%,calc(-50% - 3px));box-shadow:8px 8px 18px rgba(19,33,63,.16), -6px -6px 14px rgba(255,255,255,.95)}10%,100%{transform:translate(-50%,-50%);box-shadow:0 0 0 rgba(19,33,63,0), 0 0 0 rgba(255,255,255,0)}}
+#V3 .pr{animation:press 14s ease-out infinite both}
+@keyframes press{0%,0.5%{transform:translate(-50%,-50%);box-shadow:0 0 0 rgba(19,33,63,0), 0 0 0 rgba(255,255,255,0)}2.5%,6.5%{transform:translate(-50%,calc(-50% - 3px));box-shadow:10px 10px 22px rgba(19,33,63,.16), -8px -8px 18px rgba(255,255,255,.95)}10%,100%{transform:translate(-50%,-50%);box-shadow:0 0 0 rgba(19,33,63,0), 0 0 0 rgba(255,255,255,0)}}
+#V3 .w0{animation-delay:0.00s} #V3 .p1{animation-delay:2.19s} #V3 .w1{animation-delay:4.39s} #V3 .p2{animation-delay:6.58s} #V3 .w2{animation-delay:8.77s} #V3 .p3{animation-delay:10.97s} #V3 .w3{animation-delay:13.16s}
+#V3 .pr .mono{animation:reveal 14s linear infinite both}
+@keyframes reveal{0%,3.0%{opacity:.35}7.5%,100%{opacity:1}}
+#V3 .p1 .mono{animation-delay:2.19s} #V3 .p2 .mono{animation-delay:6.58s} #V3 .p3 .mono{animation-delay:10.97s}
+#V3 .wire path{stroke-dasharray:200;stroke-dashoffset:200;animation:draw 14s linear infinite both}
+@keyframes draw{0%{stroke-dashoffset:200}9.67%,100%{stroke-dashoffset:0}}
+#V3 .wire path:nth-of-type(1){animation-delay:0.84s}
+#V3 .wire path:nth-of-type(2){animation-delay:3.03s}
+#V3 .wire path:nth-of-type(3){animation-delay:5.23s}
+#V3 .wire path:nth-of-type(4){animation-delay:7.42s}
+#V3 .wire path:nth-of-type(5){animation-delay:9.61s}
+#V3 .wire path:nth-of-type(6){animation-delay:11.81s}
+
+@media (prefers-reduced-motion: reduce){#V3 .cap,#V3 .well,#V3 .pr,#V3 .pr .mono,#V3 .wire path{animation:none} #V3 .wire path{stroke-dashoffset:0}}
+</style></head><body>
+
+<section class="idea B" id="V3">
+  <p class="lab">V3 · NODES SAY WHERE THEY ARE</p>
+  <h2>Design on one lane, product on the other.</h2>
+  <p class="sub">Every change crosses through the pull request. A fix goes back to the lane that caused it, and the next pass goes through again.</p>
+  <div class="stage">
+    <div class="lane d"></div><span class="lanelab mono" style="top:60px">DESIGN · Figma, token files</span>
+    <div class="lane p"></div><span class="lanelab mono" style="top:240px">PRODUCT · components, stories, agents</span>
+    <svg class="wire" width="1128" height="300" aria-hidden="true">
+      <defs><marker id="b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5 0 10z" fill="#9AA2B4"/></marker><marker id="br" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5 0 10z" fill="#E8632A"/></marker></defs>
+      <g fill="none" stroke-width="1.5">
+        <path d="M300 60 C 340 60, 340 150, 380 150" marker-end="url(#b)"/><path d="M420 150 C 470 150, 470 240, 520 240" marker-end="url(#b)"/><path d="M560 240 C 600 240, 600 150, 640 150" marker-end="url(#b)"/><path class="red" d="M680 150 C 720 150, 720 60, 760 60" marker-end="url(#br)"/><path d="M800 60 C 840 60, 840 150, 880 150" marker-end="url(#b)"/><path d="M920 150 C 960 150, 960 240, 1010 240" marker-end="url(#b)"/>
+      </g>
+    </svg>
+    <span class="well w0" style="left:300px;top:60px"><i style="background:var(--blue)"></i>Figma · Nova 500 → 600</span>
+    <div class="pr p1" style="left:400px"><span class="t">PR #482</span><span class="mono">lint <span class="ok">✓</span> · diff <span class="pend">●</span></span></div>
+    <span class="well w1" style="left:540px;top:240px"><i style="background:var(--ink)"></i>story · button darker</span>
+    <div class="pr p2" style="left:660px"><span class="t">PR #482</span><span class="mono warn">unexplained diff</span></div>
+    <span class="well w2" style="left:780px;top:60px"><i style="background:var(--red)"></i>Figma · fix Radius.Card</span>
+    <div class="pr p3" style="left:900px"><span class="t">PR #482</span><span class="mono ok">approved ✓</span></div>
+    <span class="well w3" style="left:1030px;top:240px"><i style="background:var(--green)"></i>product · outputs rebuilt</span>
+    <span class="cap" style="offset-path:path('M300 60 C 340 60, 340 150, 380 150 L 420 150 C 470 150, 470 240, 520 240 L 560 240 C 600 240, 600 150, 640 150 L 680 150 C 720 150, 720 60, 760 60 L 800 60 C 840 60, 840 150, 880 150 L 920 150 C 960 150, 960 240, 1010 240')"></span>
+  </div>
+  <div class="cards">
+    <div class="frame"><span class="caplabel">Figma · what the designer sees</span><div class="card"><span class="k">ORBIT BURGER · ISS DOCK 3</span>Saturn Smash<span class="m">Double patty, ring sauce</span><span class="b">Launch order</span></div><span class="redl">Colors.Brand.Primary 500 → 600</span></div>
+    <div class="frame"><span class="caplabel">Story · what the product renders</span><div class="card after"><span class="k">ORBIT BURGER · ISS DOCK 3</span>Saturn Smash<span class="m">Double patty, ring sauce</span><span class="b">Launch order</span></div><span class="redl">Radius.Card 8 → 24 · not in Figma</span></div>
+  </div>
+</section>
+</body></html>

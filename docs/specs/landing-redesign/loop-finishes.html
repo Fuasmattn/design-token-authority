@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Finishes</title>
+<link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500&family=Instrument+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F5F1E8;--cream2:#EDE7DA;--cream3:#E2DBCB;--hi:#FFFDF8;--ink:#13213F;--ink2:#22304F;--ink3:#3E4A66;--muted:#5A6480;--blue:#2F55D4;--blue2:#7590E6;--red:#E8632A;--green:#4F915A;--void:#15122b;--void2:#241d4a;--star:#f4efe6;--dust:#a79fc4;--nova:#ff7a1a;--nova2:#e0600a;--mint:#8fe3c0}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:'Instrument Sans',sans-serif}
+.idea{position:relative;width:1240px;padding:44px 56px 60px;box-sizing:border-box;overflow:hidden}
+.lab{font:400 11px 'Martian Mono',monospace;color:var(--red);margin:0 0 14px;position:relative}
+h2{margin:0 0 6px;font-size:34px;font-weight:700;letter-spacing:-.02em;font-stretch:85%;position:relative}
+.sub{margin:0 0 36px;color:var(--muted);max-width:620px;line-height:1.5;position:relative}
+.mono{font:400 11px 'Martian Mono',monospace}
+.stage{position:relative;height:300px}
+.lanelab{position:absolute;left:0;transform:translateY(-50%);padding-right:12px;color:var(--muted)}
+.node{position:absolute;transform:translate(-50%,-50%)}
+.dot{width:12px;height:12px;border-radius:50%;display:block}
+.pr{position:absolute;top:150px;transform:translate(-50%,-50%);width:118px;padding:9px 11px;border-radius:10px}
+.pr .t{display:block;font-size:12px;font-weight:600;margin-bottom:4px}
+.pr .mono{display:block;line-height:1.6}
+svg.wire{position:absolute;left:0;top:0;overflow:visible}
+.cap{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--red);transform:translate(-50%,-50%);offset-rotate:0deg;animation:go 12s linear infinite}
+@keyframes go{from{offset-distance:0%}to{offset-distance:100%}}
+.cards{display:flex;gap:26px;align-items:center;margin-top:34px;position:relative}
+.card{width:168px;padding:14px 16px;border-radius:14px;background:var(--void);color:var(--star);font-size:13px;font-weight:600;position:relative}
+.card .k{display:block;font:400 8px 'Martian Mono',monospace;color:var(--mint);margin-bottom:4px}
+.card .m{display:block;font-weight:400;font-size:10px;color:var(--dust);margin-top:2px}
+.card .b{display:inline-block;margin-top:9px;padding:5px 10px;border-radius:7px;background:var(--nova);color:#1a0f00;font-size:9px}
+.card.after{border-radius:24px}.card.after .b{background:var(--nova2)}
+.caplabel{font:400 11px 'Martian Mono',monospace;color:var(--muted);margin-bottom:8px;display:block}
+.redl{display:inline-block;margin-top:10px;padding:2px 7px;border-radius:3px;background:var(--red);color:#0F0E0D;font:400 10px 'Martian Mono',monospace}
+
+/* ===== A · MATERIAL ===== */
+.A{background:radial-gradient(ellipse 80% 70% at 50% 40%, #FBF9F4 0%, #F5F1E8 55%, #EAE4D6 100%)}
+.A .grain{position:absolute;inset:0;pointer-events:none;opacity:.5}
+.A .lane{position:absolute;left:0;right:0;height:10px;border-radius:5px;background:linear-gradient(180deg,#D9D0BC,#EDE7DA 60%,#FBF9F4);box-shadow:inset 0 2px 3px rgba(19,33,63,.18), 0 1px 0 #fff}
+.A .lane.d{top:55px}.A .lane.p{top:235px}
+.A .lanelab{background:transparent}
+.A .pr{background:linear-gradient(160deg,#3E4A66 0%,#22304F 45%,#13213F 100%);color:var(--cream);box-shadow:0 14px 24px -10px rgba(19,33,63,.45), 0 2px 0 #0B1630, inset 0 1px 0 rgba(255,255,255,.14)}
+.A .pr .mono{color:var(--blue2)}
+.A .dot{box-shadow:0 4px 8px -2px rgba(19,33,63,.4), inset 0 -2px 2px rgba(0,0,0,.25), inset 0 1px 1px rgba(255,255,255,.5)}
+.A .dot.blue{background:radial-gradient(circle at 35% 30%,#8FA6F0,#2F55D4 70%)}.A .dot.ink{background:radial-gradient(circle at 35% 30%,#56658A,#13213F 70%)}.A .dot.red{background:radial-gradient(circle at 35% 30%,#FFB38A,#E8632A 70%)}.A .dot.green{background:radial-gradient(circle at 35% 30%,#9CCBA4,#4F915A 70%)}
+.A .cap{background:radial-gradient(circle at 35% 30%,#FFB38A,#E8632A 70%);box-shadow:0 6px 10px -3px rgba(232,99,42,.6), 0 0 0 7px rgba(232,99,42,.14)}
+.A .card{background:linear-gradient(160deg,#2a2352 0%,#15122b 60%);box-shadow:0 18px 28px -12px rgba(19,33,63,.5), 0 2px 0 #0a0818, inset 0 1px 0 rgba(255,255,255,.08)}
+.A .card .b{box-shadow:0 2px 0 #a8420a, inset 0 1px 0 rgba(255,255,255,.35)}
+.A .plinth{position:absolute;left:-6px;right:-6px;top:-10px;bottom:-16px;border-radius:18px;background:linear-gradient(180deg,#FBF9F4,#EDE7DA);box-shadow:0 1px 0 #fff inset, 0 10px 20px -14px rgba(19,33,63,.35);z-index:-1}
+.A .frame{position:relative;padding:18px 18px 16px}
+.A .wire path{filter:drop-shadow(0 2px 1px rgba(255,255,255,.8))}
+
+/* ===== B · NEUMORPHIC ===== */
+.B{background:var(--cream)}
+.B .lane{position:absolute;left:0;right:0;height:14px;border-radius:7px;background:var(--cream);box-shadow:inset 4px 4px 8px rgba(19,33,63,.14), inset -4px -4px 8px rgba(255,255,255,.95)}
+.B .lane.d{top:53px}.B .lane.p{top:233px}
+.B .pr{background:var(--cream);color:var(--ink);box-shadow:8px 8px 18px rgba(19,33,63,.14), -8px -8px 18px rgba(255,255,255,.95)}
+.B .pr .mono{color:var(--muted)}
+.B .pr .ok{color:var(--green)}.B .pr .warn{color:var(--red)}.B .pr .pend{color:var(--blue)}
+.B .dot{background:var(--cream);box-shadow:4px 4px 8px rgba(19,33,63,.16), -3px -3px 7px rgba(255,255,255,.95);position:relative;width:20px;height:20px}
+.B .dot::after{content:'';position:absolute;inset:6px;border-radius:50%}
+.B .dot.blue::after{background:var(--blue)}.B .dot.ink::after{background:var(--ink)}.B .dot.red::after{background:var(--red)}.B .dot.green::after{background:var(--green)}
+.B .cap{background:var(--red);box-shadow:3px 3px 8px rgba(232,99,42,.35), -2px -2px 6px rgba(255,255,255,.9)}
+.B .wire path{stroke:#9AA2B4}
+.B .wire path.red{stroke:var(--red)}
+.B .card{box-shadow:inset 0 0 0 1px rgba(255,255,255,.06), 10px 10px 22px rgba(19,33,63,.16), -8px -8px 18px rgba(255,255,255,.9)}
+.B .frame{position:relative;padding:18px 18px 16px;border-radius:22px;background:var(--cream);box-shadow:inset 6px 6px 14px rgba(19,33,63,.10), inset -6px -6px 14px rgba(255,255,255,.95)}
+.B .redl{background:var(--cream);color:var(--red);box-shadow:inset 2px 2px 5px rgba(19,33,63,.14), inset -2px -2px 5px rgba(255,255,255,.95)}
+</style></head><body>
+
+<section class="idea A" id="A">
+  <svg class="grain" width="1240" height="760" aria-hidden="true"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0.07  0 0 0 0 0.13  0 0 0 0 0.25  0 0 0 0.16 0"/></filter><rect width="1240" height="760" filter="url(#g)"/></svg>
+  <p class="lab">A · MATERIAL · ONE LIGHT, SHADED FACES, GROOVED LANES, GRAIN</p>
+  <h2>Design on one lane, product on the other.</h2>
+  <p class="sub">Every change crosses through the pull request. A fix goes back to the lane that caused it, and the next pass goes through again.</p>
+  <div class="stage">
+    <div class="lane d"></div><span class="lanelab mono" style="top:60px">DESIGN · Figma, token files</span>
+    <div class="lane p"></div><span class="lanelab mono" style="top:240px">PRODUCT · components, stories, agents</span>
+    <svg class="wire" width="1128" height="300" aria-hidden="true">
+      <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5 0 10z" fill="#22304F"/></marker><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5 0 10z" fill="#E8632A"/></marker></defs>
+      <g fill="none" stroke="#22304F" stroke-width="1.5">
+        <path d="M300 60 C 340 60, 340 150, 380 150" marker-end="url(#a)"/><path d="M420 150 C 470 150, 470 240, 520 240" marker-end="url(#a)"/><path d="M560 240 C 600 240, 600 150, 640 150" marker-end="url(#a)"/><path class="red" d="M680 150 C 720 150, 720 60, 760 60" stroke="#E8632A" marker-end="url(#ar)"/><path d="M800 60 C 840 60, 840 150, 880 150" marker-end="url(#a)"/><path d="M920 150 C 960 150, 960 240, 1010 240" marker-end="url(#a)"/>
+      </g>
+    </svg>
+    <span class="node" style="left:300px;top:60px"><span class="dot blue"></span></span><span class="node mono" style="left:300px;top:26px">Nova 500 → 600</span>
+    <div class="pr" style="left:400px"><span class="t">PR #482</span><span class="mono">lint ✓ · diff ●</span></div>
+    <span class="node" style="left:540px;top:240px"><span class="dot ink"></span></span><span class="node mono" style="left:540px;top:274px">story: button darker</span>
+    <div class="pr" style="left:660px"><span class="t">PR #482</span><span class="mono" style="color:#FFB38A">unexplained diff</span></div>
+    <span class="node" style="left:780px;top:60px"><span class="dot red"></span></span><span class="node mono" style="left:780px;top:26px">fix: Radius.Card alias</span>
+    <div class="pr" style="left:900px"><span class="t">PR #482</span><span class="mono" style="color:#9CCBA4">approved ✓</span></div>
+    <span class="node" style="left:1030px;top:240px"><span class="dot green"></span></span><span class="node mono" style="left:1030px;top:274px">every output rebuilt</span>
+    <span class="cap" style="offset-path:path('M300 60 C 340 60, 340 150, 380 150 L 420 150 C 470 150, 470 240, 520 240 L 560 240 C 600 240, 600 150, 640 150 L 680 150 C 720 150, 720 60, 760 60 L 800 60 C 840 60, 840 150, 880 150 L 920 150 C 960 150, 960 240, 1010 240')"></span>
+  </div>
+  <div class="cards">
+    <div class="frame"><span class="plinth"></span><span class="caplabel">Figma · what the designer sees</span><div class="card"><span class="k">ORBIT BURGER · ISS DOCK 3</span>Saturn Smash<span class="m">Double patty, ring sauce</span><span class="b">Launch order</span></div><span class="redl">Colors.Brand.Primary 500 → 600</span></div>
+    <div class="frame"><span class="plinth"></span><span class="caplabel">Story · what the product renders</span><div class="card after"><span class="k">ORBIT BURGER · ISS DOCK 3</span>Saturn Smash<span class="m">Double patty, ring sauce</span><span class="b">Launch order</span></div><span class="redl">Radius.Card 8 → 24 · not in Figma</span></div>
+  </div>
+</section>
+
+<section class="idea B" id="B">
+  <p class="lab">B · BLENDED · PRESSED INTO THE SURFACE, RAISED WHERE IT MATTERS</p>
+  <h2>Design on one lane, product on the other.</h2>
+  <p class="sub">Every change crosses through the pull request. A fix goes back to the lane that caused it, and the next pass goes through again.</p>
+  <div class="stage">
+    <div class="lane d"></div><span class="lanelab mono" style="top:60px">DESIGN · Figma, token files</span>
+    <div class="lane p"></div><span class="lanelab mono" style="top:240px">PRODUCT · components, stories, agents</span>
+    <svg class="wire" width="1128" height="300" aria-hidden="true">
+      <defs><marker id="b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5 0 10z" fill="#9AA2B4"/></marker><marker id="br" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5 0 10z" fill="#E8632A"/></marker></defs>
+      <g fill="none" stroke-width="1.5">
+        <path d="M300 60 C 340 60, 340 150, 380 150" marker-end="url(#b)"/><path d="M420 150 C 470 150, 470 240, 520 240" marker-end="url(#b)"/><path d="M560 240 C 600 240, 600 150, 640 150" marker-end="url(#b)"/><path class="red" d="M680 150 C 720 150, 720 60, 760 60" marker-end="url(#br)"/><path d="M800 60 C 840 60, 840 150, 880 150" marker-end="url(#b)"/><path d="M920 150 C 960 150, 960 240, 1010 240" marker-end="url(#b)"/>
+      </g>
+    </svg>
+    <span class="node" style="left:300px;top:60px"><span class="dot blue"></span></span><span class="node mono" style="left:300px;top:22px">Nova 500 → 600</span>
+    <div class="pr" style="left:400px"><span class="t">PR #482</span><span class="mono">lint <span class="ok">✓</span> · diff <span class="pend">●</span></span></div>
+    <span class="node" style="left:540px;top:240px"><span class="dot ink"></span></span><span class="node mono" style="left:540px;top:278px">story: button darker</span>
+    <div class="pr" style="left:660px"><span class="t">PR #482</span><span class="mono warn">unexplained diff</span></div>
+    <span class="node" style="left:780px;top:60px"><span class="dot red"></span></span><span class="node mono" style="left:780px;top:22px">fix: Radius.Card alias</span>
+    <div class="pr" style="left:900px"><span class="t">PR #482</span><span class="mono ok">approved ✓</span></div>
+    <span class="node" style="left:1030px;top:240px"><span class="dot green"></span></span><span class="node mono" style="left:1030px;top:278px">every output rebuilt</span>
+    <span class="cap" style="offset-path:path('M300 60 C 340 60, 340 150, 380 150 L 420 150 C 470 150, 470 240, 520 240 L 560 240 C 600 240, 600 150, 640 150 L 680 150 C 720 150, 720 60, 760 60 L 800 60 C 840 60, 840 150, 880 150 L 920 150 C 960 150, 960 240, 1010 240')"></span>
+  </div>
+  <div class="cards">
+    <div class="frame"><span class="caplabel">Figma · what the designer sees</span><div class="card"><span class="k">ORBIT BURGER · ISS DOCK 3</span>Saturn Smash<span class="m">Double patty, ring sauce</span><span class="b">Launch order</span></div><span class="redl">Colors.Brand.Primary 500 → 600</span></div>
+    <div class="frame"><span class="caplabel">Story · what the product renders</span><div class="card after"><span class="k">ORBIT BURGER · ISS DOCK 3</span>Saturn Smash<span class="m">Double patty, ring sauce</span><span class="b">Launch order</span></div><span class="redl">Radius.Card 8 → 24 · not in Figma</span></div>
+  </div>
+</section>
+</body></html>
