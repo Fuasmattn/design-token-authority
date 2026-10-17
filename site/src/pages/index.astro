@@ -123,11 +123,7 @@ const NAV = [
       <section class="hero" aria-labelledby="hero-title">
         <div class="grid-paper" aria-hidden="true"></div>
         <div class="wrap hero-inner">
-          <p class="eyebrows in1">
-            <span class="eyebrow info">Figma → pull request → production</span>
-            <span class="eyebrow signal">for designers, engineers and agents</span>
-          </p>
-          <h1 id="hero-title" class="in2">
+          <h1 id="hero-title" class="in1">
             The deterministic backbone for design token workflows, built for humans and <span
               class="redlined"
               >agents.<span class="redline" aria-hidden="true"></span><span
@@ -142,17 +138,8 @@ const NAV = [
           </p>
           <div class="cta in4">
             <CommandButton command={COMMANDS.init.text} />
-            <Button variant="outline" href="#review">See a review</Button>
-            <a href="#use" class="link-mono">or let your agent set it up →</a>
+            <Button href="/start/">Get started</Button>
           </div>
-          {
-            !COMMANDS.init.shipped && (
-              <p class="release-note in4">
-                <Badge tone="coming">coming</Badge> The npm release is on its way. Until then, run
-                DTA from a clone: <a href="/start/quick-start/">Quick start</a>
-              </p>
-            )
-          }
         </div>
       </section>
 

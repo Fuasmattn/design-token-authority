@@ -13,7 +13,8 @@ describe('landing page honesty rule', () => {
   it('shows only commands that work as written as shipped; the rest are labelled coming', () => {
     for (const command of Object.values(COMMANDS)) {
       const exists = command.uses.every((name) => registered.has(name))
-      const runnable = !command.text.startsWith('npx ') || NPM_RELEASED
+      const needsRelease = /^(npx |npm create )/.test(command.text)
+      const runnable = !needsRelease || NPM_RELEASED
       expect(exists && runnable, `${command.text} is marked shipped: ${command.shipped}`).toBe(
         command.shipped,
       )

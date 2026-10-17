@@ -16,5 +16,6 @@ DTA can be installed and run without a clone: `npm i -D design-token-authority` 
 - [ ] `npm pack` of the package installs into an empty project and runs `init`, `build`, `lint` and `diff --tokens-only` there (test in CI)
 - [ ] `dta init` writes a config whose `defineConfig` import resolves in the installed package
 - [ ] release-it publishes to npm (`npm.publish: true`) from `main`, with provenance
+- [ ] `create-dta` published next to it (name checked free on 2026-10-16): a tiny package whose bin runs `design-token-authority init`, so `npm create dta` (and `pnpm create dta`) start a project without an install; the landing page shows `npm create dta` (TICKET-098)
 - [ ] Website and README: `NPM_RELEASED = true` on the landing page, quick start without the clone, CI guide with `npx design-token-authority`
 - [ ] All gates pass, and the GitHub run is green

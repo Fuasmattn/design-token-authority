@@ -126,32 +126,8 @@ a {
   padding-top: calc(var(--space-36) + var(--space-12));
   padding-bottom: var(--space-24);
 }
-.eyebrows {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin: 0;
-}
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--space-8);
-  padding: 0 var(--space-3);
-  border-radius: var(--radius-sm);
-  font-family: var(--landing-mono);
-  font-size: calc(var(--type-meta-size) * 1px);
-  line-height: var(--type-meta-line-height);
-}
-.eyebrow.info {
-  background: var(--action-subtle);
-  color: var(--action-text);
-}
-.eyebrow.signal {
-  background: var(--signal-subtle);
-  color: var(--signal-text);
-}
 h1 {
-  margin: var(--space-10) 0 0;
+  margin: 0;
   max-width: var(--layout-title);
   font-weight: var(--type-display-xl-weight);
   font-stretch: 85%;
@@ -208,27 +184,7 @@ h1 {
   gap: var(--space-3);
   align-items: center;
 }
-.link-mono {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  margin-left: var(--space-1);
-  text-decoration: none;
-  font-family: var(--landing-mono);
-  font-size: calc(var(--type-meta-size) * 1px);
-  color: var(--action-bg);
-}
 
-.release-note {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-  margin: var(--space-6) 0 0;
-  color: var(--fg-muted);
-  font-size: calc(var(--type-label-size) * 1px);
-}
-.release-note a,
 .band-note a {
   color: inherit;
   text-underline-offset: 3px;

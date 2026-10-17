@@ -5,9 +5,9 @@
  */
 
 /**
- * DTA is not on npm yet (TICKET-090). Until it is, a command that runs through `npx` does not
- * work as written and is shown as coming. (The npm name `dta` belongs to another package, so
- * the page never shows `npx dta`.)
+ * DTA is not on npm yet (TICKET-090). Until it is, a command that runs through `npx` or
+ * `npm create` does not work as written. (The npm name `dta` belongs to an unrelated package,
+ * so the page never shows `npx dta`; `npm create dta` runs our own `create-dta` package.)
  */
 export const NPM_RELEASED = false
 
@@ -21,7 +21,8 @@ export interface Command {
 }
 
 export const COMMANDS = {
-  init: { text: 'npx design-token-authority init', uses: ['init'], shipped: NPM_RELEASED },
+  /** Hero and footer. Shown without a "coming" label by maintainer decision (TICKET-098). */
+  init: { text: 'npm create dta', uses: ['init'], shipped: NPM_RELEASED },
   build: { text: 'dta build', uses: ['build'], shipped: true },
   govern: { text: 'dta lint && dta diff', uses: ['lint', 'diff'], shipped: true },
   skill: { text: 'dta skill add', uses: ['skill'], shipped: false },
