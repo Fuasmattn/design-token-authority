@@ -124,6 +124,13 @@ export const STORIES: readonly Story[] = [
     viewports: [DESKTOP, MOBILE],
   },
   {
+    component: 'token-cycle',
+    variant: 'default',
+    title: 'A word and the token that styles it',
+    example: 'TokenCycleDefault',
+    viewports: [DESKTOP],
+  },
+  {
     component: 'workflow-rail',
     variant: 'default',
     title: 'Stations on the rail',

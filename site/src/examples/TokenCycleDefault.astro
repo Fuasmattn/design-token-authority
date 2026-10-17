@@ -1,0 +1,23 @@
+---
+import TokenCycle from '../components/ds/TokenCycle.astro'
+
+const tokens = [
+  { name: 'font-weight.bold', weight: 700 },
+  { name: 'font-style.italic', weight: 700, italic: true },
+  { name: 'font-weight.regular', weight: 400 },
+] as const
+---
+
+<p class="headline">
+  Built for humans and <TokenCycle tokens={tokens} autoplay={false}>agents.</TokenCycle>
+</p>
+
+<style>
+  .headline {
+    margin: 0 0 var(--space-8);
+    font-family: var(--font-sans);
+    font-size: calc(var(--type-heading-size) * 1px);
+    font-weight: var(--type-heading-weight);
+    line-height: var(--type-heading-line-height);
+  }
+</style>

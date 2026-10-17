@@ -10,16 +10,18 @@ import '../../output/css/themes/graphite.css'
 import '../styles/fonts.css'
 import '../styles/landing.css'
 import sansUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wdth-normal.woff2?url'
+import sansItalicUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wdth-italic.woff2?url'
 import monoUrl from '@fontsource-variable/martian-mono/files/martian-mono-latin-wght-normal.woff2?url'
 import Badge from '../components/ds/Badge.astro'
 import Button from '../components/ds/Button.astro'
 import Card from '../components/ds/Card.astro'
 import CommandButton from '../components/ds/CommandButton.astro'
+import DiffCard from '../components/ds/DiffCard.astro'
 import Logo from '../components/ds/Logo.astro'
 import Nav from '../components/ds/Nav.astro'
 import ThemeSwitch from '../components/ds/ThemeSwitch.astro'
+import TokenCycle from '../components/ds/TokenCycle.astro'
 import Terminal from '../components/ds/Terminal.astro'
-import ReviewDemo from '../components/landing/ReviewDemo.astro'
 import { COMMANDS, TRUST_RUN } from '../landing/content'
 
 const title = 'Design Token Authority'
@@ -79,9 +81,44 @@ const cards = [
 ]
 const NAV = [
   { href: '#how', label: 'How it works' },
-  { href: '#review', label: 'Review' },
-  { href: '#use', label: 'Use cases' },
+  { href: '#github', label: 'GitHub' },
+  { href: '#agents', label: 'Agents' },
   { href: '/start/', label: 'Docs' },
+]
+/** The headline word cycles through these type styles (illustrative token names). */
+const HEADLINE_TOKENS = [
+  { name: 'font-weight.bold', weight: 700 },
+  { name: 'font-style.italic', weight: 700, italic: true },
+  { name: 'font-weight.regular', weight: 400 },
+]
+const githubPoints = [
+  [
+    'A status check',
+    '“dta diff” is green when nothing needs a look, pending with changes to review, red with unexplained changes.',
+  ],
+  [
+    'One comment per pull request',
+    'Updated on every push: the changes grouped by the token that caused them, with a link to the full report.',
+  ],
+  [
+    'Approve with a label',
+    'Adding dta-diff-approved turns the check green. A new push asks again.',
+  ],
+]
+const agentPoints = [
+  {
+    title: 'The same checks for everyone',
+    text: 'Lint, build and diff give the same result for a person, CI and an agent. JSON output and exit codes are made for tools.',
+  },
+  {
+    title: 'Docs an agent can read',
+    text: 'llms.txt with every page, and JSON Schemas for the config and the token files.',
+  },
+  {
+    title: 'A skill and an MCP server',
+    text: 'Your agent sets DTA up and fixes findings, then runs the same checks before it asks for review.',
+    coming: true,
+  },
 ]
 ---
 
@@ -94,6 +131,7 @@ const NAV = [
     <meta name="description" content={description} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preload" href={sansUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sansItalicUrl} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={monoUrl} as="font" type="font/woff2" crossorigin />
     <script is:inline>
       // Same theme as the docs: Starlight keeps the choice in localStorage ('light' | 'dark').
@@ -124,13 +162,7 @@ const NAV = [
         <div class="grid-paper" aria-hidden="true"></div>
         <div class="wrap hero-inner">
           <h1 id="hero-title" class="in1">
-            The deterministic backbone for design token workflows, built for humans and <span
-              class="redlined"
-              >agents.<span class="redline" aria-hidden="true"></span><span
-                class="redline-tag"
-                aria-hidden="true">color.action</span
-              ></span
-            >
+            The deterministic backbone for design token workflows, built for humans and <TokenCycle tokens={HEADLINE_TOKENS}>agents.</TokenCycle>
           </h1>
           <p class="lede in3">
             A design change in Figma becomes a pull request: validated, built, visually diffed and
@@ -185,76 +217,76 @@ const NAV = [
         </div>
       </section>
 
-      <section id="review" class="sec" aria-labelledby="review-title">
-        <div class="wrap">
-          <p class="kicker subtle">See it · one design change, three kinds of findings</p>
-          <h2 id="review-title">Catch it in review, not in production.</h2>
-          <p class="example-note">
-            <Badge tone="example">Example data</Badge> An interactive preview of a review: the
-            findings, numbers and names are made up.
-          </p>
-          <ReviewDemo />
+      <section id="github" class="sec" aria-labelledby="github-title">
+        <div class="wrap split">
+          <div class="split-text">
+            <p class="kicker">In your pull requests</p>
+            <h2 id="github-title">Every design change gets a review.</h2>
+            <div class="points">
+              {
+                githubPoints.map(([title, text], i) => (
+                  <div class="ruled">
+                    <p class="num">{String(i + 1).padStart(2, '0')}</p>
+                    <h3>{title}</h3>
+                    <p class="muted">{text}</p>
+                  </div>
+                ))
+              }
+            </div>
+            <p class="cmd"><span class="prompt" aria-hidden="true">uses:</span>Fuasmattn/design-token-authority/actions/diff@main</p>
+            <p class="section-note">
+              GitHub Actions out of the box; any other CI runs <code>npx dta diff</code> and publishes
+              the report through a hook you write.
+            </p>
+            <Button variant="outline" href="/guides/dta-diff-in-pull-requests/">Set it up in GitHub</Button>
+          </div>
+          <div class="split-visual">
+            <DiffCard story="Card / pricing · desktop" ratio={4.2} threshold={10} state="review" />
+            <p class="caption"><Badge tone="example">example</Badge> One story in the review.</p>
+          </div>
         </div>
       </section>
 
-      <section id="use" class="sec" aria-labelledby="use-title">
-        <div class="wrap">
-          <p class="kicker">Ways to use it</p>
-          <h2 id="use-title">Start small. Grow into governance.</h2>
-          <div class="use-cards">
-            <Card class="use-card">
-              <p class="num action">01 · Try</p>
-              <h3>Try</h3>
-              <p class="who">anyone with a token file</p>
-              <p class="muted">
-                Drop a token file into the playground or run one command. Outputs and a structure
-                check, no setup. Enough for a prototype or a hand-over.
+      <section id="agents" class="sec" aria-labelledby="agents-title">
+        <div class="wrap split">
+          <div class="split-text">
+            <p class="kicker">With your agent</p>
+            <h2 id="agents-title">Your agent proposes. The checks decide.</h2>
+            <div class="points">
+              {
+                agentPoints.map((point, i) => (
+                  <div class="ruled">
+                    <p class="num">
+                      {String(i + 1).padStart(2, '0')}{' '}
+                      {point.coming && <Badge tone="coming">coming</Badge>}
+                    </p>
+                    <h3>{point.title}</h3>
+                    <p class="muted">{point.text}</p>
+                  </div>
+                ))
+              }
+            </div>
+            <Button variant="outline" href="/llms.txt">Read llms.txt</Button>
+          </div>
+          <div class="split-visual">
+            <div class="agent" aria-label="Example: an agent fixing a finding">
+              <p class="bubble">
+                <span class="who-agent">Agent</span>button.bg skips the semantic layer. Pointing it to
+                color.action, then re-running the checks.
               </p>
-              <p class="cmd"><span class="prompt" aria-hidden="true">$</span>{COMMANDS.build.text}</p>
-            </Card>
-            <Card class="use-card" featured>
-              <p class="num action">
-                02 · Govern <Badge tone="note">most teams</Badge>
-              </p>
-              <h3>Govern</h3>
-              <p class="who">teams shipping design changes every week</p>
-              <p class="muted">
-                Run dta in CI on every change. Structure checks and visual diffs explained by
-                token, reviewed and approved in the pull request.
-              </p>
-              <p class="cmd">
-                <span class="prompt" aria-hidden="true">$</span>{COMMANDS.govern.text}
-              </p>
-            </Card>
-            <Card class="use-card">
-              <p class="num action">
-                03 · Delegate <Badge tone="coming">coming</Badge>
-              </p>
-              <h3>Delegate</h3>
-              <p class="who">teams working with coding agents</p>
-              <p class="muted">
-                Your agent sets up and fixes tokens through the dta skill or MCP server. The same
-                checks decide what passes.
-              </p>
-              <div class="agent" aria-label="Example: an agent fixing a finding">
-                <p class="bubble">
-                  <span class="who-agent">Agent</span>button.bg skips the semantic layer. Pointing it
-                  to color.action, then re-running the checks.
-                </p>
-                <p class="pass-pill">checks · pass</p>
-              </div>
-              <p class="cmd">
-                <span class="prompt" aria-hidden="true">$</span>{COMMANDS.skill.text}
-                <Badge tone="coming">coming</Badge>
-              </p>
-            </Card>
+              <p class="pass-pill">dta lint · pass</p>
+            </div>
+            <p class="cmd">
+              <span class="prompt" aria-hidden="true">$</span>{COMMANDS.skill.text}
+              <Badge tone="coming">coming</Badge>
+            </p>
           </div>
         </div>
       </section>
 
       <section id="why" class="sec" aria-labelledby="why-title">
-        <div class="wrap why">
-          <div class="why-text">
+        <div class="wrap split">
+          <div class="split-text">
             <p class="kicker">Why trust it</p>
             <h2 id="why-title">Governance with AI, not by AI.</h2>
             <dl class="trust">
@@ -268,7 +300,7 @@ const NAV = [
               }
             </dl>
           </div>
-          <div class="why-terminal">
+          <div class="split-visual">
             <Terminal lines={TRUST_RUN.lines} cursor label={TRUST_RUN.label} />
             <p class="caption">From a real run on this website's own design tokens.</p>
           </div>

@@ -1,0 +1,168 @@
+---
+/**
+ * A word under a redline that names the type token styling it. The word cycles through a few
+ * styles (on click, and every two seconds unless the visitor prefers reduced motion): weight
+ * glides along the variable font's axis, a change to or from italic swaps under a short fade,
+ * the redline is drawn again and the token name pops in. Pauses while hovered. Decorative: the
+ * word stays plain text inside its heading, and the token names are illustrative.
+ */
+interface Token {
+  /** Shown on the redline tag, e.g. `font-style.italic`. */
+  name: string
+  /** Font weight on the font's axis (Instrument Sans: 400 to 700). */
+  weight: number
+  italic?: boolean
+}
+interface Props {
+  tokens: readonly Token[]
+  /** Change every two seconds. Off in stories, so screenshots are stable. */
+  autoplay?: boolean
+}
+const { tokens, autoplay = true } = Astro.props
+if (tokens.length < 2) throw new Error('TokenCycle: needs at least two tokens')
+const first = tokens[0]
+---
+
+<span
+  class="dta-token-cycle"
+  data-dta-token-cycle
+  data-tokens={JSON.stringify(tokens)}
+  data-autoplay={autoplay ? '' : undefined}
+  style={`--token-weight: ${first.weight}; --token-style: ${first.italic ? 'italic' : 'normal'}`}
+  ><span class="word"><slot /></span><span class="line" aria-hidden="true"></span><span
+    class="tag"
+    aria-hidden="true">{first.name}</span
+  ></span
+>
+
+<script>
+  interface Token {
+    name: string
+    weight: number
+    italic?: boolean
+  }
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)')
+  /** Half of the fade that hides the switch between roman and italic (see the CSS). */
+  const SWAP_MS = 160
+  for (const cycle of document.querySelectorAll<HTMLElement>('[data-dta-token-cycle]')) {
+    const tokens = JSON.parse(cycle.dataset.tokens ?? '[]') as Token[]
+    const tag = cycle.querySelector<HTMLElement>('.tag')
+    let index = 0
+    let paused = false
+    const apply = (token: Token) => {
+      cycle.style.setProperty('--token-weight', String(token.weight))
+      cycle.style.setProperty('--token-style', token.italic ? 'italic' : 'normal')
+    }
+    const show = (next: number) => {
+      const from = tokens[index]
+      index = next % tokens.length
+      const to = tokens[index]
+      if (tag) tag.textContent = to.name
+      // Restart the redline and tag animations.
+      cycle.classList.remove('changed', 'swap')
+      void cycle.offsetWidth
+      cycle.classList.add('changed')
+      // Italic is its own font file, so it cannot glide: swap it at the bottom of a quick fade.
+      if (Boolean(from.italic) !== Boolean(to.italic) && !reduced.matches) {
+        cycle.classList.add('swap')
+        setTimeout(() => apply(to), SWAP_MS)
+      } else {
+        apply(to)
+      }
+    }
+    cycle.addEventListener('click', () => show(index + 1))
+    cycle.addEventListener('pointerenter', () => (paused = true))
+    cycle.addEventListener('pointerleave', () => (paused = false))
+    if (cycle.hasAttribute('data-autoplay')) {
+      setInterval(() => {
+        if (!paused && !reduced.matches && document.visibilityState === 'visible') show(index + 1)
+      }, 2000)
+    }
+  }
+</script>
+
+<style>
+  .dta-token-cycle {
+    position: relative;
+    display: inline-block;
+    color: var(--action-bg);
+    cursor: pointer;
+  }
+  .word {
+    font-weight: var(--token-weight);
+    font-style: var(--token-style);
+    transition: font-weight 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .swap .word {
+    animation: dta-token-swap 0.32s ease-in-out;
+  }
+  .line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--space-1) * -1.5);
+    border-top: var(--stroke-redline) solid var(--signal-bg);
+    transform-origin: left center;
+    animation: dta-token-draw 0.8s ease-out 0.3s both;
+  }
+  .tag {
+    position: absolute;
+    right: 0;
+    bottom: calc(var(--space-8) * -1);
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-sm);
+    background: var(--signal-bg);
+    color: var(--signal-fg);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-redline-size) * 1px);
+    font-weight: var(--type-redline-weight);
+    font-style: normal;
+    font-stretch: 100%;
+    line-height: var(--type-redline-line-height);
+    letter-spacing: 0;
+    white-space: nowrap;
+    animation: dta-token-pop 0.4s ease-out 0.9s both;
+  }
+  .changed .line {
+    animation: dta-token-draw 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .changed .tag {
+    animation: dta-token-pop 0.35s ease-out 0.15s both;
+  }
+  @keyframes dta-token-swap {
+    50% {
+      opacity: 0.15;
+      filter: blur(2px);
+    }
+  }
+  @keyframes dta-token-draw {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+  @keyframes dta-token-pop {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .word {
+      transition: none;
+    }
+    .line,
+    .tag,
+    .changed .line,
+    .changed .tag,
+    .swap .word {
+      animation: none;
+    }
+  }
+</style>

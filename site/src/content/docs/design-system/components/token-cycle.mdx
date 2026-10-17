@@ -1,0 +1,26 @@
+---
+title: Token cycle
+description: A word under a redline that cycles through the type tokens styling it
+sidebar:
+  order: 14
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+A word under a redline whose tag names the type token that styles it. It cycles through a few styles, on click and every two seconds: the weight glides along the variable font's axis, a change to or from italic swaps under a short fade (italic is its own font file), the redline is drawn again and the token name pops in. Click the word in the examples to see it change.
+
+<Examples component="token-cycle" />
+
+## Guidelines
+
+- One per page, in the hero: it shows what DTA is about, a token changing what you see.
+- Three or four styles: weights within the font's range (400 to 700) and italic. The names on the tag are illustrative.
+- Decorative: the word stays plain text, so a heading reads as written. Hovering pauses it; reduced motion turns the automatic change and the animations off.
+- Stories set `autoplay={false}`, so screenshots are stable.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="TokenCycle" />

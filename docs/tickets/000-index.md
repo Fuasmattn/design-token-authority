@@ -240,6 +240,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [096](./096-site-landing-on-tokens.md) | Landing page on tokens and design-system components only | Medium | M | 095 | Done |
 | [097](./097-site-nav-fullscreen-menu.md) | Nav: burger button and full-screen menu on phones | Medium | S | 095 | Done |
 | [098](./098-site-hero-cleanup.md) | Calmer hero with one command and one call to action | Medium | XS | 096 | Done |
+| [099](./099-site-landing-github-agents.md) | Landing page: GitHub and agents instead of the review demo; token cycle in the headline | Medium | S | 098 | Done |
 
 Order: Epic 7 first (068 → 069 → 070 unblock the rest); 7b and 8 can run in parallel once 069/070 are done; 080 can start right after 039. Design sources: the maintainer's concept doc, the DTA Drafting Table design system and the landing page mockup (see the specs).
 
