@@ -2,7 +2,7 @@
 title: Exit codes
 description: What 0, 1 and 2 mean, command by command.
 sidebar:
-  order: 6
+  order: 7
 ---
 
 | Code | Meaning                                                                         |
@@ -23,5 +23,6 @@ sidebar:
 | `dta analyze` | the Figma request failed                                                                                                     | no Figma credentials                                                                                             |
 | `dta init`    |                                                                                                                              | a config file already exists (cancelling the wizard exits with 0)                                                |
 | `dta diff`    | the base cannot be resolved; the build or a story failed; a publish hook failed; `--fail-on-change` with something to review |                                                                                                                  |
+| `dta token`   | unknown name (`get`); no token has the value (`find`); tokens folder missing or token files invalid                          | unknown `--format`, `--type`, collection or mode                                                                 |
 
 `dta diff --fail-on-change` exits 1 when stories changed in a way that needs a look (unexplained changes above the threshold, explained ones not yet approved, added or removed stories); without stories, on any token change. See [dta diff in pull requests](/guides/dta-diff-in-pull-requests/).

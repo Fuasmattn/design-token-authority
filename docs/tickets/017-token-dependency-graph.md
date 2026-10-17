@@ -27,6 +27,7 @@ This is primarily a diagnostic and documentation tool, but also forms the basis 
 ## Implementation Notes
 
 Graph construction:
+
 ```ts
 type Node = { id: string; path: string[]; value: string | number | boolean | AliasRef }
 type AliasRef = { type: 'alias'; target: string }
@@ -42,6 +43,7 @@ function buildGraph(tokensByFile: Record<string, TokensFile>): Map<string, Node>
 **Circular reference detection:** Standard DFS with a visited + in-stack set. Report the cycle path.
 
 **Console output example:**
+
 ```
 Token Dependency Graph
 ─────────────────────

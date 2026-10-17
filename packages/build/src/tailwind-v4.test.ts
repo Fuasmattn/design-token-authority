@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { parseTokenFiles } from '@dta/core'
-import { buildOutputs } from './index.js'
+import { buildOutputs, tailwindThemeProperty } from './index.js'
 
 import { fixtureModel, sharedFile, snapshot } from './test-helpers.js'
 import type { Spec } from './test-helpers.js'
@@ -111,5 +111,25 @@ describe('Tailwind v4 output', () => {
     const css = files.find((f) => f.path === 'output/tailwind/sunrise/tailwind.css')?.content
     expect(css).toContain('--color-grey-50: #f8f8f8;')
     expect(css).not.toContain('var(--')
+  })
+})
+
+describe('tailwindThemeProperty', () => {
+  it('names tokens like the @theme output: by path, by type and scope, or the fallback', () => {
+    expect(tailwindThemeProperty(['Colors', 'Brand', 'Primary'], 'color', [])).toEqual({
+      property: '--color-brand-primary',
+      isColor: true,
+      utility: true,
+    })
+    expect(tailwindThemeProperty(['radius', '4'], 'number', ['CORNER_RADIUS'])).toEqual({
+      property: '--radius-radius-4',
+      isColor: false,
+      utility: true,
+    })
+    expect(tailwindThemeProperty(['motion', 'enabled'], 'boolean', [])).toEqual({
+      property: '--motion-enabled',
+      isColor: false,
+      utility: false,
+    })
   })
 })

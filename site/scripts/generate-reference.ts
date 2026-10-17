@@ -5,6 +5,7 @@
  *   src/content/docs/reference/configuration.md  from the config JSON Schema of @dta/cli
  *   public/schemas/dta.config.schema.json        the config JSON Schema, for `$schema`
  *   public/schemas/token-file.schema.json        the token-file JSON Schema (docs/token-files)
+ *   public/schemas/dta.token.schema.json         output of `dta token … --format json`
  *   public/llms.txt, public/llms-full.txt        the docs for agents (llmstxt.org)
  *
  * All of them are git-ignored and written before `astro dev`, `astro build` and `astro check`
@@ -12,7 +13,7 @@
  */
 import fs from 'node:fs'
 import path from 'node:path'
-import { commandReference, configJsonSchema, runCli } from '@dta/cli'
+import { commandReference, configJsonSchema, runCli, tokenJsonSchema } from '@dta/cli'
 
 const siteDir = path.resolve(import.meta.dirname, '..')
 const docsDir = path.join(siteDir, 'src', 'content', 'docs')
@@ -35,7 +36,7 @@ export async function commandsPage(): Promise<string> {
   const sections: string[] = []
   for (const command of commandReference()) {
     sections.push(
-      `## dta ${command.name}\n\n${command.description}.\n\n\`\`\`text\n$ dta ${command.name} --help\n${await helpOf([command.name])}\n\`\`\``,
+      `## dta ${command.name}\n\n${command.description}.\n\n\`\`\`text\n$ dta ${command.name} --help\n${await helpOf(command.name.split(' '))}\n\`\`\``,
     )
   }
   return `---
@@ -277,7 +278,7 @@ export function llmsTxt(pages: DocPage[]): string {
 
 > The deterministic backbone for design token workflows, built for humans and agents: a CLI that syncs Figma variables with DTCG token files, lints them, builds CSS, JavaScript and Tailwind outputs, and shows token changes and their visual effect in pull requests.
 
-The full text of every page below is in [/llms-full.txt](/llms-full.txt). The config JSON Schema is at [/schemas/dta.config.schema.json](/schemas/dta.config.schema.json), the token-file JSON Schema at [/schemas/token-file.schema.json](/schemas/token-file.schema.json).
+The full text of every page below is in [/llms-full.txt](/llms-full.txt). The config JSON Schema is at [/schemas/dta.config.schema.json](/schemas/dta.config.schema.json), the token-file JSON Schema at [/schemas/token-file.schema.json](/schemas/token-file.schema.json), the JSON output of \`dta token\` at [/schemas/dta.token.schema.json](/schemas/dta.token.schema.json).
 
 ${sections.join('\n\n')}
 `
@@ -301,7 +302,10 @@ export async function generate(): Promise<void> {
     path.join(publicDir, 'schemas', 'dta.config.schema.json'),
     `${JSON.stringify(configJsonSchema(), null, 2)}\n`,
   )
-  fs.mkdirSync(path.join(publicDir, 'schemas'), { recursive: true })
+  write(
+    path.join(publicDir, 'schemas', 'dta.token.schema.json'),
+    `${JSON.stringify(tokenJsonSchema(), null, 2)}\n`,
+  )
   fs.copyFileSync(TOKEN_FILE_SCHEMA, path.join(publicDir, 'schemas', 'token-file.schema.json'))
   // After the reference pages, so that they are part of the llms files.
   const pages = docPages()

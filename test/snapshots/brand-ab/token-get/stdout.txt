@@ -1,0 +1,7 @@
+Colors.Brand.Primary  color · Brand(Alias)
+
+  BrandA  #0057b8  Colors.Brand.Primary → Colors.Foundation.Blue.500
+  BrandB  #2e9e5b  Colors.Brand.Primary → Colors.Foundation.Green.500
+
+  CSS       var(--colors-brand-primary)
+  Tailwind  --color-brand-primary

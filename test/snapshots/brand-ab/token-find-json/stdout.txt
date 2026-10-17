@@ -1,0 +1,71 @@
+{
+  "schema": "dta.token/1",
+  "kind": "matches",
+  "query": "16",
+  "matches": [
+    {
+      "name": "Spacing.Gap",
+      "type": "number",
+      "collection": "ScreenType",
+      "modes": {
+        "ScreenType": "Desktop"
+      },
+      "value": 16,
+      "depth": 1
+    },
+    {
+      "name": "Spacing.Padding",
+      "type": "number",
+      "collection": "ScreenType",
+      "modes": {
+        "ScreenType": "Tablet"
+      },
+      "value": 16,
+      "depth": 1
+    },
+    {
+      "name": "Typography.Body.Size",
+      "type": "number",
+      "collection": "ScreenType",
+      "modes": {
+        "ScreenType": "Desktop"
+      },
+      "value": 16,
+      "depth": 1
+    },
+    {
+      "name": "Typography.Body.Size",
+      "type": "number",
+      "collection": "ScreenType",
+      "modes": {
+        "ScreenType": "Tablet"
+      },
+      "value": 16,
+      "depth": 1
+    },
+    {
+      "name": "Dimensions.spacing.4",
+      "type": "number",
+      "collection": "Primitives",
+      "modes": {},
+      "value": 16,
+      "depth": 0,
+      "code": {
+        "css": "--dimensions-spacing-4",
+        "tailwind": "--spacing-4"
+      }
+    },
+    {
+      "name": "Typography.FontSize.md",
+      "type": "number",
+      "collection": "Primitives",
+      "modes": {},
+      "value": 16,
+      "depth": 0,
+      "code": {
+        "css": "--typography-fontsize-md",
+        "tailwind": "--font-size-typography-fontsize-md"
+      }
+    }
+  ]
+}

@@ -9,6 +9,7 @@ import { runInit } from './commands/init.js'
 import { runLint } from './commands/lint.js'
 import { runPull } from './commands/pull.js'
 import { runPush } from './commands/push.js'
+import { runTokenFind, runTokenGet, runTokenList } from './commands/token.js'
 
 export interface CommandOption {
   flags: string
@@ -16,8 +17,16 @@ export interface CommandOption {
   defaultValue?: string
 }
 
+export interface CommandArgument {
+  /** Commander syntax: `<name>` (required) or `[name]` (optional). */
+  name: string
+  description: string
+}
+
 export interface CommandContext {
   cwd: string
+  /** Positional arguments, in the order the definition declares them. */
+  args: string[]
   /** Validated project config, or `null` for commands that do not need one. */
   config: Config | null
   options: Record<string, unknown>
@@ -31,7 +40,10 @@ export interface CommandContext {
 
 export interface CommandDefinition {
   name: string
+  /** Group command this one belongs to (`token` for `dta token get`). */
+  parent?: keyof typeof COMMAND_GROUPS
   description: string
+  arguments?: readonly CommandArgument[]
   options: readonly CommandOption[]
   /** Whether the project config is loaded (and validated) before the command runs. */
   needsConfig: boolean
@@ -39,8 +51,18 @@ export interface CommandDefinition {
   run: (context: CommandContext) => Promise<number>
 }
 
+/** Commands that only group subcommands. */
+export const COMMAND_GROUPS = {
+  token: 'Look up tokens: what a token resolves to, which tokens have a value, which exist',
+} as const
+
 const CONFIG: CommandOption = { flags: '-c, --config <path>', description: 'Path to config file' }
 const VERBOSE: CommandOption = { flags: '-v, --verbose', description: 'Enable verbose logging' }
+const FORMAT_JSON: CommandOption = {
+  flags: '-f, --format <format>',
+  description: 'Output format: console, json',
+  defaultValue: 'console',
+}
 
 /** Every command of the CLI, with its options. */
 export const COMMANDS: readonly CommandDefinition[] = [
@@ -173,6 +195,70 @@ export const COMMANDS: readonly CommandDefinition[] = [
   },
 
   {
+    name: 'get',
+    parent: 'token',
+    description:
+      'Show a token: type, collection, value and alias chain per brand or mode, and its names in CSS and Tailwind',
+    needsConfig: true,
+    run: runTokenGet,
+    arguments: [{ name: '<name>', description: 'Token name in dot form, e.g. color.action.bg' }],
+    options: [
+      {
+        flags: '-m, --mode <collection=mode...>',
+        description: 'Read in these modes only, e.g. --mode Brand=BrandB (repeatable)',
+      },
+      FORMAT_JSON,
+      CONFIG,
+      VERBOSE,
+    ],
+  },
+  {
+    name: 'find',
+    parent: 'token',
+    description:
+      'Find the tokens that resolve to a value, aliases (semantic and component tokens) first',
+    needsConfig: true,
+    run: runTokenFind,
+    arguments: [
+      {
+        name: '<value>',
+        description: 'A colour (#2f55d4, rgb(47 85 212)), number, string or boolean',
+      },
+    ],
+    options: [
+      {
+        flags: '-t, --type <type>',
+        description: 'Only tokens of this type: color, number, string, boolean',
+      },
+      { flags: '--near', description: 'Colours: also match colours within about 2% per channel' },
+      FORMAT_JSON,
+      CONFIG,
+      VERBOSE,
+    ],
+  },
+  {
+    name: 'list',
+    parent: 'token',
+    description: 'List tokens with type and collection, sorted by name',
+    needsConfig: true,
+    run: runTokenList,
+    options: [
+      { flags: '--collection <name>', description: 'Only tokens of this collection' },
+      {
+        flags: '-t, --type <type>',
+        description: 'Only tokens of this type: color, number, string, boolean',
+      },
+      {
+        flags: '--match <glob>',
+        description: 'Only names matching the glob: * within a segment, ** across segments',
+      },
+      FORMAT_JSON,
+      CONFIG,
+      VERBOSE,
+    ],
+  },
+
+  {
     name: 'init',
     description: 'Create a new dta.config.ts in the current directory',
     needsConfig: false,
@@ -181,16 +267,27 @@ export const COMMANDS: readonly CommandDefinition[] = [
   },
 ]
 
-export const COMMAND_NAMES: readonly string[] = COMMANDS.map((command) => command.name)
+/** Full command names as typed after `dta`: `build`, `token get`, … */
+export const commandPath = (command: Pick<CommandDefinition, 'name' | 'parent'>) =>
+  command.parent ? `${command.parent} ${command.name}` : command.name
 
-/** What the reference documents about a command: its name, description and options. */
+export const COMMAND_NAMES: readonly string[] = COMMANDS.map(commandPath)
+
+/** What the reference documents about a command: its full name, description, arguments and options. */
 export interface CommandReference {
+  /** As typed after `dta`, e.g. `token get`. */
   name: string
   description: string
+  arguments: readonly CommandArgument[]
   options: readonly CommandOption[]
 }
 
-/** Every command with its options, without the implementations (for generated docs). */
+/** Every command with its arguments and options, without the implementations (for generated docs). */
 export function commandReference(): CommandReference[] {
-  return COMMANDS.map(({ name, description, options }) => ({ name, description, options }))
+  return COMMANDS.map((command) => ({
+    name: commandPath(command),
+    description: command.description,
+    arguments: command.arguments ?? [],
+    options: command.options,
+  }))
 }

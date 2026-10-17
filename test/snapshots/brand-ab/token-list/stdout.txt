@@ -1,0 +1,19 @@
+Colors.Brand.Accent           color  Brand(Alias)  (alias)
+Colors.Brand.Primary          color  Brand(Alias)  (alias)
+Colors.Brand.Primary Dark     color  Brand(Alias)  (alias)
+Colors.Foundation.Blue.500    color  Primitives
+Colors.Foundation.Blue.700    color  Primitives
+Colors.Foundation.Gray.100    color  Primitives
+Colors.Foundation.Gray.500    color  Primitives
+Colors.Foundation.Gray.900    color  Primitives
+Colors.Foundation.Green.500   color  Primitives
+Colors.Foundation.Green.700   color  Primitives
+Colors.Foundation.Orange.500  color  Primitives
+Colors.Foundation.White       color  Primitives
+Colors.Surface.Default        color  Brand(Alias)  (alias)
+Colors.Surface.Muted          color  Brand(Alias)  (alias)
+Colors.Text.Default           color  Brand(Alias)  (alias)
+Colors.Text.Muted             color  Brand(Alias)  (alias)
+Colors.Text.On Primary        color  Brand(Alias)  (alias)
+
+17 tokens.

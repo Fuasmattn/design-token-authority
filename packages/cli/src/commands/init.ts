@@ -232,7 +232,7 @@ async function runFollowUp(
 ): Promise<boolean> {
   try {
     const { config } = await loadConfig({ cwd: context.cwd })
-    return (await run({ ...context, config, options })) === 0
+    return (await run({ ...context, config, options, args: [] })) === 0
   } catch (error) {
     const message =
       error instanceof ConfigError

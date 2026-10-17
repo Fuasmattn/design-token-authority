@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import type { Readable } from 'node:stream'
 import { fileURLToPath } from 'node:url'
 import { Command, CommanderError } from 'commander'
-import { COMMANDS, type CommandDefinition } from './commands.js'
+import { COMMAND_GROUPS, COMMANDS, type CommandDefinition } from './commands.js'
 import { ConfigError, loadConfig } from './config/load.js'
 import type { Config } from './config/schema.js'
 import { openWithSystem } from './open.js'
@@ -35,6 +35,7 @@ export interface CliIo {
 async function execute(
   definition: CommandDefinition,
   options: Record<string, unknown>,
+  args: string[],
   io: Required<CliIo>,
 ): Promise<number> {
   let config: Config | null = null
@@ -54,7 +55,7 @@ async function execute(
     }
   }
 
-  return definition.run({ ...io, config, options })
+  return definition.run({ ...io, config, options, args })
 }
 
 /**
@@ -79,13 +80,29 @@ export async function runCli(argv: string[], io: CliIo = {}): Promise<number> {
     .exitOverride()
     .configureOutput({ writeOut: resolved.stdout, writeErr: resolved.stderr })
 
+  const groups = new Map<string, Command>()
   for (const definition of COMMANDS) {
-    const command = program.command(definition.name).description(definition.description)
+    let parent = program
+    if (definition.parent) {
+      let group = groups.get(definition.parent)
+      if (!group) {
+        group = program.command(definition.parent).description(COMMAND_GROUPS[definition.parent])
+        groups.set(definition.parent, group)
+      }
+      parent = group
+    }
+    const command = parent.command(definition.name).description(definition.description)
+    for (const argument of definition.arguments ?? []) {
+      command.argument(argument.name, argument.description)
+    }
     for (const option of definition.options) {
       command.option(option.flags, option.description, option.defaultValue)
     }
-    command.action(async (options: Record<string, unknown>) => {
-      exitCode = await execute(definition, options, resolved)
+    // Commander passes the positional arguments first, then the options and the command.
+    command.action(async (...values: unknown[]) => {
+      const options = values[values.length - 2] as Record<string, unknown>
+      const args = values.slice(0, -2).map(String)
+      exitCode = await execute(definition, options, args, resolved)
     })
   }
 

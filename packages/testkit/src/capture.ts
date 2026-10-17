@@ -76,6 +76,28 @@ export const SCENARIOS: readonly Scenario[] = [
     },
   },
   {
+    name: 'token-get',
+    args: ['token', 'get', 'Colors.Brand.Primary'],
+    fixtures: ['brand-ab'],
+  },
+  {
+    name: 'token-get-json',
+    args: ['token', 'get', 'Colors.Brand.Primary', '--format', 'json'],
+    fixtures: ['brand-ab'],
+  },
+  {
+    name: 'token-get-unknown',
+    args: ['token', 'get', 'Colors.Brand.Primay'],
+    fixtures: ['brand-ab'],
+  },
+  { name: 'token-find', args: ['token', 'find', '#003f8a'], fixtures: ['brand-ab'] },
+  {
+    name: 'token-find-json',
+    args: ['token', 'find', '16', '--format', 'json'],
+    fixtures: ['brand-ab'],
+  },
+  { name: 'token-list', args: ['token', 'list', '--match', 'Colors.**'], fixtures: ['brand-ab'] },
+  {
     name: 'push-yes',
     args: ['push', '--yes'],
     fixtures: ['brand-ab'],

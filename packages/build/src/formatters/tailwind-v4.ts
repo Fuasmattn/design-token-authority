@@ -16,7 +16,7 @@
  *
  */
 
-import type { FormatFn, TransformedToken } from 'style-dictionary/types'
+import type { FormatFn } from 'style-dictionary/types'
 
 /**
  * Sanitize a path segment for use in a CSS custom property name.
@@ -66,11 +66,10 @@ function getPropertyPrefixByPath(path: string[]): [string, number] | null {
  * Determine the Tailwind v4 CSS property prefix from token $type and Figma scopes.
  * Returns [prefix, category] or null if the token can't be mapped.
  */
-function getPropertyPrefixByType(token: TransformedToken): [string, string] | null {
-  const type = (token.$type ?? token.type) as string | undefined
-  const extensions = token.$extensions as Record<string, { scopes?: string[] }> | undefined
-  const scopes: string[] = extensions?.['com.figma']?.scopes ?? []
-
+function getPropertyPrefixByType(
+  type: string | undefined,
+  scopes: readonly string[],
+): [string, string] | null {
   if (type === 'color') return ['--color-', 'color']
 
   if (type === 'number') {
@@ -93,34 +92,47 @@ function getPropertyPrefixByType(token: TransformedToken): [string, string] | nu
   return null
 }
 
+/**
+ * The `@theme` property a token becomes in the Tailwind v4 output, e.g. `--color-brand-primary`
+ * (utility `bg-brand-primary`). `utility: false` for the generic fallback, which Tailwind turns
+ * into no utility class.
+ */
+export function tailwindThemeProperty(
+  path: readonly string[],
+  type: string | undefined,
+  scopes: readonly string[],
+): { property: string; isColor: boolean; utility: boolean } {
+  // 1. Path-based mapping (well-known structures)
+  const pathResult = getPropertyPrefixByPath([...path])
+  if (pathResult) {
+    const [prefix, keyStart] = pathResult
+    const suffix = path.slice(keyStart).map(toKebab).join('-')
+    return { property: `${prefix}${suffix}`, isColor: prefix === '--color-', utility: true }
+  }
+  // 2. Type+scope-based mapping
+  const typeResult = getPropertyPrefixByType(type, scopes)
+  if (typeResult) {
+    const [prefix, category] = typeResult
+    return {
+      property: `${prefix}${path.map(toKebab).join('-')}`,
+      isColor: category === 'color',
+      utility: true,
+    }
+  }
+  // 3. Fallback: generic custom property (no Tailwind utility generation)
+  return { property: `--${path.map(toKebab).join('-')}`, isColor: false, utility: false }
+}
+
 export const tailwindV4Formatter: FormatFn = ({ dictionary, options }) => {
   const lines: string[] = []
 
   for (const token of dictionary.allTokens) {
-    // 1. Try path-based mapping (well-known structures)
-    const pathResult = getPropertyPrefixByPath(token.path)
-
-    let property: string
-    let isColor = false
-
-    if (pathResult) {
-      const [prefix, keyStart] = pathResult
-      const suffix = token.path.slice(keyStart).map(toKebab).join('-')
-      property = `${prefix}${suffix}`
-      isColor = prefix === '--color-'
-    } else {
-      // 2. Try type+scope-based mapping
-      const typeResult = getPropertyPrefixByType(token)
-      if (typeResult) {
-        const [prefix, category] = typeResult
-        const fullKey = token.path.map(toKebab).join('-')
-        property = `${prefix}${fullKey}`
-        isColor = category === 'color'
-      } else {
-        // 3. Fallback: generic custom property (no Tailwind utility generation)
-        property = `--${token.path.map(toKebab).join('-')}`
-      }
-    }
+    const extensions = token.$extensions as Record<string, { scopes?: string[] }> | undefined
+    const { property, isColor } = tailwindThemeProperty(
+      token.path,
+      (token.$type ?? token.type) as string | undefined,
+      extensions?.['com.figma']?.scopes ?? [],
+    )
 
     // In DTCG mode (usesDtcg), Style Dictionary stores the transformed value in
     // token.$value rather than token.value — mirror the SD v4 built-in format pattern.

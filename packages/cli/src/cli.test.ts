@@ -33,13 +33,32 @@ describe('help and usage', () => {
   it('lists every command', async () => {
     const { exitCode, stdout } = await run(['--help'])
     expect(exitCode).toBe(0)
-    for (const name of COMMAND_NAMES) expect(stdout).toContain(name)
+    for (const name of COMMAND_NAMES) expect(stdout).toContain(name.split(' ')[0])
   })
 
-  it('offers the v1 commands plus diff', () => {
+  it('offers the v1 commands plus diff and the token queries', () => {
     expect([...COMMAND_NAMES].sort()).toEqual(
-      ['analyze', 'build', 'clean', 'diff', 'graph', 'init', 'lint', 'pull', 'push'].sort(),
+      [
+        'analyze',
+        'build',
+        'clean',
+        'diff',
+        'graph',
+        'init',
+        'lint',
+        'pull',
+        'push',
+        'token find',
+        'token get',
+        'token list',
+      ].sort(),
     )
+  })
+
+  it('lists the token subcommands under dta token', async () => {
+    const { exitCode, stdout } = await run(['token', '--help'])
+    expect(exitCode).toBe(0)
+    for (const name of ['get', 'find', 'list']) expect(stdout).toContain(name)
   })
 
   it('shows usage and fails when no command is given', async () => {

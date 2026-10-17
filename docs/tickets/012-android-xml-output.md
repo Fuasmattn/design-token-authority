@@ -26,6 +26,7 @@ Android apps consume design values via XML resource files in `res/values/`. Styl
 ## Implementation Notes
 
 **Color format transform** — Android uses `#AARRGGBB`, CSS uses `#RRGGBBAA`:
+
 ```ts
 sd.registerTransform({
   name: 'color/android-argb',
@@ -43,6 +44,7 @@ sd.registerTransform({
 ```
 
 **Example output:**
+
 ```xml
 <!-- colors.xml -->
 <?xml version="1.0" encoding="utf-8"?>

@@ -85,7 +85,7 @@ conflict with Tailwind's own class-based utilities, and the JS API is more ergon
 
 ```html
 <!-- index.html -->
-<html data-brand="brand-a">
+<html data-brand="brand-a"></html>
 ```
 
 ```ts
@@ -103,6 +103,7 @@ export default { ...tokens }
 ```
 
 Switching brand at runtime:
+
 ```ts
 document.documentElement.dataset.brand = 'brand-b'
 ```
@@ -119,7 +120,7 @@ Same as Pattern A but via a CSS class. Useful when the consuming framework alrea
 manages classes on `<html>` (e.g. Tailwind dark mode with `class` strategy).
 
 ```html
-<html class="theme-brand-a">
+<html class="theme-brand-a"></html>
 ```
 
 ```ts
@@ -136,6 +137,7 @@ export default { ...tokens }
 ```
 
 Switching:
+
 ```ts
 document.documentElement.className = 'theme-brand-b'
 // or alongside dark mode:
@@ -168,7 +170,7 @@ Runtime (data-brand, Patterns A/B):
 @import './build/css/base.css';
 @import './build/css/themes/brand-a.css';
 @import './build/css/themes/brand-b.css';
-@import './build/tailwind/tailwind.css';      /* @theme with var() refs */
+@import './build/tailwind/tailwind.css'; /* @theme with var() refs */
 ```
 
 Static per-brand (Pattern C):
@@ -177,7 +179,7 @@ Static per-brand (Pattern C):
 /* brand-a/app.css (Tailwind v4, static) */
 @import 'tailwindcss';
 @import './build/css/base.css';
-@import './build/tailwind/brand-a/tailwind.css';   /* @theme with resolved values */
+@import './build/tailwind/brand-a/tailwind.css'; /* @theme with resolved values */
 ```
 
 ---
@@ -189,8 +191,8 @@ Static per-brand (Pattern C):
 ```ts
 import { glob } from 'node:fs'
 // or simply filter readdir output
-const brandFiles = fs.readdirSync('tokens').filter(f => /^Brand\(Alias\)\./.test(f))
-const brands = brandFiles.map(f => f.replace(/^Brand\(Alias\)\./, '').replace(/\.json$/, ''))
+const brandFiles = fs.readdirSync('tokens').filter((f) => /^Brand\(Alias\)\./.test(f))
+const brands = brandFiles.map((f) => f.replace(/^Brand\(Alias\)\./, '').replace(/\.json$/, ''))
 // → ['BrandA', 'BrandB']
 ```
 
@@ -204,11 +206,13 @@ const sdBase = new StyleDictionary({
     'css-base': {
       transformGroup: 'design-system/css',
       buildPath: 'build/css/',
-      files: [{
-        destination: 'base.css',
-        format: 'css/variables',
-        options: { selector: ':root', outputReferences: false },
-      }],
+      files: [
+        {
+          destination: 'base.css',
+          format: 'css/variables',
+          options: { selector: ':root', outputReferences: false },
+        },
+      ],
     },
   },
 })
@@ -225,7 +229,7 @@ for (const brand of brands) {
 
   const sd = new StyleDictionary({
     source: [
-      'tokens/Primitives*.json',        // needed for alias resolution
+      'tokens/Primitives*.json', // needed for alias resolution
       `tokens/Brand(Alias).${brand}.json`,
     ],
     platforms: {
@@ -233,34 +237,40 @@ for (const brand of brands) {
       'css-theme': {
         transformGroup: 'design-system/css',
         buildPath: 'build/css/themes/',
-        files: [{
-          destination: `${slug}.css`,
-          format: 'css/variables',
-          filter: brandOnly,
-          options: { selector: `[data-brand="${slug}"]`, outputReferences: true },
-        }],
+        files: [
+          {
+            destination: `${slug}.css`,
+            format: 'css/variables',
+            filter: brandOnly,
+            options: { selector: `[data-brand="${slug}"]`, outputReferences: true },
+          },
+        ],
       },
       // Tailwind v3 — resolved values (no var() refs for colors)
       'tailwind-v3-brand': {
         transformGroup: 'design-system/css',
         buildPath: `build/tailwind/${slug}/`,
-        files: [{
-          destination: 'tailwind.tokens.ts',
-          format: 'tailwind/v3',
-          filter: brandOnly,
-          options: { resolvedValues: true },  // new option — see below
-        }],
+        files: [
+          {
+            destination: 'tailwind.tokens.ts',
+            format: 'tailwind/v3',
+            filter: brandOnly,
+            options: { resolvedValues: true }, // new option — see below
+          },
+        ],
       },
       // Tailwind v4 — resolved values
       'tailwind-v4-brand': {
         transformGroup: 'design-system/css',
         buildPath: `build/tailwind/${slug}/`,
-        files: [{
-          destination: 'tailwind.css',
-          format: 'tailwind/v4',
-          filter: brandOnly,
-          options: { resolvedValues: true },
-        }],
+        files: [
+          {
+            destination: 'tailwind.css',
+            format: 'tailwind/v4',
+            filter: brandOnly,
+            options: { resolvedValues: true },
+          },
+        ],
       },
     },
   })
@@ -279,10 +289,7 @@ Add an option check to both formatters:
 // In tailwindV3Formatter / tailwindV4Formatter:
 const resolvedValues = (options as { resolvedValues?: boolean }).resolvedValues ?? false
 
-const value =
-  (category === 'colors' && !resolvedValues)
-    ? `var(--${token.name})`
-    : String(rawValue)
+const value = category === 'colors' && !resolvedValues ? `var(--${token.name})` : String(rawValue)
 ```
 
 The default remains `false` (var() references), preserving existing behaviour.
@@ -302,10 +309,10 @@ can be retired.
 The CSS selector passed to SD's `css/variables` format controls which pattern is used.
 Both are supported — pick one and use it consistently:
 
-| Pattern | SD `selector` value | HTML usage |
-|---|---|---|
-| data-brand (recommended) | `[data-brand="brand-a"]` | `<html data-brand="brand-a">` |
-| class | `.theme-brand-a` | `<html class="theme-brand-a">` |
+| Pattern                  | SD `selector` value      | HTML usage                     |
+| ------------------------ | ------------------------ | ------------------------------ |
+| data-brand (recommended) | `[data-brand="brand-a"]` | `<html data-brand="brand-a">`  |
+| class                    | `.theme-brand-a`         | `<html class="theme-brand-a">` |
 
 The data-attribute approach is recommended because it doesn't conflict with Tailwind's
 class-based utilities (e.g. dark mode via `class="dark"`), and switching in JS is
@@ -325,7 +332,7 @@ options: { selector: `.theme-${slug}`, outputReferences: true }
 
 ```css
 /* build/css/themes/brand-a.css */
-[data-brand="brand-a"] {
+[data-brand='brand-a'] {
   --colors-foundation-neutral-whisper: var(--colors-bw-grey-50);
   --colors-foundation-brand-default: var(--colors-bw-blue-500);
   --colors-foundation-brand-faint: var(--colors-bw-blue-50);
@@ -334,7 +341,7 @@ options: { selector: `.theme-${slug}`, outputReferences: true }
 }
 
 /* build/css/themes/brand-b.css */
-[data-brand="brand-b"] {
+[data-brand='brand-b'] {
   --colors-foundation-neutral-whisper: var(--colors-grey-50);
   --colors-foundation-brand-default: var(--colors-blue-600);
   --colors-foundation-brand-faint: var(--colors-blue-100);
@@ -351,8 +358,8 @@ export const tokens = {
   theme: {
     extend: {
       colors: {
-        'foundation-brand-default': '#0091bb',   // resolved BrandA value
-        'foundation-brand-faint':   '#e5f4f8',
+        'foundation-brand-default': '#0091bb', // resolved BrandA value
+        'foundation-brand-faint': '#e5f4f8',
         /* … */
       },
       fontFamily: {

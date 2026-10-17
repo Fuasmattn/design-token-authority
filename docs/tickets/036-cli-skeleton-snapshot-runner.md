@@ -22,7 +22,7 @@ A minimal `@dta/cli` that loads and validates `dta.config.ts` (with `defineConfi
 ## Implementation Notes
 
 - **Shared harness:** the snapshot machinery from TICKET-035 moved into a private package, `@dta/testkit` (scenarios, run-in-fresh-copy capture, normalization, read/write, comparison with readable diffs). The legacy capture script (`scripts/snapshots/capture-legacy.ts`) and the new CLI's parity suite both use it, so normalization cannot drift apart. Re-capturing the legacy snapshots with the refactored script reproduced the committed ones exactly.
-- **Parity suite:** `packages/cli/test/snapshots.test.ts` runs the new CLI (as a real process) for every fixture and scenario. Every scenario is on the `PENDING` list today. Pending scenarios still run and must *not* match: one that already passes fails the suite, so the list cannot go stale.
+- **Parity suite:** `packages/cli/test/snapshots.test.ts` runs the new CLI (as a real process) for every fixture and scenario. Every scenario is on the `PENDING` list today. Pending scenarios still run and must _not_ match: one that already passes fails the suite, so the list cannot go stale.
 - **Verified:** with the legacy CLI standing in as the "new" one and an empty pending list, all scenarios pass; with the real new CLI and `build` made mandatory, the suite fails with a readable diff.
 - **Config:** Zod schema derived from the v1 schema. Unknown keys are rejected (typos), `figma` is now optional, and all problems are reported at once with their field path. Config files: `dta.config.{ts,mts,js,mjs,json}`; more than one in a directory is an error.
 - **Exit codes:** 0 ok, 1 general error (including missing config), 2 invalid config (as in v1), 3 command not ported yet.

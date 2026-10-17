@@ -13,22 +13,14 @@
     "verdict": {
       "description": "pass: nothing to review; review: explained or new changes; fail: unexplained.",
       "type": "string",
-      "enum": [
-        "pass",
-        "review",
-        "fail"
-      ]
+      "enum": ["pass", "review", "fail"]
     },
     "review": {
       "type": "object",
       "properties": {
         "verdict": {
           "type": "string",
-          "enum": [
-            "pass",
-            "review",
-            "fail"
-          ]
+          "enum": ["pass", "review", "fail"]
         },
         "changed": {
           "type": "integer",
@@ -52,46 +44,26 @@
                 "type": "object",
                 "properties": {
                   "raw": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "type": ["string", "number", "boolean"]
                   },
                   "resolved": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "type": ["string", "number", "boolean"]
                   }
                 },
-                "required": [
-                  "raw"
-                ],
+                "required": ["raw"],
                 "additionalProperties": false
               },
               "after": {
                 "type": "object",
                 "properties": {
                   "raw": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "type": ["string", "number", "boolean"]
                   },
                   "resolved": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "type": ["string", "number", "boolean"]
                   }
                 },
-                "required": [
-                  "raw"
-                ],
+                "required": ["raw"],
                 "additionalProperties": false
               },
               "stories": {
@@ -105,11 +77,7 @@
                 "type": "boolean"
               }
             },
-            "required": [
-              "id",
-              "stories",
-              "needsReview"
-            ],
+            "required": ["id", "stories", "needsReview"],
             "additionalProperties": false
           }
         },
@@ -155,24 +123,14 @@
                     "maximum": 9007199254740991
                   }
                 },
-                "required": [
-                  "x",
-                  "y",
-                  "width",
-                  "height"
-                ],
+                "required": ["x", "y", "width", "height"],
                 "additionalProperties": false
               },
               "failing": {
                 "type": "boolean"
               }
             },
-            "required": [
-              "story",
-              "ratio",
-              "pixels",
-              "failing"
-            ],
+            "required": ["story", "ratio", "pixels", "failing"],
             "additionalProperties": false
           }
         },
@@ -189,15 +147,7 @@
           }
         }
       },
-      "required": [
-        "verdict",
-        "changed",
-        "explained",
-        "tokens",
-        "unexplained",
-        "added",
-        "removed"
-      ],
+      "required": ["verdict", "changed", "explained", "tokens", "unexplained", "added", "removed"],
       "additionalProperties": false
     },
     "publish": {
@@ -213,10 +163,7 @@
           "description": "URL of index.html."
         }
       },
-      "required": [
-        "url",
-        "report"
-      ],
+      "required": ["url", "report"],
       "additionalProperties": false
     },
     "tokens": {
@@ -246,12 +193,7 @@
               "maximum": 9007199254740991
             }
           },
-          "required": [
-            "changed",
-            "added",
-            "removed",
-            "affected"
-          ],
+          "required": ["changed", "added", "removed", "affected"],
           "additionalProperties": false
         },
         "changes": {
@@ -261,12 +203,7 @@
             "properties": {
               "kind": {
                 "type": "string",
-                "enum": [
-                  "changed",
-                  "added",
-                  "removed",
-                  "affected"
-                ]
+                "enum": ["changed", "added", "removed", "affected"]
               },
               "collection": {
                 "type": "string"
@@ -280,66 +217,36 @@
               },
               "type": {
                 "type": "string",
-                "enum": [
-                  "color",
-                  "number",
-                  "string",
-                  "boolean"
-                ]
+                "enum": ["color", "number", "string", "boolean"]
               },
               "typeBefore": {
                 "type": "string",
-                "enum": [
-                  "color",
-                  "number",
-                  "string",
-                  "boolean"
-                ]
+                "enum": ["color", "number", "string", "boolean"]
               },
               "before": {
                 "type": "object",
                 "properties": {
                   "raw": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "type": ["string", "number", "boolean"]
                   },
                   "resolved": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "type": ["string", "number", "boolean"]
                   }
                 },
-                "required": [
-                  "raw"
-                ],
+                "required": ["raw"],
                 "additionalProperties": false
               },
               "after": {
                 "type": "object",
                 "properties": {
                   "raw": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "type": ["string", "number", "boolean"]
                   },
                   "resolved": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "type": ["string", "number", "boolean"]
                   }
                 },
-                "required": [
-                  "raw"
-                ],
+                "required": ["raw"],
                 "additionalProperties": false
               },
               "causes": {
@@ -349,21 +256,12 @@
                 }
               }
             },
-            "required": [
-              "kind",
-              "collection",
-              "mode",
-              "name",
-              "type"
-            ],
+            "required": ["kind", "collection", "mode", "name", "type"],
             "additionalProperties": false
           }
         }
       },
-      "required": [
-        "counts",
-        "changes"
-      ],
+      "required": ["counts", "changes"],
       "additionalProperties": false
     },
     "stories": {
@@ -387,12 +285,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "unchanged",
-              "changed",
-              "added",
-              "removed"
-            ]
+            "enum": ["unchanged", "changed", "added", "removed"]
           },
           "ratio": {
             "type": "number",
@@ -482,24 +375,13 @@
                             "maximum": 9007199254740991
                           }
                         },
-                        "required": [
-                          "x",
-                          "y",
-                          "width",
-                          "height"
-                        ],
+                        "required": ["x", "y", "width", "height"],
                         "additionalProperties": false
                       },
                       "description": "Up to five dependent boxes in the head image, largest first."
                     }
                   },
-                  "required": [
-                    "id",
-                    "dependents",
-                    "pixels",
-                    "elements",
-                    "regions"
-                  ],
+                  "required": ["id", "dependents", "pixels", "elements", "regions"],
                   "additionalProperties": false
                 }
               },
@@ -532,12 +414,7 @@
                     "maximum": 9007199254740991
                   }
                 },
-                "required": [
-                  "x",
-                  "y",
-                  "width",
-                  "height"
-                ],
+                "required": ["x", "y", "width", "height"],
                 "additionalProperties": false
               },
               "canvas": {
@@ -554,10 +431,7 @@
                     "maximum": 9007199254740991
                   }
                 },
-                "required": [
-                  "width",
-                  "height"
-                ],
+                "required": ["width", "height"],
                 "additionalProperties": false,
                 "description": "Size of the compared image the regions refer to."
               },
@@ -566,12 +440,7 @@
                 "type": "number"
               }
             },
-            "required": [
-              "explained",
-              "tokens",
-              "unexplainedPixels",
-              "canvas"
-            ],
+            "required": ["explained", "tokens", "unexplainedPixels", "canvas"],
             "additionalProperties": false,
             "description": "Present on changed stories."
           }
@@ -590,12 +459,7 @@
       }
     }
   },
-  "required": [
-    "schema",
-    "base",
-    "tokens",
-    "stories"
-  ],
+  "required": ["schema", "base", "tokens", "stories"],
   "additionalProperties": false,
   "description": "dta diff result: token changes, rendered stories and their attribution."
 }

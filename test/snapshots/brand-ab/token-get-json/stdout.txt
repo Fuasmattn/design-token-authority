@@ -1,0 +1,35 @@
+{
+  "schema": "dta.token/1",
+  "kind": "token",
+  "name": "Colors.Brand.Primary",
+  "type": "color",
+  "collection": "Brand(Alias)",
+  "readings": [
+    {
+      "modes": {
+        "Brand(Alias)": "BrandA"
+      },
+      "raw": "{Colors.Foundation.Blue.500}",
+      "value": "#0057b8",
+      "chain": [
+        "Colors.Brand.Primary",
+        "Colors.Foundation.Blue.500"
+      ]
+    },
+    {
+      "modes": {
+        "Brand(Alias)": "BrandB"
+      },
+      "raw": "{Colors.Foundation.Green.500}",
+      "value": "#2e9e5b",
+      "chain": [
+        "Colors.Brand.Primary",
+        "Colors.Foundation.Green.500"
+      ]
+    }
+  ],
+  "code": {
+    "css": "--colors-brand-primary",
+    "tailwind": "--color-brand-primary"
+  }
+}

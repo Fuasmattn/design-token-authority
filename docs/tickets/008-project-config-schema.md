@@ -37,22 +37,22 @@ export default defineConfig({
 
   // Map Figma collection names to semantic layer roles
   layers: {
-    primitives: 'Primitives(Global)',   // raw values, no aliases
-    brand: 'Brand(Alias)',              // semantic aliases, one mode per brand
-    dimension: 'ScreenType',            // responsive overrides
+    primitives: 'Primitives(Global)', // raw values, no aliases
+    brand: 'Brand(Alias)', // semantic aliases, one mode per brand
+    dimension: 'ScreenType', // responsive overrides
   },
 
   // Brand names = mode names in the brand collection
   brands: ['BrandA', 'BrandB'],
 
   tokens: {
-    dir: 'tokens',   // where pull writes and build reads from
+    dir: 'tokens', // where pull writes and build reads from
   },
 
   outputs: {
     css: {
       outDir: 'build/css',
-      prefix: '--ds',                  // CSS variable prefix
+      prefix: '--ds', // CSS variable prefix
     },
     tailwind: {
       outDir: 'build/tailwind',
@@ -64,7 +64,7 @@ export default defineConfig({
     },
     android: {
       outDir: 'build/android',
-      lang: 'compose',                 // 'xml' | 'compose'
+      lang: 'compose', // 'xml' | 'compose'
     },
   },
 })
@@ -85,19 +85,30 @@ const ConfigSchema = z.object({
     fileKey: z.string().min(1),
     personalAccessToken: z.string().min(1),
   }),
-  layers: z.object({
-    primitives: z.string().optional(),
-    brand: z.string().optional(),
-    dimension: z.string().optional(),
-  }).optional(),
+  layers: z
+    .object({
+      primitives: z.string().optional(),
+      brand: z.string().optional(),
+      dimension: z.string().optional(),
+    })
+    .optional(),
   brands: z.array(z.string()).optional(),
   tokens: z.object({ dir: z.string().default('tokens') }).default({}),
-  outputs: z.object({
-    css: OutputTargetCSS.optional(),
-    tailwind: z.object({ outDir: z.string(), version: z.union([z.literal(3), z.literal(4)]).default(4) }).optional(),
-    ios: z.object({ outDir: z.string(), lang: z.literal('swift').default('swift') }).optional(),
-    android: z.object({ outDir: z.string(), lang: z.union([z.literal('xml'), z.literal('compose')]).default('xml') }).optional(),
-  }).default({}),
+  outputs: z
+    .object({
+      css: OutputTargetCSS.optional(),
+      tailwind: z
+        .object({ outDir: z.string(), version: z.union([z.literal(3), z.literal(4)]).default(4) })
+        .optional(),
+      ios: z.object({ outDir: z.string(), lang: z.literal('swift').default('swift') }).optional(),
+      android: z
+        .object({
+          outDir: z.string(),
+          lang: z.union([z.literal('xml'), z.literal('compose')]).default('xml'),
+        })
+        .optional(),
+    })
+    .default({}),
 })
 
 export type Config = z.infer<typeof ConfigSchema>

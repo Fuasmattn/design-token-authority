@@ -43,12 +43,13 @@ const modeNamesRule: LintRule = {
 ```
 
 **Case style detection:**
+
 ```ts
 const casePatterns = {
   'kebab-case': /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/,
-  'camelCase': /^[a-z][a-zA-Z0-9]*$/,
-  'PascalCase': /^[A-Z][a-zA-Z0-9]*$/,
-  'snake_case': /^[a-z][a-z0-9]*(_[a-z0-9]+)*$/,
+  camelCase: /^[a-z][a-zA-Z0-9]*$/,
+  PascalCase: /^[A-Z][a-zA-Z0-9]*$/,
+  snake_case: /^[a-z][a-z0-9]*(_[a-z0-9]+)*$/,
 }
 ```
 

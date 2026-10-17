@@ -35,7 +35,7 @@ export const tailwindV3Formatter: Formatter = ({ dictionary }) => {
 
   for (const token of dictionary.allTokens) {
     if (token.$type === 'color') {
-      const key = token.path.slice(1).join('-')  // strip top-level group
+      const key = token.path.slice(1).join('-') // strip top-level group
       colors[key] = `var(--${token.name})`
     }
     if (token.$type === 'dimension' && token.path.includes('spacing')) {
@@ -60,6 +60,7 @@ export const tailwindV3Formatter: Formatter = ({ dictionary }) => {
 ```
 
 Consuming project:
+
 ```ts
 // tailwind.config.ts
 import { tokens } from './build/tailwind/tailwind.tokens'
@@ -68,16 +69,16 @@ export default { ...tokens }
 
 ## Token Category → Tailwind Key Mapping
 
-| Token path prefix | Tailwind key |
-|---|---|
-| `Colors/*` | `colors` |
-| `Spacing/*` | `spacing` |
-| `Typography/fontSize/*` | `fontSize` |
-| `Typography/fontWeight/*` | `fontWeight` |
-| `Typography/lineHeight/*` | `lineHeight` |
-| `BorderRadius/*` | `borderRadius` |
-| `Effects/blur/*` | `blur` |
-| `Effects/opacity/*` | `opacity` |
+| Token path prefix         | Tailwind key   |
+| ------------------------- | -------------- |
+| `Colors/*`                | `colors`       |
+| `Spacing/*`               | `spacing`      |
+| `Typography/fontSize/*`   | `fontSize`     |
+| `Typography/fontWeight/*` | `fontWeight`   |
+| `Typography/lineHeight/*` | `lineHeight`   |
+| `BorderRadius/*`          | `borderRadius` |
+| `Effects/blur/*`          | `blur`         |
+| `Effects/opacity/*`       | `opacity`      |
 
 ## Dependencies
 

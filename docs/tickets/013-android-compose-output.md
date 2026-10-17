@@ -25,6 +25,7 @@ Jetpack Compose is the current standard for Android UI development. It uses Kotl
 ## Implementation Notes
 
 **Example output:**
+
 ```kotlin
 // DesignTokens.kt — auto-generated, do not edit
 package com.example.app.tokens
@@ -51,6 +52,7 @@ object DesignTokens {
 ```
 
 **Custom formatter:**
+
 ```ts
 // src/formatters/android-compose.ts
 export const androidComposeFormatter: Formatter = ({ dictionary }) => {

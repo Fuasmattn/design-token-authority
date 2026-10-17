@@ -30,6 +30,7 @@ Style Dictionary has a built-in `ios-swift` transform group that generates Swift
 Style Dictionary v4 built-in transform group `ios-swift` provides a starting point. The main customizations needed:
 
 **Color transform** — SD outputs hex by default; iOS needs `Color(red:green:blue:opacity:)`:
+
 ```ts
 sd.registerTransform({
   name: 'color/swift-color',
@@ -43,6 +44,7 @@ sd.registerTransform({
 ```
 
 **Output structure:**
+
 ```swift
 // DesignTokens.swift — auto-generated, do not edit
 import SwiftUI

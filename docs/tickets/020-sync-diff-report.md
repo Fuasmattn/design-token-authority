@@ -25,24 +25,28 @@ The existing `sync_tokens_to_figma.ts` already logs changes (new collections, mo
 ## Implementation Notes
 
 **Markdown diff output:**
+
 ```markdown
 ## Design Token Changes
 
 **Summary:** +12 added, ~5 modified, 0 removed
 
 ### Modified
-| Token | Old Value | New Value | Collection | Mode |
-|---|---|---|---|---|
-| Colors.Brand.Primary | `#003f8a` | `#0044aa` | Brand(Alias) | BrandA |
-| Spacing.Base | `16` | `20` | ScreenType | Desktop |
+
+| Token                | Old Value | New Value | Collection   | Mode    |
+| -------------------- | --------- | --------- | ------------ | ------- |
+| Colors.Brand.Primary | `#003f8a` | `#0044aa` | Brand(Alias) | BrandA  |
+| Spacing.Base         | `16`      | `20`      | ScreenType   | Desktop |
 
 ### Added
-| Token | Value | Collection | Mode |
-|---|---|---|---|
+
+| Token                    | Value     | Collection   | Mode   |
+| ------------------------ | --------- | ------------ | ------ |
 | Colors.Interactive.Focus | `#0077ff` | Brand(Alias) | BrandA |
 ```
 
 **JSON format:**
+
 ```json
 {
   "summary": { "added": 12, "modified": 5, "removed": 0 },
