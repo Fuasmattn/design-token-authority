@@ -254,7 +254,7 @@ Spec: [agent-interop](../specs/agent-interop.md) (approved 2026-10-16). Needs th
 | [101](./101-agent-skill.md) | `dta skill add`: the DTA skill for coding agents | High | S | 100 | Done |
 | [102](./102-agent-project-context.md) | `dta context`: `DESIGN.md` and the `AGENTS.md` pointer | High | M | 100 | Done |
 | [103](./103-agent-code-audit.md) | `dta audit`: hard-coded values in code | High | L | 100 | Done |
-| [104](./104-agent-guide-landing.md) | Guide "DTA with coding agents" and the landing page copy | Medium | S | 101, 102 | Open |
+| [104](./104-agent-guide-landing.md) | Guide "DTA with coding agents" and the landing page copy | Medium | S | 101, 102 | Done |
 
 Order: 100 → 101 → 102 → 103 → 104 (the audit section of the guide follows 103).
 

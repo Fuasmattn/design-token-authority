@@ -115,9 +115,8 @@ const agentPoints = [
     text: 'llms.txt with every page, and JSON Schemas for the config and the token files.',
   },
   {
-    title: 'A skill and an MCP server',
-    text: 'Your agent sets DTA up and fixes findings, then runs the same checks before it asks for review.',
-    coming: true,
+    title: 'A skill and token queries',
+    text: 'The skill teaches your agent the loop. dta token find gives it the token for a value, and dta audit catches the values it hard-coded.',
   },
 ]
 ---
@@ -256,29 +255,26 @@ const agentPoints = [
               {
                 agentPoints.map((point, i) => (
                   <div class="ruled">
-                    <p class="num">
-                      {String(i + 1).padStart(2, '0')}{' '}
-                      {point.coming && <Badge tone="coming">coming</Badge>}
-                    </p>
+                    <p class="num">{String(i + 1).padStart(2, '0')}</p>
                     <h3>{point.title}</h3>
                     <p class="muted">{point.text}</p>
                   </div>
                 ))
               }
             </div>
-            <Button variant="outline" href="/llms.txt">Read llms.txt</Button>
+            <Button variant="outline" href="/guides/coding-agents/">DTA with coding agents</Button>
           </div>
           <div class="split-visual">
             <div class="agent" aria-label="Example: an agent fixing a finding">
               <p class="bubble">
-                <span class="who-agent">Agent</span>button.bg skips the semantic layer. Pointing it to
-                color.action, then re-running the checks.
+                <span class="who-agent">Agent</span>#2f55d4 is action.bg, so the button uses
+                var(--action-bg). Running dta audit before I ask for review.
               </p>
-              <p class="pass-pill">dta lint · pass</p>
+              <p class="pass-pill">dta audit · pass</p>
             </div>
             <p class="cmd">
               <span class="prompt" aria-hidden="true">$</span>{COMMANDS.skill.text}
-              <Badge tone="coming">coming</Badge>
+              {!COMMANDS.skill.shipped && <Badge tone="coming">coming</Badge>}
             </p>
           </div>
         </div>

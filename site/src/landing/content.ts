@@ -14,7 +14,7 @@ export const NPM_RELEASED = false
 /** A CLI command the page shows. `shipped: false` renders with a "coming" label. */
 export interface Command {
   text: string
-  /** The `dta` subcommands it uses (checked against the CLI in landing.test.ts). */
+  /** The `dta` commands it uses, in full (`skill add`; checked against the CLI in landing.test.ts). */
   uses: string[]
   /** Works as written today: the subcommands exist and, for `npx`, the package is released. */
   shipped: boolean
@@ -23,7 +23,7 @@ export interface Command {
 export const COMMANDS = {
   /** Hero and footer. Shown without a "coming" label by maintainer decision (TICKET-098). */
   init: { text: 'npm create dta', uses: ['init'], shipped: NPM_RELEASED },
-  skill: { text: 'dta skill add', uses: ['skill'], shipped: false },
+  skill: { text: 'dta skill add', uses: ['skill add'], shipped: true },
 } satisfies Record<string, Command>
 
 /** The trust terminal: lines from a real `dta diff` run on this website's own tokens. */

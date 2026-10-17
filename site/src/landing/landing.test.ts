@@ -1,13 +1,9 @@
-import fs from 'node:fs'
-import path from 'node:path'
+import { COMMAND_NAMES } from '@dta/cli'
 import { describe, expect, it } from 'vitest'
 import { COMMANDS, NPM_RELEASED, TRUST_RUN } from './content'
 
-const cli = fs.readFileSync(
-  path.resolve(import.meta.dirname, '../../../packages/cli/src/commands.ts'),
-  'utf8',
-)
-const registered = new Set([...cli.matchAll(/name: '([a-z:-]+)'/g)].map((m) => m[1]))
+/** Full command names: `diff`, `skill add`, … */
+const registered = new Set(COMMAND_NAMES)
 
 describe('landing page honesty rule', () => {
   it('shows only commands that work as written as shipped; the rest are labelled coming', () => {
