@@ -3,6 +3,7 @@ import type { OutputFile } from '@dta/build'
 import { parseTokenFiles } from '@dta/core'
 import pc from 'picocolors'
 import type { CommandContext } from '../commands.js'
+import { ContextConflictError, planContext, writeContext } from '../context/write.js'
 import type { Config } from '../config/schema.js'
 import { formatDiagnostic, hasErrors } from '../io/diagnostics.js'
 import { readTokenDir, TokenDirError } from '../io/token-dir.js'
@@ -110,6 +111,17 @@ export async function runBuild(context: CommandContext): Promise<number> {
     ...order.perBrand.flatMap((entry) => entry.files),
     ...order.shared,
   ]
+  if (config?.context) {
+    try {
+      const plan = planContext(context.cwd, model, config, config.context.out)
+      generated.push(...writeContext(context.cwd, plan))
+    } catch (error) {
+      if (!(error instanceof ContextConflictError)) throw error
+      ui.log.error(error.message)
+      ui.outro(pc.red('Build failed.'))
+      return 1
+    }
+  }
   ui.note(generated.map((path) => pc.dim(path)).join('\n'), 'Generated files')
   ui.outro(pc.green('Build complete!'))
   return 0

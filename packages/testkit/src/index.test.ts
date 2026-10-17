@@ -69,6 +69,7 @@ describe('SCENARIOS', () => {
       'token-find-json',
       'token-list',
       'skill-add',
+      'context',
       'push-yes',
     ])
   })

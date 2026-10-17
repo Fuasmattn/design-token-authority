@@ -12,7 +12,7 @@ Reference outputs of the CLI on the fixture projects in `test/fixtures/`. They w
       exit-code.txt   process exit code
       files/**        every file the command created, at its relative path
 
-Fixtures: `brand-ab`, `daisyui`. Scenarios: `build`, `lint`, `graph-console`, `graph-dot`, `graph-markdown`, `graph-html`, `clean` and, for `brand-ab` only (served by the Figma fake from `test/recordings/`), `analyze`, `diff-tokens` (against the earlier token set in `tokens-base/`), `pull-api`, `pull-from-file`, `push-up-to-date`, `push-dry-run` (also `-markdown`, `-json`), `push-yes` and the token queries `token-get` (also `-json`, `-unknown`), `token-find` (also `-json`), `token-list` and `skill-add`.
+Fixtures: `brand-ab`, `daisyui`. Scenarios: `build`, `lint`, `graph-console`, `graph-dot`, `graph-markdown`, `graph-html`, `clean` and, for `brand-ab` only (served by the Figma fake from `test/recordings/`), `analyze`, `diff-tokens` (against the earlier token set in `tokens-base/`), `pull-api`, `pull-from-file`, `push-up-to-date`, `push-dry-run` (also `-markdown`, `-json`), `push-yes` and the token queries `token-get` (also `-json`, `-unknown`), `token-find` (also `-json`), `token-list`, `skill-add` and `context`.
 
 ## Commands
 
@@ -27,7 +27,7 @@ Re-capturing produces no diff (verified across repeated runs, including under CP
 
 - runs every scenario in a **fresh copy** of the fixture, so scenarios cannot affect each other
 - strips ANSI codes and **emulates spinner redraws**: piped, the spinner library prints extra intermediate frames only when a phase is slow, which would make stdout timing-dependent
-- replaces absolute paths with `<cwd>` / `<repo>`, the DTA version in the skill's marker with `<version>`, and normalizes line endings
+- replaces absolute paths with `<cwd>` / `<repo>`, the DTA version in the markers of the skill and the context file with `<version>`, and normalizes line endings
 - pins `LC_ALL`/`LANG` (`toLocaleString()` number formatting), `TZ=UTC`, `NO_COLOR`, `TERM=linux` (the prompt library draws ASCII symbols for `linux` and unicode box characters otherwise, so an unpinned `TERM` made CI and other machines differ from the recording), and removes `FIGMA_*` variables
 - stubs `open` / `xdg-open` so `graph --format html` cannot launch a browser
 

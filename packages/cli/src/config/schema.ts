@@ -132,6 +132,16 @@ export const configSchema = z.strictObject({
   diff: diffConfigSchema
     .optional()
     .describe('What `dta diff` builds and renders: the project build and its stories.'),
+  context: z
+    .strictObject({
+      out: name
+        .default('DESIGN.md')
+        .describe('Context file for coding agents, relative to the project.'),
+    })
+    .optional()
+    .describe(
+      'With this section, `dta build` also writes the context file for coding agents and the pointer in `AGENTS.md`, like `dta context`. Off by default.',
+    ),
   push: z
     .strictObject({
       skipConfirmation: z

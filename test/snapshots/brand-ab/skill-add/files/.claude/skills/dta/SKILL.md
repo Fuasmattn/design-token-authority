@@ -9,7 +9,7 @@ description: Design tokens in a project that uses DTA (Design Token Authority). 
 
 This project keeps its design tokens in DTCG JSON files, one file per collection and mode (`{Collection}.{Mode}.json`), in the folder `tokens.dir` of `dta.config.ts` (usually `tokens/`). Aliases look like `{Colors.Brand.Primary}`. `dta build` writes CSS custom properties, Tailwind theme files and JavaScript from them; brands and themes switch with `data-brand` on an element. Figma is synced with `dta pull` and `dta push`.
 
-If `DESIGN.md` exists at the project root, read it first: it lists this project's brands, collections and the semantic tokens to use.
+If `DESIGN.md` exists at the project root, read it first: it lists this project's brands, collections and the semantic tokens to use (`dta context` writes it).
 
 ## Before you write a value in code
 
@@ -58,6 +58,7 @@ Work in a loop until it is clean:
 - `dta token find`: Find the tokens that resolve to a value, aliases (semantic and component tokens) first.
 - `dta token list`: List tokens with type and collection, sorted by name.
 - `dta skill add`: Write the DTA skill for coding agents (SKILL.md: look tokens up, lint, build, diff, never push).
+- `dta context`: Write DESIGN.md for coding agents (this project's brands, tokens to use and rules) and point AGENTS.md to it.
 - `dta init`: Create a new dta.config.ts in the current directory.
 
 `dta <command> --help` shows every option.

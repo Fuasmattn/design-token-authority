@@ -9,6 +9,7 @@ import { runInit } from './commands/init.js'
 import { runLint } from './commands/lint.js'
 import { runPull } from './commands/pull.js'
 import { runPush } from './commands/push.js'
+import { runContext } from './commands/context.js'
 import { runSkillAdd } from './commands/skill.js'
 import { runTokenFind, runTokenGet, runTokenList } from './commands/token.js'
 
@@ -277,6 +278,27 @@ export const COMMANDS: readonly CommandDefinition[] = [
         flags: '--check',
         description: 'Exit 1 when the installed skill is missing or out of date',
       },
+    ],
+  },
+
+  {
+    name: 'context',
+    description:
+      "Write DESIGN.md for coding agents (this project's brands, tokens to use and rules) and point AGENTS.md to it",
+    needsConfig: true,
+    run: runContext,
+    options: [
+      {
+        flags: '-o, --out <file>',
+        description: 'Context file to write (default: context.out in the config, else DESIGN.md)',
+      },
+      {
+        flags: '--check',
+        description:
+          'Exit 1 when the context file or the AGENTS.md block is missing or out of date',
+      },
+      CONFIG,
+      VERBOSE,
     ],
   },
 

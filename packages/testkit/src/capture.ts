@@ -98,6 +98,7 @@ export const SCENARIOS: readonly Scenario[] = [
   },
   { name: 'token-list', args: ['token', 'list', '--match', 'Colors.**'], fixtures: ['brand-ab'] },
   { name: 'skill-add', args: ['skill', 'add'], fixtures: ['brand-ab'] },
+  { name: 'context', args: ['context'], fixtures: ['brand-ab'] },
   {
     name: 'push-yes',
     args: ['push', '--yes'],

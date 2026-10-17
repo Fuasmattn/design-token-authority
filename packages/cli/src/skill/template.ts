@@ -24,7 +24,7 @@ description: Design tokens in a project that uses DTA (Design Token Authority). 
 
 This project keeps its design tokens in DTCG JSON files, one file per collection and mode (\`{Collection}.{Mode}.json\`), in the folder \`tokens.dir\` of \`dta.config.ts\` (usually \`tokens/\`). Aliases look like \`{Colors.Brand.Primary}\`. \`dta build\` writes CSS custom properties, Tailwind theme files and JavaScript from them; brands and themes switch with \`data-brand\` on an element. Figma is synced with \`dta pull\` and \`dta push\`.
 
-If \`DESIGN.md\` exists at the project root, read it first: it lists this project's brands, collections and the semantic tokens to use.
+If \`DESIGN.md\` exists at the project root, read it first: it lists this project's brands, collections and the semantic tokens to use (\`dta context\` writes it).
 
 ## Before you write a value in code
 
