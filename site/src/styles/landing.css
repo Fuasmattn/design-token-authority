@@ -121,6 +121,17 @@ a {
   );
   mask-image: radial-gradient(ellipse 60% 70% at 72% 45%, var(--bg-canvas) 20%, transparent 75%);
 }
+/* The paper drifts by one cell, diagonally, then starts over: the loop has no seam. */
+@media (prefers-reduced-motion: no-preference) {
+  .grid-paper {
+    animation: paper-drift 24s linear infinite;
+  }
+}
+@keyframes paper-drift {
+  to {
+    background-position: var(--space-8) var(--space-8);
+  }
+}
 .hero-inner {
   position: relative;
   padding-top: calc(var(--space-36) + var(--space-12));
