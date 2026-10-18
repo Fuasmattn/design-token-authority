@@ -44,6 +44,10 @@ Nothing numbered beyond the scene kickers. No FAQ, no cards, no "why trust it", 
 
 7. **The diff report follows.** The before/after presentation (rendered story with the changed region outlined in signal red and the token callout on the change) replaces the three-thumbnail row in the `dta diff` report in a later ticket (TICKET-109); the landing page does not wait for it.
 
+## Status note (2026-10-18)
+
+The prototype session after approval changed the direction of decisions 3 and 4: the loop becomes an **orbit-inspection key visual in the hero** (a token crosses into the pull request, is taken apart as shapes, sends a finding to the side that can fix it, ships), and the separate loop section goes. Decisions below are kept as approved until the fine-tuning round is done; see [landing-redesign/HANDOFF.md](./landing-redesign/HANDOFF.md) for what will change and why.
+
 ## Open items (not blocking)
 
 - A figure for the hero was wanted earlier (the workbench, the mascot). The redesign has no hero visual on purpose; revisit after launch.
