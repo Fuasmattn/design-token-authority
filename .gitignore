@@ -28,3 +28,6 @@ site/src/content/docs/reference/configuration.md
 site/public/schemas/
 site/public/llms.txt
 site/public/llms-full.txt
+
+# python prototype generators
+__pycache__/
