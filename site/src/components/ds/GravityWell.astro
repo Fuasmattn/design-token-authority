@@ -107,10 +107,11 @@ const at = (angle: number) =>
   const reduce = matchMedia('(prefers-reduced-motion: reduce)')
 
   for (const root of document.querySelectorAll<HTMLElement>('.dta-well')) {
-    const canvas = root.querySelector<HTMLCanvasElement>('canvas.flow')
-    const field = root.querySelector<HTMLElement>('.field')
-    const stage = root.querySelector<HTMLElement>('.stage')
-    if (!canvas || !field || !stage) continue
+    const canvasEl = root.querySelector<HTMLCanvasElement>('canvas.flow')
+    const stageEl = root.querySelector<HTMLElement>('.stage')
+    if (!canvasEl || !stageEl) continue
+    const canvas: HTMLCanvasElement = canvasEl
+    const stage: HTMLElement = stageEl
     const well = new Well(canvas)
     const tilt = Number(root.dataset.tilt)
     const size = (root.dataset.size === 'L' ? 'L' : 'S') as 'S' | 'L'
