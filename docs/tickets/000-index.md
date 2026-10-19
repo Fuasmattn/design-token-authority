@@ -198,7 +198,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | #                                               | Ticket                                                          | Priority | Effort | Blocked by | Status |
 | ----------------------------------------------- | --------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
 | [076](./076-playground-browser-packages.md)     | Run the `@dta/*` packages in the browser                        | High     | M      | 069        | Done   |
-| [077](./077-playground-input-structure-lint.md) | Playground: input, structure and lint findings                  | High     | M      | 076        | Open   |
+| [077](./077-playground-input-structure-lint.md) | Playground: input, structure and lint findings                  | High     | L      | 076        | Open   |
 | [078](./078-playground-graph.md)                | Playground: dependency graph with brand and breakpoint switcher | Medium   | M      | 077        | Open   |
 | [079](./079-playground-outputs-config.md)       | Playground: outputs, generated config and CLI handoff           | High     | M      | 077        | Open   |
 

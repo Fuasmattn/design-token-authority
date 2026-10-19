@@ -16,7 +16,7 @@ A static, client-side app embedded in the website as an Astro island: drop or pa
 ## Decisions
 
 1. **Same engine, no fork.** The playground calls the public APIs of `@dta/core` (parse, resolve, graph, structure), `@dta/figma` (plugin-export import and format detection), `@dta/lint` and `@dta/build`. If a package cannot run in the browser, the fix goes into the package (an injectable file system or a pure entry point), not a playground copy.
-2. **Input:** drag-and-drop or paste of DTA's per-mode DTCG files (several files at once) or a single plugin export (auto-detected, as `pull --from-file`). Invalid input yields the same diagnostics the CLI prints.
+2. **Input:** drag-and-drop (or file picker) or paste of DTA's per-mode DTCG files (several files at once) or a single plugin export (auto-detected, as `pull --from-file`). Invalid input yields the same diagnostics the CLI prints.
 3. **Views:** structure (collections, modes, detected layer roles), dependency graph with a brand and breakpoint switcher, lint findings inline, outputs (CSS, Tailwind v4/v3, JS) with copy and download, and a "take it to the CLI" panel with a generated `dta.config.ts` and the commands to run.
 4. **No server, no storage, no accounts.** Nothing is uploaded or persisted beyond an optional per-browser "last session" convenience (local storage, safe to lose). No Figma pull (the REST API needs Enterprise and a token in the browser).
 5. **Design:** the site's Drafting Table components and tokens; the graph uses the same visual language (ink lines, blueprint selection, redline highlights for findings).
@@ -27,6 +27,9 @@ A static, client-side app embedded in the website as an Astro island: drop or pa
 9. **Outputs load lazily.** `@dta/build` (Style Dictionary) is loaded when the outputs tab opens, so the playground's first load stays light; outputs are in the first version (was open question 2).
 10. **Blueprints come later**, after the bootstrap-skill work, not in this epic (was open question 3).
 11. **The packages are already close to browser-ready** (checked 2026-10-19): outside test helpers, `@dta/core`, `@dta/figma`, `@dta/lint` and `@dta/build` import no Node built-ins, and `buildOutputs` runs Style Dictionary in memory (`formatAllPlatforms`) and writes nothing. TICKET-076 is mainly the proof (browser-environment tests) and the bundle-size measurement.
+12. **Own route, not a Starlight page** (maintainer, 2026-10-19). The playground is a standalone page at `/playground` (`site/src/pages/playground.astro`) with the site's Nav and theme, full width and its own layout, outside the Starlight frame. The placeholder docs page and its sidebar group go; docs pages and the landing page link to `/playground`. The landing page and the playground share one page layout (`SiteLayout.astro`: token CSS, themes, fonts, Nav, theme switch) instead of copying it. "Playground" joins the site nav when 077 ships.
+13. **Preact island** (maintainer, 2026-10-19). The interactive app is a Preact component loaded as an Astro island (`client:load` or `client:visible`) on the playground page only. Design-system rules still apply: what the app renders is styled with the Drafting Table tokens and design-system components; UI the design system lacks becomes a component first (docs page + story).
+14. **Input:** a drop area for files (drag and drop) that is also a button opening the file picker (keyboard and phones, where dragging is not an option), a paste field for JSON, and "Load example". Several files at once.
 
 ## Open questions
 
