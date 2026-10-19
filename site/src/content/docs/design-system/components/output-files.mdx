@@ -1,0 +1,33 @@
+---
+title: Output files
+description: Built files grouped by kind, each with its size, Copy and Download, one download per group.
+sidebar:
+  order: 25
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+Built files to take away, grouped by kind: in the [playground](/playground/)'s Outputs view, the files `dta build` writes (`output/css/…`, `output/tailwind/…`, `output/js/…`) in CSS, Tailwind and JS. Each group has one download for all its files (a zip with the same folders); each file has its path, its size, Copy and Download. The path opens the file's preview in the [Detail panel](/design-system/components/detail-panel/).
+
+## When to use
+
+- For a handful to a few dozen generated files a visitor takes some or all of.
+- Not for source files someone edits, and not for a single file (show that one in the panel or a Terminal).
+
+<Examples component="output-files" />
+
+## Guidelines
+
+- Rules and type on the canvas, no cards. A group's head: the name in the `title` type, the file count in mono `fg-muted`, the group download as an outline Button (`Download CSS (.zip)`), closed by a `stroke-ink` rule in `border-strong`.
+- A row per file, hairline `border-default` between rows: the path in mono `action-text`, underlined, as written by `dta build`; the size in mono `fg-muted`, tabular figures; Copy ([Copy button](/design-system/components/copy-button/)) and Download as quiet Buttons at the 44 px touch minimum. Their accessible names say which file (`Download output/css/base.css`).
+- The row whose preview is open is marked (`aria-current`) and tinted `action-subtle`, as in the [Structure table](/design-system/components/structure-table/).
+- Below 560 px of container width the path takes its own line and the size and actions follow under it; nothing scrolls sideways.
+- The component reports clicks; saving files is the page's (in the playground a blob URL: nothing leaves the browser).
+- A Preact component; stories render it to static HTML.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="OutputFiles" />

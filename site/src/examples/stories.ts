@@ -21,7 +21,7 @@ export const STORIES: readonly Story[] = [
   {
     component: 'button',
     variant: 'variants',
-    title: 'Primary, outline, link',
+    title: 'Primary, outline, quiet, link',
     example: 'ButtonVariants',
     viewports: [DESKTOP, MOBILE],
   },
@@ -280,7 +280,7 @@ export const STORIES: readonly Story[] = [
   {
     component: 'summary-line',
     variant: 'default',
-    title: 'Counts that open their view',
+    title: 'Counts that open their view, outputs built',
     example: 'SummaryLineDefault',
     viewports: [DESKTOP, MOBILE],
   },
@@ -311,6 +311,55 @@ export const STORIES: readonly Story[] = [
     title: 'A finding in the bottom sheet',
     example: 'DetailPanelSheet',
     viewports: [MOBILE],
+  },
+  {
+    component: 'detail-panel',
+    variant: 'file',
+    title: 'An output file beside the view, with Copy and Download',
+    example: 'DetailPanelFile',
+    viewports: [DESKTOP],
+  },
+  {
+    component: 'detail-panel',
+    variant: 'file-sheet',
+    title: 'An output file in the bottom sheet',
+    example: 'DetailPanelFileSheet',
+    viewports: [MOBILE],
+  },
+  {
+    component: 'output-options',
+    variant: 'default',
+    title: 'Four outputs, three chosen, Download all',
+    example: 'OutputOptionsDefault',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
+    component: 'output-files',
+    variant: 'brand-ab',
+    title: 'Three groups with their files, one preview open',
+    example: 'OutputFilesBrandAb',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
+    component: 'copy-button',
+    variant: 'states',
+    title: 'Copy, copied, and the outline variant',
+    example: 'CopyButtonStates',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
+    component: 'cli-handoff',
+    variant: 'files',
+    title: 'Token files: the config and one command',
+    example: 'CliHandoffFiles',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
+    component: 'cli-handoff',
+    variant: 'export',
+    title: 'A plugin export: import, then build; config preview open',
+    example: 'CliHandoffExport',
+    viewports: [DESKTOP, MOBILE],
   },
 ]
 

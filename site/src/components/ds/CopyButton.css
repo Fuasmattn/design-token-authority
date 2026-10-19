@@ -1,0 +1,42 @@
+/*
+ * CopyButton: the Button (quiet or outline) whose label turns into "Copied". Both labels sit in
+ * one grid cell, the hidden one with visibility: hidden, so the width never changes. The copied
+ * state shows the pass dot in success-fg before the word: not colour alone.
+ */
+.dta-copy__face {
+  display: inline-grid;
+}
+.dta-copy__label,
+.dta-copy__done {
+  grid-area: 1 / 1;
+  text-align: center;
+}
+.dta-copy__done {
+  visibility: hidden;
+}
+.dta-copy[data-state='copied'] .dta-copy__done,
+.dta-copy[data-state='failed'] .dta-copy__done {
+  visibility: visible;
+}
+.dta-copy[data-state='copied'] .dta-copy__label,
+.dta-copy[data-state='failed'] .dta-copy__label {
+  visibility: hidden;
+}
+.dta-copy[data-state='copied'] .dta-copy__done::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--success-fg);
+  vertical-align: 2px;
+}
+.dta-copy__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

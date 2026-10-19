@@ -1,0 +1,129 @@
+/*
+ * CliHandoff: a section on the canvas under an ink rule. The title type, an intro in fg-muted,
+ * the config as one file row (mono action-text name, mono size, Copy and Download quiet),
+ * then numbered steps: the text in body-sm, the command as the site's command chip (terminal-bg),
+ * which may wrap here so a long command never runs past a phone screen. A note in fg-muted.
+ */
+.dta-cli {
+  container-type: inline-size;
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  padding-top: var(--space-4);
+  border-top: var(--stroke-ink) solid var(--border-strong);
+  font-family: var(--font-sans);
+  color: var(--fg-default);
+}
+.dta-cli__title {
+  margin: 0;
+  font-size: calc(var(--type-title-size) * 1px);
+  font-weight: var(--type-title-weight);
+  line-height: var(--type-title-line-height);
+}
+.dta-cli__intro,
+.dta-cli__note {
+  margin: 0;
+  max-width: var(--layout-measure);
+  font-size: calc(var(--type-body-sm-size) * 1px);
+  line-height: var(--type-body-sm-line-height);
+  color: var(--fg-muted);
+}
+.dta-cli__note a {
+  color: var(--action-text);
+  text-underline-offset: 4px;
+}
+.dta-cli__config {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-1) var(--space-2);
+  border-block: var(--stroke-hairline) solid var(--border-default);
+}
+.dta-cli__config[aria-current='true'] {
+  background: var(--action-subtle);
+}
+.dta-cli__name {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--action-text);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  font-weight: 700;
+  line-height: var(--type-meta-line-height);
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.dta-cli__name:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: var(--stroke-ink);
+}
+.dta-cli__size {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+.dta-cli__config[aria-current='true'] .dta-cli__size {
+  color: var(--action-text);
+}
+.dta-cli__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+.dta-cli__actions .dta-button {
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  font-size: calc(var(--type-body-sm-size) * 1px);
+}
+.dta-cli__steps {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding-left: var(--space-6);
+  font-size: calc(var(--type-body-sm-size) * 1px);
+  line-height: var(--type-body-sm-line-height);
+}
+.dta-cli__step {
+  padding-left: var(--space-1);
+}
+.dta-cli__step::marker {
+  font-family: var(--font-mono);
+  color: var(--fg-subtle);
+}
+.dta-cli__text {
+  display: block;
+}
+.dta-cli__command.dta-command {
+  margin-top: var(--space-2);
+  max-width: 100%;
+  min-height: 44px;
+  line-height: var(--type-code-line-height);
+  text-align: left;
+  white-space: normal;
+}
+.dta-cli__command .dta-command__text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@container (max-width: 559px) {
+  .dta-cli__config {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0 var(--space-3);
+    padding-bottom: var(--space-2);
+  }
+  .dta-cli__name {
+    grid-column: 1 / -1;
+  }
+  .dta-cli__actions {
+    justify-self: end;
+  }
+}

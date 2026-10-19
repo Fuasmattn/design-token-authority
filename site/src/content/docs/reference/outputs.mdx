@@ -5,7 +5,7 @@ sidebar:
   order: 4
 ---
 
-`dta build` writes into `output/` by default; `outputs.css.outDir` and `outputs.tailwind.outDir` move the CSS and Tailwind files. The list below is from a build of the `brand-ab` fixture (`brands: ['BrandA', 'BrandB']`).
+`dta build` writes into `output/` by default; `outputs.css.outDir` and `outputs.tailwind.outDir` move the CSS and Tailwind files. The list below is from a build of the `brand-ab` fixture (`brands: ['BrandA', 'BrandB']`). To see them for your own token files without an install, open the [playground](/playground/)'s Outputs view: it builds the same files in your browser.
 
 | File                                         | Content                                                                                     |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------- |
@@ -17,6 +17,28 @@ sidebar:
 | `output/tailwind/<brand>/tailwind.css`       | Tailwind v4 `@theme` block for one brand, resolved                                          |
 | `output/tailwind/tailwind.tokens.ts`         | Tailwind v3 `theme.extend` object (`export const tokens`)                                   |
 | `output/tailwind/<brand>/tailwind.tokens.ts` | The same for one brand, resolved                                                            |
+
+## Choosing outputs
+
+By default `dta build` writes all four outputs. `outputs.formats` lists the ones you want; the others are not written:
+
+```ts title="dta.config.ts"
+export default {
+  brands: ['BrandA', 'BrandB'],
+  outputs: {
+    formats: ['css', 'tailwind-v4'], // also: 'tailwind-v3', 'js'
+  },
+}
+```
+
+| Format        | Files                                                                        |
+| ------------- | ---------------------------------------------------------------------------- |
+| `css`         | `variables.css`, `base.css`, `themes/<brand>.css`                            |
+| `tailwind-v4` | `tailwind.css` and `<brand>/tailwind.css` in the Tailwind folder             |
+| `tailwind-v3` | `tailwind.tokens.ts` and `<brand>/tailwind.tokens.ts` in the Tailwind folder |
+| `js`          | `output/js/colorpalette.js`                                                  |
+
+The playground's output checkboxes write the same key into the `dta.config.ts` it generates.
 
 ## Names and values
 
@@ -35,4 +57,4 @@ sidebar:
 ## Not built yet
 
 - Collections whose modes are not brands, such as breakpoints (`ScreenType`), are not written as separate CSS; their first mode only resolves aliases. See [Core concepts](/start/concepts/).
-- `outputs.ios` and `outputs.android` are accepted in the config and cleaned by `dta clean`, but `dta build` writes no Swift, XML or Compose files yet. `outputs.css.prefix` and `outputs.tailwind.version` are accepted and not used yet: every build writes both Tailwind versions.
+- `outputs.ios` and `outputs.android` are accepted in the config and cleaned by `dta clean`, but `dta build` writes no Swift, XML or Compose files yet. `outputs.css.prefix` and `outputs.tailwind.version` are accepted and not used yet; `outputs.formats` chooses the Tailwind versions.

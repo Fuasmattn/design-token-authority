@@ -1,0 +1,13 @@
+---
+// Real output: the brand-ab example's 11 files in three groups, one file's preview open.
+import OutputFiles from '../components/ds/OutputFiles'
+import { exampleOutputs } from './outputs-example'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'files-brand-ab' } = Astro.props
+const { groups } = await exampleOutputs()
+---
+
+<OutputFiles idPrefix={idPrefix} groups={groups} selected="output/css/themes/branda.css" />

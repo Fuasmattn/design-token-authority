@@ -41,7 +41,7 @@ describe('design system stories', () => {
       id: 'button--variants',
       component: 'button',
       variant: 'variants',
-      title: 'Primary, outline, link',
+      title: 'Primary, outline, quiet, link',
       url: '/stories/button/variants/',
       viewports: [1280, 390],
     })

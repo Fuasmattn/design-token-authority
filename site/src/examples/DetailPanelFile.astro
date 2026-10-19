@@ -1,0 +1,39 @@
+---
+// Real output: brand-ab's BrandA theme as an output file's preview, with Copy and Download.
+import { Fragment as PreactFragment, h } from 'preact'
+import CopyButton from '../components/ds/CopyButton'
+import DetailPanel from '../components/ds/DetailPanel'
+import { byteLength, formatSize } from '../playground/outputs'
+import { exampleOutputs } from './outputs-example'
+
+interface Props {
+  idPrefix?: string
+  presentation?: 'side' | 'sheet'
+}
+const { idPrefix = 'detail-file', presentation = 'side' } = Astro.props
+const path = 'output/css/themes/branda.css'
+const file = (await exampleOutputs()).files.find((f) => f.path === path)
+if (!file) throw new Error(`brand-ab has no ${path}`)
+const actions = h(
+  PreactFragment,
+  null,
+  h(CopyButton, { text: file.content, accessibleLabel: `Copy ${path}`, variant: 'outline' }),
+  h(
+    'button',
+    { type: 'button', class: 'dta-button outline', 'aria-label': `Download ${path}` },
+    'Download',
+  ),
+)
+---
+
+<DetailPanel
+  idPrefix={idPrefix}
+  open
+  staticOpen
+  presentation={presentation}
+  kicker={`Output · CSS · ${formatSize(byteLength(file.content))}`}
+  title={path}
+  actions={actions}
+  code={file.content}
+  codeLabel={`Preview of ${path}`}
+/>

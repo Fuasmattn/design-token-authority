@@ -4,7 +4,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { parseTokenFiles } from '@dta/core'
 import type { TokenModel } from '@dta/core'
-import { buildOutputs } from './index.js'
+import { buildOutputs, OUTPUT_FORMATS } from './index.js'
 
 const repoRoot = path.resolve(import.meta.dirname, '..', '..', '..')
 
@@ -263,6 +263,60 @@ describe('buildOutputs: options', () => {
     const { files, diagnostics } = await buildOutputs(model, { css: { outDir: '  ' } })
     expect(files.some((f) => f.path === 'output/css/base.css')).toBe(true)
     expect(diagnostics).toMatchObject([{ severity: 'warning', code: 'invalid-option' }])
+  })
+})
+
+describe('buildOutputs: formats', () => {
+  const brands = ['BrandA', 'BrandB']
+  const paths = async (formats?: (typeof OUTPUT_FORMATS)[number][]) =>
+    (await buildOutputs(fixtureModel('brand-ab'), { brands, formats })).files.map((f) => f.path)
+
+  it('writes every output without formats, the same as with all of them', async () => {
+    const all = await paths()
+    expect(all).toHaveLength(11)
+    expect(await paths([...OUTPUT_FORMATS])).toEqual(all)
+  })
+
+  it.each([
+    [
+      'css',
+      [
+        'output/css/base.css',
+        'output/css/themes/branda.css',
+        'output/css/themes/brandb.css',
+        'output/css/variables.css',
+      ],
+    ],
+    [
+      'tailwind-v4',
+      [
+        'output/tailwind/branda/tailwind.css',
+        'output/tailwind/brandb/tailwind.css',
+        'output/tailwind/tailwind.css',
+      ],
+    ],
+    [
+      'tailwind-v3',
+      [
+        'output/tailwind/branda/tailwind.tokens.ts',
+        'output/tailwind/brandb/tailwind.tokens.ts',
+        'output/tailwind/tailwind.tokens.ts',
+      ],
+    ],
+    ['js', ['output/js/colorpalette.js']],
+  ] as const)('writes only the %s files when asked for that output', async (format, expected) => {
+    expect(await paths([format])).toEqual(expected)
+  })
+
+  it('gives each file the same content as a build of every output', async () => {
+    const all = await buildOutputs(fixtureModel('brand-ab'), { brands })
+    const some = await buildOutputs(fixtureModel('brand-ab'), { brands, formats: ['js', 'css'] })
+    for (const file of some.files) expect(file.content).toBe(find(all.files, file.path))
+    expect(some.diagnostics).toEqual(all.diagnostics)
+  })
+
+  it('writes nothing for an empty list', async () => {
+    expect(await paths([])).toEqual([])
   })
 })
 

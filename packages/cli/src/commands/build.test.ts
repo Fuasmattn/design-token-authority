@@ -117,6 +117,43 @@ describe('dta build', () => {
     project(tokens, { brands: ['A'] })
     const { stdout } = await build('--verbose')
     expect(stdout).toContain('Source: tokens')
+    expect(stdout).toContain('Outputs: css, tailwind-v4, tailwind-v3, js')
     expect(stdout).toContain('Brands: A')
+  })
+
+  it('writes only the outputs listed in outputs.formats and lists only those', async () => {
+    project(tokens, { brands: ['A'], outputs: { formats: ['tailwind-v3', 'js'] } })
+    const { exitCode, stdout } = await build('--verbose')
+    expect(exitCode).toBe(0)
+    expect(stdout).toContain('Outputs: tailwind-v3, js')
+    for (const file of [
+      'output/js/colorpalette.js',
+      'output/tailwind/tailwind.tokens.ts',
+      'output/tailwind/a/tailwind.tokens.ts',
+    ]) {
+      expect(exists(file), file).toBe(true)
+    }
+    for (const file of [
+      'output/css',
+      'output/tailwind/tailwind.css',
+      'output/tailwind/a/tailwind.css',
+    ]) {
+      expect(exists(file), file).toBe(false)
+    }
+    const listed = [...stdout.matchAll(/^[|│]\s+(output\/\S+)/gm)].map((match) => match[1])
+    expect(listed.sort()).toEqual([
+      'output/js/colorpalette.js',
+      'output/tailwind/a/tailwind.tokens.ts',
+      'output/tailwind/tailwind.tokens.ts',
+    ])
+    expect(stdout).toContain('Build complete!')
+  })
+
+  it('rejects an unknown or empty outputs.formats', async () => {
+    project(tokens, { outputs: { formats: ['scss'] } })
+    expect((await build()).exitCode).not.toBe(0)
+    project(null, { outputs: { formats: [] } }) // the token files from above stay
+    expect((await build()).exitCode).not.toBe(0)
+    expect(exists('output')).toBe(false)
   })
 })

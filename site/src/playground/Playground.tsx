@@ -4,34 +4,61 @@
  * - before loading, the input takes the page (TokenInput: drop area, example, paste field);
  * - after loading, a one-line SourceBar, a SummaryLine that stays visible, and Tabs with the views
  *   Structure · Lint · Graph · Outputs (the selected tab is kept in the URL hash);
- * - details of a collection or a finding open in a DetailPanel (side panel from 1024px, bottom
- *   sheet below), so the view behind stays in place.
+ * - details of a collection, a finding or an output file open in a DetailPanel (side panel from
+ *   1024px, bottom sheet below), so the view behind stays in place;
+ * - Outputs (TICKET-079): which outputs to build, the files grouped with Copy and Download, one
+ *   zip per group and "Download all", and the generated dta.config.ts with the CLI commands.
  * Everything it shows is a design-system component; src/styles/playground.css only places them.
- * No request leaves the page: the example is bundled, the analysis runs here (analyse.ts), and
- * the Outputs view does not load @dta/build yet (TICKET-079).
+ * Nothing is uploaded: the example is bundled and the analysis runs here (analyse.ts). The only
+ * requests after load are the page's own lazy chunks: `@dta/build` (Style Dictionary) and the
+ * zip code (outputs-engine.ts) load when the Outputs tab first opens (spec decision 9).
  */
+import type { BuildResult, OutputFormat } from '@dta/build'
+import { hasErrors } from '@dta/core'
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
+import CliHandoff from '../components/ds/CliHandoff'
+import CopyButton from '../components/ds/CopyButton'
 import DetailPanel, { type DetailPanelProps } from '../components/ds/DetailPanel'
 import Findings from '../components/ds/Findings'
+import OutputFiles from '../components/ds/OutputFiles'
+import OutputOptions from '../components/ds/OutputOptions'
 import SourceBar from '../components/ds/SourceBar'
 import StructureTable from '../components/ds/StructureTable'
 import SummaryLine, { type SummaryPart } from '../components/ds/SummaryLine'
 import Tabs, { tabId, type Tab } from '../components/ds/Tabs'
-import TokenInput, { PasteForm, type TokenInputFile } from '../components/ds/TokenInput'
+import TokenInput, {
+  PASTE_FILE_NAME,
+  PasteForm,
+  type TokenInputFile,
+} from '../components/ds/TokenInput'
+import { NPM_RELEASED } from '../landing/content'
 import {
   analyse,
   collectionDetail,
+  diagnosticGroups,
   findingChain,
   type PlaygroundResult,
   type RuleFindings,
 } from './analyse'
 import { EXAMPLE_FILES, EXAMPLE_NAME } from './example'
+import {
+  ALL_FORMATS,
+  byteLength,
+  cliSteps,
+  CONFIG_FILE,
+  formatSize,
+  generateConfig,
+  groupOutputs,
+  OUTPUT_CHOICES,
+  plural,
+  type OutputGroup,
+} from './outputs'
+
+type Engine = typeof import('./outputs-engine')
 
 const ID = 'pg'
 const VIEWS = ['structure', 'lint', 'graph', 'outputs'] as const
 type View = (typeof VIEWS)[number]
-
-const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`
 
 /** The selected view from the URL hash (`#lint`), or none for any other hash. */
 function viewOfHash(): View | undefined {
@@ -43,6 +70,8 @@ interface Source {
   label: string
   detail: string
   files: string[]
+  /** The plugin export's file name, for `dta pull --from-file` (none for per-mode files). */
+  pluginExport?: string
 }
 
 /** What the source bar says was read: in the words of `dta pull` for an import. */
@@ -55,10 +84,12 @@ function sourceOf(
   if (example)
     return { label: `${EXAMPLE_NAME} example`, detail: plural(count, 'file'), files: result.files }
   if (result.format !== 'dtcg-per-mode' && result.format !== 'unknown') {
+    const name = input[0]?.fileName
     return {
       label: `${result.format} export`,
       detail: `converted into ${plural(count, 'token file')}`,
       files: result.files,
+      pluginExport: !name || name === PASTE_FILE_NAME ? 'export.json' : name,
     }
   }
   if (input.length === 1) return { label: input[0].fileName, detail: '1 file', files: [] }
@@ -68,8 +99,16 @@ function sourceOf(
 type Selection =
   | { kind: 'collection'; name: string; mode?: string }
   | { kind: 'finding'; group: number; line: number }
+  | { kind: 'file'; path: string }
 
-function summaryParts(result: PlaygroundResult): SummaryPart[] {
+/** The outputs built for one read and one choice of formats. */
+interface Built extends BuildResult {
+  run: number
+  formats: string
+}
+
+/** What the summary says about the outputs: their count once built, else the way to build them. */
+function summaryParts(result: PlaygroundResult, outputs: number | undefined): SummaryPart[] {
   const { structure, lint } = result
   if (!structure || !lint) return []
   const parts: SummaryPart[] = [
@@ -83,16 +122,52 @@ function summaryParts(result: PlaygroundResult): SummaryPart[] {
   }
   parts.push({ text: plural(structure.tokens, 'token'), target: 'structure' })
   parts.push({ text: lint.counts, target: 'lint' })
+  parts.push({
+    text: outputs === undefined ? 'build outputs' : plural(outputs, 'output file'),
+    target: 'outputs',
+  })
   return parts
 }
+
+/** Hands a file to the browser's downloads (a blob URL: nothing leaves the page). */
+function save(name: string, data: string | Uint8Array, type: string) {
+  const blob = new Blob([data as BlobPart], { type })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = name
+  link.hidden = true
+  document.body.append(link)
+  link.click()
+  link.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+const baseName = (path: string) => path.slice(path.lastIndexOf('/') + 1)
+const typeOf = (path: string) =>
+  path.endsWith('.css') ? 'text/css' : path.endsWith('.js') ? 'text/javascript' : 'text/plain' // .ts: browsers would label video/mp2t
 
 /** The panel's content for what is selected, from the model (`resolve` in @dta/core). */
 function panelOf(
   result: PlaygroundResult,
   selection: Selection,
+  files: FilePreviews,
 ): Omit<DetailPanelProps, 'open'> | undefined {
   const { model, structure, lint } = result
   if (!model || !structure || !lint) return undefined
+  if (selection.kind === 'file') {
+    const file = files.find(selection.path)
+    if (!file) return undefined
+    const size = formatSize(byteLength(file.content))
+    return {
+      kicker: file.group ? `Output · ${file.group} · ${size}` : `Config · ${size}`,
+      title: selection.path,
+      meta: file.group ? undefined : 'The choices made here, for dta build.',
+      actions: files.actions(selection.path, file.content),
+      code: file.content,
+      codeLabel: `Preview of ${selection.path}`,
+    }
+  }
   if (selection.kind === 'collection') {
     const row = structure.rows.find((r) => r.name === selection.name)
     const detail = collectionDetail(model, selection.name, selection.mode)
@@ -127,6 +202,11 @@ function panelOf(
   }
 }
 
+interface FilePreviews {
+  find: (path: string) => { content: string; group?: string } | undefined
+  actions: (path: string, content: string) => DetailPanelProps['actions']
+}
+
 export default function Playground() {
   const [run, setRun] = useState<{ result: PlaygroundResult; source: Source; key: number } | null>(
     null,
@@ -135,6 +215,13 @@ export default function Playground() {
   const [selection, setSelection] = useState<Selection | null>(null)
   const [pasting, setPasting] = useState(false)
   const opener = useRef<HTMLElement | null>(null)
+  // Outputs (TICKET-079): the engine loads on first use; the files are built per read and formats.
+  const [formats, setFormats] = useState<OutputFormat[]>([...ALL_FORMATS])
+  const [built, setBuilt] = useState<Built | null>(null)
+  const [buildError, setBuildError] = useState<string | null>(null)
+  const [engineLoaded, setEngineLoaded] = useState(false)
+  const engine = useRef<Promise<Engine> | null>(null)
+  const pending = useRef<Promise<Built | null> | null>(null)
 
   // The selected view lives in the URL hash, so a reload or a shared link keeps it.
   useEffect(() => {
@@ -146,6 +233,48 @@ export default function Playground() {
     window.addEventListener('hashchange', sync)
     return () => window.removeEventListener('hashchange', sync)
   }, [])
+
+  const loadEngine = () => {
+    engine.current ??= import('./outputs-engine').then((module) => {
+      setEngineLoaded(true)
+      return module
+    })
+    return engine.current
+  }
+
+  // Build when the Outputs view is open (the first time loads @dta/build), and once the engine is
+  // here also for every new read, so the summary keeps its file count.
+  const runKey = run?.key ?? 0
+  const formatsKey = formats.join(',')
+  const wanted = Boolean(
+    run?.result.model && run.result.structure && (view === 'outputs' || engineLoaded),
+  )
+  useEffect(() => {
+    if (!wanted || !run?.result.model || !run.result.structure) return
+    if (built && built.run === runKey && built.formats === formatsKey) return
+    let current = true
+    const model = run.result.model
+    const brands = run.result.structure.brands
+    const chosen = [...formats]
+    const job = loadEngine()
+      .then((module) => module.buildFiles(model, { brands, formats: chosen }))
+      .then((result) => {
+        const next = { ...result, run: runKey, formats: formatsKey }
+        if (current) {
+          setBuilt(next)
+          setBuildError(null)
+        }
+        return next
+      })
+      .catch((error: unknown) => {
+        if (current) setBuildError(error instanceof Error ? error.message : String(error))
+        return null
+      })
+    pending.current = job
+    return () => {
+      current = false
+    }
+  }, [wanted, runKey, formatsKey])
 
   const select = (next: string) => {
     if (!(VIEWS as readonly string[]).includes(next)) return
@@ -183,14 +312,74 @@ export default function Playground() {
   const { result, source } = run
   const { structure, lint } = result
   const findings = lint?.rules.reduce((sum, rule) => sum + rule.findings.length, 0) ?? 0
+  const fresh = built && built.run === run.key && built.formats === formatsKey ? built : null
+  const failed = fresh ? hasErrors(fresh.diagnostics) : false
+  // `dta build` writes nothing when the build has errors; the playground shows nothing either.
+  const outputFiles = fresh && !failed ? fresh.files : []
+  const groups: OutputGroup[] = groupOutputs(outputFiles)
+  const outputCount = formats.length === 0 ? 0 : fresh ? outputFiles.length : undefined
   const tabs: Tab[] = [
     { id: 'structure', label: 'Structure' },
     { id: 'lint', label: 'Lint', count: String(findings) },
     { id: 'graph', label: 'Graph' },
-    { id: 'outputs', label: 'Outputs' },
+    {
+      id: 'outputs',
+      label: 'Outputs',
+      count: outputCount === undefined ? undefined : String(outputCount),
+    },
   ]
-  const panel = selection ? panelOf(result, selection) : undefined
+  const config = generateConfig({
+    brands: structure?.brands ?? [],
+    formats,
+    defineConfig: NPM_RELEASED,
+  })
+
+  /** The files of the current build, or of the next one when it is still running. */
+  const current = async () => {
+    if (fresh) return fresh
+    const next = await pending.current
+    return next && next.run === run.key && next.formats === formatsKey ? next : null
+  }
+  const download = (path: string, content: string) => save(baseName(path), content, typeOf(path))
+  const downloadZip = async (name: string, pick: (files: Built['files']) => Built['files']) => {
+    const [module, build] = await Promise.all([loadEngine(), current()])
+    if (!build || hasErrors(build.diagnostics)) return
+    const files = pick(build.files)
+    save(name, module.zipFiles(files), 'application/zip')
+  }
+  const downloadAll = () =>
+    downloadZip('dta-outputs.zip', (files) => [...files, { path: CONFIG_FILE, content: config }])
+  const downloadGroup = (id: string) =>
+    downloadZip(`dta-${id}.zip`, (files) =>
+      groupOutputs(files).flatMap((group) => (group.id === id ? group.files : [])),
+    )
+
+  const previews: FilePreviews = {
+    find: (path) => {
+      if (path === CONFIG_FILE) return { content: config }
+      for (const group of groups) {
+        const file = group.files.find((f) => f.path === path)
+        if (file) return { content: file.content, group: group.name }
+      }
+      return undefined
+    },
+    actions: (path, content) => (
+      <>
+        <CopyButton text={content} accessibleLabel={`Copy ${path}`} variant="outline" />
+        <button
+          type="button"
+          class="dta-button outline"
+          aria-label={`Download ${path}`}
+          onClick={() => download(path, content)}
+        >
+          Download
+        </button>
+      </>
+    ),
+  }
+  const panel = selection ? panelOf(result, selection, previews) : undefined
   const collection = selection?.kind === 'collection' ? selection : undefined
+  const openFile = selection?.kind === 'file' ? selection.path : undefined
 
   return (
     <div class="pg" data-loaded="">
@@ -228,7 +417,7 @@ export default function Playground() {
       {structure && lint && (
         <>
           <SummaryLine
-            parts={summaryParts(result)}
+            parts={summaryParts(result, outputCount)}
             onSelect={(target) => {
               select(target)
               document.getElementById(tabId(ID, target))?.focus()
@@ -278,10 +467,101 @@ export default function Playground() {
                   </p>
                 )}
                 {view === 'outputs' && (
-                  <p class="pg-coming">
-                    CSS, Tailwind and JS outputs to preview and download, and the matching{' '}
-                    <code>dta.config.ts</code>, come next (TICKET-079).
-                  </p>
+                  <div class="pg-outputs">
+                    <OutputOptions
+                      idPrefix={`${ID}-outputs`}
+                      options={OUTPUT_CHOICES.map((c) => ({ value: c.format, label: c.label }))}
+                      selected={formats}
+                      onChange={(next) => setFormats(next as OutputFormat[])}
+                    >
+                      {formats.length > 0 && (
+                        <button
+                          type="button"
+                          class="dta-button primary"
+                          onClick={() => void downloadAll()}
+                        >
+                          Download all (.zip)
+                        </button>
+                      )}
+                    </OutputOptions>
+                    {formats.length === 0 ? (
+                      <p class="pg-hint">Choose at least one output to build.</p>
+                    ) : buildError ? (
+                      <p class="pg-hint" role="alert">
+                        The outputs could not be built: {buildError}
+                      </p>
+                    ) : !fresh ? (
+                      <p class="pg-hint" role="status">
+                        Building the outputs with <code>@dta/build</code>, in your browser…
+                      </p>
+                    ) : (
+                      <p class="pg-hint" role="status">
+                        {plural(outputFiles.length, 'file')} as <code>dta build</code> writes them.
+                        Select one to see it in full; “Download all” adds <code>{CONFIG_FILE}</code>{' '}
+                        to the folders.
+                      </p>
+                    )}
+                    {fresh && fresh.diagnostics.length > 0 && (
+                      <Findings
+                        title="Build"
+                        level={3}
+                        groups={diagnosticGroups(fresh.diagnostics)}
+                        summary={
+                          failed
+                            ? 'The build has errors: dta build writes no files until they are fixed.'
+                            : undefined
+                        }
+                        outcome={failed ? 'failed' : undefined}
+                      />
+                    )}
+                    {groups.length > 0 && (
+                      <OutputFiles
+                        idPrefix={`${ID}-files`}
+                        groups={groups.map((group) => ({
+                          id: group.id,
+                          name: group.name,
+                          downloadLabel: `Download ${group.name} (.zip)`,
+                          files: group.files.map((file) => ({
+                            path: file.path,
+                            content: file.content,
+                            size: formatSize(byteLength(file.content)),
+                          })),
+                        }))}
+                        selected={openFile}
+                        onOpen={(path, button) => open({ kind: 'file', path }, button)}
+                        onDownload={(path) => {
+                          const file = outputFiles.find((f) => f.path === path)
+                          if (file) download(file.path, file.content)
+                        }}
+                        onDownloadGroup={(id) => void downloadGroup(id)}
+                      />
+                    )}
+                    {formats.length > 0 && (
+                      <CliHandoff
+                        idPrefix={`${ID}-cli`}
+                        intro="The same files on your machine: the generated config carries the choices above."
+                        config={{
+                          name: CONFIG_FILE,
+                          size: formatSize(byteLength(config)),
+                          content: config,
+                        }}
+                        configOpen={openFile === CONFIG_FILE}
+                        steps={cliSteps({ pluginExport: source.pluginExport })}
+                        note={
+                          NPM_RELEASED ? undefined : (
+                            <>
+                              DTA is not on npm yet (TICKET-090), so <code>npx</code> cannot find it
+                              until the first release. Until then, run it from a clone of the
+                              repository, as the <a href="/start/quick-start/">Quick start</a>{' '}
+                              shows.
+                            </>
+                          )
+                        }
+                        onOpenConfig={(button) => open({ kind: 'file', path: CONFIG_FILE }, button)}
+                        onDownload={() => download(CONFIG_FILE, config)}
+                      />
+                    )}
+                  </div>
                 )}
               </div>
               <DetailPanel

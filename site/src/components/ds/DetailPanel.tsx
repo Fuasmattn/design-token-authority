@@ -5,9 +5,10 @@
  * the page behind is inert, Escape and the backdrop close it). Opening moves focus to the
  * panel's title; closing returns it to the element that opened the panel (`opener`).
  *
- * Content: a kicker and a title, a meta line, an optional mode switch, an optional message (the
- * full finding, mono) and a list of lines (a token name, then its alias chain and value, with a
- * swatch for colours). The list scrolls inside the panel.
+ * Content: a kicker and a title, a meta line, optional actions (Copy and Download of a file), an
+ * optional mode switch, an optional message (the full finding, mono), a list of lines (a token
+ * name, then its alias chain and value, with a swatch for colours) or a file's text (`code`, an
+ * output file's preview). The list and the code scroll inside the panel.
  *
  * A Preact component (the playground island renders it); stories render it to static HTML with
  * `presentation` and `staticOpen`.
@@ -42,6 +43,12 @@ export interface DetailPanelProps {
   lines?: readonly DetailLine[]
   /** Accessible name of the scrolling list. */
   linesLabel?: string
+  /** Buttons under the meta line (a file's Copy and Download). */
+  actions?: ComponentChildren
+  /** A file's text, shown as it is (mono, long lines wrapped, scrolls inside the panel). */
+  code?: string
+  /** Accessible name of the code region. */
+  codeLabel?: string
   onClose?: () => void
   /** The element that opened the panel; focus returns to it on close. */
   opener?: HTMLElement | null
@@ -49,6 +56,12 @@ export interface DetailPanelProps {
   presentation?: DetailPresentation
   /** Renders the panel open without script (stories). */
   staticOpen?: boolean
+}
+
+/** A path with a line-break opportunity after each `/`, so it wraps between folders. */
+export function breakable(text: string): ComponentChildren {
+  const parts = text.split('/')
+  return parts.map((part, index) => (index < parts.length - 1 ? [part, '/', <wbr />] : part))
 }
 
 /** The width from which the panel sits beside the view. */
@@ -65,6 +78,9 @@ export default function DetailPanel({
   message,
   lines,
   linesLabel = 'Lines',
+  actions,
+  code,
+  codeLabel = 'Preview',
   onClose,
   opener,
   presentation,
@@ -155,7 +171,7 @@ export default function DetailPanel({
         <div class="dta-detail__titles">
           {kicker && <p class="dta-detail__kicker">{kicker}</p>}
           <h2 class="dta-detail__title" id={titleId} ref={heading} tabIndex={-1}>
-            {title}
+            {breakable(title)}
           </h2>
         </div>
         <button
@@ -169,6 +185,7 @@ export default function DetailPanel({
       </div>
       <div class="dta-detail__body">
         {meta && <p class="dta-detail__meta">{meta}</p>}
+        {actions && <div class="dta-detail__actions">{actions}</div>}
         {modes && modes.options.length > 1 && (
           <div class="dta-detail__modes" role="group" aria-label={modes.label}>
             {modes.options.map((option) => (
@@ -205,6 +222,11 @@ export default function DetailPanel({
               </li>
             ))}
           </ul>
+        )}
+        {code !== undefined && (
+          <pre class="dta-detail__code" tabIndex={0} role="region" aria-label={codeLabel}>
+            <code>{code}</code>
+          </pre>
         )}
       </div>
     </dialog>

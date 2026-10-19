@@ -1,0 +1,20 @@
+---
+// Real output: the config the playground generates for the brand-ab example, and the steps.
+import CliHandoff from '../components/ds/CliHandoff'
+import { cliSteps } from '../playground/outputs'
+import { exampleOutputs } from './outputs-example'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'cli-files' } = Astro.props
+const { config } = await exampleOutputs()
+---
+
+<CliHandoff
+  idPrefix={idPrefix}
+  intro="The same files on your machine: the generated config carries the choices above."
+  config={config}
+  steps={cliSteps({})}
+  note="DTA is not on npm yet (TICKET-090), so npx cannot find it until the first release."
+/>

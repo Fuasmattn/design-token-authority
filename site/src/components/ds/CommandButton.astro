@@ -3,7 +3,10 @@
  * A command chip: a copyable CLI command on terminal-bg, the same component wherever the site
  * shows a command. `$` prompt, the command in mono, a copy icon that becomes a tick for a moment
  * after copying. The large size is the call to action of the landing page's hero and end.
+ * The styles live in CommandButton.css so islands can render the same chip.
  */
+import './CommandButton.css'
+
 interface Props {
   command: string
   size?: 'default' | 'large'
@@ -18,23 +21,23 @@ const { command, size = 'default' } = Astro.props
   aria-label={`Copy: ${command}`}
   title="Copy command"
 >
-  <span class="prompt" aria-hidden="true">$</span>
-  <span class="text">{command}</span>
-  <svg class="icon copy" viewBox="0 0 24 24" aria-hidden="true">
+  <span class="dta-command__prompt" aria-hidden="true">$</span>
+  <span class="dta-command__text">{command}</span>
+  <svg class="dta-command__icon dta-command__copy" viewBox="0 0 24 24" aria-hidden="true">
     <rect x="9" y="9" width="12" height="12" rx="2"></rect>
     <path d="M15 9V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4"></path>
   </svg>
-  <svg class="icon tick" viewBox="0 0 24 24" aria-hidden="true">
+  <svg class="dta-command__icon dta-command__tick" viewBox="0 0 24 24" aria-hidden="true">
     <path d="M4 12.5l5 5L20 6.5"></path>
   </svg>
-  <span class="status" aria-live="polite"></span>
+  <span class="dta-command__status" aria-live="polite"></span>
 </button>
 
 <script>
   for (const button of document.querySelectorAll<HTMLButtonElement>('.dta-command')) {
     let timer: ReturnType<typeof setTimeout> | undefined
     button.addEventListener('click', async () => {
-      const status = button.querySelector('.status')
+      const status = button.querySelector('.dta-command__status')
       const done = (text: string) => {
         button.dataset.copied = ''
         if (status) status.textContent = text
@@ -53,71 +56,3 @@ const { command, size = 'default' } = Astro.props
     })
   }
 </script>
-
-<style>
-  .dta-command {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) 14px;
-    border: 0;
-    border-radius: var(--radius-md);
-    background: var(--terminal-bg);
-    color: var(--terminal-fg);
-    font-family: var(--font-mono);
-    font-size: calc(var(--type-code-size) * 1px);
-    font-weight: 500;
-    line-height: 1;
-    letter-spacing: 0.01em;
-    white-space: nowrap;
-    cursor: pointer;
-  }
-  .large {
-    gap: 10px;
-    padding: 14px 18px;
-  }
-  .prompt {
-    color: var(--terminal-prompt);
-    font-weight: 400;
-  }
-  .icon {
-    width: 14px;
-    height: 14px;
-    margin-left: var(--space-1);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2.2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    opacity: 0.6;
-  }
-  .large .icon {
-    width: 16px;
-    height: 16px;
-  }
-  .tick {
-    display: none;
-    stroke-width: 2.6;
-    opacity: 1;
-  }
-  .dta-command:hover .icon {
-    opacity: 1;
-  }
-  [data-copied] .copy {
-    display: none;
-  }
-  [data-copied] .tick {
-    display: block;
-  }
-  .status {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-  }
-  .dta-command:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
-  }
-</style>

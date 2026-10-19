@@ -5,7 +5,16 @@ import { CSS_TRANSFORM_GROUP, hooks } from './transforms.js'
 import { brokenReferences, mergeSources } from './tree.js'
 import type { Source } from './tree.js'
 
+/**
+ * The outputs `buildOutputs` can write, in the order the config reference lists them:
+ * CSS custom properties, Tailwind v4 `@theme` CSS, the Tailwind v3 theme object, the JS palette.
+ */
+export const OUTPUT_FORMATS = ['css', 'tailwind-v4', 'tailwind-v3', 'js'] as const
+export type OutputFormat = (typeof OUTPUT_FORMATS)[number]
+
 export interface BuildOptions {
+  /** Which outputs to write (default: all of {@link OUTPUT_FORMATS}). */
+  formats?: readonly OutputFormat[]
   /** Brands to build themes for: modes of the multi-mode collections. None means no themes. */
   brands?: string[]
   /** Only build from these collections (default: all). */
@@ -81,6 +90,18 @@ async function format(
   )
 }
 
+/** The platforms whose output is one of `formats` (each platform belongs to one output). */
+function only(
+  platforms: Record<string, PlatformConfig & { output: OutputFormat }>,
+  formats: ReadonlySet<OutputFormat>,
+): Record<string, PlatformConfig> {
+  return Object.fromEntries(
+    Object.entries(platforms)
+      .filter(([, platform]) => formats.has(platform.output))
+      .map(([name, { output: _output, ...platform }]) => [name, platform]),
+  )
+}
+
 /**
  * Turns a token model into output files (CSS, JS, Tailwind). Nothing is read or written:
  * the caller writes the returned files. Data problems come back as diagnostics.
@@ -111,6 +132,15 @@ export async function buildOutputs(
     }
   }
 
+  const formats = new Set<OutputFormat>(options.formats ?? OUTPUT_FORMATS)
+  const formatted = async (
+    tree: Record<string, unknown>,
+    platforms: Record<string, PlatformConfig & { output: OutputFormat }>,
+  ) => {
+    const chosen = only(platforms, formats)
+    return Object.keys(chosen).length === 0 ? [] : format(tree, chosen)
+  }
+
   const singleMode = model.collections.filter((c) => c.modes.length === 1)
   const multiMode = model.collections.filter((c) => c.modes.length > 1)
   const files: OutputFile[] = []
@@ -130,8 +160,9 @@ export async function buildOutputs(
 
     diagnostics.push(...brokenReferences(merged, emitted))
     files.push(
-      ...(await format(merged.tree, {
+      ...(await formatted(merged.tree, {
         'css-base': {
+          output: 'css',
           transformGroup: CSS_TRANSFORM_GROUP,
           buildPath: CSS_DIR,
           files: [
@@ -144,6 +175,7 @@ export async function buildOutputs(
           ],
         },
         css: {
+          output: 'css',
           transformGroup: CSS_TRANSFORM_GROUP,
           buildPath: CSS_DIR,
           files: [
@@ -156,16 +188,19 @@ export async function buildOutputs(
           ],
         },
         'tailwind-v3': {
+          output: 'tailwind-v3',
           transformGroup: CSS_TRANSFORM_GROUP,
           buildPath: TAILWIND_DIR,
           files: [{ destination: 'tailwind.tokens.ts', format: 'tailwind/v3', filter }],
         },
         'tailwind-v4': {
+          output: 'tailwind-v4',
           transformGroup: CSS_TRANSFORM_GROUP,
           buildPath: TAILWIND_DIR,
           files: [{ destination: 'tailwind.css', format: 'tailwind/v4', filter }],
         },
         js: {
+          output: 'js',
           transformGroup: 'js',
           buildPath: JS_DIR,
           files: [{ destination: 'colorpalette.js', format: 'javascript/es6', filter }],
@@ -197,8 +232,9 @@ export async function buildOutputs(
 
     diagnostics.push(...brokenReferences(merged, emitted))
     files.push(
-      ...(await format(merged.tree, {
+      ...(await formatted(merged.tree, {
         'css-theme': {
+          output: 'css',
           transformGroup: CSS_TRANSFORM_GROUP,
           buildPath: CSS_DIR,
           files: [
@@ -214,6 +250,7 @@ export async function buildOutputs(
           ],
         },
         'tailwind-v3-brand': {
+          output: 'tailwind-v3',
           transformGroup: CSS_TRANSFORM_GROUP,
           buildPath: `${TAILWIND_DIR}${brand.toLowerCase()}/`,
           files: [
@@ -226,6 +263,7 @@ export async function buildOutputs(
           ],
         },
         'tailwind-v4-brand': {
+          output: 'tailwind-v4',
           transformGroup: CSS_TRANSFORM_GROUP,
           buildPath: `${TAILWIND_DIR}${brand.toLowerCase()}/`,
           files: [

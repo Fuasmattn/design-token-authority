@@ -1,7 +1,7 @@
 /*
  * The playground page (spec: docs/specs/playground.md) inside the shared frame (site.css): the
  * intro's type and where the island's components sit. It invents no UI; the input, the
- * structure table and the findings are design-system components. Every size comes from a token
+ * structure table, the findings and the outputs are design-system components. Every size comes from a token
  * (src/landing/styles.test.ts checks this file too).
  */
 .playground {
@@ -62,6 +62,12 @@
 .pg-view {
   display: grid;
   gap: var(--space-3);
+  min-width: 0;
+}
+/* The Outputs view: options, a status line, the build's findings, the files, the CLI hand-off. */
+.pg-outputs {
+  display: grid;
+  gap: var(--space-6);
   min-width: 0;
 }
 .pg-hint,

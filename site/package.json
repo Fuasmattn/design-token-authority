@@ -28,6 +28,7 @@
     "@types/node": "^24.12.2",
     "astro": "7.3.5",
     "esbuild": "0.28.2",
+    "fflate": "0.8.2",
     "playwright-core": "1.59.1",
     "preact": "10.29.8",
     "starlight-links-validator": "0.26.0",

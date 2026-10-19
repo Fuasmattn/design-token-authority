@@ -13,11 +13,32 @@ import fs from 'node:fs'
 import http from 'node:http'
 import path from 'node:path'
 import zlib from 'node:zlib'
+import { strFromU8, unzipSync } from 'fflate'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 const enabled = process.env.DTA_E2E === '1' || Boolean(process.env.DTA_BROWSER_PATH)
 const dist = path.join(import.meta.dirname, 'dist')
 const fixture = path.join(import.meta.dirname, '..', 'test', 'fixtures', 'brand-ab', 'tokens')
+/** What `dta build` writes for brand-ab (the CLI reference snapshot). */
+const snapshot = path.join(
+  import.meta.dirname,
+  '..',
+  'test',
+  'snapshots',
+  'brand-ab',
+  'build',
+  'files',
+)
+const snapshotFiles = (dir = snapshot): Record<string, string> =>
+  Object.fromEntries(
+    fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+      const full = path.join(dir, entry.name)
+      if (entry.isDirectory()) return Object.entries(snapshotFiles(full))
+      return [
+        [path.relative(snapshot, full).split(path.sep).join('/'), fs.readFileSync(full, 'utf8')],
+      ]
+    }),
+  )
 const TYPES: Record<string, string> = {
   '.html': 'text/html',
   '.css': 'text/css',
@@ -148,7 +169,14 @@ describe.skipIf(!enabled)('playground on the built site', () => {
       )
       expect(
         await page.getByRole('list', { name: 'Summary' }).getByRole('listitem').allTextContents(),
-      ).toEqual(['3 collections', '2 brands', '3 breakpoints', '42 tokens', '0 lint findings'])
+      ).toEqual([
+        '3 collections',
+        '2 brands',
+        '3 breakpoints',
+        '42 tokens',
+        '0 lint findings',
+        'build outputs',
+      ])
       expect(await page.locator('.dta-structure__name').allTextContents()).toEqual([
         'Brand(Alias) ›',
         'Primitives ›',
@@ -254,15 +282,16 @@ describe.skipIf(!enabled)('playground on the built site', () => {
       expect(await focused()).toBe('Lint · 0')
       expect(new URL(page.url()).hash).toBe('#lint')
       await page.keyboard.press('End')
-      expect(await selected()).toBe('Outputs')
-      expect(await page.getByRole('tabpanel').textContent()).toMatch(/TICKET-079/)
+      expect(await selected()).toMatch(/^Outputs/)
+      await page.getByRole('heading', { name: 'Take it to the CLI' }).waitFor()
       await page.keyboard.press('ArrowRight')
       expect(await selected()).toBe('Structure')
       await page.keyboard.press('ArrowLeft')
       await page.keyboard.press('Home')
       expect(await selected()).toBe('Structure')
       await page.keyboard.press('ArrowLeft')
-      expect(await selected()).toBe('Outputs')
+      // The count joins the tab once the outputs are built (the engine loaded on the first visit)
+      await expect.poll(selected).toBe('Outputs · 11')
       expect(new URL(page.url()).hash).toBe('#outputs')
 
       // A reload (or a shared link) keeps the view
@@ -393,6 +422,158 @@ describe.skipIf(!enabled)('playground on the built site', () => {
     }
   }, 60_000)
 
+  it('builds the outputs when the tab opens: the same files as dta build, copy, downloads and zips, only the lazy chunks requested', async () => {
+    const { context, page, errors } = await open(1280, 'light')
+    try {
+      await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin })
+      const requests: string[] = []
+      page.on('request', (request: { url(): string }) => {
+        const url = new URL(request.url())
+        // Downloads are blob: URLs made in the page; the tab icon: see the test above.
+        if (url.protocol === 'blob:' || url.pathname === '/favicon.svg') return
+        requests.push(request.url())
+      })
+      await page.getByRole('button', { name: 'Load example' }).click()
+      await page.getByRole('table', { name: 'Structure' }).waitFor()
+      expect(requests, 'nothing before the Outputs view opens').toEqual([])
+
+      // The summary offers to build; that opens the Outputs tab, which loads @dta/build
+      await page.getByRole('button', { name: 'build outputs' }).click()
+      await page.getByRole('button', { name: '11 output files' }).waitFor()
+      expect(await page.getByRole('tab', { selected: true }).textContent()).toBe('Outputs · 11')
+      // Only the page's own lazy chunks: same origin, built JS, among them Style Dictionary.
+      expect(requests.length).toBeGreaterThan(0)
+      for (const url of requests) {
+        expect(url.startsWith(`${origin}/_astro/`) && url.endsWith('.js'), url).toBe(true)
+      }
+      const lazy = requests.map((url) => fs.readFileSync(path.join(dist, new URL(url).pathname)))
+      expect(lazy.some((bytes) => bytes.includes('style-dictionary'))).toBe(true)
+      const lazyCount = requests.length
+
+      // The files, grouped, equal the CLI's reference snapshot of `dta build`
+      const expected = snapshotFiles()
+      expect(await page.locator('.dta-outputs__name').allTextContents()).toEqual([
+        'CSS',
+        'Tailwind',
+        'JS',
+      ])
+      expect((await page.locator('.dta-outputs__path').allTextContents()).sort()).toEqual(
+        Object.keys(expected).sort(),
+      )
+
+      // A file's preview in the side panel shows the whole file
+      await page.getByRole('button', { name: 'output/css/themes/branda.css', exact: true }).click()
+      const panel = page.getByRole('dialog', { name: 'output/css/themes/branda.css' })
+      await panel.waitFor()
+      expect(await panel.locator('.dta-detail__kicker').textContent()).toBe('Output · CSS · 746 B')
+      expect(await panel.getByRole('region', { name: /^Preview of/ }).textContent()).toBe(
+        expected['output/css/themes/branda.css'],
+      )
+      await page.keyboard.press('Escape')
+
+      // Copy puts the file on the clipboard and says so
+      const copy = page.getByRole('button', { name: 'Copy output/css/base.css' })
+      await copy.click()
+      await expect.poll(() => copy.getAttribute('data-state')).toBe('copied')
+      expect(await page.evaluate('navigator.clipboard.readText()')).toBe(
+        expected['output/css/base.css'],
+      )
+
+      const download = async (name: string | RegExp) => {
+        const [file] = await Promise.all([
+          page.waitForEvent('download'),
+          page.getByRole('button', { name, exact: typeof name === 'string' }).click(),
+        ])
+        const bytes = fs.readFileSync(await file.path())
+        return { name: file.suggestedFilename() as string, bytes }
+      }
+      const unzip = (bytes: Buffer) =>
+        Object.fromEntries(
+          Object.entries(unzipSync(new Uint8Array(bytes))).map(([name, data]) => [
+            name,
+            strFromU8(data),
+          ]),
+        )
+
+      // One file, one group, everything
+      const single = await download('Download output/tailwind/branda/tailwind.tokens.ts')
+      expect(single.name).toBe('tailwind.tokens.ts')
+      expect(single.bytes.toString('utf8')).toBe(
+        expected['output/tailwind/branda/tailwind.tokens.ts'],
+      )
+      const css = await download('Download CSS (.zip)')
+      expect(css.name).toBe('dta-css.zip')
+      expect(unzip(css.bytes)).toEqual(
+        Object.fromEntries(Object.entries(expected).filter(([p]) => p.startsWith('output/css/'))),
+      )
+      const all = await download('Download all (.zip)')
+      expect(all.name).toBe('dta-outputs.zip')
+      const everything = unzip(all.bytes)
+      const config = everything['dta.config.ts']
+      expect(config).toContain("brands: ['BrandA', 'BrandB']")
+      expect(config).toContain("formats: ['css', 'tailwind-v4', 'tailwind-v3', 'js']")
+      delete everything['dta.config.ts']
+      expect(everything).toEqual(expected)
+      const configFile = await download('Download dta.config.ts')
+      expect(configFile.name).toBe('dta.config.ts')
+      expect(configFile.bytes.toString('utf8')).toBe(config)
+
+      // The command to run, never `npx dta`; the page says the package is not on npm yet
+      expect(await page.locator('.dta-cli .dta-command__text').allTextContents()).toEqual([
+        'npx design-token-authority build',
+      ])
+      expect(await page.locator('.dta-cli__note').textContent()).toMatch(/not on npm yet/)
+
+      // Fewer outputs: the files, the count, the zip and the config follow
+      await page.getByRole('checkbox', { name: 'CSS' }).uncheck()
+      await page.getByRole('button', { name: '7 output files' }).waitFor()
+      expect(await page.locator('.dta-outputs__name').allTextContents()).toEqual(['Tailwind', 'JS'])
+      const fewer = unzip((await download('Download all (.zip)')).bytes)
+      expect(fewer['dta.config.ts']).toContain("formats: ['tailwind-v4', 'tailwind-v3', 'js']")
+      expect(Object.keys(fewer).filter((p) => p.startsWith('output/css/'))).toEqual([])
+      expect(Object.keys(fewer).length).toBe(8)
+
+      expect(requests.length, 'no request after the lazy chunks').toBe(lazyCount)
+      expect(errors).toEqual([])
+    } finally {
+      await context.close()
+    }
+  }, 90_000)
+
+  it.each([
+    [390, 'light'],
+    [1280, 'dark'],
+  ] as const)(
+    'at %i px in %s the Outputs view shifts nothing while it builds and has nothing wider than the screen',
+    async (width, theme) => {
+      const { context, page } = await open(width, theme)
+      try {
+        await page.getByRole('button', { name: 'Load example' }).click()
+        await page.getByRole('table', { name: 'Structure' }).waitFor()
+        await page.evaluate(`window.__shift = 0; new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) if (!entry.hadRecentInput) window.__shift += entry.value
+        }).observe({ type: 'layout-shift' })`)
+        await page.getByRole('tab', { name: /^Outputs/ }).click()
+        await page.locator('.dta-outputs').waitFor()
+        await page.waitForTimeout(300)
+        expect(await page.evaluate('window.__shift')).toBe(0)
+        expect(await page.evaluate(OVERFLOW), 'outputs').toEqual([])
+        await page
+          .getByRole('button', { name: 'output/tailwind/branda/tailwind.tokens.ts', exact: true })
+          .click()
+        await page.getByRole('dialog').waitFor()
+        expect(await page.evaluate(OVERFLOW), 'preview').toEqual([])
+        await page.getByRole('button', { name: 'Close details' }).click()
+        await page.getByRole('button', { name: 'dta.config.ts', exact: true }).click()
+        await page.getByRole('dialog', { name: 'dta.config.ts' }).waitFor()
+        expect(await page.evaluate(OVERFLOW), 'config preview').toEqual([])
+      } finally {
+        await context.close()
+      }
+    },
+    60_000,
+  )
+
   it('keeps the JavaScript the page transfers within its budget', async () => {
     const { context, page } = await open(1280, 'light')
     try {
@@ -404,6 +585,14 @@ describe.skipIf(!enabled)('playground on the built site', () => {
       const raw = bytes.reduce((sum, b) => sum + b.length, 0)
       const gzip = bytes.reduce((sum, b) => sum + zlib.gzipSync(b).length, 0)
       console.log(`playground JS: ${scripts.length} files, ${raw} B minified, ${gzip} B gzip`)
+      for (const chunk of fs.readdirSync(path.join(dist, '_astro'))) {
+        if (!chunk.startsWith('outputs-engine')) continue
+        const lazy = fs.readFileSync(path.join(dist, '_astro', chunk))
+        console.log(
+          `lazy ${chunk}: ${lazy.length} B minified, ${zlib.gzipSync(lazy).length} B gzip`,
+        )
+        expect(scripts.some((script) => script.includes('outputs-engine'))).toBe(false)
+      }
       expect(gzip).toBeLessThanOrEqual(JS_BUDGET_GZIP)
       // Outputs (Style Dictionary) are not part of the first load (spec decision 9).
       expect(bytes.some((b) => b.includes('style-dictionary'))).toBe(false)

@@ -8,7 +8,7 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-The facts of what is loaded in one line that stays visible above the views of the [playground](/playground/): collections, brands, breakpoints, tokens and lint findings (output files join with the outputs, TICKET-079). Each part with a target is a button that opens its view, so the summary is also the way in.
+The facts of what is loaded in one line that stays visible above the views of the [playground](/playground/): collections, brands, breakpoints, tokens, lint findings and output files. Each part with a target is a button that opens its view, so the summary is also the way in.
 
 ## When to use
 
@@ -21,6 +21,7 @@ The facts of what is loaded in one line that stays visible above the views of th
 
 - Mono `meta` type in `fg-muted`; parts that open a view are `fg-default`, underlined with a hairline `border-strong` rule that thickens on hover. Spaced apart with `space-6`, no separators to read out.
 - Count words in the CLI's terms, with plurals (`1 collection`, `3 breakpoints`); lint counts come from `@dta/lint` (`1 error, 2 warnings`, or `0 lint findings`).
+- A count that needs work first says what opens it instead of a number: the playground builds its outputs only when the Outputs view opens (the build loads lazily), so until then the part reads `build outputs`, and `11 output files` once built. Both lead to the same view.
 - It wraps on narrow screens and never scrolls sideways. Each button is at least 24 px tall.
 - A list (`ul`) with an accessible name ("Summary"); a button opens its tab and moves focus there.
 

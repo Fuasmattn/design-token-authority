@@ -1,6 +1,6 @@
 /*
  * DetailPanel: a bg-surface panel with a 2px ink outline (it is the thing in focus), a mono
- * kicker, a title, the close button and a list that scrolls inside. Side: in the flow next to
+ * kicker, a title, the close button and a list (or a file's text) that scrolls inside. Side: in the flow next to
  * the view, sticky while the page scrolls. Sheet: fixed to the bottom of the screen, ink rule on
  * top, rounded top corners, a grab handle; the page behind is veiled with the canvas.
  * Look by data-presentation; position by :modal (stories render the sheet in the flow).
@@ -139,6 +139,17 @@
   color: var(--fg-muted);
 }
 
+/* A file's actions: the Button, at the 44 px touch minimum. */
+.dta-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.dta-detail__actions .dta-button {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+}
+
 /* The mode switch: a segmented well, the selected mode on the surface with an ink outline. */
 .dta-detail__modes {
   display: flex;
@@ -215,4 +226,29 @@
   border: var(--stroke-hairline) solid var(--border-strong);
   border-radius: 2px;
   vertical-align: -1px;
+}
+
+/* A file's text as it is: mono, long lines wrapped (indentation kept), scrolling inside. */
+.dta-detail__code {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: var(--space-3) 0;
+  overflow: auto;
+  border-top: var(--stroke-hairline) solid var(--border-default);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-code-line-height);
+  tab-size: 2;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overscroll-behavior: contain;
+}
+.dta-detail__code code {
+  font: inherit;
+  color: inherit;
+}
+.dta-detail__code:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: var(--stroke-hairline);
 }

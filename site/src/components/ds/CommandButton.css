@@ -1,0 +1,71 @@
+/*
+ * CommandButton styles, shared by CommandButton.astro and the design-system components that show
+ * a copyable command in a Preact island (CliHandoff): one look for every command. Global classes,
+ * prefixed. The markup: a button.dta-command with __prompt, __text, two __icon svgs (__copy,
+ * __tick) and a polite __status; `data-copied` on the button shows the tick.
+ */
+.dta-command {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) 14px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--terminal-bg);
+  color: var(--terminal-fg);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-code-size) * 1px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.dta-command.large {
+  gap: 10px;
+  padding: 14px 18px;
+}
+.dta-command__prompt {
+  color: var(--terminal-prompt);
+  font-weight: 400;
+}
+.dta-command__icon {
+  width: 14px;
+  height: 14px;
+  margin-left: var(--space-1);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.6;
+}
+.dta-command.large .dta-command__icon {
+  width: 16px;
+  height: 16px;
+}
+.dta-command__tick {
+  display: none;
+  stroke-width: 2.6;
+  opacity: 1;
+}
+.dta-command:hover .dta-command__icon {
+  opacity: 1;
+}
+.dta-command[data-copied] .dta-command__copy {
+  display: none;
+}
+.dta-command[data-copied] .dta-command__tick {
+  display: block;
+}
+.dta-command__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+.dta-command:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+}

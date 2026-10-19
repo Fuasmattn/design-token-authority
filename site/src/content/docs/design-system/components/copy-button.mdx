@@ -1,0 +1,31 @@
+---
+title: Copy button
+description: Copies a text and says so - the label turns into "Copied" at the same width.
+sidebar:
+  order: 26
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+Copies a text to the clipboard and says so. In the [playground](/playground/) every output file and the generated `dta.config.ts` have one, in their row and in the preview. Commands are not copied with it: a command is a [Command button](/design-system/components/command-button/).
+
+## When to use
+
+- Next to something whose text the visitor may want in their own editor: a file, a config.
+- Not for commands (the command chip copies itself) and not as the only way to get a file: pair it with Download.
+
+<Examples component="copy-button" />
+
+## Guidelines
+
+- It is the [Button](/design-system/components/button/) (`Button.css`), quiet by default (the small action repeated on every row), outline where it stands alone (the preview).
+- After copying, the label reads "Copied" for 1.6 s, after the pass dot in `success-fg` (not colour alone); "Not copied" when the browser refuses. Both labels share one grid cell, so the width never changes and nothing moves.
+- A polite live region announces the result. When the visible label alone does not say what is copied, the accessible name does and starts with it: "Copy output/css/base.css".
+- A Preact component; stories render it to static HTML (`staticState` shows the copied state).
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="CopyButton" />

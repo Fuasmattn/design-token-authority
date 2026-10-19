@@ -1,6 +1,7 @@
 /*
  * Button styles, shared by Button.astro and the design-system components that render buttons
- * in a Preact island (TokenInput): one look for every action. Global classes, prefixed.
+ * in a Preact island (TokenInput, OutputFiles): one look for every action. Global classes,
+ * prefixed. Quiet is the small action repeated on every row (Copy, Download): a hairline, no fill.
  */
 .dta-button {
   display: inline-flex;
@@ -26,6 +27,14 @@
   border: var(--stroke-ink) solid var(--border-strong);
   background: transparent;
   color: var(--fg-default);
+}
+.dta-button.quiet {
+  border: var(--stroke-hairline) solid var(--border-default);
+  background: transparent;
+  color: var(--fg-default);
+}
+.dta-button.quiet:hover {
+  border-color: var(--border-strong);
 }
 .dta-button.link {
   border: 0;

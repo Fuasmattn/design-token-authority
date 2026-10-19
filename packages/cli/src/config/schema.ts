@@ -1,3 +1,4 @@
+import { OUTPUT_FORMATS } from '@dta/build'
 import { lintConfigSchema } from '@dta/lint'
 import { diffConfigSchema } from '@dta/visual-diff'
 import { z } from 'zod'
@@ -30,6 +31,13 @@ const outDir = name.describe('Folder the files are written to, relative to the p
 
 const outputs = z
   .strictObject({
+    formats: z
+      .array(z.enum(OUTPUT_FORMATS))
+      .min(1)
+      .optional()
+      .describe(
+        'Which outputs `dta build` writes: `css`, `tailwind-v4`, `tailwind-v3`, `js` (default: all four).',
+      ),
     css: z
       .strictObject({
         outDir,
@@ -45,7 +53,7 @@ const outputs = z
         version: z
           .literal([3, 4])
           .default(4)
-          .describe('Accepted, not used yet: every build writes both Tailwind versions.'),
+          .describe('Accepted, not used yet: `formats` chooses the Tailwind versions.'),
       })
       .optional()
       .describe('Tailwind theme files (default folder `output/tailwind`).'),
@@ -74,7 +82,7 @@ const outputs = z
       .describe('Removed in v2; rejected.'),
   })
   .describe(
-    'Where `dta build` writes. CSS, JavaScript and Tailwind files are always written; these keys move them.',
+    'What `dta build` writes and where. `formats` chooses the outputs (all by default); the other keys move them.',
   )
 
 /** The lint section is the schema of `@dta/lint`; a bad regular expression is rejected early. */

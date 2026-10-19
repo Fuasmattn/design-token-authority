@@ -1,7 +1,8 @@
 /**
  * AAA on the rendered pages: every text node of the landing page and the playground (empty, the
  * paste field, after the example, the detail panel open beside the view or as the bottom sheet, a
- * lint finding open, after invalid input; both themes) and of every
+ * lint finding open, after invalid input, the Outputs view, an output file's preview, a copied
+ * file; both themes) and of every
  * story (each renders Light and Graphite side by side) reaches 7:1 against its effective
  * background, 4.5:1 when large (24 px, or 18.66 px bold). The token test checks the pairs the
  * system names; this checks what the browser paints, nesting and opacity included.
@@ -186,6 +187,25 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
       await page.getByRole('tab', { name: /^Lint/ }).click()
       await page.locator('summary', { hasText: 'no-default-mode-names' }).click()
       await page.locator('.dta-findings__line').getByRole('button').click()
+      await page.getByRole('dialog').waitFor()
+    },
+    outputs: async (page) => {
+      await loadExample(page)
+      await page.getByRole('tab', { name: /^Outputs/ }).click()
+      await page.locator('.dta-outputs').waitFor()
+    },
+    'output file open': async (page) => {
+      await loadExample(page)
+      await page.getByRole('tab', { name: /^Outputs/ }).click()
+      await page.getByRole('button', { name: 'output/css/themes/branda.css', exact: true }).click()
+      await page.getByRole('dialog').waitFor()
+    },
+    'config open, a file copied': async (page) => {
+      await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
+      await loadExample(page)
+      await page.getByRole('tab', { name: /^Outputs/ }).click()
+      await page.getByRole('button', { name: 'Copy output/css/base.css' }).click()
+      await page.getByRole('button', { name: 'dta.config.ts', exact: true }).click()
       await page.getByRole('dialog').waitFor()
     },
     'invalid input': async (page) => {

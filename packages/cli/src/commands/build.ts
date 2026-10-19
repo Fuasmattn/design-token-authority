@@ -1,4 +1,4 @@
-import { buildOutputs } from '@dta/build'
+import { buildOutputs, OUTPUT_FORMATS } from '@dta/build'
 import type { OutputFile } from '@dta/build'
 import { formatDiagnostic, hasErrors, parseTokenFiles } from '@dta/core'
 import pc from 'picocolors'
@@ -69,13 +69,14 @@ export async function runBuild(context: CommandContext): Promise<number> {
     const names = model.collections
       .map((collection) => collection.name)
       .filter((name) => !config?.collections || config.collections.includes(name))
-    const outputs = config?.outputs ? Object.keys(config.outputs).join(', ') : 'default'
+    const outputs = (config?.outputs?.formats ?? OUTPUT_FORMATS).join(', ')
     ui.log.message(
       `${pc.dim('Source:')} ${tokensDir}\n${pc.dim('Outputs:')} ${outputs}\n${pc.dim('Collections:')} ${names.join(', ') || 'none'}\n${pc.dim('Brands:')} ${brands.length ? brands.join(', ') : 'none'}`,
     )
   }
 
   const { files, diagnostics } = await buildOutputs(model, {
+    formats: config?.outputs?.formats,
     brands,
     collections: config?.collections,
     css: { outDir: config?.outputs?.css?.outDir },

@@ -105,7 +105,7 @@ const diagnosticLine = (diagnostic: Diagnostic): FindingLine => {
 }
 
 /** Diagnostics in one group, in the order found; each line names its file, as in the CLI. */
-const diagnosticGroups = (diagnostics: readonly Diagnostic[]): FindingGroup[] =>
+export const diagnosticGroups = (diagnostics: readonly Diagnostic[]): FindingGroup[] =>
   diagnostics.length === 0 ? [] : [{ lines: diagnostics.map(diagnosticLine) }]
 
 function isPluginExport(files: readonly TokenFileInput[]): unknown {

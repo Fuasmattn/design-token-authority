@@ -20,6 +20,7 @@ A command chip: a copyable CLI command on `terminal-bg`. The same component wher
 - Two sizes: default (scene commands, 13–14 px) and large (hero and final call, a step more padding and a larger icon).
 - Ink on cream in Light, cream on ink in Graphite: the terminal pair, 14:1.
 - Pair it with one outline Button at most. No blinking caret.
+- **In a Preact island** (the playground): the styles live in `CommandButton.css` (classes `dta-command`, `dta-command__prompt`, `__text`, `__icon`, `__copy`, `__tick`, `__status`, and `large`), so the [CLI hand-off](/design-system/components/cli-handoff/) renders the same chip with the same copy behaviour instead of a look of its own. There a long command may wrap, so it never runs past a phone screen.
 
 ## Tokens used
 

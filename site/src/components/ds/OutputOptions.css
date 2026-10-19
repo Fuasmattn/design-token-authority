@@ -1,0 +1,76 @@
+/*
+ * OutputOptions: a row on the canvas closed by a hairline rule (rules and type, no card): the
+ * mono label in fg-subtle, native checkboxes in the action colour with the label type, the
+ * actions at the end. Below 560px of container width the actions take a line of their own.
+ */
+.dta-options {
+  container-type: inline-size;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-6);
+  padding-bottom: var(--space-3);
+  border-bottom: var(--stroke-hairline) solid var(--border-default);
+  font-family: var(--font-sans);
+  color: var(--fg-default);
+}
+.dta-options__group {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-4);
+  min-width: 0;
+}
+.dta-options__label {
+  margin-right: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  color: var(--fg-subtle);
+  text-transform: uppercase;
+}
+.dta-options__choice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  font-size: calc(var(--type-label-size) * 1px);
+  font-weight: var(--type-label-weight);
+  line-height: var(--type-label-line-height);
+  cursor: pointer;
+}
+.dta-options__box {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--action-bg);
+  cursor: pointer;
+}
+.dta-options__box:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: var(--stroke-ink);
+}
+.dta-options__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+@container (max-width: 559px) {
+  .dta-options__group {
+    flex-basis: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dta-options__label {
+    grid-column: 1 / -1;
+    padding-top: var(--space-2);
+  }
+  .dta-options__actions {
+    flex-basis: 100%;
+  }
+  .dta-options__actions > * {
+    flex: 1 1 auto;
+  }
+}
