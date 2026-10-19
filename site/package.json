@@ -6,7 +6,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "tokens": "node ../bin/dta.js build",
+    "tokens": "node ../bin/dta.js build && tsx scripts/build-example.ts",
     "dev": "pnpm tokens && pnpm reference && astro dev",
     "build": "pnpm tokens && pnpm reference && astro build",
     "preview": "astro preview",

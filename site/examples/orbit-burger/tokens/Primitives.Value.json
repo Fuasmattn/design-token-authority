@@ -1,0 +1,198 @@
+{
+  "Void": {
+    "900": {
+      "$type": "color",
+      "$value": "#15122b",
+      "$description": "The void: the app's page background.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "ALL_FILLS",
+            "STROKE_COLOR",
+            "TEXT_FILL"
+          ],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "800": {
+      "$type": "color",
+      "$value": "#1f1a3d",
+      "$description": "Raised surfaces: cards, sheets.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "ALL_FILLS",
+            "STROKE_COLOR",
+            "TEXT_FILL"
+          ],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "700": {
+      "$type": "color",
+      "$value": "#2b2452",
+      "$description": "Hairlines and wells.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "ALL_FILLS",
+            "STROKE_COLOR",
+            "TEXT_FILL"
+          ],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "Starlight": {
+    "100": {
+      "$type": "color",
+      "$value": "#f6f2ea",
+      "$description": "Text on the void.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "ALL_FILLS",
+            "STROKE_COLOR",
+            "TEXT_FILL"
+          ],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "300": {
+      "$type": "color",
+      "$value": "#cfc7e4",
+      "$description": "Secondary text on the void.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "ALL_FILLS",
+            "STROKE_COLOR",
+            "TEXT_FILL"
+          ],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "Nova": {
+    "400": {
+      "$type": "color",
+      "$value": "#ff9a4d",
+      "$description": "Nova, lighter: changed values in token rows.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "ALL_FILLS",
+            "STROKE_COLOR",
+            "TEXT_FILL"
+          ],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "500": {
+      "$type": "color",
+      "$value": "#ff7a1a",
+      "$description": "Nova: the brand orange, the launch button.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "ALL_FILLS",
+            "STROKE_COLOR",
+            "TEXT_FILL"
+          ],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "600": {
+      "$type": "color",
+      "$value": "#e0600a",
+      "$description": "Nova, deeper: the brand orange after the change.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "ALL_FILLS",
+            "STROKE_COLOR",
+            "TEXT_FILL"
+          ],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "Mint": {
+    "300": {
+      "$type": "color",
+      "$value": "#9bebcb",
+      "$description": "Fresh: the accent for ready, open, in orbit.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "ALL_FILLS",
+            "STROKE_COLOR",
+            "TEXT_FILL"
+          ],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "Orbit": {
+    "radius-sm": {
+      "$type": "number",
+      "$value": 8,
+      "$description": "Buttons and cards before the change.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "CORNER_RADIUS"
+          ],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "radius-lg": {
+      "$type": "number",
+      "$value": 24,
+      "$description": "Buttons and cards after the change: rounder.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "CORNER_RADIUS"
+          ],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "radius-pill": {
+      "$type": "number",
+      "$value": 999,
+      "$description": "Pills.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [
+            "CORNER_RADIUS"
+          ],
+          "codeSyntax": {}
+        }
+      }
+    }
+  }
+}

@@ -35,6 +35,10 @@ Known limitations, both from DTA's current model:
 
 The design reference stays the design system on claude.ai ("DTA Drafting Table"); from now on these files are the source of truth for the site, and changes to them are reviewed like any token change.
 
+## The Orbit Burger example
+
+`examples/orbit-burger/` is the landing page's example product (a space burger delivery app) as a real DTA token set with its own `dta.config.ts`: `tokens-base/` is "main", `tokens/` is "this change" (`Colors.Brand.Primary` Nova 500 → 600, `Radius.Card` 8 → 24), so `dta diff --tokens-only --base tokens-base` run in that folder is real. `pnpm tokens` also runs `scripts/build-example.ts`, which builds both states with DTA into `output/css/examples/orbit-burger.css`, scoped as `[data-example="orbit-burger"][data-state="main" | "change"]`; the example components use only these variables (`examples.test.ts` checks the set lints clean, builds, differs in exactly those two tokens and shadows no site token).
+
 ## Design system section and stories
 
 - `src/components/ds/` — the DTA Drafting Table components (Astro, token variables only; a test fails on colour literals, drop shadows and grid paper outside an inspection stage).
