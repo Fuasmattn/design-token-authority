@@ -260,17 +260,18 @@ Order: 100 → 101 → 102 → 103 → 104 (the audit section of the guide follo
 
 ## Phase 10 — Landing redesign
 
-Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17). One story, quietly told: hero, the two-lane loop, one change in four scenes with the Orbit Burger example, facts, final call. Reference mockups in `docs/specs/landing-redesign/`.
+Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17, revised 2026-10-18). One story, quietly told: a hero on the gravity-well key visual, one change in four scenes with the Orbit Burger example, facts, final call; one surface, no grid, commands as copyable chips, AAA. Accepted prototype: `docs/specs/landing-redesign/prototypes/p17-page.html`.
 
 | # | Ticket | Priority | Effort | Blocked by | Status |
 |---|---|---|---|---|---|
+| [110](./110-design-system-one-surface.md) | Design system: one surface, the well's tokens, command chips, AAA | High | M | — | Open |
 | [105](./105-orbit-burger-example.md) | Orbit Burger: example brand as a real token set and fixture | High | M | — | Open |
-| [106](./106-landing-components.md) | Design-system components for the redesigned landing page | High | M | 105 | Open |
-| [107](./107-loop-path-diagram.md) | `LoopPath`: the two-lane loop diagram, flat or risen | High | M | 106 | Open |
+| [106](./106-landing-components.md) | Design-system components for the redesigned landing page | High | M | 110, 105 | Open |
+| [107](./107-gravity-well.md) | `GravityWell` and `FloatingObjects`: the key visual | High | L | 110, 106 | Open |
 | [108](./108-landing-rebuild.md) | Rebuild the landing page | High | M | 106, 107 | Open |
 | [109](./109-diff-report-before-after.md) | `dta diff` report: before/after with the change outlined | Medium | M | 108 | Open |
 
-Order: 105 → 106 → 107 → 108; 109 later.
+Order: 110 → 105 → 106 → 107 → 108; 109 later.
 
 ---
 
