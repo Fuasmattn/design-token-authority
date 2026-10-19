@@ -1,8 +1,8 @@
 ---
 /**
- * The landing page (spec: docs/specs/landing-redesign.md, revised 2026-10-18): the hero on the
- * gravity well, one change in four scenes with the Orbit Burger example, the facts, and the final
- * call with a few objects floating free. One surface, no grid. Everything on it is a design-system
+ * The landing page (spec: docs/specs/landing-redesign.md, revised 2026-10-19): the hero on the
+ * gravity well, the workflow at a glance, one change in four scenes with the Orbit Burger example,
+ * the facts, and the final call with a few objects floating free. One surface, no grid. Everything on it is a design-system
  * component; this file and landing.css only place them.
  */
 import '../../output/css/base.css'
@@ -27,6 +27,7 @@ import Scene from '../components/ds/Scene.astro'
 import Terminal from '../components/ds/Terminal.astro'
 import ThemeSwitch from '../components/ds/ThemeSwitch.astro'
 import TokenRows from '../components/ds/TokenRows.astro'
+import WorkflowRail from '../components/ds/WorkflowRail.astro'
 import {
   AGENT_RUN,
   APPROVE,
@@ -38,13 +39,14 @@ import {
   HERO,
   SCENES,
   TOKEN_ROWS,
+  WORKFLOW,
 } from '../landing/content'
 
 const title = 'Design Token Authority'
 const description = `${HERO.headline} ${HERO.headlineAccent}`
 const github = 'https://github.com/Fuasmattn/design-token-authority'
 const NAV = [
-  { href: '#story', label: 'How it works' },
+  { href: '#how', label: 'How it works' },
   { href: '#agents', label: 'Agents' },
   { href: '/start/', label: 'Docs' },
 ]
@@ -97,6 +99,19 @@ const [s1, s2, s3, s4] = SCENES
           <Button variant="outline" href={HERO.secondary.href}>{HERO.secondary.label}</Button>
         </div>
       </GravityWell>
+
+      <div class="wrap how">
+        <WorkflowRail
+          id="how"
+          idPrefix="how"
+          title={WORKFLOW.title}
+          change={WORKFLOW.change}
+          crossing={{ command: WORKFLOW.crossing.command.text, text: WORKFLOW.crossing.text }}
+          pullRequest={WORKFLOW.pullRequest}
+          steps={WORKFLOW.steps.map((step) => ({ ...step, command: step.command?.text }))}
+          back={{ ...WORKFLOW.back, command: WORKFLOW.back.command.text }}
+        />
+      </div>
 
       <div class="wrap story" id="story">
         <Scene

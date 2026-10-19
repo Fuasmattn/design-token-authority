@@ -138,6 +138,12 @@ h1 .accent {
   align-items: center;
 }
 
+/* The workflow at a glance, right below the hero (the "How it works" anchor) */
+.how {
+  padding-top: var(--space-12);
+  scroll-margin-top: var(--space-6);
+}
+
 /* The story: four scenes and the facts, space-36 apart on desktop */
 .story {
   display: grid;
@@ -238,6 +244,9 @@ h1 .accent {
 }
 
 @media (min-width: 1000px) {
+  .how {
+    padding-top: var(--space-16);
+  }
   .story {
     gap: var(--space-36);
     padding-top: var(--space-24);

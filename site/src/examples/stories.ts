@@ -196,7 +196,7 @@ export const STORIES: readonly Story[] = [
   {
     component: 'workflow-rail',
     variant: 'default',
-    title: 'Stations on the rail',
+    title: 'Two sides meeting in a pull request',
     example: 'WorkflowRailDefault',
     viewports: [DESKTOP, MOBILE],
   },

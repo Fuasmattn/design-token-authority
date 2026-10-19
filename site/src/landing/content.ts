@@ -24,8 +24,10 @@ export const COMMANDS = {
   /** Hero and final call. */
   init: { text: 'npm create dta', uses: ['init'], shipped: NPM_RELEASED },
   pull: { text: 'dta pull', uses: ['pull'], shipped: true },
-  diff: { text: 'dta diff', uses: ['diff'], shipped: true },
+  lint: { text: 'dta lint', uses: ['lint'], shipped: true },
   build: { text: 'dta build', uses: ['build'], shipped: true },
+  diff: { text: 'dta diff', uses: ['diff'], shipped: true },
+  audit: { text: 'dta audit', uses: ['audit'], shipped: true },
   skill: { text: 'dta skill add', uses: ['skill add'], shipped: true },
 } satisfies Record<string, Command>
 
@@ -38,7 +40,44 @@ export const HERO = {
   secondary: { label: 'Read the quick start', href: '/start/quick-start/' },
 }
 
-/** One change, four scenes. The example product is Orbit Burger (site/examples/orbit-burger). */
+/**
+ * The workflow at a glance, right below the hero (spec decision 12, TICKET-112): two sides
+ * meeting in a pull request, unnumbered. The change is made on the design side (or in a file, or
+ * by an agent), `dta pull` carries it across, and in the pull request it is checked, built,
+ * diffed and decided. A fix goes back to whichever side caused it; there is no arrow back.
+ */
+export const WORKFLOW = {
+  title: 'How it works',
+  change: {
+    side: 'where the change is made',
+    label: 'Change',
+    text: 'In Figma Variables, in a token file, or by an agent.',
+  },
+  crossing: { command: COMMANDS.pull, text: 'into the repository' },
+  pullRequest: 'in the pull request',
+  steps: [
+    { label: 'Check', text: 'Structure and names, against your rules.', command: COMMANDS.lint },
+    { label: 'Build', text: 'Every output, for every brand and mode.', command: COMMANDS.build },
+    {
+      label: 'Diff',
+      text: 'Before and after, each difference named by token.',
+      command: COMMANDS.diff,
+    },
+    { label: 'Decide', text: 'A person approves by token.' },
+  ],
+  back: {
+    text: 'A fix goes back to whichever side caused it: a value in Figma, or a component in code.',
+    command: COMMANDS.audit,
+    detail: 'finds the hard-coded ones',
+  },
+}
+
+/**
+ * One change, four scenes, in the order of the strip: the change crossing over (`dta pull`), the
+ * differences (`dta diff`), the decision with the checks (`dta lint`, the first check the
+ * reviewer sees; `dta build` lives in the strip), and the agent. The example product is Orbit
+ * Burger (site/examples/orbit-burger).
+ */
 export const SCENES = [
   {
     number: '01',
@@ -59,7 +98,7 @@ export const SCENES = [
     kicker: 'A person decides',
     heading: 'Approve by token, not by screenshot.',
     text: 'The checks say what changed and why. Approving is a label on the pull request; a new push asks again. Then every output is rebuilt.',
-    command: COMMANDS.build,
+    command: COMMANDS.lint,
   },
   {
     number: '04',
@@ -91,11 +130,11 @@ export const DIFF_SHARES = {
   real: false,
 }
 
-/** Scene 03: the checks of the pull request. */
+/** Scene 03: the checks of the pull request, in the order of the strip (lint, build, diff). */
 export const CHECKS = [
   { name: 'dta lint', status: 'passed' as const, detail: '0 violations' },
+  { name: 'dta build', status: 'passed' as const },
   { name: 'dta diff', status: 'changes' as const, detail: '2 stories' },
-  { name: 'dta build', status: 'pending' as const },
 ]
 export const APPROVE = 'Add label dta-diff-approved'
 
