@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** M
 **Blocked by:** 110, 105
-**Status:** open
+**Status:** done (2026-10-18)
 **Spec:** [landing-redesign](../specs/landing-redesign.md) (decisions 1, 2, 6, 9, 11); accepted prototype `docs/specs/landing-redesign/prototypes/p17-page.html` (`gen16.py` for the exact spacing and sizes)
 
 Revised 2026-10-18 with the spec: `ExampleCard`/`BeforeAfter` became one button in two states, `CommandChip` and `Facts` were added, `LoopPath` moved to 107 as `GravityWell`.
@@ -29,3 +29,10 @@ Rules: token variables only; no borders except the ones named here; no shadows e
 - [ ] Phone width checked (390 px, no horizontal scroll) for each
 - [ ] Every story passes the contrast test (110) in both themes
 - [ ] All gates pass plus the site job, and the GitHub run is green
+
+## Outcome
+
+- `CommandButton` became the command chip (prompt, mono 500, copy icon → tick for 1.6 s, "copied" announced; sizes default and large). The name stays; the docs page is rewritten.
+- New: `Scene` (container query at 860 px, example left or right), `ExampleButton` (two states from the Orbit Burger build, 19 px bold, `role="img"`), `TokenRows` (edited rows `from → value` in Nova with a dashed `action-bg` outline), `Checks` (flat rows, approve in `action-text`/`action-fg`), `Facts` (definition list, container query, 2/4 columns). Each with a docs page under `design-system/components/` and stories at 1280 and 390.
+- `DiffCard` and `Redline` stay in the design system for now (109 moves the redline presentation); the landing page stops using them in 108.
+- Every story passes the rendered contrast audit (110) in both themes; `dta audit src` reports nothing.

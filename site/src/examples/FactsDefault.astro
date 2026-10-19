@@ -1,0 +1,12 @@
+---
+import Facts from '../components/ds/Facts.astro'
+
+const facts = [
+  { term: 'Open source', text: "MIT. Runs locally, in CI and in your agent's terminal. No account." },
+  { term: 'Your structure', text: 'Your collections, modes and names, in the open DTCG format.' },
+  { term: 'Every Figma plan', text: 'REST API on Enterprise, plugin export everywhere else.' },
+  { term: 'Deterministic', text: 'Same input, same result, on every machine.' },
+]
+---
+
+<Facts facts={facts} />

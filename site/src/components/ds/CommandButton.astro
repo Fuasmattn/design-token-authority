@@ -1,28 +1,55 @@
 ---
-/** A copyable CLI command; the main call to action wherever DTA starts from the terminal. */
+/**
+ * A command chip: a copyable CLI command on terminal-bg, the same component wherever the site
+ * shows a command. `$` prompt, the command in mono, a copy icon that becomes a tick for a moment
+ * after copying. The large size is the call to action of the landing page's hero and end.
+ */
 interface Props {
   command: string
+  size?: 'default' | 'large'
 }
-const { command } = Astro.props
+const { command, size = 'default' } = Astro.props
 ---
 
-<button type="button" class="dta-command" data-command={command} aria-label={`Copy command: ${command}`}>
+<button
+  type="button"
+  class:list={['dta-command', size]}
+  data-command={command}
+  aria-label={`Copy: ${command}`}
+  title="Copy command"
+>
   <span class="prompt" aria-hidden="true">$</span>
   <span class="text">{command}</span>
-  <span class="hint" aria-live="polite">copy</span>
+  <svg class="icon copy" viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+    <path d="M15 9V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4"></path>
+  </svg>
+  <svg class="icon tick" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M4 12.5l5 5L20 6.5"></path>
+  </svg>
+  <span class="status" aria-live="polite"></span>
 </button>
 
 <script>
   for (const button of document.querySelectorAll<HTMLButtonElement>('.dta-command')) {
+    let timer: ReturnType<typeof setTimeout> | undefined
     button.addEventListener('click', async () => {
-      const hint = button.querySelector('.hint')
+      const status = button.querySelector('.status')
+      const done = (text: string) => {
+        button.dataset.copied = ''
+        if (status) status.textContent = text
+        clearTimeout(timer)
+        timer = setTimeout(() => {
+          delete button.dataset.copied
+          if (status) status.textContent = ''
+        }, 1600)
+      }
       try {
         await navigator.clipboard.writeText(button.dataset.command ?? '')
-        if (hint) hint.textContent = 'copied'
+        done('copied')
       } catch {
-        if (hint) hint.textContent = 'select to copy'
+        done('select to copy')
       }
-      setTimeout(() => hint && (hint.textContent = 'copy'), 1600)
     })
   }
 </script>
@@ -31,24 +58,63 @@ const { command } = Astro.props
   .dta-command {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    min-height: 52px;
-    padding: 0 18px;
+    gap: var(--space-2);
+    padding: var(--space-2) 14px;
     border: 0;
     border-radius: var(--radius-md);
     background: var(--terminal-bg);
     color: var(--terminal-fg);
     font-family: var(--font-mono);
     font-size: calc(var(--type-code-size) * 1px);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
     cursor: pointer;
+  }
+  .large {
+    gap: 10px;
+    padding: 14px 18px;
   }
   .prompt {
     color: var(--terminal-prompt);
+    font-weight: 400;
   }
-  .hint {
-    margin-left: 6px;
-    font-size: calc(var(--type-meta-size) * 1px);
-    opacity: 0.7;
+  .icon {
+    width: 14px;
+    height: 14px;
+    margin-left: var(--space-1);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.6;
+  }
+  .large .icon {
+    width: 16px;
+    height: 16px;
+  }
+  .tick {
+    display: none;
+    stroke-width: 2.6;
+    opacity: 1;
+  }
+  .dta-command:hover .icon {
+    opacity: 1;
+  }
+  [data-copied] .copy {
+    display: none;
+  }
+  [data-copied] .tick {
+    display: block;
+  }
+  .status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
   }
   .dta-command:focus-visible {
     outline: none;

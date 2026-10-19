@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** M
 **Blocked by:** —
-**Status:** open
+**Status:** done (2026-10-18)
 **Spec:** [landing-redesign](../specs/landing-redesign.md) (decision 2)
 
 ## What to build
@@ -22,3 +22,9 @@ The landing page's example product, Orbit Burger (a space burger delivery app), 
 - [ ] A recorded `dta diff` run on the two token sets, with stories, gives the percentages the page shows (kept with the snapshot or in the ticket outcome)
 - [ ] No colour literal for Orbit Burger in `site/src`; the guard tests pass
 - [ ] All gates pass plus the site job, and the GitHub run is green
+
+## Outcome
+
+- `site/examples/orbit-burger/`: `Primitives.Value.json` (Void, Starlight, Nova 400/500/600, Mint, Orbit radii) and `Brand.OrbitBurger.json` (Colors.Surface/Text/Brand/Accent, Radius.Card/Pill) in `tokens-base/` (main) and `tokens/` (this change); own `dta.config.ts` with `semantic-must-alias` and `color-contrast` at 7:1 on the text pairs. `dta diff --tokens-only --base tokens-base` reports exactly the two changes.
+- Built with DTA at `pnpm tokens` by `scripts/build-example.ts` (one brand, one mode: the Brand variables are split out of the `:root` build and scoped per state as `[data-example="orbit-burger"][data-state="main" | "change"]`) into `output/css/examples/orbit-burger.css`; `examples.test.ts` checks lint, build, the exact diff and that no variable shadows a site token.
+- Stories: `example-button--states` and `token-rows--default` (106) render from this build. The "share of the differences" numbers for scene 02 come with the landing rebuild (108), from a `dta diff` run on the site's stories.

@@ -1,0 +1,14 @@
+---
+import Scene from '../components/ds/Scene.astro'
+import ExampleButton from '../components/ds/ExampleButton.astro'
+---
+
+<Scene
+  number="02"
+  kicker="The pull request shows the differences"
+  heading="There are differences to review. DTA knows whether tokens caused them."
+  text="dta diff renders the stories before and after and names the token behind each change."
+  command="dta diff"
+>
+  <ExampleButton state="change" label="this change" />
+</Scene>

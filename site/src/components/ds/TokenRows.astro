@@ -1,0 +1,113 @@
+---
+/**
+ * A short list of token rows on the Orbit Burger surface: swatch, name, value. Rows marked
+ * `edited` show the change (`from → to`) in Nova and carry a dashed outline in the action colour,
+ * the page's mark for "the changed token is the mass". Reads the example's variables (built with
+ * DTA from site/examples/orbit-burger) for the surface and the design system's for the outline.
+ */
+export interface TokenRow {
+  name: string
+  /** The value shown; for an edited row, the value after the change. */
+  value: string
+  /** The value before the change: renders `from → value` and marks the row edited. */
+  from?: string
+  /** What the swatch shows: a colour (the example variable, `--nova-500`) or a radius. */
+  swatch: { color: string } | { radius: 'sm' | 'lg' }
+}
+
+interface Props {
+  rows: TokenRow[]
+}
+const { rows } = Astro.props
+---
+
+<ul class="dta-token-rows" data-example="orbit-burger" data-state="change">
+  {
+    rows.map((row) => (
+      <li class:list={['row', { edited: row.from !== undefined }]}>
+        {'color' in row.swatch ? (
+          <span class="swatch" style={`background: var(${row.swatch.color})`} />
+        ) : (
+          <span class:list={['swatch', 'radius', row.swatch.radius]} />
+        )}
+        <span class="name">{row.name}</span>
+        <span class="value">
+          {row.from !== undefined ? (
+            <>
+              <span class="from">{row.from}</span> → {row.value}
+            </>
+          ) : (
+            row.value
+          )}
+        </span>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .dta-token-rows {
+    display: grid;
+    gap: 18px;
+    width: min(100%, 480px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    gap: var(--space-4);
+    align-items: center;
+    padding: var(--space-4) 18px;
+    border-radius: 12px;
+    background: var(--colors-surface-default);
+    color: var(--colors-text-default);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.3;
+  }
+  .edited {
+    outline: var(--stroke-redline) dashed var(--action-bg);
+    outline-offset: 4px;
+  }
+  .swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--colors-surface-raised);
+  }
+  .radius {
+    border: 2.5px solid var(--colors-brand-primary);
+    background: transparent;
+  }
+  .radius.sm {
+    border-radius: 5px;
+  }
+  .radius.lg {
+    border-radius: 5px 5px 5px 16px;
+  }
+  .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .value {
+    color: var(--colors-text-muted);
+    white-space: nowrap;
+  }
+  .edited .value {
+    color: var(--nova-400);
+    font-weight: 500;
+  }
+  .from {
+    color: var(--nova-400);
+  }
+  @media (max-width: 559px) {
+    .row {
+      gap: var(--space-3);
+      padding: 14px 15px;
+      font-size: calc(var(--type-meta-size) * 1px);
+    }
+  }
+</style>

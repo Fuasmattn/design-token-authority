@@ -21,6 +21,7 @@ export default defineConfig({
         './output/css/base.css',
         './output/css/themes/light.css',
         './output/css/themes/graphite.css',
+        './output/css/examples/orbit-burger.css',
         './src/styles/fonts.css',
         './src/styles/theme.css',
       ],

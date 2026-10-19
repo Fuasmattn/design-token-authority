@@ -1,0 +1,26 @@
+---
+title: Example button
+description: The Orbit Burger "Launch order" button in its two states, from the example's own tokens.
+sidebar:
+  order: 11
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+The landing page's example product is Orbit Burger, a space burger delivery app. Its "Launch order" button is shown in two states: `main` (Nova 500, radius 8) and `change` (Nova 600, radius 24). The rounder corners are obvious; the darker orange is easy to miss. That is the point of scene 02.
+
+<Examples component="example-button" />
+
+## Guidelines
+
+- Reads only the example's variables (`--colors-brand-primary`, `--colors-text-on-primary`, `--radius-card`), built with DTA from `site/examples/orbit-burger` and scoped under `[data-example="orbit-burger"][data-state]`. Nothing of the page's own palette, so it reads as a customer's component.
+- Large text (19 px bold): the brand orange carries its label at 4.5:1 in both states, which is AAA for large text; at body size it could not.
+- The label above says which state it is: "main" in `fg-muted`, "this change" in `action-text`.
+- It is an image of a button (`role="img"`), not a control.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="ExampleButton" />

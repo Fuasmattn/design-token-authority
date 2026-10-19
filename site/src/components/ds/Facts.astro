@@ -1,0 +1,70 @@
+---
+/**
+ * Four facts as four big words: each under a thin rule, one muted line beneath. No glyphs, no
+ * boxes. Four columns on desktop, two on tablets, a list on phones.
+ */
+export interface Fact {
+  term: string
+  text: string
+}
+
+interface Props {
+  facts: Fact[]
+}
+const { facts } = Astro.props
+---
+
+<div class="dta-facts-frame"><dl class="dta-facts">
+  {
+    facts.map((fact) => (
+      <div class="fact">
+        <dt>{fact.term}</dt>
+        <dd>{fact.text}</dd>
+      </div>
+    ))
+  }
+</dl></div>
+
+<style>
+  .dta-facts-frame {
+    container-type: inline-size;
+  }
+  .dta-facts {
+    display: grid;
+    gap: 36px var(--space-10);
+    margin: 0;
+  }
+  .fact {
+    padding-top: 22px;
+    border-top: var(--stroke-redline) solid var(--border-strong);
+  }
+  dt {
+    margin: 0 0 10px;
+    font-family: var(--font-sans);
+    font-size: 26px;
+    font-weight: var(--type-title-weight);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: var(--fg-default);
+  }
+  dd {
+    margin: 0;
+    font-size: calc(var(--type-label-size) * 1px);
+    line-height: 1.55;
+    color: var(--fg-muted);
+  }
+  @container (min-width: 560px) {
+    .dta-facts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @container (min-width: 1000px) {
+    .dta-facts {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-12);
+    }
+    dt {
+      font-size: 30px;
+    }
+  }
+</style>

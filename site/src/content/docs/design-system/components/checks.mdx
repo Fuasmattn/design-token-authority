@@ -1,0 +1,24 @@
+---
+title: Checks
+description: The checks of a pull request and the approve action, flat on the surface.
+sidebar:
+  order: 13
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+The checks of a pull request as flat rows on `bg-surface` with a hairline, and the approve action.
+
+<Examples component="checks" />
+
+## Guidelines
+
+- Each row: a dot, the check's name, its status word with an optional detail. `passed` in `success-fg`, `changes to review` in `signal-text`, `pending` in `fg-muted`; the dot follows.
+- The approve action is the one blue surface on the landing page: `action-text` with `action-fg`, 9.7:1 in Light and 12:1 in Graphite. It is a label of what the person does, not a working button on the page.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="Checks" />

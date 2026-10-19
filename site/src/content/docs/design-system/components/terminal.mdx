@@ -15,7 +15,7 @@ A read-only block of CLI output on `terminal-bg`, showing what DTA actually prin
 ## Guidelines
 
 - Header strip in mono meta: "TERMINAL" and "SAME INPUT · SAME OUTPUT".
-- Prompt and changes in `terminal-prompt`, passes in `sage-400`, everything else `terminal-fg` at reduced opacity.
+- Prompt and changes in `terminal-prompt`, passes and found values in `terminal-success`, secondary lines in `terminal-muted`, everything else `terminal-fg`; all at 7:1 on `terminal-bg`.
 - Output is copied from a real run and stays stable; never invent statistics. The example is abridged output of `dta diff` on the brand-ab fixture.
 - The cursor blinks; it stops under reduced motion.
 

@@ -7,11 +7,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -23,11 +19,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -39,11 +31,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -55,11 +43,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -73,11 +57,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -89,11 +69,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -107,11 +83,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -123,11 +95,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -139,11 +107,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -157,11 +121,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -173,11 +133,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -189,11 +145,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -205,11 +157,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -223,11 +171,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -239,11 +183,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -255,11 +195,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -271,11 +207,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -289,11 +221,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -305,11 +233,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -322,11 +246,7 @@
     "$extensions": {
       "com.figma": {
         "hiddenFromPublishing": false,
-        "scopes": [
-          "ALL_FILLS",
-          "STROKE_COLOR",
-          "TEXT_FILL"
-        ],
+        "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
         "codeSyntax": {}
       }
     }
@@ -339,11 +259,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -355,11 +271,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -371,11 +283,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -387,11 +295,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -403,11 +307,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -421,11 +321,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -437,11 +333,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -453,11 +345,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -469,11 +357,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -485,11 +369,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -501,11 +381,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -517,11 +393,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -533,11 +405,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -549,11 +417,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -565,11 +429,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -581,11 +441,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -597,11 +453,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -613,11 +465,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -629,11 +477,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }
@@ -645,11 +489,7 @@
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
-          "scopes": [
-            "ALL_FILLS",
-            "STROKE_COLOR",
-            "TEXT_FILL"
-          ],
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
           "codeSyntax": {}
         }
       }

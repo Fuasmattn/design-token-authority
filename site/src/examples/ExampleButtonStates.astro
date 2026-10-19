@@ -1,0 +1,17 @@
+---
+import ExampleButton from '../components/ds/ExampleButton.astro'
+---
+
+<div class="pair">
+  <ExampleButton state="main" label="main" />
+  <ExampleButton state="change" label="this change" />
+</div>
+
+<style>
+  .pair {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    align-items: end;
+  }
+</style>

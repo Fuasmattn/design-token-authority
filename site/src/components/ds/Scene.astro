@@ -1,0 +1,90 @@
+---
+/**
+ * One scene of the landing page's story: a numbered kicker, a heading, one paragraph and the
+ * command, with the example (the slot) beside it on desktop and under it on phones. The example
+ * sits on the surface itself: no border, no card.
+ */
+import CommandButton from './CommandButton.astro'
+
+interface Props {
+  number: string
+  kicker: string
+  heading: string
+  text: string
+  command: string
+  /** Which side the example takes on desktop. */
+  example?: 'right' | 'left'
+  id?: string
+}
+const { number, kicker, heading, text, command, example = 'right', id } = Astro.props
+---
+
+<section class:list={['dta-scene-frame']} id={id}><div class:list={['dta-scene', example]}>
+  <div class="copy">
+    <span class="step">{number} · {kicker}</span>
+    <h2>{heading}</h2>
+    <p>{text}</p>
+    <CommandButton command={command} />
+  </div>
+  <div class="art"><slot /></div>
+</div></section>
+
+<style>
+  .dta-scene-frame {
+    container-type: inline-size;
+  }
+  .dta-scene {
+    display: grid;
+    gap: var(--space-10);
+    align-items: center;
+  }
+  .copy {
+    min-width: 0;
+  }
+  .step {
+    display: block;
+    margin-bottom: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: var(--type-meta-line-height);
+    letter-spacing: 0.01em;
+    color: var(--action-text);
+  }
+  h2 {
+    margin: 0 0 var(--space-4);
+    max-width: 18ch;
+    font-family: var(--font-sans);
+    font-size: clamp(30px, 4.6vw, calc(var(--type-heading-size) * 1.18px));
+    font-weight: var(--type-heading-weight);
+    line-height: var(--type-heading-line-height);
+    letter-spacing: var(--type-heading-letter-spacing);
+    color: var(--fg-default);
+  }
+  p {
+    margin: 0;
+    max-width: 44ch;
+    font-size: calc(var(--type-body-size) * 1px);
+    line-height: var(--type-body-line-height);
+    color: var(--fg-muted);
+  }
+  .copy > :global(.dta-command) {
+    margin-top: var(--space-6);
+  }
+  .art {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    min-width: 0;
+    padding: var(--space-2) 0;
+  }
+  @container (min-width: 860px) {
+    .dta-scene {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: var(--space-16);
+    }
+    .left .copy {
+      order: 2;
+    }
+  }
+</style>

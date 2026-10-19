@@ -1,0 +1,11 @@
+---
+import Checks from '../components/ds/Checks.astro'
+
+const checks = [
+  { name: 'dta lint', status: 'passed' as const, detail: '0 violations' },
+  { name: 'dta diff', status: 'changes' as const, detail: '2 stories' },
+  { name: 'dta build', status: 'pending' as const },
+]
+---
+
+<Checks checks={checks} approve="Add label dta-diff-approved" />
