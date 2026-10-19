@@ -68,6 +68,27 @@ export const STORIES: readonly Story[] = [
     viewports: [DESKTOP, MOBILE],
   },
   {
+    component: 'gravity-well',
+    variant: 'default',
+    title: 'The well at rest, with the copy on it',
+    example: 'GravityWellDefault',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
+    component: 'gravity-well',
+    variant: 'large',
+    title: 'Size L, position B, tilt 52',
+    example: 'GravityWellLarge',
+    viewports: [DESKTOP],
+  },
+  {
+    component: 'floating-objects',
+    variant: 'default',
+    title: 'Objects floating free around the final call',
+    example: 'FloatingObjectsDefault',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
     component: 'facts',
     variant: 'default',
     title: 'Four big words',

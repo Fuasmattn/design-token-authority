@@ -12,7 +12,7 @@
     "preview": "astro preview",
     "typecheck": "pnpm tokens && pnpm reference && astro check",
     "test": "vitest run",
-    "test:contrast": "DTA_E2E=1 vitest run contrast.e2e.test.ts",
+    "test:contrast": "DTA_E2E=1 vitest run contrast.e2e.test.ts motion.e2e.test.ts",
     "report:tokens": "tsx scripts/report-tokens.ts",
     "reference": "tsx scripts/generate-reference.ts"
   },

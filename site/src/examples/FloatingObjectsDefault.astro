@@ -1,0 +1,30 @@
+---
+import FloatingObjects from '../components/ds/FloatingObjects.astro'
+import CommandButton from '../components/ds/CommandButton.astro'
+---
+
+<FloatingObjects>
+  <div class="demo">
+    <h2 class="demo-h">Start with one command.</h2>
+    <CommandButton command="npm create dta" size="large" />
+  </div>
+</FloatingObjects>
+
+<style>
+  .demo {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-6);
+    padding-block: var(--space-20);
+    text-align: center;
+  }
+  .demo-h {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: calc(var(--type-heading-size) * 1px);
+    font-weight: var(--type-heading-weight);
+    line-height: var(--type-heading-line-height);
+    letter-spacing: var(--type-heading-letter-spacing);
+    color: var(--fg-default);
+  }
+</style>

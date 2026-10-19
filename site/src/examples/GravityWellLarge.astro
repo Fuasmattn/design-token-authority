@@ -1,0 +1,16 @@
+---
+import GravityWell from '../components/ds/GravityWell.astro'
+---
+
+<GravityWell still size="L" position="B" tilt={52}>
+  <p class="demo-p">Size L, position B, tilt 52°: the props exist for the docs; the landing page uses the defaults.</p>
+</GravityWell>
+
+<style>
+  .demo-p {
+    margin: 0;
+    max-width: 40ch;
+    color: var(--fg-muted);
+    line-height: var(--type-body-line-height);
+  }
+</style>
