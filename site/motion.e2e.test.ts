@@ -3,7 +3,7 @@
  * `prefers-reduced-motion: reduce` the well, the floating objects and every other story have no
  * running animation, and the well's canvas is drawn once (its loop stops); the playground moves
  * nothing under reduced motion but still highlights changed values, and with motion its
- * transitions run on the motion tokens; neither the playground nor the landing page shifts its
+ * transitions run on the motion tokens (also the detail panel's "Next finding", TICKET-113); neither the playground nor the landing page shifts its
  * layout. Same conditions as contrast.e2e.test.ts (built site, Chromium).
  */
 import fs from 'node:fs'
@@ -290,6 +290,60 @@ describe.skipIf(!enabled)('motion on the rendered stories', () => {
       }
     },
     90_000,
+  )
+
+  it.each([
+    [1280, 'reduce'],
+    [390, 'reduce'],
+    [1280, 'no-preference'],
+    [390, 'no-preference'],
+  ] as const)(
+    '"Next finding" at %i px (%s motion): the new content fades in with motion only, the position lights up',
+    async (width, reducedMotion) => {
+      const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion })
+      try {
+        const page = await context.newPage()
+        await page.goto(`${origin}/playground/#lint`, { waitUntil: 'networkidle' })
+        await page.getByRole('button', { name: 'Example with problems' }).click()
+        await page.locator('summary', { hasText: 'no-dangling-aliases' }).click()
+        await page.locator('#pg-finding-0-0').click()
+        const next = page.getByRole('button', { name: 'Next finding' })
+        await next.waitFor()
+        await page.waitForTimeout(400)
+        const opened = await page.getByRole('dialog').boundingBox()
+        await page.evaluate(RECORD)
+        await page.evaluate(WATCH_SHIFTS)
+        await next.click()
+        const lit = await page.evaluate(`(() => {
+          const el = document.querySelector('.dta-detail__position .dta-changed[data-changed]')
+          return Boolean(el && el.getAnimations().some((a) => a.playState === 'running'))
+        })()`)
+        await page.waitForTimeout(400)
+        const motion = (await page.evaluate('window.__motion')) as {
+          props: Record<string, string[]>
+          timings: Array<[string, string, number, number]>
+          vt: number
+        }
+        expect(lit).toBe(true)
+        // The panel stays where it is (its height follows the content); no View Transition.
+        const after = await page.getByRole('dialog').boundingBox()
+        expect([after.x, after.width]).toEqual([opened.x, opened.width])
+        if (width >= 1024) expect(after.y).toBe(opened.y)
+        expect(motion.vt).toBe(0)
+        if (reducedMotion === 'reduce') {
+          expect(Object.keys(motion.props).sort()).toEqual(['background-color', 'color'])
+          expect([...new Set(Object.values(motion.props).flat())]).toEqual(['dta-changed'])
+        } else {
+          expect(motion.props.opacity ?? []).toContain('dta-detail__message')
+          for (const [, , duration] of motion.timings)
+            expect(TOKEN_MS).toContain(Math.round(duration))
+        }
+        expect(await page.evaluate('window.__shift')).toBe(0)
+      } finally {
+        await context.close()
+      }
+    },
+    60_000,
   )
 
   it.each([

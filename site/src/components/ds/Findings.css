@@ -106,6 +106,20 @@
   display: block;
   color: var(--fg-subtle);
 }
+/* The page that explains a diagnostic: a link in the action ink, underlined. */
+.dta-findings__link {
+  color: var(--action-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.dta-findings__link:hover {
+  text-decoration-thickness: var(--stroke-ink);
+}
+.dta-findings__link:focus-visible {
+  outline: none;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+}
 
 /* Rule rows: summaries first. A rule with findings is a disclosure; its lines open under it. */
 .dta-findings__rules {

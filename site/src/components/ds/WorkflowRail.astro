@@ -212,7 +212,11 @@ const headingId = `${idPrefix}-title`
   /* One row: the change, the crossing, and the pull request under its bracket. */
   @container (min-width: 960px) {
     .dta-workflow {
-      grid-template-columns: minmax(0, 1fr) auto minmax(min-content, 4fr);
+      /*
+       * The change side gets a third of the free width the pull request gets, so its
+       * label ("where the change is made") stays on one line in a 1176px container (1280 screen).
+       */
+      grid-template-columns: minmax(0, 1fr) auto minmax(min-content, 3fr);
       gap: var(--space-6);
       align-items: start;
     }

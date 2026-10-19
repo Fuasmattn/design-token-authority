@@ -28,6 +28,12 @@ export interface OutputFile {
   /** Relative to the project root, with forward slashes. */
   path: string
   content: string
+  /**
+   * The output it belongs to (`tailwind-v4` for `tailwind.css`, `tailwind-v3` for
+   * `tailwind.tokens.ts`). Set on every file `buildOutputs` returns; files made elsewhere (a
+   * config next to them in a zip) have none.
+   */
+  format?: OutputFormat
 }
 
 export interface BuildResult {
@@ -71,6 +77,7 @@ function sourceOf(collection: Collection, mode: string): Source {
 async function format(
   tree: Record<string, unknown>,
   platforms: Record<string, PlatformConfig>,
+  outputOf: Readonly<Record<string, OutputFormat>>,
 ): Promise<OutputFile[]> {
   const dictionary = new StyleDictionary({
     tokens: tree as DesignTokens,
@@ -82,10 +89,11 @@ async function format(
     string,
     Array<{ output: unknown; destination?: string }>
   >
-  return Object.values(outputs).flatMap((platformOutputs) =>
+  return Object.entries(outputs).flatMap(([platform, platformOutputs]) =>
     platformOutputs.map(({ output, destination }) => ({
       path: destination as string,
       content: output as string,
+      format: outputOf[platform],
     })),
   )
 }
@@ -138,7 +146,10 @@ export async function buildOutputs(
     platforms: Record<string, PlatformConfig & { output: OutputFormat }>,
   ) => {
     const chosen = only(platforms, formats)
-    return Object.keys(chosen).length === 0 ? [] : format(tree, chosen)
+    const outputOf = Object.fromEntries(
+      Object.entries(platforms).map(([name, platform]) => [name, platform.output]),
+    )
+    return Object.keys(chosen).length === 0 ? [] : format(tree, chosen, outputOf)
   }
 
   const singleMode = model.collections.filter((c) => c.modes.length === 1)

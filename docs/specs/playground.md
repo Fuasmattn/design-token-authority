@@ -20,7 +20,7 @@ A static, client-side app embedded in the website as an Astro island: drop or pa
 3. **Views:** structure (collections, modes, detected layer roles), dependency graph with a brand and breakpoint switcher, lint findings inline, outputs (CSS, Tailwind v4/v3, JS) with copy and download, and a "take it to the CLI" panel with a generated `dta.config.ts` and the commands to run.
 4. **No server, no storage, no accounts.** Nothing is uploaded or persisted beyond an optional per-browser "last session" convenience (local storage, safe to lose). No Figma pull (the REST API needs Enterprise and a token in the browser).
 5. **Design:** the site's Drafting Table components and tokens; the graph uses the same visual language (ink lines, blueprint selection, redline highlights for findings).
-6. **Example data:** the brand-ab fixture as the one-click example (BrandA/BrandB only); it is the one that exercises the brand and breakpoint switcher. The Orbit Burger example (TICKET-105, one brand, one mode) may be offered as a second, smaller example.
+6. **Example data:** the brand-ab fixture as the one-click example (BrandA/BrandB only); it is the one that exercises the brand and breakpoint switcher. The Orbit Burger example (TICKET-105, one brand, one mode) may be offered as a second, smaller example. Next to it, "Example with problems" (TICKET-113): the same tokens with one flaw per default lint rule (fixture `brand-ab-problems`), so the findings have something to show.
 7. **Static and island-loaded:** the app loads only on the playground page; the rest of the site stays light.
 
 8. **CLI graph HTML stays as it is in this epic.** Reusing the playground UI for `dta graph --format html` is a separate, later ticket (was open question 1).

@@ -1,8 +1,27 @@
+import fs from 'node:fs'
+import path from 'node:path'
+import { runCli } from '@dta/cli'
 import { formatDiagnostic, parseTokenFiles } from '@dta/core'
 import { importPluginExport } from '@dta/figma'
 import { describe, expect, it } from 'vitest'
 import { analyse, collectionDetail, findingChain } from './analyse'
-import { EXAMPLE_FILES } from './example'
+import { EXAMPLE_FILES, EXAMPLES, PROBLEM_EXAMPLE } from './example'
+
+const repo = path.join(import.meta.dirname, '..', '..', '..')
+const fixture = (name: string) => path.join(repo, 'test', 'fixtures', name)
+
+/** The finding lines (`error … [rule]`), the summary and the verdict of a `dta lint` run. */
+function lintReport(stdout: string) {
+  const lines = stdout
+    .replace(/\u001b\[[0-9;?]*[A-Za-z]/g, '')
+    .split('\n')
+    .map((line) => line.replace(/^[|—o]\s*/, '').trim())
+  return {
+    findings: lines.filter((line) => /^(error|warn) .* \[[a-z-]+\]$/.test(line)),
+    summary: lines.find((line) => / found\.$|^No lint violations found\.$/.test(line)),
+    verdict: lines.find((line) => /^Lint (failed|passed)/.test(line)),
+  }
+}
 
 const primitives = () => {
   const file = EXAMPLE_FILES.find((f) => f.fileName === 'Primitives.Value.json')
@@ -29,6 +48,75 @@ describe('playground analysis', () => {
       'ScreenType.Mobile.json',
       'ScreenType.Tablet.json',
     ])
+  })
+
+  it('bundles each example from its fixture, file for file', () => {
+    for (const example of EXAMPLES) {
+      const dir = path.join(fixture(example.name), 'tokens')
+      expect(example.files).toEqual(
+        fs
+          .readdirSync(dir)
+          .sort((a, b) => a.localeCompare(b))
+          .map((fileName) => ({
+            fileName,
+            content: fs.readFileSync(path.join(dir, fileName), 'utf8'),
+          })),
+      )
+    }
+  })
+
+  it('finds in the "Example with problems" exactly what `dta lint` finds in its fixture', async () => {
+    const result = analyse(PROBLEM_EXAMPLE.files)
+    const lint = result.lint
+    if (!lint) throw new Error('the problem example does not lint')
+    const shown = lint.rules.flatMap((rule) => rule.findings.map((f) => f.cli))
+
+    // The real CLI in the fixture project (no lint section: the default rules, as here)
+    let out = ''
+    const code = await runCli(['lint'], {
+      cwd: fixture(PROBLEM_EXAMPLE.name),
+      stdout: (text) => void (out += text),
+      stderr: (text) => void (out += text),
+    })
+    expect(code).toBe(2)
+    const cli = lintReport(out)
+    expect([...shown].sort()).toEqual([...cli.findings].sort())
+    expect(lint.summary).toBe(cli.summary)
+    expect(lint.verdict).toBe(cli.verdict)
+    // ...and the CLI's reference snapshot of it says the same
+    const snapshot = lintReport(
+      fs.readFileSync(
+        path.join(repo, 'test', 'snapshots', PROBLEM_EXAMPLE.name, 'lint', 'stdout.txt'),
+        'utf8',
+      ),
+    )
+    expect(snapshot).toEqual(cli)
+
+    // One finding per default rule, so every rule has something to show
+    expect(lint.rules.map((rule) => [rule.rule, rule.count])).toEqual([
+      ['no-dangling-aliases', '1 error'],
+      ['no-circular-aliases', '1 error'],
+      ['no-default-mode-names', '1 error'],
+    ])
+    expect(lint.summary).toBe('3 errors found.')
+    expect(lint.counts).toBe('3 errors')
+    // The structure still reads: the default mode name is the primitives' one mode
+    expect(result.structure?.breakpoints).toEqual(['Desktop', 'Mobile', 'Tablet'])
+    expect(result.structure?.brands).toEqual(['BrandA', 'BrandB'])
+  })
+
+  it('shows the chain of each problem finding, or why it does not resolve', () => {
+    const { model, lint } = analyse(PROBLEM_EXAMPLE.files)
+    if (!model || !lint) throw new Error('the problem example does not lint')
+    const [dangling, circular, mode] = lint.rules.map((rule) => rule.findings[0])
+    expect(findingChain(model, dangling.tokenPath)).toEqual({
+      name: 'Colors.Brand.Accent',
+      detail: '"Colors.Brand.Accent" aliases "Colors.Foundation.Orange.550", which does not exist.',
+    })
+    expect(findingChain(model, circular.tokenPath)?.detail).toMatch(/circular/i)
+    expect(circular.file).toBe('')
+    expect(findingChain(model, mode.tokenPath)).toBeUndefined()
+    expect(mode.file).toBe('Primitives.Mode 1.json')
   })
 
   it('shows the structure of brand-ab as `dta analyze` does, and its clean lint', () => {
@@ -70,7 +158,7 @@ describe('playground analysis', () => {
     expect(result.files).toEqual(['Primitives.Mode 1.json'])
     expect(result.input.failed).toBe(false)
     expect(result.input.groups.flatMap((g) => g.lines).map(lineOf)).toEqual(
-      imported.diagnostics.map(formatDiagnostic),
+      imported.diagnostics.map((d) => formatDiagnostic(d, { docs: false })),
     )
     expect(result.structure?.rows.map((row) => row.name)).toEqual(['Primitives'])
     // Figma's default mode name is a lint error, worded as `dta lint` prints it
@@ -100,7 +188,9 @@ describe('playground analysis', () => {
       { fileName: 'Base.Value.json', content: '{"Primary": {"$value": "#fff"}}' },
     ]
     const result = analyse(files)
-    const expected = parseTokenFiles(files).diagnostics.map(formatDiagnostic)
+    const expected = parseTokenFiles(files).diagnostics.map((d) =>
+      formatDiagnostic(d, { docs: false }),
+    )
     expect(expected.length).toBeGreaterThanOrEqual(3)
     expect(result.input.failed).toBe(true)
     expect(result.input.groups.flatMap((g) => g.lines).map(lineOf)).toEqual(expected)

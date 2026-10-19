@@ -5,10 +5,16 @@
  * on grid paper; the sheet wipes down, a redline draws under the header and the links rise one
  * after another. Closes on Escape, on a link and when the screen gets wide; keeps focus inside
  * while open.
+ *
+ * The link of the page you are on is marked (`current`): `aria-current="page"` and an underline
+ * in `action-bg` that stays (the row) or under the label (the menu). Links to sections of the
+ * same page (`#…`) are never current; the page decides which link is.
  */
 interface Link {
   href: string
   label: string
+  /** The link leads to the page shown now (never a section of it). */
+  current?: boolean
 }
 interface Props {
   links: readonly Link[]
@@ -38,7 +44,7 @@ const menuId = `${idPrefix}-menu`
       {
         links.map((link, i) => (
           <li style={`--i: ${i}`}>
-            <a href={link.href}>
+            <a href={link.href} aria-current={link.current ? 'page' : undefined}>
               <span class="index" aria-hidden="true">
                 {String(i + 1).padStart(2, '0')}
               </span>
@@ -138,6 +144,11 @@ const menuId = `${idPrefix}-menu`
   }
   .links a:hover {
     background-size: 100% var(--stroke-redline);
+  }
+  /* The page you are on: its underline stays, in the action colour (not the ink of a hover). */
+  .links a[aria-current='page'] {
+    background-image: linear-gradient(var(--action-bg), var(--action-bg));
+    background-size: 100% var(--stroke-ink);
   }
   .index {
     display: none;
@@ -307,6 +318,13 @@ const menuId = `${idPrefix}-menu`
     .links a:hover .label,
     .links a:focus-visible .label {
       background-size: 100% var(--stroke-redline);
+    }
+    .links a[aria-current='page'] {
+      background-image: none;
+    }
+    .links a[aria-current='page'] .label {
+      background-image: linear-gradient(var(--action-bg), var(--action-bg));
+      background-size: 100% var(--stroke-ink);
     }
     .extra {
       margin-top: auto;

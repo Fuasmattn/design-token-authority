@@ -1,9 +1,10 @@
 /**
  * Where token files come in before anything is loaded (playground spec decisions 2, 14, 15): a
  * drop area that takes the page and is also the button opening the file picker (keyboard and
- * phones, where dragging is not an option), several files at once; "Load example"; and "Paste
- * JSON instead", which swaps the drop area for the paste field (and back). It reads the files and
- * hands them on as `{ fileName, content }`; it does not interpret them.
+ * phones, where dragging is not an option), several files at once; the examples ("Load example",
+ * "Example with problems", TICKET-113), each with what it is; and "Paste JSON instead", which
+ * swaps the drop area for the paste field (and back). It reads the files and hands them on as
+ * `{ fileName, content }`; it does not interpret them.
  *
  * `PasteForm` is the paste field on its own, also used under the SourceBar once something is
  * loaded; `readFiles` reads a FileList the same way for the SourceBar's "Replace files".
@@ -25,17 +26,27 @@ export interface TokenInputFile {
   content: string
 }
 
+/** One example the visitor can load with a click. */
+export interface TokenInputExample {
+  /** Handed to `onExample`. */
+  id: string
+  /** The button: "Load example", "Example with problems". */
+  label: string
+  /** What it loads, next to the button (mono). */
+  description: string
+}
+
 export interface TokenInputProps {
   /** Keeps ids unique when a page shows several inputs (docs examples). */
   idPrefix?: string
-  /** Name of the example the "Load example" button loads (no button without it). */
-  example?: string
+  /** The examples offered under the drop area, in order (none: no example buttons). */
+  examples?: readonly TokenInputExample[]
   /** Start with the paste field instead of the drop area (stories). */
   paste?: boolean
   /** Text in the paste field at first (stories). */
   pasted?: string
   onFiles?: (files: TokenInputFile[]) => void
-  onExample?: () => void
+  onExample?: (id: string) => void
 }
 
 /** Name a pasted per-mode file is read under (a plugin export needs no name). */
@@ -133,7 +144,7 @@ export function PasteForm({ idPrefix, pasted = '', autoFocus, onFiles, onCancel 
 
 export default function TokenInput({
   idPrefix = 'dta-token-input',
-  example,
+  examples = [],
   paste = false,
   pasted = '',
   onFiles,
@@ -219,16 +230,26 @@ export default function TokenInput({
       )}
 
       <div class="dta-token-input__actions">
-        {example && (
-          <>
-            <button type="button" class="dta-button outline" onClick={() => onExample?.()}>
-              Load example
-            </button>
-            <span class="dta-token-input__meta">{example}</span>
-          </>
+        {examples.length > 0 && (
+          <div class="dta-token-input__examples">
+            {examples.map((item) => (
+              <div class="dta-token-input__example" key={item.id}>
+                <button
+                  type="button"
+                  class="dta-button outline"
+                  aria-describedby={`${idPrefix}-example-${item.id}`}
+                  onClick={() => onExample?.(item.id)}
+                >
+                  {item.label}
+                </button>
+                <span class="dta-token-input__meta" id={`${idPrefix}-example-${item.id}`}>
+                  {item.description}
+                </span>
+              </div>
+            ))}
+          </div>
         )}
-        <span class="dta-token-input__spacer" />
-        <button type="button" class="dta-button link" onClick={toggle}>
+        <button type="button" class="dta-button link dta-token-input__switch" onClick={toggle}>
           {pasting ? 'Choose files instead' : 'Paste JSON instead'}
         </button>
       </div>

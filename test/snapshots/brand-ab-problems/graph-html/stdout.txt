@@ -1,0 +1,14 @@
+T   ⮕  dta graph 
+|
+o  Graph built
+|
+|  Tokens: 63 | Aliases: 37 (59%) | Max depth: 2 | Issues: 2
+|
+*  HTML visualization written to graph.html
+|
+!  1 dangling alias(es) found — these reference tokens that don't exist
+|
+x  1 circular reference(s) detected — these will cause infinite loops during resolution
+|
+—  Opening visualization in browser...
+

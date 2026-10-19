@@ -25,13 +25,15 @@ interface Props {
 const { title, description } = Astro.props
 const github = 'https://github.com/Fuasmattn/design-token-authority'
 // The landing page's sections are anchors on the page itself; elsewhere they lead back to it.
-const home = Astro.url.pathname === '/'
+// The link of the page shown is current (Nav); the landing page's sections never are.
+const path = Astro.url.pathname
+const home = path === '/'
 const NAV = [
   { href: home ? '#how' : '/#how', label: 'How it works' },
   { href: home ? '#agents' : '/#agents', label: 'Agents' },
   { href: '/playground/', label: 'Playground' },
   { href: '/start/', label: 'Docs' },
-]
+].map((link) => ({ ...link, current: !link.href.includes('#') && path.startsWith(link.href) }))
 ---
 
 <!doctype html>

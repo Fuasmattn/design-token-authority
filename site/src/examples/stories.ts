@@ -63,8 +63,15 @@ export const STORIES: readonly Story[] = [
   {
     component: 'checks',
     variant: 'default',
-    title: 'Checks and the approve action',
+    title: 'The checks in the order of the strip',
     example: 'ChecksDefault',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
+    component: 'checks',
+    variant: 'decision',
+    title: 'The check that waits for a person, and the approve action',
+    example: 'ChecksDecision',
     viewports: [DESKTOP, MOBILE],
   },
   {
@@ -154,9 +161,16 @@ export const STORIES: readonly Story[] = [
   {
     component: 'nav',
     variant: 'open',
-    title: 'Menu open on a phone',
+    title: 'Menu open on a phone, Docs the page shown',
     example: 'NavOpen',
     viewports: [MOBILE],
+  },
+  {
+    component: 'nav',
+    variant: 'current',
+    title: 'The page you are on: Playground',
+    example: 'NavCurrent',
+    viewports: [DESKTOP],
   },
   {
     component: 'logo',
@@ -240,6 +254,13 @@ export const STORIES: readonly Story[] = [
     variant: 'input',
     title: 'Input that cannot be read',
     example: 'FindingsInput',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
+    component: 'findings',
+    variant: 'unknown',
+    title: 'An export it does not know, with the page that explains the formats',
+    example: 'FindingsUnknown',
     viewports: [DESKTOP, MOBILE],
   },
   {

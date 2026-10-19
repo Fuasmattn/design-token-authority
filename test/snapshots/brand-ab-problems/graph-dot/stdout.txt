@@ -1,0 +1,151 @@
+T   ⮕  dta graph 
+|
+o  Graph built
+digraph TokenDependencies {
+  rankdir=LR;
+  node [shape=box, fontname="Helvetica", fontsize=10];
+  edge [color="#666666"];
+
+  subgraph "cluster_Brand_Alias__BrandA" {
+    label="Brand(Alias).BrandA";
+    style=filled;
+    color="#e3f2fd";
+    "Brand(Alias).BrandA/Colors/Brand/Primary" [label="Colors/Brand/Primary"];
+    "Brand(Alias).BrandA/Colors/Brand/Primary Dark" [label="Colors/Brand/Primary Dark"];
+    "Brand(Alias).BrandA/Colors/Brand/Accent" [label="Colors/Brand/Accent"];
+    "Brand(Alias).BrandA/Colors/Surface/Default" [label="Colors/Surface/Default"];
+    "Brand(Alias).BrandA/Colors/Surface/Muted" [label="Colors/Surface/Muted"];
+    "Brand(Alias).BrandA/Colors/Text/Default" [label="Colors/Text/Default"];
+    "Brand(Alias).BrandA/Colors/Text/Muted" [label="Colors/Text/Muted"];
+    "Brand(Alias).BrandA/Colors/Text/On Primary" [label="Colors/Text/On Primary"];
+    "Brand(Alias).BrandA/Typography/Body/Family" [label="Typography/Body/Family"];
+    "Brand(Alias).BrandA/Effects/overlay/Opacity" [label="Effects/overlay/Opacity"];
+    "Brand(Alias).BrandA/Effects/shadow/Blur" [label="Effects/shadow/Blur"];
+  }
+
+  subgraph "cluster_Brand_Alias__BrandB" {
+    label="Brand(Alias).BrandB";
+    style=filled;
+    color="#fce4ec";
+    "Brand(Alias).BrandB/Colors/Brand/Primary" [label="Colors/Brand/Primary"];
+    "Brand(Alias).BrandB/Colors/Brand/Primary Dark" [label="Colors/Brand/Primary Dark"];
+    "Brand(Alias).BrandB/Colors/Brand/Accent" [label="Colors/Brand/Accent"];
+    "Brand(Alias).BrandB/Colors/Surface/Default" [label="Colors/Surface/Default"];
+    "Brand(Alias).BrandB/Colors/Surface/Muted" [label="Colors/Surface/Muted"];
+    "Brand(Alias).BrandB/Colors/Text/Default" [label="Colors/Text/Default"];
+    "Brand(Alias).BrandB/Colors/Text/Muted" [label="Colors/Text/Muted"];
+    "Brand(Alias).BrandB/Colors/Text/On Primary" [label="Colors/Text/On Primary"];
+    "Brand(Alias).BrandB/Typography/Body/Family" [label="Typography/Body/Family"];
+    "Brand(Alias).BrandB/Effects/overlay/Opacity" [label="Effects/overlay/Opacity"];
+    "Brand(Alias).BrandB/Effects/shadow/Blur" [label="Effects/shadow/Blur"];
+  }
+
+  subgraph "cluster_Primitives_Mode_1" {
+    label="Primitives.Mode 1";
+    style=filled;
+    color="#e8f5e9";
+    "Primitives.Mode 1/Colors/Foundation/Blue/500" [label="Colors/Foundation/Blue/500"];
+    "Primitives.Mode 1/Colors/Foundation/Blue/700" [label="Colors/Foundation/Blue/700"];
+    "Primitives.Mode 1/Colors/Foundation/Green/500" [label="Colors/Foundation/Green/500"];
+    "Primitives.Mode 1/Colors/Foundation/Green/700" [label="Colors/Foundation/Green/700"];
+    "Primitives.Mode 1/Colors/Foundation/Orange/500" [label="Colors/Foundation/Orange/500"];
+    "Primitives.Mode 1/Colors/Foundation/Gray/100" [label="Colors/Foundation/Gray/100"];
+    "Primitives.Mode 1/Colors/Foundation/Gray/500" [label="Colors/Foundation/Gray/500"];
+    "Primitives.Mode 1/Colors/Foundation/Gray/900" [label="Colors/Foundation/Gray/900"];
+    "Primitives.Mode 1/Colors/Foundation/White" [label="Colors/Foundation/White"];
+    "Primitives.Mode 1/Dimensions/spacing/1" [label="Dimensions/spacing/1"];
+    "Primitives.Mode 1/Dimensions/spacing/2" [label="Dimensions/spacing/2"];
+    "Primitives.Mode 1/Dimensions/spacing/4" [label="Dimensions/spacing/4"];
+    "Primitives.Mode 1/Dimensions/spacing/8" [label="Dimensions/spacing/8"];
+    "Primitives.Mode 1/Dimensions/radius/sm" [label="Dimensions/radius/sm"];
+    "Primitives.Mode 1/Dimensions/radius/md" [label="Dimensions/radius/md"];
+    "Primitives.Mode 1/Dimensions/radius/pill" [label="Dimensions/radius/pill"];
+    "Primitives.Mode 1/Effects/opacity/50" [label="Effects/opacity/50"];
+    "Primitives.Mode 1/Effects/opacity/80" [label="Effects/opacity/80"];
+    "Primitives.Mode 1/Effects/blur/sm" [label="Effects/blur/sm"];
+    "Primitives.Mode 1/Effects/blur/md" [label="Effects/blur/md"];
+    "Primitives.Mode 1/Typography/FontFamily/Sans" [label="Typography/FontFamily/Sans"];
+    "Primitives.Mode 1/Typography/FontFamily/Serif" [label="Typography/FontFamily/Serif"];
+    "Primitives.Mode 1/Typography/FontSize/sm" [label="Typography/FontSize/sm"];
+    "Primitives.Mode 1/Typography/FontSize/md" [label="Typography/FontSize/md"];
+    "Primitives.Mode 1/Typography/FontSize/lg" [label="Typography/FontSize/lg"];
+    "Primitives.Mode 1/Typography/FontSize/xl" [label="Typography/FontSize/xl"];
+  }
+
+  subgraph "cluster_ScreenType_Desktop" {
+    label="ScreenType.Desktop";
+    style=filled;
+    color="#fff3e0";
+    "ScreenType.Desktop/Spacing/Gap" [label="Spacing/Gap"];
+    "ScreenType.Desktop/Spacing/Padding" [label="Spacing/Padding"];
+    "ScreenType.Desktop/Typography/Body/Size" [label="Typography/Body/Size"];
+    "ScreenType.Desktop/Typography/Heading/Size" [label="Typography/Heading/Size"];
+    "ScreenType.Desktop/Radius/Card" [label="Radius/Card"];
+  }
+
+  subgraph "cluster_ScreenType_Mobile" {
+    label="ScreenType.Mobile";
+    style=filled;
+    color="#f3e5f5";
+    "ScreenType.Mobile/Spacing/Gap" [label="Spacing/Gap"];
+    "ScreenType.Mobile/Spacing/Padding" [label="Spacing/Padding"];
+    "ScreenType.Mobile/Typography/Body/Size" [label="Typography/Body/Size"];
+    "ScreenType.Mobile/Typography/Heading/Size" [label="Typography/Heading/Size"];
+    "ScreenType.Mobile/Radius/Card" [label="Radius/Card"];
+  }
+
+  subgraph "cluster_ScreenType_Tablet" {
+    label="ScreenType.Tablet";
+    style=filled;
+    color="#e0f7fa";
+    "ScreenType.Tablet/Spacing/Gap" [label="Spacing/Gap"];
+    "ScreenType.Tablet/Spacing/Padding" [label="Spacing/Padding"];
+    "ScreenType.Tablet/Typography/Body/Size" [label="Typography/Body/Size"];
+    "ScreenType.Tablet/Typography/Heading/Size" [label="Typography/Heading/Size"];
+    "ScreenType.Tablet/Radius/Card" [label="Radius/Card"];
+  }
+
+  "Brand(Alias).BrandA/Colors/Brand/Primary" -> "Primitives.Mode 1/Colors/Foundation/Blue/500";
+  "Brand(Alias).BrandA/Colors/Brand/Primary Dark" -> "Primitives.Mode 1/Colors/Foundation/Blue/700";
+  "Brand(Alias).BrandA/Colors/Brand/Accent" -> "Primitives.Mode 1/Colors/Foundation/Orange/500";
+  "Brand(Alias).BrandA/Colors/Surface/Default" -> "Primitives.Mode 1/Colors/Foundation/White";
+  "Brand(Alias).BrandA/Colors/Surface/Muted" -> "Brand(Alias).BrandA/Colors/Text/Muted";
+  "Brand(Alias).BrandA/Colors/Text/Default" -> "Primitives.Mode 1/Colors/Foundation/Gray/900";
+  "Brand(Alias).BrandA/Colors/Text/Muted" -> "Brand(Alias).BrandA/Colors/Surface/Muted";
+  "Brand(Alias).BrandA/Colors/Text/On Primary" -> "Primitives.Mode 1/Colors/Foundation/White";
+  "Brand(Alias).BrandA/Typography/Body/Family" -> "Primitives.Mode 1/Typography/FontFamily/Sans";
+  "Brand(Alias).BrandA/Effects/overlay/Opacity" -> "Primitives.Mode 1/Effects/opacity/50";
+  "Brand(Alias).BrandA/Effects/shadow/Blur" -> "Primitives.Mode 1/Effects/blur/md";
+  "Brand(Alias).BrandB/Colors/Brand/Primary" -> "Primitives.Mode 1/Colors/Foundation/Green/500";
+  "Brand(Alias).BrandB/Colors/Brand/Primary Dark" -> "Primitives.Mode 1/Colors/Foundation/Green/700";
+  "Brand(Alias).BrandB/Colors/Surface/Default" -> "Primitives.Mode 1/Colors/Foundation/White";
+  "Brand(Alias).BrandB/Colors/Surface/Muted" -> "Primitives.Mode 1/Colors/Foundation/Gray/100";
+  "Brand(Alias).BrandB/Colors/Text/Default" -> "Primitives.Mode 1/Colors/Foundation/Gray/900";
+  "Brand(Alias).BrandB/Colors/Text/Muted" -> "Primitives.Mode 1/Colors/Foundation/Gray/500";
+  "Brand(Alias).BrandB/Colors/Text/On Primary" -> "Primitives.Mode 1/Colors/Foundation/White";
+  "Brand(Alias).BrandB/Typography/Body/Family" -> "Primitives.Mode 1/Typography/FontFamily/Serif";
+  "Brand(Alias).BrandB/Effects/overlay/Opacity" -> "Primitives.Mode 1/Effects/opacity/50";
+  "Brand(Alias).BrandB/Effects/shadow/Blur" -> "Primitives.Mode 1/Effects/blur/md";
+  "ScreenType.Desktop/Spacing/Gap" -> "Primitives.Mode 1/Dimensions/spacing/4";
+  "ScreenType.Desktop/Spacing/Padding" -> "Primitives.Mode 1/Dimensions/spacing/8";
+  "ScreenType.Desktop/Typography/Body/Size" -> "Primitives.Mode 1/Typography/FontSize/md";
+  "ScreenType.Desktop/Typography/Heading/Size" -> "Primitives.Mode 1/Typography/FontSize/xl";
+  "ScreenType.Desktop/Radius/Card" -> "Primitives.Mode 1/Dimensions/radius/md";
+  "ScreenType.Mobile/Spacing/Gap" -> "Primitives.Mode 1/Dimensions/spacing/2";
+  "ScreenType.Mobile/Spacing/Padding" -> "Primitives.Mode 1/Dimensions/spacing/2";
+  "ScreenType.Mobile/Typography/Body/Size" -> "Primitives.Mode 1/Typography/FontSize/sm";
+  "ScreenType.Mobile/Typography/Heading/Size" -> "Primitives.Mode 1/Typography/FontSize/lg";
+  "ScreenType.Mobile/Radius/Card" -> "Primitives.Mode 1/Dimensions/radius/sm";
+  "ScreenType.Tablet/Spacing/Gap" -> "Primitives.Mode 1/Dimensions/spacing/2";
+  "ScreenType.Tablet/Spacing/Padding" -> "Primitives.Mode 1/Dimensions/spacing/4";
+  "ScreenType.Tablet/Typography/Body/Size" -> "Primitives.Mode 1/Typography/FontSize/md";
+  "ScreenType.Tablet/Typography/Heading/Size" -> "Primitives.Mode 1/Typography/FontSize/lg";
+  "ScreenType.Tablet/Radius/Card" -> "Primitives.Mode 1/Dimensions/radius/md";
+}
+|
+!  1 dangling alias(es) found — these reference tokens that don't exist
+|
+x  1 circular reference(s) detected — these will cause infinite loops during resolution
+|
+—  Done!
+

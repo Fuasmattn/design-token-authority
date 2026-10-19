@@ -24,6 +24,7 @@ import {
   AGENT_RUN,
   APPROVE,
   CHECKS,
+  DECISION,
   COMMANDS,
   DIFF_SHARES,
   FACTS,
@@ -85,6 +86,17 @@ const [s1, s2, s3, s4] = SCENES
           command={s2.command.text}
           example="left"
         >
+          <Checks checks={CHECKS} />
+        </Scene>
+
+        <Scene
+          number={s3.number}
+          kicker={s3.kicker}
+          heading={s3.heading}
+          text={s3.text}
+          command={s3.command.text}
+          example="right"
+        >
           <div class="two-states">
             <div class="pair">
               <ExampleButton state="main" label="main" />
@@ -100,18 +112,8 @@ const [s1, s2, s3, s4] = SCENES
               }
               <li class="note">{DIFF_SHARES.note}</li>
             </ul>
+            <Checks checks={DECISION} approve={APPROVE} />
           </div>
-        </Scene>
-
-        <Scene
-          number={s3.number}
-          kicker={s3.kicker}
-          heading={s3.heading}
-          text={s3.text}
-          command={s3.command.text}
-          example="right"
-        >
-          <Checks checks={CHECKS} approve={APPROVE} />
         </Scene>
 
         <Scene

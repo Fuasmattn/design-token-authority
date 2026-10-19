@@ -1,7 +1,8 @@
 /**
  * Built files to take away, grouped by kind (playground spec decision 3, TICKET-079): each group
  * (CSS, Tailwind, JS) has a heading, its file count and one download for the whole group; each
- * file a row with its path, its size, Copy and Download. The path is a button that opens the
+ * file a row with its path, its size, Copy and Download. Where a group mixes outputs (Tailwind v4
+ * and v3), each row also says which (`tag`, after the path). The path is a button that opens the
  * file's preview (the playground's DetailPanel); the row of the open file is marked
  * (`aria-current`, tinted `action-subtle`), as in the Structure table.
  *
@@ -26,6 +27,8 @@ export interface OutputFileItem {
   size: string
   /** The file's text, for Copy. */
   content: string
+  /** Which output it is, where a group mixes them: `Tailwind v4`, `Tailwind v3`. */
+  tag?: string
 }
 
 export interface OutputFileGroup {
@@ -88,13 +91,16 @@ export default function OutputFiles({
                   key={file.path}
                   aria-current={file.path === selected ? 'true' : undefined}
                 >
-                  <button
-                    type="button"
-                    class="dta-outputs__path"
-                    onClick={(event) => onOpen?.(file.path, event.currentTarget)}
-                  >
-                    {breakable(file.path)}
-                  </button>
+                  <span class="dta-outputs__where">
+                    <button
+                      type="button"
+                      class="dta-outputs__path"
+                      onClick={(event) => onOpen?.(file.path, event.currentTarget)}
+                    >
+                      {breakable(file.path)}
+                    </button>
+                    {file.tag && <span class="dta-outputs__tag">{file.tag}</span>}
+                  </span>
                   <span class="dta-outputs__size">{file.size}</span>
                   <span class="dta-outputs__actions">
                     <CopyButton text={file.content} accessibleLabel={`Copy ${file.path}`} />

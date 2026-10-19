@@ -35,6 +35,7 @@ import {
 } from '@dta/lint'
 import type { LintViolation } from '@dta/lint'
 import type { DetailLine } from '../components/ds/DetailPanel'
+import { DOC_LINKS } from '../lib/doc-links'
 import type { FindingGroup, FindingLine } from '../components/ds/Findings'
 import type { StructureRow } from '../components/ds/StructureTable'
 
@@ -98,10 +99,20 @@ const finding = (violation: LintViolation): Finding => ({
   tokenPath: violation.tokenPath,
 })
 
+/**
+ * A diagnostic as the CLI words it, except the pointer to the docs: the CLI prints the repository
+ * path ("See docs/….md."), the website links its own page (`DOC_LINKS`, TICKET-114).
+ */
 const diagnosticLine = (diagnostic: Diagnostic): FindingLine => {
-  const line = formatDiagnostic(diagnostic)
+  const line = formatDiagnostic(diagnostic, { docs: false })
   const label = diagnostic.severity
-  return { severity: diagnostic.severity, label, text: line.slice(label.length + 1) }
+  const link = diagnostic.docs ? DOC_LINKS[diagnostic.docs] : undefined
+  return {
+    severity: diagnostic.severity,
+    label,
+    text: line.slice(label.length + 1),
+    ...(link ? { link } : {}),
+  }
 }
 
 /** Diagnostics in one group, in the order found; each line names its file, as in the CLI. */

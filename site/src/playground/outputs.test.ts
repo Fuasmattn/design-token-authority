@@ -23,6 +23,8 @@ import {
   generateConfig,
   groupOutputs,
   OUTPUT_CHOICES,
+  outputFileGroups,
+  outputLabel,
 } from './outputs'
 
 const repo = path.join(import.meta.dirname, '..', '..', '..')
@@ -201,6 +203,34 @@ describe('grouping, sizes and the zip', () => {
       'output/css/variables.css',
     ])
     expect(groupOutputs(built.files.filter((f) => !f.path.includes('/js/'))).length).toBe(2)
+  })
+
+  it('labels Tailwind v4 and v3 files in the Tailwind group, and nothing in CSS or JS', async () => {
+    const { built } = await playground(tokenFiles('brand-ab'), ALL_FORMATS)
+    const shown = outputFileGroups(groupOutputs(built.files))
+    const tags = (id: string) =>
+      Object.fromEntries(
+        shown.find((group) => group.id === id)?.files.map((f) => [f.path, f.tag]) ?? [],
+      )
+    expect(tags('tailwind')).toEqual({
+      'output/tailwind/branda/tailwind.css': 'Tailwind v4',
+      'output/tailwind/branda/tailwind.tokens.ts': 'Tailwind v3',
+      'output/tailwind/brandb/tailwind.css': 'Tailwind v4',
+      'output/tailwind/brandb/tailwind.tokens.ts': 'Tailwind v3',
+      'output/tailwind/tailwind.css': 'Tailwind v4',
+      'output/tailwind/tailwind.tokens.ts': 'Tailwind v3',
+    })
+    expect(Object.values(tags('css')).every((tag) => tag === undefined)).toBe(true)
+    expect(Object.values(tags('js')).every((tag) => tag === undefined)).toBe(true)
+    // Only one Tailwind version chosen: the group is one output, so no labels
+    const { built: v3 } = await playground(tokenFiles('brand-ab'), ['tailwind-v3'])
+    const [only] = groupOutputs(v3.files)
+    expect(only.files.map((file) => outputLabel(only, file))).toEqual([
+      undefined,
+      undefined,
+      undefined,
+    ])
+    expect(shown.find((group) => group.id === 'css')?.downloadLabel).toBe('Download CSS (.zip)')
   })
 
   it('formats sizes in bytes and KB', () => {

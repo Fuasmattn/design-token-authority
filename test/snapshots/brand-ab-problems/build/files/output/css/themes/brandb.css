@@ -1,0 +1,17 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-brand="brandb"] {
+  --Accent: {Colors.Foundation.Orange.550};
+  --colors-brand-primary: var(--colors-foundation-green-500);
+  --colors-brand-primary-dark: var(--colors-foundation-green-700);
+  --colors-surface-default: var(--colors-foundation-white);
+  --colors-surface-muted: var(--colors-foundation-gray-100);
+  --colors-text-default: var(--colors-foundation-gray-900);
+  --colors-text-muted: var(--colors-foundation-gray-500);
+  --colors-text-on-primary: var(--colors-foundation-white);
+  --effects-overlay-opacity: var(--effects-opacity-50);
+  --effects-shadow-blur: var(--effects-blur-md);
+  --typography-body-family: var(--typography-fontfamily-serif);
+}

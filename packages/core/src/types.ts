@@ -48,14 +48,23 @@ export interface TokenFileInput {
 
 export type DiagnosticSeverity = 'error' | 'warning'
 
+/**
+ * A page of DTA's documentation a diagnostic points to. Each surface renders it its own way:
+ * the CLI prints the repository path (`DOC_PATHS`), the website links its own page.
+ */
+export type DocId = 'token-files'
+
 export interface Diagnostic {
   severity: DiagnosticSeverity
   /** Stable machine-readable code, e.g. `invalid-json`, `missing-type`. */
   code: string
+  /** What is wrong, without the pointer to the docs (that is `docs`). */
   message: string
   file?: string
   /** Token path the problem is about. */
   path?: string[]
+  /** The documentation that explains it; `formatDiagnostic` adds "See …". */
+  docs?: DocId
 }
 
 export interface ParseResult {

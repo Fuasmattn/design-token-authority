@@ -15,6 +15,27 @@ sidebar:
 | `no-circular-aliases`   | error    | Aliases that point at each other in a circle            |
 | `no-default-mode-names` | error    | Modes still called `Mode 1`, `Mode 2` (Figma's default) |
 
+One finding of each, on the `brand-ab-problems` fixture (the brand-ab tokens with three flaws; it is the [playground](/playground/)'s "Example with problems", which shows the same findings in your browser):
+
+```txt title="dta lint (test/fixtures/brand-ab-problems)"
+|  Brand(Alias).BrandB.json
+|
+|    error Alias {Colors.Foundation.Orange.550} references non-existent token "Colors.Foundation.Orange.550" [no-dangling-aliases]
+|
+|  (unknown file)
+|
+|    error Circular alias chain: Brand(Alias).BrandA/Colors/Surface/Muted → Brand(Alias).BrandA/Colors/Text/Muted → Brand(Alias).BrandA/Colors/Surface/Muted [no-circular-aliases]
+|
+|  Primitives.Mode 1.json
+|
+|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
+|
+|
+|  3 errors found.
+|
+—  Lint failed.
+```
+
 ## Configurable
 
 Configured under `lint.rules`. A configured rule is a warning unless you set `severity: 'error'`; `'off'` disables it.

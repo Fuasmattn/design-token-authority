@@ -3,8 +3,8 @@ import type { Diagnostic, TokenModel } from '@dta/core'
 import * as z from 'zod'
 import { adapters } from './adapters/index.js'
 
-/** Where the supported input formats are described. */
-const FORMAT_DOCS = 'docs/token-files/input-format.md'
+/** Where the supported input formats are described (`formatDiagnostic` adds "See …"). */
+const FORMAT_DOCS = 'token-files' as const
 
 export type ImportFormat = string
 
@@ -60,7 +60,8 @@ export function importPluginExport(json: unknown): ImportResult {
         {
           severity: 'error',
           code: 'invalid-export',
-          message: `Expected the export to be a JSON object, but got ${json === null ? 'null' : Array.isArray(json) ? 'an array' : typeof json}. See ${FORMAT_DOCS}.`,
+          message: `Expected the export to be a JSON object, but got ${json === null ? 'null' : Array.isArray(json) ? 'an array' : typeof json}.`,
+          docs: FORMAT_DOCS,
         },
       ],
     }
@@ -76,7 +77,8 @@ export function importPluginExport(json: unknown): ImportResult {
           {
             severity: 'error',
             code: 'native-format',
-            message: `This is already DTA's per-mode format and needs no conversion. Save it as {Collection}.{Mode}.json in your tokens directory. See ${FORMAT_DOCS}.`,
+            message: `This is already DTA's per-mode format and needs no conversion. Save it as {Collection}.{Mode}.json in your tokens directory.`,
+            docs: FORMAT_DOCS,
           },
         ],
       }
@@ -88,7 +90,8 @@ export function importPluginExport(json: unknown): ImportResult {
         {
           severity: 'error',
           code: 'unknown-format',
-          message: `Could not recognise the export format. Supported: ${adapters.map((a) => a.format).join(', ')}, and DTA's own per-mode files. See ${FORMAT_DOCS}.`,
+          message: `Could not recognise the export format. Supported: ${adapters.map((a) => a.format).join(', ')}, and DTA's own per-mode files.`,
+          docs: FORMAT_DOCS,
         },
       ],
     }

@@ -1,11 +1,7 @@
 ---
+// The landing page's scene 02: the checks of the pull request in the strip's order.
 import Checks from '../components/ds/Checks.astro'
-
-const checks = [
-  { name: 'dta lint', status: 'passed' as const, detail: '0 violations' },
-  { name: 'dta diff', status: 'changes' as const, detail: '2 stories' },
-  { name: 'dta build', status: 'pending' as const },
-]
+import { CHECKS } from '../landing/content'
 ---
 
-<Checks checks={checks} approve="Add label dta-diff-approved" />
+<Checks checks={CHECKS} />

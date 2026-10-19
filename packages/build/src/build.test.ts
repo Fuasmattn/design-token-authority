@@ -308,6 +308,18 @@ describe('buildOutputs: formats', () => {
     expect(await paths([format])).toEqual(expected)
   })
 
+  it('says which output each file belongs to', async () => {
+    const { files } = await buildOutputs(fixtureModel('brand-ab'), { brands })
+    for (const format of OUTPUT_FORMATS) {
+      const alone = await paths([format])
+      expect(
+        files.filter((file) => file.format === format).map((file) => file.path),
+        format,
+      ).toEqual(alone)
+    }
+    expect(files.every((file) => file.format !== undefined)).toBe(true)
+  })
+
   it('gives each file the same content as a build of every output', async () => {
     const all = await buildOutputs(fixtureModel('brand-ab'), { brands })
     const some = await buildOutputs(fixtureModel('brand-ab'), { brands, formats: ['js', 'css'] })

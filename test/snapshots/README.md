@@ -12,7 +12,7 @@ Reference outputs of the CLI on the fixture projects in `test/fixtures/`. They w
       exit-code.txt   process exit code
       files/**        every file the command created, at its relative path
 
-Fixtures: `brand-ab`, `daisyui`. Scenarios: `build`, `lint`, `graph-console`, `graph-dot`, `graph-markdown`, `graph-html`, `clean` and, for `brand-ab` only (served by the Figma fake from `test/recordings/`), `analyze`, `diff-tokens` (against the earlier token set in `tokens-base/`), `pull-api`, `pull-from-file`, `push-up-to-date`, `push-dry-run` (also `-markdown`, `-json`), `push-yes` and the token queries `token-get` (also `-json`, `-unknown`), `token-find` (also `-json`), `token-list`, `skill-add`, `context` and `audit` (also `-json`, `-baseline`).
+Fixtures: `brand-ab`, `brand-ab-problems` (the playground's example with problems, TICKET-113; recorded from the current CLI when the fixture was added, there was no v1 run of it), `daisyui`. Scenarios: `build`, `lint`, `graph-console`, `graph-dot`, `graph-markdown`, `graph-html`, `clean` and, for `brand-ab` only (served by the Figma fake from `test/recordings/`), `analyze`, `diff-tokens` (against the earlier token set in `tokens-base/`), `pull-api`, `pull-from-file`, `push-up-to-date`, `push-dry-run` (also `-markdown`, `-json`), `push-yes` and the token queries `token-get` (also `-json`, `-unknown`), `token-find` (also `-json`), `token-list`, `skill-add`, `context` and `audit` (also `-json`, `-baseline`).
 
 ## Commands
 

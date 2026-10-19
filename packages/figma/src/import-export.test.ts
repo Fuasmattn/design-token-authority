@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { nameToDot, serializeTokenFiles } from '@dta/core'
+import { formatDiagnostic, nameToDot, serializeTokenFiles } from '@dta/core'
 import type { TokenModel } from '@dta/core'
 import { detectFormat, importPluginExport, tokenFileSchema } from './index.js'
 
@@ -189,8 +189,12 @@ describe('importPluginExport: other input', () => {
   it('points to the format documentation for unknown formats', () => {
     const { format, diagnostics } = importPluginExport({ foo: 'bar' })
     expect(format).toBe('unknown')
-    expect(diagnostics).toMatchObject([{ severity: 'error', code: 'unknown-format' }])
-    expect(diagnostics[0].message).toContain('docs/token-files/input-format.md')
+    expect(diagnostics).toMatchObject([
+      { severity: 'error', code: 'unknown-format', docs: 'token-files' },
+    ])
+    // The CLI's line names the repository path; the website links its own page (TICKET-114).
+    expect(formatDiagnostic(diagnostics[0])).toMatch(/ See docs\/token-files\/input-format\.md\.$/)
+    expect(diagnostics[0].message).not.toContain('docs/')
   })
 
   it.each([null, 42, 'text', [], true])('never throws on %j and says what it expected', (input) => {

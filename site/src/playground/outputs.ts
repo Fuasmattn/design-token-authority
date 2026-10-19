@@ -45,6 +45,32 @@ export function groupOutputs(files: readonly OutputFile[]): OutputGroup[] {
   })).filter((group) => group.files.length > 0)
 }
 
+/**
+ * The output a file belongs to, where its group mixes outputs (the Tailwind group holds the v4
+ * `tailwind.css` and the v3 `tailwind.tokens.ts`): `Tailwind v4`, `Tailwind v3`. None where the
+ * group is one output (CSS, JS), so nothing is said twice. From `OutputFile.format` (@dta/build).
+ */
+export function outputLabel(group: OutputGroup, file: OutputFile): string | undefined {
+  const formats = new Set(group.files.map((f) => f.format))
+  if (formats.size < 2 || !file.format) return undefined
+  return OUTPUT_CHOICES.find((choice) => choice.format === file.format)?.label
+}
+
+/** The groups as the OutputFiles component shows them: sizes, the zip label, the output labels. */
+export function outputFileGroups(groups: readonly OutputGroup[]) {
+  return groups.map((group) => ({
+    id: group.id,
+    name: group.name,
+    downloadLabel: `Download ${group.name} (.zip)`,
+    files: group.files.map((file) => ({
+      path: file.path,
+      content: file.content,
+      size: formatSize(byteLength(file.content)),
+      tag: outputLabel(group, file),
+    })),
+  }))
+}
+
 /** UTF-8 bytes of a file's content. */
 export const byteLength = (content: string) => new TextEncoder().encode(content).length
 

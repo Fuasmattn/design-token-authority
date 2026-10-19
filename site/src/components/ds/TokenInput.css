@@ -1,6 +1,7 @@
 /*
  * TokenInput: the drop area (a dashed ink outline: a place to put something) taking the page,
- * then one row of actions: "Load example" with what it is, and "Paste JSON instead" at the end.
+ * then the actions: the examples ("Load example", "Example with problems"), each with what it is,
+ * one under the other, and "Paste JSON instead" at the end.
  * The paste field takes the drop area's place when asked for. One surface: the drop area and
  * the fields are bg-surface shapes, no shadows. PasteForm (also under the SourceBar) shares
  * these styles.
@@ -92,17 +93,34 @@
   color: var(--fg-default);
 }
 
-/* One row of actions: example first, the switch to the paste field at the end. */
+/*
+ * The actions: the examples one under the other (buttons in one column, what each loads beside
+ * it), the switch to the paste field at the end of the first row.
+ */
 .dta-token-input__actions {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-3);
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-6);
 }
-.dta-token-input__spacer {
-  flex: 1 1 auto;
+.dta-token-input__examples {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--space-2) var(--space-3);
+  min-width: 0;
+}
+.dta-token-input__example {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+}
+.dta-token-input__example .dta-button {
+  justify-self: stretch;
 }
 .dta-token-input__actions .dta-button.link {
+  min-height: 48px;
   padding: 0;
 }
 .dta-token-input__meta {
@@ -171,11 +189,19 @@
   gap: var(--space-3);
 }
 
-/* Narrow: the two buttons on one line, what the example is under them. */
+/* Narrow: each example's button, what it loads under it; the switch after the examples. */
 @container (max-width: 559px) {
-  .dta-token-input__meta {
-    flex-basis: 100%;
-    order: 3;
+  .dta-token-input__examples {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+  .dta-token-input__example {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    gap: var(--space-1);
+  }
+  .dta-token-input__example .dta-button {
+    justify-self: start;
   }
 }
 

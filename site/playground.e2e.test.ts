@@ -2,7 +2,8 @@
  * The playground on the built site (TICKET-077 and TICKET-115, spec docs/specs/playground.md):
  * the workspace with the real components in Chromium (input → source bar, summary, tabs, detail
  * panel), no request after load, Preact on this page only, the tabs' keyboard and URL hash, the
- * panel's focus and Escape (side panel and bottom sheet), no horizontal scroll at 390 and 1280 px
+ * panel's focus and Escape (side panel and bottom sheet), the "Example with problems" and the
+ * panel's "Next finding" (TICKET-113), no horizontal scroll at 390 and 1280 px
  * and no layout shift in both themes, and the JavaScript the page transfers. AAA contrast is
  * checked in contrast.e2e.test.ts.
  *
@@ -257,6 +258,19 @@ describe.skipIf(!enabled)('playground on the built site', () => {
       expect(await page.getByRole('tablist').count()).toBe(0)
       expect(await page.getByRole('table', { name: 'Structure' }).count()).toBe(0)
 
+      // An export in no known format: the CLI's line, but the docs pointer is a link to the
+      // website's page, not the repository path the CLI prints (TICKET-114)
+      await page.getByRole('button', { name: 'Paste JSON instead' }).click()
+      await page.getByLabel('Paste JSON').fill('{"Colors": "not tokens"}')
+      await page.getByRole('button', { name: 'Check pasted JSON' }).click()
+      await input.getByText('[unknown-format]').waitFor()
+      expect(await input.locator('.dta-findings__line').textContent()).toBe(
+        "error [unknown-format] Could not recognise the export format. Supported: tokenhaus, and DTA's own per-mode files. See the Token files reference.",
+      )
+      const docs = input.getByRole('link', { name: 'Token files reference' })
+      expect(await docs.getAttribute('href')).toBe('/reference/token-files/')
+      expect(await input.textContent()).not.toContain('docs/token-files')
+
       expect(requests).toEqual([])
       expect(errors).toEqual([])
     } finally {
@@ -364,6 +378,112 @@ describe.skipIf(!enabled)('playground on the built site', () => {
   )
 
   it.each([
+    [1280, false],
+    [390, true],
+  ] as const)(
+    'at %i px the example with problems shows a finding per default rule, and the panel steps through them (modal: %s)',
+    async (width, modal) => {
+      const { context, page, errors } = await open(width, 'light')
+      try {
+        const requests: string[] = []
+        page.on('request', (request: { url(): string }) => {
+          // The tab icon: see the first flow test.
+          if (new URL(request.url()).pathname !== '/favicon.svg') requests.push(request.url())
+        })
+        // Both examples sit under the drop area, each with what it loads
+        const button = page.getByRole('button', { name: 'Example with problems' })
+        expect(await button.getAttribute('aria-describedby')).toBe('pg-example-brand-ab-problems')
+        expect(await page.locator('#pg-example-brand-ab-problems').textContent()).toBe(
+          'brand-ab with a broken alias, a circular alias and a default mode name',
+        )
+        await button.click()
+        await page.getByRole('table', { name: 'Structure' }).waitFor()
+        expect(await page.getByRole('status').first().textContent()).toMatch(
+          /^Loaded brand-ab-problems example 6 files: Brand\(Alias\)\.BrandA\.json/,
+        )
+        expect(
+          await page.getByRole('list', { name: 'Summary' }).getByRole('listitem').allTextContents(),
+        ).toEqual([
+          '3 collections',
+          '2 brands',
+          '3 breakpoints',
+          '42 tokens',
+          '3 errors',
+          'build outputs',
+        ])
+        await page.getByRole('button', { name: '3 errors' }).click()
+        expect(await page.getByRole('tab', { selected: true }).textContent()).toBe('Lint · 3')
+        expect(await page.locator('.dta-findings__summary').textContent()).toBe(
+          '3 errors found. Lint failed.',
+        )
+        expect(await page.locator('.dta-findings__rule-row').allTextContents()).toEqual([
+          'no-dangling-aliases1 error',
+          'no-circular-aliases1 error',
+          'no-default-mode-names1 error',
+        ])
+
+        // The first finding opens the panel: 1 of 3
+        await page.locator('summary', { hasText: 'no-dangling-aliases' }).click()
+        await page.locator('#pg-finding-0-0').click()
+        const panel = page.getByRole('dialog')
+        await panel.waitFor()
+        expect(await panel.evaluate((el: Element) => el.matches(':modal'))).toBe(modal)
+        expect(await panel.locator('.dta-detail__kicker').textContent()).toBe(
+          'error · no-dangling-aliases',
+        )
+        expect(await panel.locator('.dta-detail__title').textContent()).toBe('Colors.Brand.Accent')
+        expect(await panel.locator('.dta-detail__position').textContent()).toBe('1 of 3')
+
+        // "Next finding": the next rule's finding, its rule opens, focus stays on the button
+        const next = panel.getByRole('button', { name: 'Next finding' })
+        await next.click()
+        expect(await panel.locator('.dta-detail__kicker').textContent()).toBe(
+          'error · no-circular-aliases',
+        )
+        expect(await panel.locator('.dta-detail__title').textContent()).toBe('Colors.Surface.Muted')
+        expect(await panel.locator('.dta-detail__position').textContent()).toBe('2 of 3')
+        expect(await panel.locator('.dta-detail__message').textContent()).toMatch(
+          /^error Circular alias chain: /,
+        )
+        expect(await panel.getByRole('status').textContent()).toBe('2 of 3: Colors.Surface.Muted')
+        expect(await page.evaluate('document.activeElement?.textContent')).toBe('Next finding')
+        expect(
+          await page
+            .locator('details', { hasText: 'no-circular-aliases' })
+            .evaluate((el: Element) => (el as HTMLDetailsElement).open),
+        ).toBe(true)
+        expect(
+          await page
+            .locator('#pg-finding-1-0')
+            .evaluate((el: Element) => el.closest('li')?.getAttribute('aria-current')),
+        ).toBe('true')
+
+        // By keyboard to the third, then round to the first
+        await page.keyboard.press('Enter')
+        expect(await panel.locator('.dta-detail__title').textContent()).toBe(
+          'Primitives.Mode 1.json',
+        )
+        expect(await panel.locator('.dta-detail__position').textContent()).toBe('3 of 3')
+        await page.keyboard.press('Enter')
+        expect(await panel.locator('.dta-detail__position').textContent()).toBe('1 of 3')
+        await page.keyboard.press('Enter')
+        await panel.locator('.dta-detail__position', { hasText: '2 of 3' }).waitFor()
+
+        // Closing returns focus to the row of the finding shown last
+        await page.keyboard.press('Escape')
+        await expect.poll(() => panel.isVisible()).toBe(false)
+        await expect.poll(() => page.evaluate('document.activeElement?.id')).toBe('pg-finding-1-0')
+
+        expect(requests).toEqual([])
+        expect(errors).toEqual([])
+      } finally {
+        await context.close()
+      }
+    },
+    60_000,
+  )
+
+  it.each([
     [390, 'light'],
     [390, 'dark'],
     [1280, 'light'],
@@ -394,6 +514,17 @@ describe.skipIf(!enabled)('playground on the built site', () => {
         await page.getByRole('button', { name: 'Close details' }).click()
         await page.getByRole('tab', { name: /^Lint/ }).click()
         expect(await page.evaluate(OVERFLOW), 'lint').toEqual([])
+        // The example with problems: every rule open, a finding stepped to (TICKET-113)
+        await page.goto('about:blank')
+        await page.goto(`${origin}/playground/#lint`, { waitUntil: 'networkidle' })
+        await page.getByRole('button', { name: 'Example with problems' }).click()
+        for (const rule of await page.locator('summary').all()) await rule.click()
+        expect(await page.evaluate(OVERFLOW), 'problems, rules open').toEqual([])
+        await page.locator('#pg-finding-0-0').click()
+        await page.getByRole('button', { name: 'Next finding' }).click()
+        await page.locator('.dta-detail__position', { hasText: '2 of 3' }).waitFor()
+        expect(await page.evaluate(OVERFLOW), 'next finding').toEqual([])
+        await page.getByRole('button', { name: 'Close details' }).click()
         await page.getByRole('button', { name: 'Paste JSON instead' }).click()
         await page.getByLabel('Paste JSON').fill('{"Colors": ')
         await page.getByRole('button', { name: 'Check pasted JSON' }).click()
@@ -460,6 +591,24 @@ describe.skipIf(!enabled)('playground on the built site', () => {
       expect((await page.locator('.dta-outputs__path').allTextContents()).sort()).toEqual(
         Object.keys(expected).sort(),
       )
+      // The Tailwind group says which file is v4 and which v3; CSS and JS rows say nothing more
+      const tagged = (await page
+        .locator('.dta-outputs__file')
+        .evaluateAll((rows: Element[]) =>
+          rows.map((row) => [
+            row.querySelector('.dta-outputs__path')?.textContent,
+            row.querySelector('.dta-outputs__tag')?.textContent ?? null,
+          ]),
+        )) as Array<[string, string | null]>
+      for (const [file, tag] of tagged) {
+        expect(tag, file).toBe(
+          file.endsWith('/tailwind.css')
+            ? 'Tailwind v4'
+            : file.endsWith('/tailwind.tokens.ts')
+              ? 'Tailwind v3'
+              : null,
+        )
+      }
 
       // A file's preview in the side panel shows the whole file
       await page.getByRole('button', { name: 'output/css/themes/branda.css', exact: true }).click()
@@ -563,6 +712,32 @@ describe.skipIf(!enabled)('playground on the built site', () => {
           .click()
         await page.getByRole('dialog').waitFor()
         expect(await page.evaluate(OVERFLOW), 'preview').toEqual([])
+        // The preview keeps every line whole (`var(--…)` never breaks) and scrolls inside its
+        // own box (TICKET-114): a theme file has the longest lines.
+        await page.getByRole('button', { name: 'Close details' }).click()
+        await page
+          .getByRole('button', { name: 'output/css/themes/branda.css', exact: true })
+          .click()
+        await page.getByRole('dialog').waitFor()
+        expect(await page.evaluate(OVERFLOW), 'long lines').toEqual([])
+        const code = page.getByRole('region', { name: /^Preview of/ })
+        const box = (await code.evaluate((el: Element) => ({
+          whiteSpace: getComputedStyle(el).whiteSpace,
+          overflowX: getComputedStyle(el).overflowX,
+          wider: el.scrollWidth > el.clientWidth,
+          right: el.getBoundingClientRect().right,
+          lineHeight: parseFloat(getComputedStyle(el).lineHeight),
+          lines: (el.textContent ?? '').split('\n').length,
+          height: el.scrollHeight,
+        }))) as Record<string, number | string | boolean>
+        expect(box.whiteSpace).toBe('pre')
+        expect(box.overflowX).toBe('auto')
+        expect(box.right as number).toBeLessThanOrEqual(width)
+        // no line wraps: the content is as tall as its lines (plus the box's padding)
+        expect(box.height as number).toBeLessThan(
+          ((box.lines as number) + 2) * (box.lineHeight as number),
+        )
+        if (width < 1024) expect(box.wider).toBe(true)
         await page.getByRole('button', { name: 'Close details' }).click()
         await page.getByRole('button', { name: 'dta.config.ts', exact: true }).click()
         await page.getByRole('dialog', { name: 'dta.config.ts' }).waitFor()

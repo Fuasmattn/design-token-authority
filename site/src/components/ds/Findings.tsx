@@ -8,7 +8,9 @@
  * Groups are either titled lists (a file and its lines) or, with a `count`, a summary row per
  * rule (playground spec decision 15: summaries first): `no-dangling-aliases   1 error ›`. A rule
  * with findings opens to its lines (native disclosure); one without is a plain row. With
- * `onSelect` each line is a button that opens its details (the playground's DetailPanel).
+ * `onSelect` each line is a button that opens its details (the playground's DetailPanel); the
+ * group of the selected line opens when the selection moves into it (the panel's "Next finding"),
+ * and with `idPrefix` each line's button has an id (`<idPrefix>-<group>-<line>`).
  *
  * Motion: a rule's lines open and close by animating their height (CSS `::details-content` with
  * `interpolate-size`; browsers without it open at once), the chevron turns, and the selected
@@ -16,6 +18,7 @@
  *
  * A Preact component (the playground island renders it); stories render it to static HTML.
  */
+import { useEffect, useRef } from 'preact/hooks'
 import './Findings.css'
 
 export interface FindingLine {
@@ -26,6 +29,8 @@ export interface FindingLine {
   text: string
   /** A second, quieter line: the file the finding is in. */
   detail?: string
+  /** The page that explains it ("See the Token files reference."); not on selectable lines. */
+  link?: { href: string; label: string }
 }
 
 export interface FindingGroup {
@@ -41,6 +46,8 @@ export interface FindingGroup {
 }
 
 export interface FindingsProps {
+  /** Gives each selectable line's button an id: `<idPrefix>-<group>-<line>`. */
+  idPrefix?: string
   title: string
   /** Heading level of the title. */
   level?: 2 | 3
@@ -59,11 +66,17 @@ export interface FindingsProps {
   selected?: { group: number; line: number }
 }
 
+/** The id of a selectable line's button. */
+export const findingId = (idPrefix: string, group: number, line: number) =>
+  `${idPrefix}-${group}-${line}`
+
 function Line({
+  id,
   line,
   onSelect,
   selected,
 }: {
+  id?: string
   line: FindingLine
   onSelect?: (button: HTMLButtonElement) => void
   selected: boolean
@@ -73,6 +86,16 @@ function Line({
       <span class="dta-findings__marker" aria-hidden="true" />
       <span class="dta-findings__text">
         <span class="dta-findings__label">{line.label}</span> {line.text}
+        {line.link && !onSelect && (
+          <>
+            {' '}
+            See the{' '}
+            <a class="dta-findings__link" href={line.link.href}>
+              {line.link.label}
+            </a>
+            .
+          </>
+        )}
         {line.detail && <span class="dta-findings__detail">{line.detail}</span>}
       </span>
     </>
@@ -86,6 +109,7 @@ function Line({
       {onSelect ? (
         <button
           type="button"
+          id={id}
           class="dta-findings__open"
           aria-haspopup="dialog"
           onClick={(event) => onSelect(event.currentTarget)}
@@ -100,6 +124,7 @@ function Line({
 }
 
 export default function Findings({
+  idPrefix,
   title,
   level = 2,
   groups,
@@ -111,11 +136,21 @@ export default function Findings({
   selected,
 }: FindingsProps) {
   const Heading = level === 3 ? 'h3' : 'h2'
+  const root = useRef<HTMLElement>(null)
+  // The selected line is never hidden in a closed rule: its group opens (it never closes one).
+  useEffect(() => {
+    if (!selected) return
+    const rule = root.current?.querySelectorAll<HTMLDetailsElement>('.dta-findings__rules > *')[
+      selected.group
+    ]
+    if (rule instanceof HTMLDetailsElement && !rule.open) rule.open = true
+  }, [selected?.group, selected?.line])
   const lines = (group: FindingGroup, g: number) => (
     <ul class="dta-findings__lines">
       {group.lines.map((line, i) => (
         <Line
           key={i}
+          id={idPrefix && onSelect ? findingId(idPrefix, g, i) : undefined}
           line={line}
           selected={selected?.group === g && selected.line === i}
           onSelect={onSelect && ((button) => onSelect(g, i, button))}
@@ -132,7 +167,7 @@ export default function Findings({
   )
 
   return (
-    <section class="dta-findings">
+    <section class="dta-findings" ref={root}>
       <Heading class="dta-findings__title">{title}</Heading>
       {summary && (
         <p class="dta-findings__summary" data-outcome={outcome}>

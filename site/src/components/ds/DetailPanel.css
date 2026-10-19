@@ -1,10 +1,12 @@
 /*
  * DetailPanel: a bg-surface panel with a 2px ink outline (it is the thing in focus), a mono
  * kicker, a title, the close button and a list (or a file's text) that scrolls inside. Side: in the flow next to
- * the view, sticky while the page scrolls. Sheet: fixed to the bottom of the screen, ink rule on
- * top, rounded top corners, a grab handle; the page behind is veiled with the canvas.
+ * the view, sticky while the page scrolls. Sheet: fixed to the bottom of the screen, the same
+ * complete ink outline (the side lines run down to the screen's edge; a border never stops on a
+ * rounded corner), rounded top corners, a grab handle; the page behind is veiled with the canvas.
  * Look and position by data-presentation; stories render every presentation in the flow
  * (data-static). The side panel fades in from the right, the sheet slides up and back down.
+ * A step row ("Next finding", "2 of 3") ends the body; after a step the new content fades in.
  */
 .dta-detail {
   box-sizing: border-box;
@@ -31,8 +33,8 @@
   inset-inline: auto;
   width: 100%;
 }
+/* The sheet keeps its whole outline; only its bottom corners, at the screen's edge, are square. */
 .dta-detail[data-presentation='sheet'] {
-  border-width: var(--stroke-ink) 0 0;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 /* The sheet on the page: fixed to the bottom of the screen, also while it slides away. */
@@ -183,6 +185,13 @@
 .dta-detail[data-presentation='sheet'] .dta-detail__body {
   padding: 0 var(--space-4) var(--space-6);
 }
+/* What is shown: its parts are the body's own flex items; after a step they fade in. */
+.dta-detail__content {
+  display: contents;
+}
+.dta-detail__content[data-stepped] > * {
+  animation: dta-appear var(--motion-duration-base) var(--motion-ease-enter) both;
+}
 .dta-detail__meta {
   margin: 0;
   font-size: calc(var(--type-body-sm-size) * 1px);
@@ -279,10 +288,15 @@
   vertical-align: -1px;
 }
 
-/* A file's text as it is: mono, long lines wrapped (indentation kept), scrolling inside. */
+/*
+ * A file's text as it is: mono, every line kept whole (no wrapping inside a token such as
+ * `var(--…)`), scrolling inside its own box in both directions, never the page.
+ */
 .dta-detail__code {
   flex: 1 1 auto;
+  min-width: 0;
   min-height: 0;
+  max-width: 100%;
   margin: 0;
   padding: var(--space-3) 0;
   overflow: auto;
@@ -291,8 +305,7 @@
   font-size: calc(var(--type-meta-size) * 1px);
   line-height: var(--type-code-line-height);
   tab-size: 2;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  white-space: pre;
   overscroll-behavior: contain;
 }
 .dta-detail__code code {
@@ -302,6 +315,42 @@
 .dta-detail__code:focus-visible {
   outline: var(--stroke-focus) solid var(--action-bg);
   outline-offset: var(--stroke-hairline);
+}
+
+/*
+ * The step to the next item: the Button at the touch minimum, where we are beside it. It stays
+ * at the end of the panel while the lines above it scroll (the lines' own rule closes them).
+ */
+.dta-detail__step {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding-top: var(--space-1);
+}
+.dta-detail__step .dta-button {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+}
+.dta-detail[data-presentation='sheet'] .dta-detail__step .dta-button {
+  flex: 1 1 auto;
+}
+.dta-detail__position {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  color: var(--fg-muted);
+}
+.dta-detail__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* Reduced motion: nothing slides; the panel and the sheet are there at once (the frame's rule). */

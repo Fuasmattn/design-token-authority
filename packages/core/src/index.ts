@@ -1,7 +1,8 @@
 export { colorsApproximatelyEqual, contrastRatio, parseColor, toHex } from './color.js'
 export type { Color, ParsedColor } from './color.js'
 export { parseAlias } from './alias.js'
-export { formatDiagnostic, hasErrors } from './diagnostics.js'
+export { DOC_PATHS, formatDiagnostic, hasErrors } from './diagnostics.js'
+export type { FormatDiagnosticOptions } from './diagnostics.js'
 export { nameToDot, nameToSlash } from './names.js'
 export { parseTokenFiles } from './parse.js'
 export { analyzeGraph } from './graph.js'
@@ -38,6 +39,7 @@ export type {
   Collection,
   Diagnostic,
   DiagnosticSeverity,
+  DocId,
   FileSource,
   ParseResult,
   Token,

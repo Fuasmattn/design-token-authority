@@ -73,10 +73,11 @@ export const WORKFLOW = {
 }
 
 /**
- * One change, four scenes, in the order of the strip: the change crossing over (`dta pull`), the
- * differences (`dta diff`), the decision with the checks (`dta lint`, the first check the
- * reviewer sees; `dta build` lives in the strip), and the agent. The example product is Orbit
- * Burger (site/examples/orbit-burger).
+ * One change, four scenes, in the order of the strip (maintainer, 2026-10-19, TICKET-114 item 5):
+ * the change crossing over (`dta pull`), the checks (`dta lint` first, then every output is
+ * rebuilt; `dta build` lives in the strip), the differences and the person who approves them
+ * (`dta diff`: the approve action sits with the diff, because that is what a person decides on),
+ * and the agent. The example product is Orbit Burger (site/examples/orbit-burger).
  */
 export const SCENES = [
   {
@@ -88,17 +89,17 @@ export const SCENES = [
   },
   {
     number: '02',
-    kicker: 'The pull request shows the differences',
-    heading: 'There are differences to review. DTA knows whether tokens caused them.',
-    text: 'dta diff renders the stories before and after and names the token behind each change. The rounder corners are obvious. The darker orange is easy to miss.',
-    command: COMMANDS.diff,
+    kicker: 'The checks run first',
+    heading: 'Structure and names are checked before anyone looks.',
+    text: 'dta lint checks the change against your rules, then every output is rebuilt. Nothing here needs a person: what is left is what changed on screen.',
+    command: COMMANDS.lint,
   },
   {
     number: '03',
     kicker: 'A person decides',
     heading: 'Approve by token, not by screenshot.',
-    text: 'The checks say what changed and why. Approving is a label on the pull request; a new push asks again. Then every output is rebuilt.',
-    command: COMMANDS.lint,
+    text: 'dta diff renders the stories before and after and names the token behind each change. The rounder corners are obvious; the darker orange is easy to miss. Approving is a label on the pull request; a new push asks again.',
+    command: COMMANDS.diff,
   },
   {
     number: '04',
@@ -117,7 +118,7 @@ export const TOKEN_ROWS = [
 ]
 
 /**
- * Scene 02: how much of the differences each token explains. Illustrative until the recorded
+ * Scene 03: how much of the differences each token explains. Illustrative until the recorded
  * `dta diff` run on this site's Orbit Burger stories replaces it (TICKET-108 outcome); the note
  * says so on the page (honesty rule).
  */
@@ -130,12 +131,14 @@ export const DIFF_SHARES = {
   real: false,
 }
 
-/** Scene 03: the checks of the pull request, in the order of the strip (lint, build, diff). */
+/** Scene 02: the checks of the pull request, in the order of the strip (lint, build, diff). */
 export const CHECKS = [
   { name: 'dta lint', status: 'passed' as const, detail: '0 violations' },
   { name: 'dta build', status: 'passed' as const },
   { name: 'dta diff', status: 'changes' as const, detail: '2 stories' },
 ]
+/** Scene 03: the check that waits for a person, and the approve action under it. */
+export const DECISION = CHECKS.filter((check) => check.status === 'changes')
 export const APPROVE = 'Add label dta-diff-approved'
 
 /**

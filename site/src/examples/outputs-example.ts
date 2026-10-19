@@ -13,6 +13,7 @@ import {
   formatSize,
   generateConfig,
   groupOutputs,
+  outputFileGroups,
 } from '../playground/outputs'
 
 export async function exampleOutputs() {
@@ -21,16 +22,7 @@ export async function exampleOutputs() {
   const brands = structure.brands
   const { files } = await buildFiles(model, { brands, formats: ALL_FORMATS })
   const config = generateConfig({ brands, formats: ALL_FORMATS })
-  const groups = groupOutputs(files).map((group) => ({
-    id: group.id,
-    name: group.name,
-    downloadLabel: `Download ${group.name} (.zip)`,
-    files: group.files.map((file) => ({
-      path: file.path,
-      content: file.content,
-      size: formatSize(byteLength(file.content)),
-    })),
-  }))
+  const groups = outputFileGroups(groupOutputs(files))
   return {
     files,
     groups,

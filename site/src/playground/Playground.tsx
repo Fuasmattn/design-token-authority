@@ -1,11 +1,13 @@
 /**
  * The playground app (spec: docs/specs/playground.md, TICKET-077 and TICKET-115), a Preact island
  * on /playground, laid out as a workspace (decision 15):
- * - before loading, the input takes the page (TokenInput: drop area, example, paste field);
+ * - before loading, the input takes the page (TokenInput: drop area, the two examples, paste
+ *   field); "Example with problems" (TICKET-113) is brand-ab with flaws the default rules catch;
  * - after loading, a one-line SourceBar, a SummaryLine that stays visible, and Tabs with the views
  *   Structure · Lint · Graph · Outputs (the selected tab is kept in the URL hash);
  * - details of a collection, a finding or an output file open in a DetailPanel (side panel from
- *   1024px, bottom sheet below), so the view behind stays in place;
+ *   1024px, bottom sheet below), so the view behind stays in place; a finding's panel steps on
+ *   to the next finding ("Next finding");
  * - Outputs (TICKET-079): which outputs to build, the files grouped with Copy and Download, one
  *   zip per group and "Download all", and the generated dta.config.ts with the CLI commands.
  * Everything it shows is a design-system component; src/styles/playground.css only places them.
@@ -22,7 +24,7 @@ import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
 import CliHandoff from '../components/ds/CliHandoff'
 import CopyButton from '../components/ds/CopyButton'
 import DetailPanel, { type DetailPanelProps } from '../components/ds/DetailPanel'
-import Findings from '../components/ds/Findings'
+import Findings, { findingId } from '../components/ds/Findings'
 import OutputFiles from '../components/ds/OutputFiles'
 import OutputOptions from '../components/ds/OutputOptions'
 import SourceBar from '../components/ds/SourceBar'
@@ -44,7 +46,7 @@ import {
   type PlaygroundResult,
   type RuleFindings,
 } from './analyse'
-import { EXAMPLE_FILES, EXAMPLE_NAME } from './example'
+import { EXAMPLES, inputExamples, type Example } from './example'
 import {
   ALL_FORMATS,
   byteLength,
@@ -54,6 +56,8 @@ import {
   generateConfig,
   groupOutputs,
   OUTPUT_CHOICES,
+  outputFileGroups,
+  outputLabel,
   plural,
   type OutputGroup,
 } from './outputs'
@@ -61,6 +65,7 @@ import {
 type Engine = typeof import('./outputs-engine')
 
 const ID = 'pg'
+const FINDINGS_ID = `${ID}-finding`
 const VIEWS = ['structure', 'lint', 'graph', 'outputs'] as const
 type View = (typeof VIEWS)[number]
 
@@ -82,11 +87,11 @@ interface Source {
 function sourceOf(
   result: PlaygroundResult,
   input: readonly TokenInputFile[],
-  example: boolean,
+  example: Example | undefined,
 ): Source {
   const count = result.files.length
   if (example)
-    return { label: `${EXAMPLE_NAME} example`, detail: plural(count, 'file'), files: result.files }
+    return { label: `${example.name} example`, detail: plural(count, 'file'), files: result.files }
   if (result.format !== 'dtcg-per-mode' && result.format !== 'unknown') {
     const name = input[0]?.fileName
     return {
@@ -299,7 +304,7 @@ export default function Playground() {
     history.replaceState(null, '', `#${next}`)
   }
 
-  const read = (input: readonly TokenInputFile[], example = false) => {
+  const read = (input: readonly TokenInputFile[], example?: Example) => {
     const result = analyse(input)
     transition(() => {
       setRun({ result, source: sourceOf(result, input, example), key: (run?.key ?? 0) + 1 })
@@ -319,9 +324,12 @@ export default function Playground() {
       <div class="pg">
         <TokenInput
           idPrefix={ID}
-          example={`${EXAMPLE_NAME}: BrandA and BrandB, three breakpoints`}
+          examples={inputExamples()}
           onFiles={(input) => read(input)}
-          onExample={() => read(EXAMPLE_FILES, true)}
+          onExample={(id) => {
+            const example = EXAMPLES.find((item) => item.name === id)
+            if (example) read(example.files, example)
+          }}
         />
       </div>
     )
@@ -379,7 +387,8 @@ export default function Playground() {
       if (path === CONFIG_FILE) return { content: config }
       for (const group of groups) {
         const file = group.files.find((f) => f.path === path)
-        if (file) return { content: file.content, group: group.name }
+        // The kicker names the output where the group mixes them: `Output · Tailwind v4 · …`.
+        if (file) return { content: file.content, group: outputLabel(group, file) ?? group.name }
       }
       return undefined
     },
@@ -397,7 +406,37 @@ export default function Playground() {
       </>
     ),
   }
-  const panel = selection ? panelOf(result, selection, previews) : undefined
+  // A finding's panel steps through every finding, rule by rule, in the order of the Lint view.
+  const order = (lint?.rules ?? []).flatMap((rule, group) =>
+    rule.findings.map((_, line) => ({ group, line })),
+  )
+  const at =
+    selection?.kind === 'finding'
+      ? order.findIndex((f) => f.group === selection.group && f.line === selection.line)
+      : -1
+  const found = selection ? panelOf(result, selection, previews) : undefined
+  const panel: Omit<DetailPanelProps, 'open'> | undefined =
+    found && at >= 0
+      ? {
+          ...found,
+          contentKey: `finding-${order[at].group}-${order[at].line}`,
+          next:
+            order.length > 1
+              ? {
+                  label: 'Next finding',
+                  position: `${at + 1} of ${order.length}`,
+                  onNext: () => {
+                    const next = order[(at + 1) % order.length]
+                    // Closing returns focus to the row of the finding shown last.
+                    opener.current = document.getElementById(
+                      findingId(FINDINGS_ID, next.group, next.line),
+                    )
+                    setSelection({ kind: 'finding', ...next })
+                  },
+                }
+              : undefined,
+        }
+      : found
   if (panel) lastPanel.current = panel
   const panelContent = panel ?? lastPanel.current
   const collection = selection?.kind === 'collection' ? selection : undefined
@@ -465,6 +504,7 @@ export default function Playground() {
                 )}
                 {view === 'lint' && (
                   <Findings
+                    idPrefix={FINDINGS_ID}
                     title="Default rules"
                     summary={lint.summary}
                     outcome={lint.outcome}
@@ -539,16 +579,7 @@ export default function Playground() {
                     {groups.length > 0 && (
                       <OutputFiles
                         idPrefix={`${ID}-files`}
-                        groups={groups.map((group) => ({
-                          id: group.id,
-                          name: group.name,
-                          downloadLabel: `Download ${group.name} (.zip)`,
-                          files: group.files.map((file) => ({
-                            path: file.path,
-                            content: file.content,
-                            size: formatSize(byteLength(file.content)),
-                          })),
-                        }))}
+                        groups={outputFileGroups(groups)}
                         selected={openFile}
                         onOpen={(path, button) => open({ kind: 'file', path }, button)}
                         onDownload={(path) => {

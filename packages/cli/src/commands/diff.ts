@@ -316,7 +316,7 @@ function readManifest(outDir: string, diff: DiffConfig, side: string) {
   }
   const { stories, diagnostics } = source.read(json)
   if (hasErrors(diagnostics)) {
-    throw new VisualDiffError(`${side}: ${diagnostics.map(formatDiagnostic).join('; ')}`)
+    throw new VisualDiffError(`${side}: ${diagnostics.map((d) => formatDiagnostic(d)).join('; ')}`)
   }
   return stories
 }

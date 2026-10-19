@@ -1,8 +1,9 @@
 /**
  * AAA on the rendered pages: every text node of the landing page and the playground (empty, the
  * paste field, after the example, the detail panel open beside the view or as the bottom sheet, a
- * lint finding open, after invalid input, the Outputs view, an output file's preview, a copied
- * file; both themes) and of every
+ * lint finding open, the "Example with problems" with its rules open and a finding stepped to with
+ * "Next finding" (TICKET-113), an unknown export with its docs link (TICKET-114), after invalid input, the Outputs view, an output file's preview, a
+ * copied file; both themes) and of every
  * story (each renders Light and Graphite side by side) reaches 7:1 against its effective
  * background, 4.5:1 when large (24 px, or 18.66 px bold). The token test checks the pairs the
  * system names; this checks what the browser paints, nesting and opacity included.
@@ -189,6 +190,28 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
       await page.locator('.dta-findings__line').getByRole('button').click()
       await page.getByRole('dialog').waitFor()
     },
+    // TICKET-113: the example with problems, every rule open
+    'example with problems, lint': async (page) => {
+      await page.getByRole('button', { name: 'Example with problems' }).click()
+      await page.getByRole('tab', { name: /^Lint/ }).click()
+      for (const rule of await page.locator('summary').all()) await rule.click()
+      await page.locator('.dta-findings__line').nth(2).waitFor()
+    },
+    // ...a finding stepped to with "Next finding", its position held at the highlight's start
+    'next finding': async (page) => {
+      await page.getByRole('button', { name: 'Example with problems' }).click()
+      await page.getByRole('tab', { name: /^Lint/ }).click()
+      await page.locator('summary').first().click()
+      await page.locator('.dta-findings__line').first().getByRole('button').click()
+      await page.getByRole('button', { name: 'Next finding' }).click()
+      await page.locator('.dta-detail__position', { hasText: '2 of 3' }).waitFor()
+      const held = await page.evaluate(`(() => {
+        const animations = [...document.querySelectorAll('.dta-detail__position .dta-changed[data-changed]')].flatMap((el) => el.getAnimations())
+        for (const a of animations) { a.pause(); a.currentTime = 0 }
+        return animations.length
+      })()`)
+      expect(held).toBe(1)
+    },
     outputs: async (page) => {
       await loadExample(page)
       await page.getByRole('tab', { name: /^Outputs/ }).click()
@@ -221,6 +244,13 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
         return animations.length
       })()`)
       expect(held).toBeGreaterThanOrEqual(2)
+    },
+    // TICKET-114: an export in no known format, its docs pointer a link to the website's page
+    'unknown export with its docs link': async (page) => {
+      await page.getByRole('button', { name: 'Paste JSON instead' }).click()
+      await page.getByLabel('Paste JSON').fill('{"Colors": "not tokens"}')
+      await page.getByRole('button', { name: 'Check pasted JSON' }).click()
+      await page.getByRole('link', { name: 'Token files reference' }).waitFor()
     },
     'invalid input': async (page) => {
       await page.getByRole('button', { name: 'Paste JSON instead' }).click()

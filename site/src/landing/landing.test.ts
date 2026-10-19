@@ -1,6 +1,15 @@
 import { COMMAND_NAMES } from '@dta/cli'
 import { describe, expect, it } from 'vitest'
-import { AGENT_RUN, CHECKS, COMMANDS, DIFF_SHARES, NPM_RELEASED, SCENES, WORKFLOW } from './content'
+import {
+  AGENT_RUN,
+  CHECKS,
+  COMMANDS,
+  DECISION,
+  DIFF_SHARES,
+  NPM_RELEASED,
+  SCENES,
+  WORKFLOW,
+} from './content'
 
 /** Full command names: `diff`, `skill add`, … */
 const registered = new Set(COMMAND_NAMES)
@@ -55,13 +64,28 @@ describe('landing page honesty rule', () => {
     for (const step of [WORKFLOW.change, ...WORKFLOW.steps]) {
       expect(step.label).toMatch(/^[A-Z][a-z]+$/)
     }
-    // Scene 03 shows the checks and the decision; its command is the first check, `dta lint`.
-    expect(SCENES[2].command).toBe(COMMANDS.lint)
+    // The scenes follow the strip (TICKET-114 item 5): 02 the checks (`dta lint`), 03 the diff
+    // and the decision (`dta diff`, with the approve action).
+    expect(SCENES.map((scene) => scene.command)).toEqual([
+      COMMANDS.pull,
+      COMMANDS.lint,
+      COMMANDS.diff,
+      COMMANDS.skill,
+    ])
+    const stepCommands = WORKFLOW.steps.flatMap((step) =>
+      'command' in step && step.command ? [step.command.text] : [],
+    )
+    const inStrip = SCENES.map((scene) => scene.command.text).filter((t) =>
+      stepCommands.includes(t),
+    )
+    expect(inStrip).toEqual(stepCommands.filter((t) => inStrip.includes(t)))
+    expect(SCENES[2].kicker).toBe('A person decides')
+    expect(DECISION.map((check) => check.name)).toEqual(['dta diff'])
     // Each command of the strip appears at most once as a scene command.
     const sceneCommands = SCENES.map((scene) => scene.command.text)
     expect(new Set(sceneCommands).size).toBe(sceneCommands.length)
     expect(sceneCommands).not.toContain(COMMANDS.build.text)
-    // The checks of scene 03 run in the strip's order.
+    // The checks of scene 02 run in the strip's order.
     const stripOrder = WORKFLOW.steps.flatMap((step) =>
       'command' in step && step.command ? [step.command.text] : [],
     )

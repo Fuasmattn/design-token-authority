@@ -1,5 +1,6 @@
 ---
 import TokenInput from '../components/ds/TokenInput'
+import { inputExamples } from '../playground/example'
 
 interface Props {
   idPrefix?: string
@@ -7,4 +8,4 @@ interface Props {
 const { idPrefix = 'token-input-empty' } = Astro.props
 ---
 
-<TokenInput idPrefix={idPrefix} example="brand-ab: BrandA and BrandB, three breakpoints" />
+<TokenInput idPrefix={idPrefix} examples={inputExamples()} />

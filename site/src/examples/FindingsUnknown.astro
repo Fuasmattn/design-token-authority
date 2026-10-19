@@ -1,0 +1,15 @@
+---
+// Real output: a single file in no format DTA knows, read like `dta pull --from-file`. The line
+// is the CLI's, except its pointer to the docs: the website links its own page (TICKET-114).
+import Findings from '../components/ds/Findings'
+import { analyse } from '../playground/analyse'
+
+const result = analyse([{ fileName: 'export.json', content: '{"Colors": "not tokens"}' }])
+---
+
+<Findings
+  title="Input"
+  groups={result.input.groups}
+  summary="The input could not be read; nothing else runs until it can."
+  outcome="failed"
+/>

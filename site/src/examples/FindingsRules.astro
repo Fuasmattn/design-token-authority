@@ -1,11 +1,11 @@
 ---
-// Real output: the playground's lint view, grouped by rule, on a set with two problems.
+// Real output: the playground's lint view, grouped by rule, on the "Example with problems".
 import Findings from '../components/ds/Findings'
 import { analyse } from '../playground/analyse'
-import { PROBLEM_FILES } from './problem-files'
+import { PROBLEM_EXAMPLE } from '../playground/example'
 
-const lint = analyse(PROBLEM_FILES).lint
-if (!lint) throw new Error('the problem files did not lint')
+const lint = analyse(PROBLEM_EXAMPLE.files).lint
+if (!lint) throw new Error('the problem example did not lint')
 const groups = lint.rules.map((rule, index) => ({
   title: rule.rule,
   count: rule.count,
