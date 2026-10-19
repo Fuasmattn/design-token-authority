@@ -1,6 +1,6 @@
 # Spec: Playground — DTA in the browser, embedded in the website
 
-**Status:** approved (2026-10-16); open questions below are settled in the tickets that need them
+**Status:** approved (2026-10-16); open questions settled by the maintainer 2026-10-19 (decisions 8–11)
 **Part of:** [Token Engine Overhaul](./token-engine-overhaul.md), Epic 7b (between the website and visual-diff, maintainer decision)
 **Depends on:** Epic 7 ([website](./docs-site.md): site shell, components, design tokens)
 **Design sources:** concept doc "Visual Regression Module — Concept Sketch" (sections Playground and visualizer, Product story: Try); landing mockup "J · Drafting Table" (Try card, Playground card)
@@ -20,14 +20,17 @@ A static, client-side app embedded in the website as an Astro island: drop or pa
 3. **Views:** structure (collections, modes, detected layer roles), dependency graph with a brand and breakpoint switcher, lint findings inline, outputs (CSS, Tailwind v4/v3, JS) with copy and download, and a "take it to the CLI" panel with a generated `dta.config.ts` and the commands to run.
 4. **No server, no storage, no accounts.** Nothing is uploaded or persisted beyond an optional per-browser "last session" convenience (local storage, safe to lose). No Figma pull (the REST API needs Enterprise and a token in the browser).
 5. **Design:** the site's Drafting Table components and tokens; the graph uses the same visual language (ink lines, blueprint selection, redline highlights for findings).
-6. **Example data:** the brand-ab fixture as a one-click example (BrandA/BrandB only).
+6. **Example data:** the brand-ab fixture as the one-click example (BrandA/BrandB only); it is the one that exercises the brand and breakpoint switcher. The Orbit Burger example (TICKET-105, one brand, one mode) may be offered as a second, smaller example.
 7. **Static and island-loaded:** the app loads only on the playground page; the rest of the site stays light.
+
+8. **CLI graph HTML stays as it is in this epic.** Reusing the playground UI for `dta graph --format html` is a separate, later ticket (was open question 1).
+9. **Outputs load lazily.** `@dta/build` (Style Dictionary) is loaded when the outputs tab opens, so the playground's first load stays light; outputs are in the first version (was open question 2).
+10. **Blueprints come later**, after the bootstrap-skill work, not in this epic (was open question 3).
+11. **The packages are already close to browser-ready** (checked 2026-10-19): outside test helpers, `@dta/core`, `@dta/figma`, `@dta/lint` and `@dta/build` import no Node built-ins, and `buildOutputs` runs Style Dictionary in memory (`formatAllPlatforms`) and writes nothing. TICKET-076 is mainly the proof (browser-environment tests) and the bundle-size measurement.
 
 ## Open questions
 
-1. **CLI graph HTML:** the concept says the CLI should reuse the playground UI for `dta graph --format html`. Do that in this epic (the CLI then ships a built bundle and the `graph-html` snapshots change by name), or keep the ported v1 HTML until later (recommended: later, separate ticket)?
-2. **Style Dictionary in the browser:** `@dta/build` uses Style Dictionary v4, which supports browser use with an in-memory file system. If that turns out heavy (bundle size), is it acceptable to load outputs lazily on the outputs tab (recommended), or should outputs be dropped from the first version?
-3. **Learn tie-in:** should the blueprints (pattern catalogue starters, concept's `@dta/blueprints`) be loadable examples here in this epic, or after the bootstrap-skill work?
+None.
 
 ## Testing decisions
 
