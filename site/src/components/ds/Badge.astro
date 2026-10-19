@@ -9,7 +9,10 @@ interface Props {
 const { tone } = Astro.props
 ---
 
-<span class:list={['dta-badge', tone]}><slot /></span>
+<span
+  class:list={['dta-badge', tone]}
+  data-contrast-exception={tone === 'example' ? 'redline label' : undefined}><slot /></span
+>
 
 <style>
   .dta-badge {

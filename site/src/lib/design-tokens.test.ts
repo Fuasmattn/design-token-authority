@@ -16,7 +16,7 @@ describe('design tokens for the Design system pages', () => {
 
   it('lists every semantic colour with its value and alias chain per theme', () => {
     const colors = semanticColors()
-    expect(colors).toHaveLength(23)
+    expect(colors).toHaveLength(40)
     const canvas = colors.find((c) => c.name === 'bg-canvas')!
     expect(canvas).toEqual({
       name: 'bg-canvas',

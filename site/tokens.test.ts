@@ -89,26 +89,52 @@ describe('site design tokens', () => {
     }
   })
 
-  // Pairs the design system README requires: text 4.5:1 on its grounds in every theme.
+  // Pairs the design system requires: text at 7:1 (AAA) on its grounds in every theme.
   const TEXT_PAIRS: Array<[string, string]> = [
     ['fg.default', 'bg.canvas'],
     ['fg.default', 'bg.surface'],
     ['fg.muted', 'bg.canvas'],
     ['fg.muted', 'bg.surface'],
+    ['fg.muted', 'bg.subtle'],
     ['fg.subtle', 'bg.canvas'],
     ['fg.subtle', 'bg.surface'],
+    ['action.bg', 'bg.canvas'],
     ['action.fg', 'action.bg'],
+    ['action.text', 'bg.canvas'],
     ['action.text', 'action.subtle'],
-    ['signal.fg', 'signal.bg'],
+    ['action.text', 'bg.subtle'],
+    ['action.fg', 'action.text'],
+    ['signal.text', 'bg.canvas'],
     ['signal.text', 'signal.subtle'],
+    ['success.fg', 'bg.canvas'],
     ['success.fg', 'bg.surface'],
+    ['success.fg', 'success.subtle'],
     ['terminal.fg', 'terminal.bg'],
+    ['terminal.prompt', 'terminal.bg'],
+    ['terminal.success', 'terminal.bg'],
+    ['terminal.muted', 'terminal.bg'],
   ]
 
-  it.each(THEMES)('keep text contrast of at least 4.5:1 in %s', (theme) => {
+  it.each(THEMES)('keep text contrast of at least 7:1 in %s', (theme) => {
     for (const [fg, bg] of TEXT_PAIRS) {
       const ratio = contrastRatio(color(model, fg, theme), color(model, bg, theme))
-      expect(ratio, `${fg} on ${bg} in ${theme}: ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(4.5)
+      expect(ratio, `${fg} on ${bg} in ${theme}: ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(7)
+    }
+  })
+
+  // The one exception: the redline label (signal.fg on signal.bg). No orange can both stand
+  // 3:1 on paper as a line and carry 7:1 text, so the label stays at AA (4.5:1) and the design
+  // system says so.
+  it.each(THEMES)('keep the redline label at least 4.5:1 in %s', (theme) => {
+    const ratio = contrastRatio(color(model, 'signal.fg', theme), color(model, 'signal.bg', theme))
+    expect(ratio).toBeGreaterThanOrEqual(4.5)
+  })
+
+  // Edges: strong outlines 3:1 on the canvas in every theme.
+  it.each(THEMES)('keep strong borders and the signal line at least 3:1 in %s', (theme) => {
+    for (const fg of ['border.strong', 'action.bg']) {
+      const ratio = contrastRatio(color(model, fg, theme), color(model, 'bg.canvas', theme))
+      expect(ratio, `${fg} on bg.canvas in ${theme}: ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(3)
     }
   })
 

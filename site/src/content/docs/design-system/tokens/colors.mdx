@@ -9,7 +9,9 @@ import ColorTokens from '../../../../components/docs/ColorTokens.astro'
 
 Components use only the **semantic** tokens. Each one aliases a primitive per theme; the arrow shows the alias. Swatches are drawn with the CSS variables `dta build` writes, so what you see is the built output.
 
-Rules from the system: text on `signal-bg` is always `signal-fg` (dark), never white, because white on redline orange fails contrast. `signal` is never used for errors. `paper-500` fails as text on paper and stays decorative. A test in the repository checks every text pair at 4.5:1 in both themes.
+Rules from the system: every text pair reaches 7:1 in both themes (`fg-*` on `bg-*`, `action-fg` on `action-bg`, `action-text` and `signal-text` on the canvas and their tints, `success-fg`, the terminal's four colours on `terminal-bg`); a test in the repository checks them. Text on `signal-bg` is always `signal-fg` (dark), never white, and that pair is the one exception at 4.5:1: the redline label. `signal` is never used for errors. `ink-600`, `graphite-400`, `sage-600` and `paper-500` are decorative and not for text.
+
+The `well-*` group draws the landing page's gravity well: `well-line` is the mesh at the surface, `well-throat` what it darkens to toward the mouth, `well-mouth` the ground at the bottom (the other theme's paper) with a `well-glow` rim; the `well-object-*` triples are the lit, top and shaded faces of the cubes and spheres in orbit, `well-highlight` their specular point, `well-dust` the motes.
 
 ## Semantic
 

@@ -44,7 +44,7 @@ const { lines, cursor = false, label = 'Terminal output' } = Astro.props
     padding: var(--space-3) 18px;
     border-bottom: var(--stroke-hairline) solid color-mix(in srgb, var(--terminal-fg) 12%, transparent);
     font-size: calc(var(--type-meta-size) * 1px);
-    opacity: 0.7;
+    color: var(--terminal-muted);
   }
   .body {
     padding: var(--space-4) 20px;
@@ -57,14 +57,14 @@ const { lines, cursor = false, label = 'Terminal output' } = Astro.props
     overflow-wrap: anywhere;
   }
   .muted {
-    opacity: 0.75;
+    color: var(--terminal-muted);
   }
   .prompt,
   .signal {
     color: var(--terminal-prompt);
   }
   .ok {
-    color: var(--sage-400);
+    color: var(--terminal-success);
   }
   .cursor {
     display: inline-block;

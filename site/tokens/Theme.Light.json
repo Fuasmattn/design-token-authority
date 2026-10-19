@@ -102,8 +102,8 @@
     },
     "subtle": {
       "$type": "color",
-      "$value": "{ink.600}",
-      "$description": "Captions, meta, mono labels on bg-canvas and bg-surface.",
+      "$value": "{ink.650}",
+      "$description": "Captions, meta, mono labels on bg-canvas and bg-surface (7:1).",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -116,8 +116,8 @@
   "action": {
     "bg": {
       "$type": "color",
-      "$value": "{blueprint.600}",
-      "$description": "Primary buttons, links, active workflow station.",
+      "$value": "{blueprint.700}",
+      "$description": "Primary buttons, links, active workflow station (text on it 8.5:1, as text on paper 7.5:1).",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -202,8 +202,8 @@
     },
     "text": {
       "$type": "color",
-      "$value": "{redline.800}",
-      "$description": "Text on signal-subtle.",
+      "$value": "{redline.900}",
+      "$description": "Text on signal-subtle and on bg-canvas (7:1).",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -216,8 +216,8 @@
   "success": {
     "fg": {
       "$type": "color",
-      "$value": "{sage.600}",
-      "$description": "Passed checks: text and dots on bg-surface or success-subtle.",
+      "$value": "{sage.700}",
+      "$description": "Passed checks: text and dots on bg-surface, bg-canvas or success-subtle (7:1).",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -280,6 +280,212 @@
       "$type": "color",
       "$value": "{redline.300}",
       "$description": "The $ prompt glyph on terminal-bg.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "success": {
+      "$type": "color",
+      "$value": "{sage.300}",
+      "$description": "Passed lines and found values on terminal-bg.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "muted": {
+      "$type": "color",
+      "$value": "{paper.400}",
+      "$description": "Secondary lines on terminal-bg (dim output, 8.9:1).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "well": {
+    "line": {
+      "$type": "color",
+      "$value": "{ink.900}",
+      "$description": "The mesh of the gravity well, at the surface.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "throat": {
+      "$type": "color",
+      "$value": "{ink.950}",
+      "$description": "What the mesh darkens to toward the mouth of the well.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "mouth": {
+      "$type": "color",
+      "$value": "{graphite.900}",
+      "$description": "The ground at the bottom of the well: the other theme's paper.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "glow": {
+      "$type": "color",
+      "$value": "{blueprint.400}",
+      "$description": "The rim of the mouth.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-orange": {
+      "$type": "color",
+      "$value": "{redline.500}",
+      "$description": "Orange objects in the well: the lit face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-orange-light": {
+      "$type": "color",
+      "$value": "{redline.400}",
+      "$description": "Orange objects: the top face and sphere highlight base.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-orange-dark": {
+      "$type": "color",
+      "$value": "{redline.600}",
+      "$description": "Orange objects: the shaded face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-blue": {
+      "$type": "color",
+      "$value": "{blueprint.600}",
+      "$description": "Blue objects: the lit face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-blue-light": {
+      "$type": "color",
+      "$value": "{blueprint.400}",
+      "$description": "Blue objects: the top face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-blue-dark": {
+      "$type": "color",
+      "$value": "{blueprint.800}",
+      "$description": "Blue objects: the shaded face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-ink": {
+      "$type": "color",
+      "$value": "{ink.900}",
+      "$description": "Ink objects: the lit face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-ink-light": {
+      "$type": "color",
+      "$value": "{ink.700}",
+      "$description": "Ink objects: the top face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-ink-dark": {
+      "$type": "color",
+      "$value": "{ink.900}",
+      "$description": "Ink objects: the shaded face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "highlight": {
+      "$type": "color",
+      "$value": "{paper.0}",
+      "$description": "Specular highlight on the spheres.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "dust": {
+      "$type": "color",
+      "$value": "{ink.600}",
+      "$description": "Dust motes between the orbit rings.",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,

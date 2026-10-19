@@ -14,6 +14,14 @@ describe('design system components', () => {
     expect(source).toMatch(/var\(--/)
   })
 
+  // One surface: grid paper only where something is inspected (the redline stage, the card's
+  // stage variant), never as a page, panel or section background.
+  const GRID_ALLOWED = new Set(['Redline.astro', 'Card.astro'])
+  it.each(sources)('%s uses no grid paper outside an inspection stage', (name, source) => {
+    if (GRID_ALLOWED.has(name)) return
+    expect(source).not.toMatch(/--bg-grid/)
+  })
+
   it.each(sources)('%s uses borders, not drop shadows', (_name, source) => {
     // box-shadow is only allowed as a focus ring or halo: `0 0 0 <width> <token>`.
     for (const [, value] of source.matchAll(/box-shadow:\s*([^;]+);/g)) {

@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** M
 **Blocked by:** —
-**Status:** open
+**Status:** done (2026-10-18)
 **Spec:** [landing-redesign](../specs/landing-redesign.md) (decisions 8, 9, 11); accepted prototype `docs/specs/landing-redesign/prototypes/p17-page.html`
 
 ## Why
@@ -38,3 +38,11 @@ The key visual changed the page's ground: no grid paper, one plain surface, a gr
 - [ ] Every current landing page and story text pair passes the new contrast test in both themes (fix what fails: it is the design system's job, not the page's)
 - [ ] Design-system docs: principles 4 (rewritten), well, contrast; voice: command chips
 - [ ] All gates pass plus the site job, and the GitHub run is green
+
+## Outcome
+
+- Tokens: new primitives `ink.650`, `ink.950`, `graphite.350`, `redline.600`, `redline.900`, `sage.300`, `sage.700`; `ink.700` nudged to `#3a465e` (7.5:1 on the wells); `fg.subtle` → `ink.650` / `graphite.350`; `action.bg` → `blueprint.700` / `blueprint.300` (white and the dark paper on it 8.5:1 / 9.3:1); `signal.text` → `redline.900`; `success.fg` → `sage.700` / `sage.300`; new `terminal.success`, `terminal.muted`; the `well.*` group (line, throat, mouth, glow, three object triples, highlight, dust) in both themes. `pnpm report:tokens` re-run.
+- `border.strong` stays full ink; no emphasis step added (the outline button keeps it).
+- Tests: `tokens.test.ts` now requires 7:1 on 22 pairs, 4.5:1 for the redline label (the documented exception), 3:1 for strong borders and `action.bg` on the canvas. `contrast.e2e.test.ts` audits every text node of the rendered landing page (both themes, 1280 and 390) and of every story over its effective background; it runs in the CI job `site` after the build, with Chromium. `components.test.ts` forbids `--bg-grid` outside `Redline.astro` and `Card.astro`.
+- Components: `Terminal` uses `terminal-muted` and `terminal-success` instead of opacity and `sage-400`; the nav panel lost its grid; the redline label and the signal badge carry `data-contrast-exception`; the current landing page's `.who-agent`, band note and section marks moved to tokens (they go with 108 anyway).
+- Docs: principles 4 (one surface), 5 (the well is decoration), 6 (AAA) rewritten/added, motion is 7; voice: command chips; the colours page names the pairs, the exception and the `well-*` group.

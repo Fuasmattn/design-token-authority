@@ -23,10 +23,10 @@ if (marks.length > 3) throw new Error('Redline: at most three redlines per objec
         mark.kind === 'width' ? (
           <>
             <span class="line" aria-hidden="true" />
-            <span class="tag below">{mark.label}</span>
+            <span class="tag below" data-contrast-exception="redline label">{mark.label}</span>
           </>
         ) : (
-          <span class="tag corner">{mark.label}</span>
+          <span class="tag corner" data-contrast-exception="redline label">{mark.label}</span>
         ),
       )
     }

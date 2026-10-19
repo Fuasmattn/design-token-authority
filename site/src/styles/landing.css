@@ -207,7 +207,7 @@ h1 {
   gap: var(--space-2);
   margin: var(--space-3) 0 0;
   font-size: calc(var(--type-body-sm-size) * 1px);
-  opacity: 0.85;
+  color: var(--terminal-muted);
 }
 
 /* Sections */
@@ -356,7 +356,7 @@ h3 {
   font-family: var(--landing-mono);
   font-size: calc(var(--type-redline-size) * 1px);
   text-transform: uppercase;
-  color: var(--action-bg);
+  color: var(--action-text);
 }
 .pass-pill {
   align-self: flex-start;
@@ -524,7 +524,7 @@ h3 {
   font-family: var(--landing-mono);
   font-size: calc(var(--type-meta-size) * 1px);
   text-transform: uppercase;
-  opacity: 0.75;
+  color: var(--terminal-muted);
 }
 
 /* Entrance and redline motion */

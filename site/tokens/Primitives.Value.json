@@ -101,7 +101,19 @@
     "600": {
       "$type": "color",
       "$value": "#5a6480",
-      "$description": "Primitive. Captions on light.",
+      "$description": "Primitive. Decorative ink on light (5.2:1 on paper: not for text).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "650": {
+      "$type": "color",
+      "$value": "#44506c",
+      "$description": "Primitive. Captions on light (7:1 on paper).",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -112,8 +124,8 @@
     },
     "700": {
       "$type": "color",
-      "$value": "#3e4a66",
-      "$description": "Primitive. Secondary text on light.",
+      "$value": "#3a465e",
+      "$description": "Primitive. Secondary text on light (7.5:1 on the wells, 8.4:1 on paper).",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -138,6 +150,18 @@
       "$type": "color",
       "$value": "#13213f",
       "$description": "Primitive. The ink: text, outlines, terminal on light.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "950": {
+      "$type": "color",
+      "$value": "#070b16",
+      "$description": "Primitive. The throat of the well on light: what the mesh darkens to.",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -172,10 +196,22 @@
         }
       }
     },
+    "350": {
+      "$type": "color",
+      "$value": "#b0a898",
+      "$description": "Primitive. Captions on graphite (7:1 on the dark paper).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
     "400": {
       "$type": "color",
       "$value": "#8f8878",
-      "$description": "Primitive. Captions on graphite.",
+      "$description": "Primitive. Decorative on graphite (5.2:1: not for text).",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -309,7 +345,7 @@
     "300": {
       "$type": "color",
       "$value": "#a9b8e6",
-      "$description": "Primitive. Workflow rail on light.",
+      "$description": "Primitive. Workflow rail on light; action on graphite.",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -321,7 +357,7 @@
     "400": {
       "$type": "color",
       "$value": "#7590e6",
-      "$description": "Primitive. Action on graphite.",
+      "$description": "Primitive. Object faces of the well; action hover on graphite.",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -345,7 +381,7 @@
     "600": {
       "$type": "color",
       "$value": "#2f55d4",
-      "$description": "Primitive. The blueprint blue: action on paper.",
+      "$description": "Primitive. The blueprint blue: links and accents on paper (7.5:1 only as blueprint-700).",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -357,7 +393,7 @@
     "700": {
       "$type": "color",
       "$value": "#2443ac",
-      "$description": "Primitive. Action hover on paper.",
+      "$description": "Primitive. Action on paper (white on it 8.5:1); hover is blueprint-800.",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -452,10 +488,22 @@
         }
       }
     },
+    "600": {
+      "$type": "color",
+      "$value": "#b84d08",
+      "$description": "Primitive. The dark face of the orange objects in the well.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
     "800": {
       "$type": "color",
       "$value": "#8e3b12",
-      "$description": "Primitive. Signal text on light tint.",
+      "$description": "Primitive. Deep redline; decorative on light.",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -475,6 +523,18 @@
           "codeSyntax": {}
         }
       }
+    },
+    "900": {
+      "$type": "color",
+      "$value": "#7a3210",
+      "$description": "Primitive. Signal text on light (8:1 on paper, 7.5:1 on the tint).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
     }
   },
   "sage": {
@@ -482,6 +542,18 @@
       "$type": "color",
       "$value": "#e1eee2",
       "$description": "Primitive. Success tint on light.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "300": {
+      "$type": "color",
+      "$value": "#9ad3a2",
+      "$description": "Primitive. Success on the light terminal (9:1 on ink).",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -505,7 +577,7 @@
     "600": {
       "$type": "color",
       "$value": "#3c7646",
-      "$description": "Primitive. Success on paper.",
+      "$description": "Primitive. Decorative success on light (5.4:1: not for text).",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -518,6 +590,18 @@
       "$type": "color",
       "$value": "#1c2a1e",
       "$description": "Primitive. Success tint on graphite.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "700": {
+      "$type": "color",
+      "$value": "#27512f",
+      "$description": "Primitive. Success on paper (7.6:1 on the tint, 9:1 on white).",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
