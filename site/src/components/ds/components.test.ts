@@ -3,10 +3,29 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const dir = import.meta.dirname
+/**
+ * Each component with everything that styles it: an `.astro` file, or a Preact `.tsx` (the
+ * playground island), plus its stylesheet `<Name>.css` when there is one.
+ */
+const read = (name: string) =>
+  fs.existsSync(path.join(dir, name)) ? fs.readFileSync(path.join(dir, name), 'utf8') : ''
 const sources = fs
   .readdirSync(dir)
-  .filter((name) => name.endsWith('.astro'))
-  .map((name) => [name, fs.readFileSync(path.join(dir, name), 'utf8')] as const)
+  .filter((name) => /\.(astro|tsx)$/.test(name) && !name.endsWith('.test.tsx'))
+  .map((name) => [name, read(name) + '\n' + read(name.replace(/\.(astro|tsx)$/, '.css'))] as const)
+
+it('covers the Preact components and their stylesheets', () => {
+  expect(sources.map(([name]) => name)).toEqual(expect.arrayContaining(['TokenInput.tsx']))
+  const css = fs.readdirSync(dir).filter((name) => name.endsWith('.css'))
+  for (const file of css) {
+    const owner = file.replace(/\.css$/, '')
+    expect(
+      fs.existsSync(path.join(dir, `${owner}.astro`)) ||
+        fs.existsSync(path.join(dir, `${owner}.tsx`)),
+      `${file} belongs to a component`,
+    ).toBe(true)
+  }
+})
 
 describe('design system components', () => {
   it.each(sources)('%s uses token variables, no colour literals', (_name, source) => {

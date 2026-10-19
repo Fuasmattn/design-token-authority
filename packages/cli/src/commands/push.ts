@@ -1,10 +1,9 @@
-import { parseTokenFiles } from '@dta/core'
+import { formatDiagnostic, hasErrors, parseTokenFiles } from '@dta/core'
 import { planPush } from '@dta/figma'
 import { lintTokens } from '@dta/lint'
 import pc from 'picocolors'
 import type { CommandContext } from '../commands.js'
 import { describeFigmaError, figmaClientFor } from '../figma-client.js'
-import { formatDiagnostic, hasErrors } from '../io/diagnostics.js'
 import { readTokenDir, TokenDirError } from '../io/token-dir.js'
 import { banner, cmd, createUi, filePath } from '../ui.js'
 import {

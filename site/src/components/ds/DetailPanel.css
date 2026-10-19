@@ -1,0 +1,218 @@
+/*
+ * DetailPanel: a bg-surface panel with a 2px ink outline (it is the thing in focus), a mono
+ * kicker, a title, the close button and a list that scrolls inside. Side: in the flow next to
+ * the view, sticky while the page scrolls. Sheet: fixed to the bottom of the screen, ink rule on
+ * top, rounded top corners, a grab handle; the page behind is veiled with the canvas.
+ * Look by data-presentation; position by :modal (stories render the sheet in the flow).
+ */
+.dta-detail {
+  box-sizing: border-box;
+  flex-direction: column;
+  min-width: 0;
+  max-width: none;
+  max-height: calc(100dvh - 2 * var(--space-4));
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: var(--stroke-ink) solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  color: var(--fg-default);
+  font-family: var(--font-sans);
+}
+.dta-detail[open] {
+  display: flex;
+}
+/* Beside the view (and every presentation in a story): in the flow. */
+.dta-detail:not(:modal) {
+  position: sticky;
+  top: var(--space-4);
+  inset-inline: auto;
+  width: 100%;
+}
+.dta-detail[data-presentation='sheet'] {
+  border-width: var(--stroke-ink) 0 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.dta-detail:modal {
+  position: fixed;
+  inset: auto 0 0;
+  width: 100%;
+  max-height: 85dvh;
+}
+.dta-detail::backdrop {
+  background: var(--bg-canvas);
+  opacity: 0.8;
+}
+
+.dta-detail__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-4) var(--space-2) var(--space-6);
+}
+.dta-detail[data-presentation='sheet'] .dta-detail__head {
+  padding: var(--space-1) var(--space-4) var(--space-2);
+}
+/* The sheet's grab handle: a short rounded rule, centred on top. */
+.dta-detail__handle {
+  display: none;
+}
+.dta-detail[data-presentation='sheet'] .dta-detail__handle {
+  display: block;
+  flex: none;
+  align-self: center;
+  width: var(--space-10);
+  height: 4px;
+  margin-top: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--border-default);
+}
+.dta-detail__titles {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.dta-detail__kicker {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  letter-spacing: var(--type-meta-letter-spacing);
+  color: var(--fg-subtle);
+  text-transform: uppercase;
+}
+.dta-detail__title {
+  margin: var(--space-1) 0 0;
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-label-size) * 1px * 1.2);
+  font-weight: 500;
+  line-height: var(--type-title-line-height);
+  overflow-wrap: anywhere;
+}
+.dta-detail__title:focus {
+  outline: none;
+}
+.dta-detail__title:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: var(--stroke-ink);
+}
+.dta-detail__close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: var(--stroke-hairline) solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--fg-default);
+  font: inherit;
+  font-size: calc(var(--type-title-size) * 1px);
+  line-height: 1;
+  cursor: pointer;
+}
+.dta-detail__close:hover {
+  border-color: var(--border-strong);
+}
+.dta-detail__close:focus-visible {
+  outline: none;
+  border-color: var(--action-bg);
+  box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+}
+
+.dta-detail__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 0;
+  padding: 0 var(--space-6) var(--space-6);
+}
+.dta-detail[data-presentation='sheet'] .dta-detail__body {
+  padding: 0 var(--space-4) var(--space-6);
+}
+.dta-detail__meta {
+  margin: 0;
+  font-size: calc(var(--type-body-sm-size) * 1px);
+  line-height: var(--type-body-sm-line-height);
+  color: var(--fg-muted);
+}
+
+/* The mode switch: a segmented well, the selected mode on the surface with an ink outline. */
+.dta-detail__modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  align-self: flex-start;
+  max-width: 100%;
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
+  background: var(--bg-subtle);
+}
+.dta-detail__mode {
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  border: var(--stroke-ink) solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  cursor: pointer;
+}
+.dta-detail__mode[aria-pressed='true'] {
+  border-color: var(--border-strong);
+  background: var(--bg-surface);
+  color: var(--fg-default);
+}
+.dta-detail__mode:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+}
+
+.dta-detail__message {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-code-line-height);
+  overflow-wrap: anywhere;
+}
+
+/* The lines scroll inside the panel; the head stays. */
+.dta-detail__lines {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  border-top: var(--stroke-hairline) solid var(--border-default);
+  list-style: none;
+  overscroll-behavior: contain;
+}
+.dta-detail__lines:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: var(--stroke-hairline);
+}
+.dta-detail__line {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-2) 0;
+  border-bottom: var(--stroke-hairline) solid var(--border-default);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  overflow-wrap: anywhere;
+}
+.dta-detail__value {
+  color: var(--fg-muted);
+}
+.dta-detail__swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: var(--space-2);
+  border: var(--stroke-hairline) solid var(--border-strong);
+  border-radius: 2px;
+  vertical-align: -1px;
+}

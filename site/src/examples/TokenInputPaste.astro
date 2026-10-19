@@ -1,0 +1,21 @@
+---
+import TokenInput from '../components/ds/TokenInput'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'token-input-paste' } = Astro.props
+// "Paste JSON instead" chosen: the paste field in the drop area's place, a plugin export in it.
+const pasted = `{
+  "$name": "brand-ab",
+  "$extensions": { "com.figma": { "modes": {} } },
+  "Primitives": { "Colors": { … } }
+}`
+---
+
+<TokenInput
+  idPrefix={idPrefix}
+  example="brand-ab: BrandA and BrandB, three breakpoints"
+  paste
+  pasted={pasted}
+/>

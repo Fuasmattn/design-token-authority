@@ -1,0 +1,42 @@
+/*
+ * SummaryLine: mono meta text on the canvas, parts spaced apart (no separators to read out).
+ * Parts that open a view are text buttons, underlined with a hairline-coloured rule that turns
+ * ink on hover.
+ */
+.dta-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  color: var(--fg-muted);
+}
+.dta-summary__part {
+  min-width: 0;
+}
+.dta-summary__button {
+  min-height: 24px;
+  padding: var(--space-1) 0;
+  border: 0;
+  background: none;
+  color: var(--fg-default);
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-decoration-thickness: var(--stroke-hairline);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.dta-summary__button:hover {
+  text-decoration-thickness: var(--stroke-ink);
+}
+.dta-summary__button:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: var(--stroke-ink);
+  border-radius: 2px;
+}

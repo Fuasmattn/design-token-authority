@@ -1,6 +1,7 @@
 /**
- * The landing page is styled with the DTA Drafting Table tokens only (CLAUDE.md, TICKET-096):
- * no colour literals, borders instead of shadows, and no literal px for spacing, radii or type.
+ * The landing page, the playground and the frame they share (site.css, SiteLayout) are styled
+ * with the DTA Drafting Table tokens only (CLAUDE.md, TICKET-096): no colour literals, borders
+ * instead of shadows, and no literal px for spacing, radii or type.
  * Sizes of small decorative shapes (the logo mark, dots) and media queries are not checked.
  */
 import fs from 'node:fs'
@@ -18,8 +19,12 @@ function cssOf(file: string): string {
 }
 
 const files = [
+  path.join(site, 'src', 'styles', 'site.css'),
+  path.join(site, 'src', 'layouts', 'SiteLayout.astro'),
   path.join(site, 'src', 'styles', 'landing.css'),
   path.join(site, 'src', 'pages', 'index.astro'),
+  path.join(site, 'src', 'styles', 'playground.css'),
+  path.join(site, 'src', 'pages', 'playground.astro'),
   ...(fs.existsSync(landingDir) ? fs.readdirSync(landingDir) : [])
     .filter((name) => name.endsWith('.astro'))
     .map((name) => path.join(landingDir, name)),
@@ -34,9 +39,15 @@ function declarations(css: string): Array<[string, string]> {
   return [...withoutComments.matchAll(/([a-z-]+)\s*:\s*([^;{}]+);/g)].map((m) => [m[1], m[2]])
 }
 
-describe('landing page styles', () => {
+describe('landing page and playground styles', () => {
   it('found the files', () => {
-    expect(files.map(([name]) => name)).toContain('src/styles/landing.css')
+    expect(files.map(([name]) => name)).toEqual(
+      expect.arrayContaining([
+        'src/styles/landing.css',
+        'src/styles/site.css',
+        'src/styles/playground.css',
+      ]),
+    )
   })
 
   it.each(files)('%s has no colour literals', (_name, css) => {

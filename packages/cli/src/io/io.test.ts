@@ -3,7 +3,6 @@ import os from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { banner } from '../ui.js'
-import { formatDiagnostic, hasErrors } from './diagnostics.js'
 import { readTokenDir, TokenDirError } from './token-dir.js'
 import { writeFiles } from './write-files.js'
 
@@ -46,17 +45,6 @@ describe('writeFiles', () => {
   it('refuses to write outside the project', () => {
     expect(() => writeFiles(dir, [{ path: '../escape.txt', content: 'x' }])).toThrow(/outside/)
     expect(fs.existsSync(path.join(dir, '..', 'escape.txt'))).toBe(false)
-  })
-})
-
-describe('diagnostics', () => {
-  it('formats one line each and detects errors', () => {
-    const warning = { severity: 'warning' as const, code: 'c', message: 'm' }
-    const error = { severity: 'error' as const, code: 'e', message: 'bad', file: 'A.Value.json' }
-    expect(formatDiagnostic(warning)).toBe('warning [c] m')
-    expect(formatDiagnostic(error)).toBe('error [e] bad (A.Value.json)')
-    expect(hasErrors([warning])).toBe(false)
-    expect(hasErrors([warning, error])).toBe(true)
   })
 })
 

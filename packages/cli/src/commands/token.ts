@@ -1,6 +1,8 @@
 import {
   describeToken,
   findTokensByValue,
+  formatDiagnostic,
+  hasErrors,
   listTokens,
   nameToDot,
   parseTokenFiles,
@@ -12,7 +14,6 @@ import {
 } from '@dta/core'
 import type { CommandContext } from '../commands.js'
 import { codeNames, type CodeNames } from '../code-names.js'
-import { formatDiagnostic, hasErrors } from '../io/diagnostics.js'
 import { readTokenDir, TokenDirError } from '../io/token-dir.js'
 
 /** Version of the JSON shapes `dta token … --format json` prints (schema on the website). */

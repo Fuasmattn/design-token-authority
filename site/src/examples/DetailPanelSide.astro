@@ -1,0 +1,27 @@
+---
+// Real output: Brand(Alias) of the brand-ab example in BrandA, as the side panel shows it.
+import DetailPanel from '../components/ds/DetailPanel'
+import { analyse, collectionDetail } from '../playground/analyse'
+import { EXAMPLE_FILES } from '../playground/example'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'detail-side' } = Astro.props
+const { model } = analyse(EXAMPLE_FILES)
+const detail = model && collectionDetail(model, 'Brand(Alias)', 'BrandA')
+if (!detail) throw new Error('brand-ab has no Brand(Alias)')
+---
+
+<DetailPanel
+  idPrefix={idPrefix}
+  open
+  staticOpen
+  presentation="side"
+  kicker="Collection · brand · 0.94"
+  title="Brand(Alias)"
+  meta={`2 modes: ${detail.modes.join(', ')}. ${detail.meta}`}
+  modes={{ label: 'Mode', options: detail.modes, selected: detail.mode }}
+  lines={detail.lines.slice(0, 6)}
+  linesLabel="Tokens of Brand(Alias) in BrandA"
+/>

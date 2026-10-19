@@ -1,0 +1,32 @@
+---
+title: Source bar
+description: What is loaded, in one line - the playground's input once something is read.
+sidebar:
+  order: 18
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+Once something is loaded, the [playground](/playground/)'s input shrinks to this one line and the views take the page (playground spec, decision 15): "Loaded", what it is (`brand-ab example`, `tokenhaus export`, a file name), a mono detail (`6 files`, `converted into 1 token file`), then "Replace files" and "Paste JSON instead".
+
+## When to use
+
+- Above a workspace whose content comes from an input the visitor chose: it says what the views show and offers to change it, without taking room from them.
+- Not before anything is loaded: then the [Token input](/design-system/components/token-input/) takes the page.
+
+<Examples component="source-bar" />
+
+## Guidelines
+
+- **One line on the surface:** `bg-surface` with a `stroke-hairline` in `border-default` and `radius-md`, like a card's edge but flat. It wraps (actions under the label) when the container is narrow; it never scrolls sideways.
+- **Words:** the kicker "Loaded" and the detail in mono `fg-subtle` / `fg-muted`; what is loaded in label type. For an import, the words of `dta pull --from-file` ("converted into 1 token file").
+- **Actions:** "Replace files" is an outline [Button](/design-system/components/button/) and opens the file picker (several files at once); "Paste JSON instead" is a link button that opens the paste field under the bar (`aria-expanded` says whether it is open). Both 44 px tall.
+- **Screen readers:** the line is a status region that also reads out the file names (visually the detail stands for them). After a new read, focus moves to it, because the button that started the read is gone.
+- A Preact component (the playground island renders it); it reads files with the Token input's `readFiles`, so both inputs read the same way.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="SourceBar" />

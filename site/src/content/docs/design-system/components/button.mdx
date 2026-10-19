@@ -19,6 +19,7 @@ Three variants for actions: primary (`action-bg`), outline (`stroke-ink` in `bor
 - Focus is a `stroke-focus` ring in `action-subtle`, never only a colour change.
 - Labels are verbs or verb phrases: "See a review", not "Click here".
 - With an `href` it renders a link, otherwise a `<button>`.
+- **In a Preact island** (the playground): the styles live in `Button.css`, so island components render the same button with the class `dta-button` plus the variant (`primary`, `outline`, `link`) instead of re-styling their own. [Token input](/design-system/components/token-input/) and [Source bar](/design-system/components/source-bar/) do; a compact row may lower the height to the 44 px touch minimum.
 
 ## Tokens used
 

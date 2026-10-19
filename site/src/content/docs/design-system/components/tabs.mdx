@@ -1,0 +1,31 @@
+---
+title: Tabs
+description: Views of one thing, one at a time - a WAI-ARIA tablist, sticky on phones.
+sidebar:
+  order: 20
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+Views of one thing, one at a time: the [playground](/playground/)'s Structure · Lint · Graph · Outputs. The selected tab's panel follows the list; the others are not rendered.
+
+## When to use
+
+- When several views share one subject and the page would get long stacked: a workspace, not a document.
+- Not for navigation between pages (that is the [Nav](/design-system/components/nav/)) and not for a two-state choice inside a panel (a mode switch, as in the [Detail panel](/design-system/components/detail-panel/)).
+
+<Examples component="tabs" />
+
+## Guidelines
+
+- **Look:** the list is a `bg-subtle` well (`radius-md`, `space-1` padding); the selected tab sits on `bg-surface` with a `stroke-ink` outline in `border-strong`, the others are transparent in `fg-muted`. Label type, 44 px tall. A count follows the label in regular weight (`Lint · 3`).
+- **Keyboard (WAI-ARIA tabs, automatic activation):** only the selected tab is in the tab order; ←/→ move between tabs and select them, Home and End go to the first and last. `role="tablist"` with a name, `role="tab"` with `aria-selected` and `aria-controls`, one `role="tabpanel"` labelled by its tab.
+- **The page keeps the choice:** the playground writes the selected tab to the URL hash (`#lint`), so a reload or a shared link opens the same view.
+- **Phones:** below 560 px of container width the tabs share the row in equal columns. With `sticky` the bar stays at the top of the screen on `bg-canvas`, with a hairline under it, while the panel scrolls.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="Tabs" />

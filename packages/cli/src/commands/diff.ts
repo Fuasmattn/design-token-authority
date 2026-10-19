@@ -2,7 +2,13 @@ import { spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import { cssBindings, type BuildOptions } from '@dta/build'
-import { parseTokenFiles, type TokenFileInput, type TokenModel } from '@dta/core'
+import {
+  formatDiagnostic,
+  hasErrors,
+  parseTokenFiles,
+  type TokenFileInput,
+  type TokenModel,
+} from '@dta/core'
 import {
   attributePixels,
   compareStories,
@@ -36,7 +42,6 @@ import {
 } from '@dta/visual-diff'
 import pc from 'picocolors'
 import type { CommandContext } from '../commands.js'
-import { formatDiagnostic, hasErrors } from '../io/diagnostics.js'
 import { BrowserUnavailableError, launchScreenshotter } from '../io/browser.js'
 import { DiffBaseError, resolveDiffBase } from '../io/diff-base.js'
 import { CommandFailedError, runCommand } from '../io/run-command.js'

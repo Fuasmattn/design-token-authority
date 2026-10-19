@@ -1,0 +1,86 @@
+/*
+ * Tabs: a bg-subtle well holding the tabs; the selected one on bg-surface with a 2px ink
+ * outline, the others transparent in fg-muted. Inline on wide containers, equal columns below
+ * 560px, where `sticky` keeps the bar at the top of the screen on the canvas.
+ */
+.dta-tabs {
+  container-type: inline-size;
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+  font-family: var(--font-sans);
+  color: var(--fg-default);
+}
+.dta-tabs__bar {
+  min-width: 0;
+}
+.dta-tabs__list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  max-width: 100%;
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
+  background: var(--bg-subtle);
+}
+.dta-tabs__tab {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: var(--stroke-ink) solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-muted);
+  font-family: var(--font-sans);
+  font-size: calc(var(--type-label-size) * 1px);
+  font-weight: var(--type-label-weight);
+  line-height: var(--type-label-line-height);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.dta-tabs__tab:hover {
+  color: var(--fg-default);
+}
+.dta-tabs__tab[aria-selected='true'] {
+  border-color: var(--border-strong);
+  background: var(--bg-surface);
+  color: var(--fg-default);
+}
+.dta-tabs__tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+}
+.dta-tabs__count {
+  font-weight: 400;
+}
+.dta-tabs__panel {
+  min-width: 0;
+}
+.dta-tabs__panel:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: var(--space-1);
+}
+
+@container (max-width: 559px) {
+  .dta-tabs__list {
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .dta-tabs__tab {
+    padding: 0 var(--space-1);
+    font-size: calc(var(--type-body-sm-size) * 1px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dta-tabs[data-sticky] .dta-tabs__bar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin-inline: calc(var(--space-1) * -1);
+    padding: var(--space-2) var(--space-1);
+    border-bottom: var(--stroke-hairline) solid var(--border-default);
+    background: var(--bg-canvas);
+  }
+}

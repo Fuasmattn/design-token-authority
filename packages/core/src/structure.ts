@@ -28,6 +28,9 @@ export interface StructureAnalysis {
   suggestedBrands: string[]
 }
 
+/** Below this confidence a role is a guess to review (`dta analyze` marks it with ⚠). */
+export const LOW_CONFIDENCE = 0.75
+
 const DIMENSION_MODE_PATTERNS = [
   /^desktop$/i,
   /^mobile$/i,

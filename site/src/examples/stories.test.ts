@@ -5,13 +5,16 @@ import { STORIES, STORIES_SCHEMA, storiesManifest, storyId } from './stories.js'
 
 const here = import.meta.dirname
 const docs = path.join(here, '..', 'content', 'docs', 'design-system', 'components')
-/** Every component in src/components/ds, as a slug: CommandButton.astro → command-button. */
+/**
+ * Every component in src/components/ds, as a slug: CommandButton.astro → command-button, and the
+ * Preact ones: TokenInput.tsx → token-input.
+ */
 const COMPONENTS = fs
   .readdirSync(path.join(here, '..', 'components', 'ds'))
-  .filter((name) => name.endsWith('.astro'))
+  .filter((name) => /\.(astro|tsx)$/.test(name) && !name.endsWith('.test.tsx'))
   .map((name) =>
     name
-      .replace(/\.astro$/, '')
+      .replace(/\.(astro|tsx)$/, '')
       .replace(/([a-z])([A-Z])/g, '$1-$2')
       .toLowerCase(),
   )

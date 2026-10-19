@@ -1,5 +1,7 @@
 /**
- * AAA on the rendered pages: every text node of the landing page (both themes) and of every
+ * AAA on the rendered pages: every text node of the landing page and the playground (empty, the
+ * paste field, after the example, the detail panel open beside the view or as the bottom sheet, a
+ * lint finding open, after invalid input; both themes) and of every
  * story (each renders Light and Graphite side by side) reaches 7:1 against its effective
  * background, 4.5:1 when large (24 px, or 18.66 px bold). The token test checks the pairs the
  * system names; this checks what the browser paints, nesting and opacity included.
@@ -95,7 +97,15 @@ function serve(root: string): Promise<http.Server> {
   return new Promise((resolve) => s.listen(0, '127.0.0.1', () => resolve(s)))
 }
 
-async function audit(url: string, width: number, brand?: string): Promise<Failure[]> {
+/** Brings a page into the state to audit (the playground after an input). */
+type Prepare = (page: any) => Promise<void>
+
+async function audit(
+  url: string,
+  width: number,
+  brand?: string,
+  prepare?: Prepare,
+): Promise<Failure[]> {
   const context = await browser.newContext({
     viewport: { width, height: 900 },
     reducedMotion: 'reduce',
@@ -111,6 +121,7 @@ async function audit(url: string, width: number, brand?: string): Promise<Failur
       )
     }
     await page.evaluate('document.fonts.ready.then(() => true)')
+    await prepare?.(page)
     return (await page.evaluate(AUDIT)) as Failure[]
   } finally {
     await context.close()
@@ -143,6 +154,57 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
     'landing page in %s at %i px',
     async (brand, width) => {
       expect(await audit(`${origin}/`, width, brand)).toEqual([])
+    },
+    60_000,
+  )
+
+  const loadExample: Prepare = async (page) => {
+    await page.getByRole('button', { name: 'Load example' }).click()
+    await page.getByRole('table', { name: 'Structure' }).waitFor()
+  }
+  const PLAYGROUND: Record<string, Prepare | undefined> = {
+    empty: undefined,
+    'paste field': async (page) => {
+      await page.getByRole('button', { name: 'Paste JSON instead' }).click()
+    },
+    example: loadExample,
+    'panel open': async (page) => {
+      await loadExample(page)
+      await page.getByRole('button', { name: /^Brand\(Alias\)/ }).click()
+      await page.getByRole('dialog').waitFor()
+    },
+    'lint finding open': async (page) => {
+      // A plugin export with Figma's default mode name: one error, its rule and line opened.
+      await page.getByRole('button', { name: 'Paste JSON instead' }).click()
+      await page.getByLabel('Paste JSON').fill(
+        JSON.stringify({
+          $extensions: { 'com.figma': { modes: {} } },
+          Primitives: { Blue: { $type: 'color', $value: '#2443ac' } },
+        }),
+      )
+      await page.getByRole('button', { name: 'Check pasted JSON' }).click()
+      await page.getByRole('tab', { name: /^Lint/ }).click()
+      await page.locator('summary', { hasText: 'no-default-mode-names' }).click()
+      await page.locator('.dta-findings__line').getByRole('button').click()
+      await page.getByRole('dialog').waitFor()
+    },
+    'invalid input': async (page) => {
+      await page.getByRole('button', { name: 'Paste JSON instead' }).click()
+      await page.getByLabel('Paste JSON').fill('{"Colors": ')
+      await page.getByRole('button', { name: 'Check pasted JSON' }).click()
+      await page.getByRole('heading', { name: 'Input' }).waitFor()
+    },
+  }
+  it.each(
+    Object.keys(PLAYGROUND).flatMap((state) =>
+      (['light', 'graphite'] as const).flatMap((brand) =>
+        [1280, 390].map((width) => [state, brand, width] as const),
+      ),
+    ),
+  )(
+    'playground (%s) in %s at %i px',
+    async (state, brand, width) => {
+      expect(await audit(`${origin}/playground/`, width, brand, PLAYGROUND[state])).toEqual([])
     },
     60_000,
   )

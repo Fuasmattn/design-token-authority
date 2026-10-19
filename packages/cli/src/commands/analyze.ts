@@ -1,4 +1,4 @@
-import { analyzeStructure } from '@dta/core'
+import { analyzeStructure, LOW_CONFIDENCE } from '@dta/core'
 import type { StructureAnalysis } from '@dta/core'
 import { variablesToModel } from '@dta/figma'
 import pc from 'picocolors'
@@ -27,7 +27,7 @@ export function formatStructureReport(result: StructureAnalysis): string {
   )
 
   for (const c of result.collections) {
-    const warning = c.confidence < 0.75 ? ' ⚠' : ''
+    const warning = c.confidence < LOW_CONFIDENCE ? ' ⚠' : ''
     lines.push(
       [
         padRight(c.name, 30),

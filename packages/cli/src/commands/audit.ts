@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { parseTokenFiles } from '@dta/core'
+import { formatDiagnostic, hasErrors, parseTokenFiles } from '@dta/core'
 import {
   auditFiles,
   auditProject,
@@ -15,7 +15,6 @@ import {
   readBaseline,
 } from '../audit/audit.js'
 import type { CommandContext } from '../commands.js'
-import { formatDiagnostic, hasErrors } from '../io/diagnostics.js'
 import { readTokenDir, TokenDirError } from '../io/token-dir.js'
 
 /** Invalid input: token files, options, the baseline. */

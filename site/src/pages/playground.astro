@@ -1,0 +1,30 @@
+---
+/**
+ * The playground (spec: docs/specs/playground.md, decisions 12–14): a standalone page on the
+ * site's frame, outside Starlight. Drop or paste token files or a plugin export, or load the
+ * brand-ab example, and see the structure and the lint findings in a workspace (decision 15,
+ * TICKET-115). The app is a Preact island, the only one on the site; this file and
+ * playground.css only place it.
+ */
+import SiteLayout from '../layouts/SiteLayout.astro'
+import Playground from '../playground/Playground'
+import '../styles/playground.css'
+
+const title = 'Playground · Design Token Authority'
+const description =
+  'Drop in token files or a plugin export and see the structure DTA detects and what dta lint finds. Runs in your browser; nothing is uploaded.'
+---
+
+<SiteLayout title={title} description={description}>
+  <main id="main" class="wrap playground">
+    <div class="intro">
+      <h1>Playground</h1>
+      <p class="lede">
+        Drop in your token files or a plugin export and see the structure DTA detects and what <code
+          >dta lint</code
+        > finds, in the CLI's own words. It all runs in your browser: nothing is uploaded or stored.
+      </p>
+    </div>
+    <Playground client:load />
+  </main>
+</SiteLayout>

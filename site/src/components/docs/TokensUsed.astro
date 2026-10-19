@@ -1,6 +1,9 @@
 ---
-/** The token variables a component's source uses, read from the source itself. */
-const sources = import.meta.glob('../ds/*.astro', {
+/**
+ * The token variables a component's source uses, read from the source itself: the `.astro`
+ * file, or a Preact component's `.tsx` and its stylesheet (`<Name>.css`).
+ */
+const sources = import.meta.glob('../ds/*.{astro,tsx,css}', {
   query: '?raw',
   import: 'default',
   eager: true,
@@ -10,8 +13,9 @@ interface Props {
   name: string
 }
 const { name } = Astro.props
-const source = sources[`../ds/${name}.astro`]
-if (!source) throw new Error(`Unknown component "${name}"`)
+const files = ['astro', 'tsx', 'css'].map((ext) => sources[`../ds/${name}.${ext}`])
+if (!files[0] && !files[1]) throw new Error(`Unknown component "${name}"`)
+const source = files.filter(Boolean).join('\n')
 const used = [...new Set([...source.matchAll(/var\(--([\w-]+)\)/g)].map((m) => m[1]))].sort()
 ---
 

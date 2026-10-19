@@ -1,0 +1,223 @@
+/*
+ * Findings: lines on the surface, mono like the terminal they come from but in the page's ink.
+ * The marker carries the severity together with the word: error a filled square, warning an
+ * open ring, a clean summary the pass dot.
+ */
+.dta-findings {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+  font-family: var(--font-sans);
+  color: var(--fg-default);
+}
+.dta-findings__title {
+  margin: 0;
+  font-size: calc(var(--type-title-size) * 1px);
+  font-weight: var(--type-title-weight);
+  line-height: var(--type-title-line-height);
+}
+.dta-findings__summary {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: calc(var(--type-body-sm-size) * 1px);
+  font-weight: var(--type-label-weight);
+  line-height: var(--type-body-sm-line-height);
+}
+.dta-findings__group {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.dta-findings__file {
+  margin: 0;
+  padding-bottom: var(--space-1);
+  border-bottom: var(--stroke-hairline) solid var(--border-default);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  font-weight: 700;
+  line-height: var(--type-meta-line-height);
+  overflow-wrap: anywhere;
+}
+.dta-findings__lines {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dta-findings__line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-code-line-height);
+}
+.dta-findings__text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dta-findings__label {
+  font-weight: 700;
+}
+.dta-findings__line[data-severity='warning'] .dta-findings__label {
+  color: var(--fg-muted);
+}
+
+/* Markers: 8px, on the first line's baseline. */
+.dta-findings__marker {
+  flex: none;
+  box-sizing: border-box;
+  width: 8px;
+  height: 8px;
+  transform: translateY(-1px);
+}
+.dta-findings__line[data-severity='error'] .dta-findings__marker,
+.dta-findings__summary[data-outcome='failed'] .dta-findings__marker {
+  background: var(--fg-default);
+}
+.dta-findings__line[data-severity='warning'] .dta-findings__marker,
+.dta-findings__summary[data-outcome='warnings'] .dta-findings__marker {
+  border: var(--stroke-ink) solid var(--fg-default);
+  border-radius: var(--radius-full);
+}
+.dta-findings__summary[data-outcome='clean'] {
+  color: var(--success-fg);
+}
+.dta-findings__summary[data-outcome='clean'] .dta-findings__marker {
+  border-radius: var(--radius-full);
+  background: var(--success-fg);
+}
+.dta-findings__summary:not([data-outcome]) .dta-findings__marker {
+  display: none;
+}
+
+.dta-findings__note {
+  margin: 0;
+  max-width: var(--layout-measure);
+  font-size: calc(var(--type-body-sm-size) * 1px);
+  line-height: var(--type-body-sm-line-height);
+  color: var(--fg-muted);
+}
+.dta-findings__detail {
+  display: block;
+  color: var(--fg-subtle);
+}
+
+/* Rule rows: summaries first. A rule with findings is a disclosure; its lines open under it. */
+.dta-findings__rules {
+  display: grid;
+  border-top: var(--stroke-hairline) solid var(--border-default);
+}
+.dta-findings__rule {
+  border-bottom: var(--stroke-hairline) solid var(--border-default);
+}
+.dta-findings__rule-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: 0 var(--space-2);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+}
+summary.dta-findings__rule-row {
+  list-style: none;
+  cursor: pointer;
+}
+summary.dta-findings__rule-row::-webkit-details-marker {
+  display: none;
+}
+summary.dta-findings__rule-row::after {
+  content: '›';
+  flex: none;
+  color: var(--fg-subtle);
+  transition: transform 0.15s ease;
+}
+.dta-findings__rule[open] > summary.dta-findings__rule-row::after {
+  transform: rotate(90deg);
+}
+summary.dta-findings__rule-row:hover {
+  background: var(--bg-subtle);
+}
+summary.dta-findings__rule-row:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: calc(var(--stroke-focus) * -1);
+}
+.dta-findings__rule-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dta-findings__count {
+  flex: none;
+  color: var(--fg-muted);
+}
+.dta-findings__rule-row .dta-findings__marker {
+  transform: none;
+}
+.dta-findings__rule-row .dta-findings__marker:not([data-severity]) {
+  visibility: hidden;
+}
+.dta-findings__rule-row .dta-findings__marker[data-severity='error'] {
+  background: var(--fg-default);
+}
+.dta-findings__rule-row .dta-findings__marker[data-severity='warning'] {
+  border: var(--stroke-ink) solid var(--fg-default);
+  border-radius: var(--radius-full);
+}
+.dta-findings__rule .dta-findings__lines {
+  gap: 0;
+  padding: 0 0 var(--space-2) var(--space-6);
+}
+
+/* Selectable lines: the whole line is the button; the open one is tinted. */
+.dta-findings__open {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.dta-findings__open:hover {
+  background: var(--bg-subtle);
+}
+.dta-findings__open:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: calc(var(--stroke-focus) * -1);
+}
+.dta-findings__line[aria-current='true'] .dta-findings__open {
+  background: var(--action-subtle);
+  color: var(--action-text);
+}
+.dta-findings__line[aria-current='true'] .dta-findings__label,
+.dta-findings__line[aria-current='true'] .dta-findings__detail {
+  color: var(--action-text);
+}
+.dta-findings__line[aria-current='true'] .dta-findings__marker {
+  border-color: var(--action-text);
+}
+.dta-findings__line[aria-current='true'][data-severity='error'] .dta-findings__marker {
+  background: var(--action-text);
+}
+.dta-findings__line:has(> .dta-findings__open) {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  summary.dta-findings__rule-row::after {
+    transition: none;
+  }
+}

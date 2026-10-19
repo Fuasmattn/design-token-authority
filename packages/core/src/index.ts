@@ -1,6 +1,7 @@
 export { colorsApproximatelyEqual, contrastRatio, parseColor, toHex } from './color.js'
 export type { Color, ParsedColor } from './color.js'
 export { parseAlias } from './alias.js'
+export { formatDiagnostic, hasErrors } from './diagnostics.js'
 export { nameToDot, nameToSlash } from './names.js'
 export { parseTokenFiles } from './parse.js'
 export { analyzeGraph } from './graph.js'
@@ -12,7 +13,7 @@ export type {
   GraphNode,
   GraphStats,
 } from './graph.js'
-export { analyzeStructure } from './structure.js'
+export { analyzeStructure, LOW_CONFIDENCE } from './structure.js'
 export type { CollectionStructure, LayerRole, StructureAnalysis } from './structure.js'
 export { checkUniqueNames, resolve } from './resolve.js'
 export {

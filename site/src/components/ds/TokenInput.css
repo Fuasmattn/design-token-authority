@@ -1,0 +1,180 @@
+/*
+ * TokenInput: the drop area (a dashed ink outline: a place to put something) taking the page,
+ * then one row of actions: "Load example" with what it is, and "Paste JSON instead" at the end.
+ * The paste field takes the drop area's place when asked for. One surface: the drop area and
+ * the fields are bg-surface shapes, no shadows. PasteForm (also under the SourceBar) shares
+ * these styles.
+ */
+.dta-token-input {
+  container-type: inline-size;
+  display: grid;
+  gap: var(--space-4);
+  font-family: var(--font-sans);
+  color: var(--fg-default);
+}
+.dta-token-input__files,
+.dta-token-input__paste {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  min-width: 0;
+  font-family: var(--font-sans);
+  color: var(--fg-default);
+}
+
+/* The drop area is the file picker's button; it takes the page until something is loaded. */
+.dta-token-input__drop {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  width: 100%;
+  min-height: clamp(220px, 42vh, 420px);
+  padding: var(--space-6);
+  border: var(--stroke-ink) dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  color: var(--fg-default);
+  font-family: var(--font-sans);
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+.dta-token-input__drop:hover,
+.dta-token-input__drop[data-dragging] {
+  border-color: var(--action-bg);
+}
+.dta-token-input__drop[data-dragging] {
+  border-style: solid;
+  background: var(--action-subtle);
+  color: var(--action-text);
+}
+.dta-token-input__drop:focus-visible {
+  outline: none;
+  border-color: var(--action-bg);
+  box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+}
+.dta-token-input__drop-title {
+  font-size: calc(var(--type-title-size) * 1px);
+  font-weight: var(--type-title-weight);
+  line-height: var(--type-title-line-height);
+}
+.dta-token-input__drop-action {
+  font-size: calc(var(--type-label-size) * 1px);
+  font-weight: var(--type-label-weight);
+  line-height: var(--type-label-line-height);
+  color: var(--action-text);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.dta-token-input__picker {
+  display: none;
+}
+
+.dta-token-input__help {
+  margin: 0;
+  font-size: calc(var(--type-body-sm-size) * 1px);
+  line-height: var(--type-body-sm-line-height);
+  color: var(--fg-muted);
+}
+.dta-token-input__help code {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  color: var(--fg-default);
+}
+
+/* One row of actions: example first, the switch to the paste field at the end. */
+.dta-token-input__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+.dta-token-input__spacer {
+  flex: 1 1 auto;
+}
+.dta-token-input__actions .dta-button.link {
+  padding: 0;
+}
+.dta-token-input__meta {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  color: var(--fg-subtle);
+  overflow-wrap: anywhere;
+}
+
+/* The paste field: label above, mono, like TextField. */
+.dta-token-input__paste {
+  gap: var(--space-2);
+}
+.dta-token-input__label {
+  font-size: calc(var(--type-body-sm-size) * 1px);
+  font-weight: var(--type-label-weight);
+  line-height: var(--type-label-line-height);
+}
+.dta-token-input__field {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--space-3) 14px;
+  border: var(--stroke-ink) solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--fg-default);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-code-line-height);
+  outline: none;
+}
+.dta-token-input__text {
+  min-height: 200px;
+  resize: vertical;
+}
+.dta-token-input__name {
+  height: 46px;
+  padding-block: 0;
+}
+.dta-token-input__field::placeholder {
+  color: var(--fg-subtle);
+  opacity: 1;
+}
+.dta-token-input__field:focus {
+  border-color: var(--action-bg);
+  box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+}
+.dta-token-input__name-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3) var(--space-6);
+  margin-top: var(--space-2);
+}
+.dta-token-input__name-field {
+  display: grid;
+  gap: var(--space-2);
+  flex: 1 1 240px;
+  min-width: 0;
+}
+.dta-token-input__paste-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Narrow: the two buttons on one line, what the example is under them. */
+@container (max-width: 559px) {
+  .dta-token-input__meta {
+    flex-basis: 100%;
+    order: 3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dta-token-input__drop {
+    transition: none;
+  }
+}

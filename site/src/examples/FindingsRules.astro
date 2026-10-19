@@ -1,0 +1,27 @@
+---
+// Real output: the playground's lint view, grouped by rule, on a set with two problems.
+import Findings from '../components/ds/Findings'
+import { analyse } from '../playground/analyse'
+import { PROBLEM_FILES } from './problem-files'
+
+const lint = analyse(PROBLEM_FILES).lint
+if (!lint) throw new Error('the problem files did not lint')
+const groups = lint.rules.map((rule, index) => ({
+  title: rule.rule,
+  count: rule.count,
+  severity: rule.severity,
+  open: index === 0,
+  lines: rule.findings.map((f) => ({ ...f, detail: f.file || undefined })),
+}))
+---
+
+<Findings
+  title="Default rules"
+  summary={lint.summary}
+  outcome={lint.outcome}
+  verdict={lint.verdict}
+  note="A rule with findings opens to its lines, a line to its details."
+  groups={groups}
+  selected={{ group: 0, line: 0 }}
+  onSelect={() => {}}
+/>

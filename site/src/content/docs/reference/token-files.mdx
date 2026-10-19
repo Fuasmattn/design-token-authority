@@ -63,3 +63,5 @@ Some exporters write one file with all modes of all collections. DTA can convert
 An adapter is one file and one line in that list; DTA works without it. Input in any other format is reported as unknown. If you rely on an exporter that is not listed, convert its output to the format above, or contribute an adapter with a fixture.
 
 Per-mode files that are already in the format above need no conversion: put them into your tokens directory under their `{Collection}.{Mode}.json` names.
+
+To check a file before you set anything up, drop it into the [playground](/playground/): it detects the format the same way `dta pull --from-file` does and shows the same diagnostics, in your browser.

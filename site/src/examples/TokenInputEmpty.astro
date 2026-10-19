@@ -1,0 +1,10 @@
+---
+import TokenInput from '../components/ds/TokenInput'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'token-input-empty' } = Astro.props
+---
+
+<TokenInput idPrefix={idPrefix} example="brand-ab: BrandA and BrandB, three breakpoints" />

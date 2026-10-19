@@ -1,0 +1,73 @@
+/*
+ * SourceBar: one line on the surface with a hairline border, like a card's edge but flat: the
+ * mono "Loaded" kicker, what is loaded in label type, a mono detail, then the actions at the
+ * end ("Replace files" outline, "Paste JSON instead" link). Wraps below the label when narrow.
+ */
+.dta-source {
+  container-type: inline-size;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border: var(--stroke-hairline) solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  font-family: var(--font-sans);
+  color: var(--fg-default);
+}
+.dta-source__status {
+  flex: 1 1 260px;
+  min-width: 0;
+  margin: 0;
+  font-size: calc(var(--type-label-size) * 1px);
+  line-height: var(--type-label-line-height);
+  overflow-wrap: anywhere;
+}
+.dta-source__status:focus {
+  outline: none;
+}
+.dta-source__status:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: var(--stroke-ink);
+}
+.dta-source__kicker,
+.dta-source__detail {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  color: var(--fg-subtle);
+}
+.dta-source__kicker {
+  margin-right: var(--space-2);
+}
+.dta-source__label {
+  margin-right: var(--space-2);
+  font-weight: var(--type-label-weight);
+}
+.dta-source__detail {
+  color: var(--fg-muted);
+}
+/* The file names are read out, not shown: the views list the collections and modes. */
+.dta-source__files {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.dta-source__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+.dta-source__actions .dta-button {
+  min-height: 44px;
+}
+.dta-source__actions .dta-button.outline {
+  padding: 0 var(--space-4);
+}
+.dta-source__picker {
+  display: none;
+}

@@ -1,4 +1,4 @@
-import { parseTokenFiles } from '@dta/core'
+import { formatDiagnostic, hasErrors, parseTokenFiles } from '@dta/core'
 import type { CommandContext } from '../commands.js'
 import {
   ContextConflictError,
@@ -6,7 +6,6 @@ import {
   planContext,
   writeContext,
 } from '../context/write.js'
-import { formatDiagnostic, hasErrors } from '../io/diagnostics.js'
 import { readTokenDir, TokenDirError } from '../io/token-dir.js'
 
 /** Exit code when the context file exists and DTA did not write it. */

@@ -1,0 +1,28 @@
+---
+// Real output: a dangling alias, as the bottom sheet on a phone shows it (in the flow here).
+import DetailPanel from '../components/ds/DetailPanel'
+import { analyse, findingChain } from '../playground/analyse'
+import { PROBLEM_FILES } from './problem-files'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'detail-sheet' } = Astro.props
+const { model, lint } = analyse(PROBLEM_FILES)
+const found = lint?.rules.flatMap((rule) => rule.findings).find((f) => f.rule === 'no-dangling-aliases')
+const chain = model && found && findingChain(model, found.tokenPath)
+if (!found || !chain) throw new Error('the problem files have no dangling alias')
+---
+
+<DetailPanel
+  idPrefix={idPrefix}
+  open
+  staticOpen
+  presentation="sheet"
+  kicker={`${found.label} · ${found.rule}`}
+  title="Colors.Accent"
+  meta={`In ${found.file}.`}
+  message={found.cli}
+  lines={[chain]}
+  linesLabel="Alias chain"
+/>

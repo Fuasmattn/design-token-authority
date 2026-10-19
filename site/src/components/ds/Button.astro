@@ -1,5 +1,11 @@
 ---
-/** Actions: primary (one per view), outline (secondary), link (tertiary). Labels are verbs. */
+/**
+ * Actions: primary (one per view), outline (secondary), link (tertiary). Labels are verbs.
+ * The styles live in Button.css so islands can render the same button (class `dta-button`
+ * plus the variant).
+ */
+import './Button.css'
+
 interface Props {
   variant?: 'primary' | 'outline' | 'link'
   href?: string
@@ -11,43 +17,3 @@ const Tag = href ? 'a' : 'button'
 <Tag class:list={['dta-button', variant]} href={href} type={href ? undefined : 'button'}>
   <slot />
 </Tag>
-
-<style>
-  .dta-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    min-height: 48px;
-    padding: 0 20px;
-    border-radius: var(--radius-md);
-    font-family: var(--font-sans);
-    font-size: calc(var(--type-label-size) * 1px);
-    font-weight: var(--type-label-weight);
-    line-height: var(--type-label-line-height);
-    text-decoration: none;
-    cursor: pointer;
-  }
-  .primary {
-    border: 0;
-    background: var(--action-bg);
-    color: var(--action-fg);
-  }
-  .outline {
-    border: var(--stroke-ink) solid var(--border-strong);
-    background: transparent;
-    color: var(--fg-default);
-  }
-  .link {
-    border: 0;
-    padding: 0 var(--space-2);
-    background: transparent;
-    color: var(--action-bg);
-    text-decoration: underline;
-    text-underline-offset: 4px;
-  }
-  .dta-button:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
-  }
-</style>

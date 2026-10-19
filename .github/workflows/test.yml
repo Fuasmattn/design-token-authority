@@ -43,7 +43,7 @@ jobs:
         run: pnpm site:build
       - name: Install Chromium for the rendered contrast audit
         run: pnpm --filter dta-site exec playwright-core install --with-deps chromium
-      - name: Rendered contrast audit (AAA on the landing page and every story, both themes)
+      - name: Rendered checks (AAA on the landing page, the playground and every story; motion; playground flow; browser packages)
         run: pnpm --filter dta-site test:contrast
   diff-e2e:
     runs-on: ubuntu-latest

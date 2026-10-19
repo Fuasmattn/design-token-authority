@@ -1,0 +1,11 @@
+---
+// The source bar after "Load example" in the playground.
+import SourceBar from '../components/ds/SourceBar'
+import { EXAMPLE_FILES } from '../playground/example'
+---
+
+<SourceBar
+  label="brand-ab example"
+  detail={`${EXAMPLE_FILES.length} files`}
+  files={EXAMPLE_FILES.map((file) => file.fileName)}
+/>

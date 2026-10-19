@@ -3,17 +3,12 @@
  * The landing page (spec: docs/specs/landing-redesign.md, revised 2026-10-19): the hero on the
  * gravity well, the workflow at a glance, one change in four scenes with the Orbit Burger example,
  * the facts, and the final call with a few objects floating free. One surface, no grid. Everything on it is a design-system
- * component; this file and landing.css only place them.
+ * component; this file and landing.css only place them. The frame (fonts, header, nav, theme
+ * switch, footer) is SiteLayout, shared with the playground.
  */
-import '../../output/css/base.css'
-import '../../output/css/themes/light.css'
-import '../../output/css/themes/graphite.css'
+import SiteLayout from '../layouts/SiteLayout.astro'
 import '../../output/css/examples/orbit-burger.css'
-import '../styles/fonts.css'
 import '../styles/landing.css'
-import sansUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wdth-normal.woff2?url'
-import sansItalicUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wdth-italic.woff2?url'
-import monoUrl from '@fontsource-variable/martian-mono/files/martian-mono-latin-wght-normal.woff2?url'
 import Button from '../components/ds/Button.astro'
 import Checks from '../components/ds/Checks.astro'
 import CommandButton from '../components/ds/CommandButton.astro'
@@ -21,11 +16,8 @@ import ExampleButton from '../components/ds/ExampleButton.astro'
 import Facts from '../components/ds/Facts.astro'
 import FloatingObjects from '../components/ds/FloatingObjects.astro'
 import GravityWell from '../components/ds/GravityWell.astro'
-import Logo from '../components/ds/Logo.astro'
-import Nav from '../components/ds/Nav.astro'
 import Scene from '../components/ds/Scene.astro'
 import Terminal from '../components/ds/Terminal.astro'
-import ThemeSwitch from '../components/ds/ThemeSwitch.astro'
 import TokenRows from '../components/ds/TokenRows.astro'
 import WorkflowRail from '../components/ds/WorkflowRail.astro'
 import {
@@ -44,50 +36,10 @@ import {
 
 const title = 'Design Token Authority'
 const description = `${HERO.headline} ${HERO.headlineAccent}`
-const github = 'https://github.com/Fuasmattn/design-token-authority'
-const NAV = [
-  { href: '#how', label: 'How it works' },
-  { href: '#agents', label: 'Agents' },
-  { href: '/start/', label: 'Docs' },
-]
 const [s1, s2, s3, s4] = SCENES
 ---
 
-<!doctype html>
-<html lang="en" data-theme="light" data-brand="light">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>{title}</title>
-    <meta name="description" content={description} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preload" href={sansUrl} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={sansItalicUrl} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={monoUrl} as="font" type="font/woff2" crossorigin />
-    <script is:inline>
-      // Same theme as the docs: Starlight keeps the choice in localStorage ('light' | 'dark').
-      ;(() => {
-        let stored = null
-        try {
-          stored = localStorage.getItem('starlight-theme')
-        } catch {}
-        const dark =
-          stored === 'dark' ||
-          ((!stored || stored === 'auto') && matchMedia('(prefers-color-scheme: dark)').matches)
-        document.documentElement.dataset.theme = dark ? 'dark' : 'light'
-        document.documentElement.dataset.brand = dark ? 'graphite' : 'light'
-      })()
-    </script>
-  </head>
-  <body>
-    <a class="skip" href="#main">Skip to content</a>
-    <header class="site-header">
-      <Logo />
-      <Nav links={NAV} idPrefix="site">
-        <ThemeSwitch />
-      </Nav>
-    </header>
-
+<SiteLayout title={title} description={description}>
     <main id="main">
       <GravityWell id="hero">
         <h1 id="hero-title">
@@ -189,15 +141,4 @@ const [s1, s2, s3, s4] = SCENES
       </FloatingObjects>
     </main>
 
-    <footer class="foot">
-      <div class="wrap foot-inner">
-        <span>Design Token Authority · MIT</span>
-        <nav aria-label="Footer">
-          <a href="/start/">Docs</a>
-          <a href="/reference/">CLI reference</a>
-          <a href={github}>GitHub</a>
-        </nav>
-      </div>
-    </footer>
-  </body>
-</html>
+</SiteLayout>

@@ -1,0 +1,94 @@
+/*
+ * The playground page (spec: docs/specs/playground.md) inside the shared frame (site.css): the
+ * intro's type and where the island's components sit. It invents no UI; the input, the
+ * structure table and the findings are design-system components. Every size comes from a token
+ * (src/landing/styles.test.ts checks this file too).
+ */
+.playground {
+  padding-top: calc(var(--space-24) + var(--space-4));
+  padding-bottom: var(--space-24);
+}
+.intro {
+  margin-bottom: var(--space-12);
+}
+.intro h1 {
+  margin: 0 0 var(--space-4);
+  font-size: calc(var(--type-heading-size) * 1px);
+  font-weight: var(--type-heading-weight);
+  font-stretch: 85%;
+  line-height: var(--type-heading-line-height);
+  letter-spacing: -0.02em;
+}
+.intro .lede {
+  margin: 0;
+  max-width: var(--layout-measure);
+  font-size: calc(var(--type-body-lg-size) * 1px * 0.9);
+  line-height: var(--type-body-lg-line-height);
+  color: var(--fg-muted);
+}
+.playground code {
+  font-family: var(--site-mono);
+  font-size: 0.85em;
+  color: var(--fg-default);
+}
+
+/* Once something is loaded the views take the page: the intro stays for screen readers only. */
+.playground:has(.pg[data-loaded]) .intro {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The island: source bar, summary, then the tabs; one column. */
+.pg {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.pg > .dta-tabs {
+  margin-top: var(--space-2);
+}
+/* The view and the detail panel: side by side from 1024px, the panel stays in view. */
+.pg-work {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+  min-width: 0;
+}
+.pg-view {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.pg-hint,
+.pg-coming {
+  margin: 0;
+  font-size: calc(var(--type-body-sm-size) * 1px);
+  line-height: var(--type-body-sm-line-height);
+  color: var(--fg-muted);
+}
+.pg-coming {
+  max-width: var(--layout-measure);
+  padding-top: var(--space-4);
+  border-top: var(--stroke-hairline) solid var(--border-default);
+}
+
+@media (min-width: 1024px) {
+  .pg-work[data-panel] {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+  }
+}
+
+@media (max-width: 760px) {
+  .playground {
+    padding-top: var(--space-20);
+    padding-bottom: var(--space-16);
+  }
+  .intro {
+    margin-bottom: var(--space-8);
+  }
+}

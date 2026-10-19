@@ -1,0 +1,24 @@
+---
+// The playground's views with Structure selected, on the brand-ab example.
+import StructureTable from '../components/ds/StructureTable'
+import Tabs from '../components/ds/Tabs'
+import { analyse } from '../playground/analyse'
+import { EXAMPLE_FILES } from '../playground/example'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'tabs-structure' } = Astro.props
+const structure = analyse(EXAMPLE_FILES).structure
+if (!structure) throw new Error('brand-ab has no structure')
+const tabs = [
+  { id: 'structure', label: 'Structure' },
+  { id: 'lint', label: 'Lint', count: '0' },
+  { id: 'graph', label: 'Graph' },
+  { id: 'outputs', label: 'Outputs' },
+]
+---
+
+<Tabs idPrefix={idPrefix} label="Views" tabs={tabs} selected="structure">
+  <StructureTable caption="Structure" hideCaption rows={structure.rows} />
+</Tabs>

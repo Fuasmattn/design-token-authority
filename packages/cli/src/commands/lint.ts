@@ -1,9 +1,8 @@
-import { parseTokenFiles } from '@dta/core'
-import { lintTokens } from '@dta/lint'
+import { formatDiagnostic, hasErrors, parseTokenFiles } from '@dta/core'
+import { groupViolationsByFile, LINT_MESSAGES, lintCounts, lintTokens } from '@dta/lint'
 import type { LintViolation } from '@dta/lint'
 import pc from 'picocolors'
 import type { CommandContext } from '../commands.js'
-import { formatDiagnostic, hasErrors } from '../io/diagnostics.js'
 import { readTokenDir, TokenDirError } from '../io/token-dir.js'
 import { banner, createUi } from '../ui.js'
 
@@ -14,8 +13,6 @@ function formatViolation(violation: LintViolation): string {
   const icon = violation.severity === 'error' ? pc.red('error') : pc.yellow('warn')
   return `  ${icon} ${violation.message} ${pc.dim(`[${violation.rule}]`)}`
 }
-
-const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`
 
 export async function runLint(context: CommandContext): Promise<number> {
   const ui = createUi(context.stdout)
@@ -46,35 +43,30 @@ export async function runLint(context: CommandContext): Promise<number> {
     ;(diagnostic.severity === 'error' ? ui.log.error : ui.log.warn)(formatDiagnostic(diagnostic))
   }
   if (hasErrors(problems)) {
-    ui.outro(pc.red('Lint failed.'))
+    ui.outro(pc.red(LINT_MESSAGES.failed))
     return 1
   }
 
   if (result.violations.length === 0) {
-    ui.log.success('No lint violations found.')
+    ui.log.success(LINT_MESSAGES.clean)
     ui.outro('All clean!')
     return 0
   }
 
-  const byFile = new Map<string, LintViolation[]>()
-  for (const violation of result.violations) {
-    const key = violation.file || '(unknown file)'
-    byFile.set(key, [...(byFile.get(key) ?? []), violation])
-  }
-  for (const [file, violations] of byFile) {
+  for (const [file, violations] of groupViolationsByFile(result.violations)) {
     ui.log.message(pc.bold(file))
     for (const violation of violations) ui.log.message(formatViolation(violation))
   }
 
-  const summary: string[] = []
-  if (result.errorCount > 0) summary.push(pc.red(plural(result.errorCount, 'error')))
-  if (result.warningCount > 0) summary.push(pc.yellow(plural(result.warningCount, 'warning')))
+  const summary = lintCounts(result).map((count) =>
+    count.severity === 'error' ? pc.red(count.text) : pc.yellow(count.text),
+  )
   ui.log.message(`\n${summary.join(', ')} found.`)
 
   if (result.errorCount > 0) {
-    ui.outro(pc.red('Lint failed.'))
+    ui.outro(pc.red(LINT_MESSAGES.failed))
     return EXIT_LINT_ERRORS
   }
-  ui.outro(pc.yellow('Lint passed with warnings.'))
+  ui.outro(pc.yellow(LINT_MESSAGES.passedWithWarnings))
   return 0
 }

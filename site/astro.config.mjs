@@ -1,15 +1,20 @@
 // @ts-check
+import preact from '@astrojs/preact'
 import starlight from '@astrojs/starlight'
 import { defineConfig } from 'astro/config'
 import starlightLinksValidator from 'starlight-links-validator'
+import { CUSTOM_PAGES } from './custom-pages.mjs'
 
 export default defineConfig({
   integrations: [
+    // The playground's island (spec: docs/specs/playground.md decision 13). Only the playground
+    // page hydrates a Preact component; stories render the same components to static HTML.
+    preact(),
     starlight({
       title: 'Design Token Authority',
       description:
         'The deterministic backbone for design token workflows, built for humans and agents.',
-      plugins: [starlightLinksValidator()],
+      plugins: [starlightLinksValidator({ exclude: CUSTOM_PAGES })],
       social: [
         {
           icon: 'github',
@@ -44,7 +49,7 @@ export default defineConfig({
             },
           ],
         },
-        { label: 'Playground', items: [{ autogenerate: { directory: 'playground' } }] },
+        { label: 'Playground', link: '/playground/' },
         { label: 'Contribute', items: [{ autogenerate: { directory: 'contribute' } }] },
       ],
     }),

@@ -1,0 +1,32 @@
+---
+title: Detail panel
+description: Details of a selection beside the view on desktop, as a bottom sheet on phones; one native dialog.
+sidebar:
+  order: 23
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+Details of what was selected in a view, so the view behind stays in place: in the [playground](/playground/), a collection's tokens with their alias chains and values in the selected mode, or a lint finding in full with the chain of its token. A side panel next to the view from 1024 px of viewport width, a bottom sheet below.
+
+## When to use
+
+- For details of one row of a list or table that the visitor wants to read without losing their place: open, read, close, next row.
+- Not for the views themselves (those are [Tabs](/design-system/components/tabs/)) and not for confirmations or forms; there are no modal dialogs for content that belongs on the page.
+
+<Examples component="detail-panel" />
+
+## Guidelines
+
+- **One component, two presentations, one native `<dialog>`.** Beside the view it is shown non-modal (`show()`), in the flow and sticky while the page scrolls. As the sheet it is modal (`showModal()`): fixed to the bottom, focus stays inside, the page behind is inert and veiled with `bg-canvas` at 80 %. Crossing 1024 px while open switches the presentation and keeps it open.
+- **Focus:** opening moves focus to the panel's title, so a screen reader reads what opened; closing (the × button, Escape, or a tap on the sheet's backdrop) returns focus to the row that opened it. Escape closes the side panel too.
+- **Look:** `bg-surface` with a `stroke-ink` outline in `border-strong` and `radius-lg` (it is the thing in focus); the sheet keeps only the top rule, rounds its top corners and shows a grab handle. A mono kicker in `fg-subtle` (`Collection · brand · 0.94`, `error · no-dangling-aliases`), a mono title.
+- **Content:** a meta line in `fg-muted`, an optional mode switch (a segmented `bg-subtle` well with `aria-pressed` buttons), an optional message shown whole in mono (the finding as the CLI prints it), and lines: a token name, then its alias chain and value (`→ {Colors.Foundation.Blue.700}  #003f8a`) in `fg-muted`, with a small swatch for colours. The lines scroll inside the panel (a focusable, named region), the head stays.
+- The row that opened the panel is marked in the view (`aria-current`, tinted `action-subtle`).
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="DetailPanel" />

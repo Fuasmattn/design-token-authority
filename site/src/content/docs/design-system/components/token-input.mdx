@@ -1,0 +1,33 @@
+---
+title: Token input
+description: Where token files come into the playground - a drop area that is also a button and takes the page, the example and a paste field.
+sidebar:
+  order: 17
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+How token files get into the [playground](/playground/) before anything is loaded: the drop area takes the page (playground spec, decision 15). It takes files dragged onto it and is also the button that opens the file picker, so it works with a keyboard and on phones, where dragging is not an option. Several files at once. Under it: "Load example" and "Paste JSON instead", which swaps the drop area for a paste field.
+
+The component reads the files and hands them on as `{ fileName, content }`; it does not interpret them (the playground decides between per-mode files and a plugin export, as the CLI does). Once something is loaded the input shrinks to the [Source bar](/design-system/components/source-bar/); its "Paste JSON instead" opens the same paste field (`PasteForm`, exported from this component), and its "Replace files" reads files with the same `readFiles`. A Preact component, because the playground is a Preact island; the stories render it to static HTML.
+
+## When to use
+
+- As the whole page of a tool that needs input first, before there is anything to show.
+- Not once something is loaded: then the Source bar says what it is and offers to replace it.
+
+<Examples component="token-input" />
+
+## Guidelines
+
+- The drop area is a dashed ink outline on `bg-surface`: a place to put something. It is tall (about 40 % of the screen, at least 220 px), so it is the page until something is loaded. Hover and focus turn the outline `action-bg`; while files are dragged over it, it fills with `action-subtle`.
+- Its label says both ways in: "Drop token files", then "or choose files" in `action-text`, underlined like a link. The help line under it names what it accepts.
+- One row of actions under it: "Load example" (outline [Button](/design-system/components/button/)) with what the example is in mono, and at the end "Paste JSON instead" (link button). The paste field takes the drop area's place, and the button then says "Choose files instead"; switching moves focus to the field or back to the drop area.
+- The paste field is mono, labelled above like [Text field](/design-system/components/text-field/). A pasted per-mode file needs a `{Collection}.{Mode}.json` name; a plugin export needs none. "Check pasted JSON" is the one primary action; under the Source bar the form also has "Cancel" (and Escape).
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="TokenInput" />

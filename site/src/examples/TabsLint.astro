@@ -1,0 +1,19 @@
+---
+// Lint selected, with a count, as the sticky bar a phone shows (the panel is a short line here).
+import Tabs from '../components/ds/Tabs'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'tabs-lint' } = Astro.props
+const tabs = [
+  { id: 'structure', label: 'Structure' },
+  { id: 'lint', label: 'Lint', count: '2' },
+  { id: 'graph', label: 'Graph' },
+  { id: 'outputs', label: 'Outputs' },
+]
+---
+
+<Tabs idPrefix={idPrefix} label="Views" tabs={tabs} selected="lint" sticky>
+  <p>2 errors found. Lint failed.</p>
+</Tabs>
