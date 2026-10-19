@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** M
 **Blocked by:** 106, 107
-**Status:** open
+**Status:** done (2026-10-18)
 **Spec:** [landing-redesign](../specs/landing-redesign.md) (the page, decisions 5, 8, 10); accepted prototype `docs/specs/landing-redesign/prototypes/p17-page.html`
 
 Revised 2026-10-18 with the spec: the loop section is gone, the hero carries the key visual, the grid leaves the page.
@@ -28,3 +28,12 @@ Checks before closing: no horizontal scroll at 390 px in both themes; cumulative
 - [ ] Honesty tests pass with the new copy; every shown output is real or labelled illustrative
 - [ ] Phone, theme, layout-shift, weight, frame and contrast checks recorded in the ticket outcome
 - [ ] Vercel preview reviewed by the maintainer before merge; all gates pass and the GitHub run is green
+
+## Outcome
+
+- `site/src/pages/index.astro` is the spec's page: `GravityWell` carries the hero (headline with the italic accent, subline, the large command chip and the outline button), four `Scene`s with `TokenRows`, two `ExampleButton`s with the shares, `Checks`, the `Terminal` with real `dta token find '#2443ac'` / `dta audit src` output, `Facts`, and `FloatingObjects` around the final call. Problem/how/workflow/agents/trust/cards sections, `.grid-paper`, `DiffCard`, `TokenCycle` and the dark footer band are gone; the nav is How it works · Agents · Docs. `landing.css` only places components and sets the hero type.
+- `landing/content.ts` holds the copy, the commands (every scene command shipped; `npm create dta` unmarked per 098), the token rows, checks, the agent run and `DIFF_SHARES`; `landing.test.ts` checks the command names against the CLI, the agent terminal's commands and that the shares are labelled illustrative while `real` is false. `dta audit src` accepts the agent scene's quoted colour through `site/.dta/audit-baseline.json` (committed; `audit.test.ts` expects exactly those 2).
+- Checks recorded (Chromium 1440×900 and 390×844, built site): no horizontal scroll at 390 px in both themes; CLS 0; rendered contrast audit green on the page and every story in both themes; 0 running animations and 0 extra frames under reduced motion, a running loop otherwise (`motion.e2e.test.ts`); transferred ≈ 214 KB raw / 160 KB gzip, of which the three font files are 142 KB (the italic weight is used by the headline accent) and the well module 6.4 KB raw; headless software rendering holds ≈ 34 fps at 1440×900 with four initial long tasks of 50–110 ms (no GPU in CI; to be confirmed on a laptop in the Vercel preview).
+- The real `dta diff` of the Orbit Burger change (base: a throwaway commit with `tokens/ = tokens-base/`, run in `site/examples/orbit-burger`, whose `dta.config.ts` now has a `diff` section that builds the site): tokens 2 changed; stories `example-button--states` 19 643 px (1.92 %) at 1280 and 18 142 px (5.81 %) at 390, `scene--default` 19 638 / 18 010 px, `token-rows--default` 340 / 332 px, 35 unchanged; attribution explained 0 of them because the example's variables are declared under scoped selectors, not the build's `:root` → TICKET-111. The shares on the page stay illustrative and labelled.
+- British spelling pass: centre, colour (token names keep their own spelling).
+- Vercel preview: to be reviewed by the maintainer before merge.

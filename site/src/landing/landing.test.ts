@@ -1,6 +1,6 @@
 import { COMMAND_NAMES } from '@dta/cli'
 import { describe, expect, it } from 'vitest'
-import { COMMANDS, NPM_RELEASED, TRUST_RUN } from './content'
+import { AGENT_RUN, COMMANDS, DIFF_SHARES, NPM_RELEASED, SCENES } from './content'
 
 /** Full command names: `diff`, `skill add`, … */
 const registered = new Set(COMMAND_NAMES)
@@ -21,8 +21,27 @@ describe('landing page honesty rule', () => {
     for (const command of Object.values(COMMANDS)) expect(command.text).not.toMatch(/npx dta\b/)
   })
 
-  it('runs the trust terminal on a shipped command', () => {
-    expect(TRUST_RUN.lines[0].map((s) => s.text).join('')).toBe('$ npx dta diff')
-    expect(registered.has('diff')).toBe(true)
+  it('shows every scene command as a shipped dta command', () => {
+    for (const scene of SCENES) {
+      expect(scene.command.shipped, scene.command.text).toBe(true)
+      for (const name of scene.command.uses) expect(registered.has(name), name).toBe(true)
+    }
+  })
+
+  it('runs the agent terminal on shipped commands', () => {
+    const commands = AGENT_RUN.lines
+      .filter((line) => line[0].text === '$ ')
+      .map((line) =>
+        line
+          .map((s) => s.text)
+          .join('')
+          .slice(2),
+      )
+    expect(commands).toEqual(["dta token find '#2443ac'", 'dta audit src'])
+    for (const name of ['token find', 'audit']) expect(registered.has(name), name).toBe(true)
+  })
+
+  it('labels the diff shares illustrative until they come from a recorded run', () => {
+    if (!DIFF_SHARES.real) expect(DIFF_SHARES.note).toMatch(/illustrative/)
   })
 })

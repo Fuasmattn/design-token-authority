@@ -63,6 +63,6 @@ Two prototype rounds after approval (the handoff of the first is folded in here)
 
 ## Tickets
 
-[110](../tickets/110-design-system-one-surface.md) · [105](../tickets/105-orbit-burger-example.md) · [106](../tickets/106-landing-components.md) · [107](../tickets/107-gravity-well.md) · [108](../tickets/108-landing-rebuild.md) · [109](../tickets/109-diff-report-before-after.md)
+[110](../tickets/110-design-system-one-surface.md) · [105](../tickets/105-orbit-burger-example.md) · [106](../tickets/106-landing-components.md) · [107](../tickets/107-gravity-well.md) · [108](../tickets/108-landing-rebuild.md) · [109](../tickets/109-diff-report-before-after.md) · [111](../tickets/111-diff-attribution-scoped-example.md)
 
-Order: 110 → 105 → 106 → 107 → 108 (109 later, independent).
+Order: 110 → 105 → 106 → 107 → 108 (all done 2026-10-18); 109 and 111 later.

@@ -1,124 +1,54 @@
 ---
 /**
- * The landing page (TICKET-071), from the mockup "J · Drafting Table". Its own page rather than
- * a Starlight splash: the same tokens (dta build), fonts and theme as the docs. The hero has no
- * key visual for now (maintainer decision): the visual is still being designed.
+ * The landing page (spec: docs/specs/landing-redesign.md, revised 2026-10-18): the hero on the
+ * gravity well, one change in four scenes with the Orbit Burger example, the facts, and the final
+ * call with a few objects floating free. One surface, no grid. Everything on it is a design-system
+ * component; this file and landing.css only place them.
  */
 import '../../output/css/base.css'
 import '../../output/css/themes/light.css'
 import '../../output/css/themes/graphite.css'
+import '../../output/css/examples/orbit-burger.css'
 import '../styles/fonts.css'
 import '../styles/landing.css'
 import sansUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wdth-normal.woff2?url'
 import sansItalicUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wdth-italic.woff2?url'
 import monoUrl from '@fontsource-variable/martian-mono/files/martian-mono-latin-wght-normal.woff2?url'
-import Badge from '../components/ds/Badge.astro'
 import Button from '../components/ds/Button.astro'
-import Card from '../components/ds/Card.astro'
+import Checks from '../components/ds/Checks.astro'
 import CommandButton from '../components/ds/CommandButton.astro'
-import DiffCard from '../components/ds/DiffCard.astro'
+import ExampleButton from '../components/ds/ExampleButton.astro'
+import Facts from '../components/ds/Facts.astro'
+import FloatingObjects from '../components/ds/FloatingObjects.astro'
+import GravityWell from '../components/ds/GravityWell.astro'
 import Logo from '../components/ds/Logo.astro'
 import Nav from '../components/ds/Nav.astro'
-import ThemeSwitch from '../components/ds/ThemeSwitch.astro'
-import TokenCycle from '../components/ds/TokenCycle.astro'
+import Scene from '../components/ds/Scene.astro'
 import Terminal from '../components/ds/Terminal.astro'
-import { COMMANDS, TRUST_RUN } from '../landing/content'
+import ThemeSwitch from '../components/ds/ThemeSwitch.astro'
+import TokenRows from '../components/ds/TokenRows.astro'
+import {
+  AGENT_RUN,
+  APPROVE,
+  CHECKS,
+  COMMANDS,
+  DIFF_SHARES,
+  FACTS,
+  FINAL,
+  HERO,
+  SCENES,
+  TOKEN_ROWS,
+} from '../landing/content'
 
 const title = 'Design Token Authority'
-const description =
-  'The deterministic backbone for design token workflows, built for humans and agents.'
+const description = `${HERO.headline} ${HERO.headlineAccent}`
 const github = 'https://github.com/Fuasmattn/design-token-authority'
-
-const problems = [
-  {
-    title: 'Structure drifts',
-    text: 'New variables break naming and layering. Nobody notices until a theme breaks.',
-  },
-  {
-    title: 'Code breaks quietly',
-    text: 'A renamed or deleted token still has fourteen references in code.',
-  },
-  {
-    title: 'Screenshots pile up',
-    text: 'One colour change touches a hundred stories. Nobody reviews a hundred screenshots.',
-  },
-]
-const steps = [
-  ['Change', 'Figma, code or a token file'],
-  ['Check', 'same input, same result'],
-  ['See', 'every story against main'],
-  ['Decide', 'approve by token, not by screenshot'],
-  ['Ship', 'every output rebuilt'],
-]
-const trust = [
-  ['Deterministic', 'Same input, same result. Every run, every machine, every agent.'],
-  ['Your structure', 'Your layers and names, in the open DTCG format. No model forced on you.'],
-  [
-    'Runs where you are',
-    'Locally, in your CI or through an agent. No SaaS, nothing leaves your infrastructure.',
-  ],
-]
-const cards = [
-  {
-    eyebrow: 'Playground',
-    title: 'Drop in tokens, get outputs',
-    text: 'Runs in your browser. Nothing leaves your device.',
-    href: '/playground/',
-    coming: true,
-  },
-  {
-    eyebrow: 'Learn',
-    title: 'DTCG and token patterns',
-    text: 'Multi-brand, theming and override patterns with trade-offs.',
-    href: '/learn/',
-  },
-  {
-    eyebrow: 'Docs',
-    title: 'CLI and config reference',
-    text: 'Every command and option, generated from the code.',
-    href: '/reference/',
-  },
-]
 const NAV = [
-  { href: '#how', label: 'How it works' },
-  { href: '#workflow', label: 'Workflow' },
+  { href: '#story', label: 'How it works' },
   { href: '#agents', label: 'Agents' },
   { href: '/start/', label: 'Docs' },
 ]
-/** The headline word cycles through these type styles (illustrative token names). */
-const HEADLINE_TOKENS = [
-  { name: 'font-weight.bold', weight: 700 },
-  { name: 'font-style.italic', weight: 700, italic: true },
-  { name: 'font-weight.regular', weight: 400 },
-]
-const githubPoints = [
-  [
-    'A status check',
-    '“dta diff” is green when nothing needs a look, pending with changes to review, red with unexplained changes.',
-  ],
-  [
-    'One comment per pull request',
-    'Updated on every push: the changes grouped by the token that caused them, with a link to the full report.',
-  ],
-  [
-    'Approve with a label',
-    'Adding dta-diff-approved turns the check green. A new push asks again.',
-  ],
-]
-const agentPoints = [
-  {
-    title: 'The same checks for everyone',
-    text: 'Lint, build and diff give the same result for a person, CI and an agent. JSON output and exit codes are made for tools.',
-  },
-  {
-    title: 'Docs an agent can read',
-    text: 'llms.txt with every page, and JSON Schemas for the config and the token files.',
-  },
-  {
-    title: 'A skill and token queries',
-    text: 'The skill teaches your agent the loop. dta token find gives it the token for a value, and dta audit catches the values it hard-coded.',
-  },
-]
+const [s1, s2, s3, s4] = SCENES
 ---
 
 <!doctype html>
@@ -157,203 +87,102 @@ const agentPoints = [
     </header>
 
     <main id="main">
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="grid-paper" aria-hidden="true"></div>
-        <div class="wrap hero-inner">
-          <h1 id="hero-title" class="in1">
-            The deterministic backbone for design token workflows, built for humans and <TokenCycle tokens={HEADLINE_TOKENS}>agents.</TokenCycle>
-          </h1>
-          <p class="lede in3">
-            A design change in Figma becomes a pull request: validated, built, visually diffed and
-            approved by the people who care about it.
-          </p>
-          <div class="cta in4">
-            <CommandButton command={COMMANDS.init.text} />
-            <Button href="/start/">Get started</Button>
-          </div>
+      <GravityWell id="hero">
+        <h1 id="hero-title">
+          {HERO.headline} <i class="accent">{HERO.headlineAccent}</i>
+        </h1>
+        <p class="lede">{HERO.subline}</p>
+        <div class="cta">
+          <CommandButton command={COMMANDS.init.text} size="large" />
+          <Button variant="outline" href={HERO.secondary.href}>{HERO.secondary.label}</Button>
         </div>
-      </section>
+      </GravityWell>
 
-      <section id="problem" class="sec" aria-labelledby="problem-title">
-        <div class="wrap">
-          <p class="kicker">The problem</p>
-          <h2 id="problem-title">Design changes are easy to make and hard to review.</h2>
-          <div class="cols">
-            {
-              problems.map((p, i) => (
-                <div class="ruled">
-                  <p class="num">{String(i + 1).padStart(2, '0')}</p>
-                  <h3>{p.title}</h3>
-                  <p class="muted">{p.text}</p>
-                </div>
-              ))
-            }
-          </div>
-          <p class="after muted">
-            Design and engineering end up arguing about hand-offs instead of making decisions.
-          </p>
-        </div>
-      </section>
+      <div class="wrap story" id="story">
+        <Scene
+          number={s1.number}
+          kicker={s1.kicker}
+          heading={s1.heading}
+          text={s1.text}
+          command={s1.command.text}
+          example="right"
+        >
+          <TokenRows rows={TOKEN_ROWS} />
+        </Scene>
 
-      <section id="how" class="sec" aria-labelledby="how-title">
-        <div class="wrap">
-          <p class="kicker">How it works</p>
-          <h2 id="how-title">One loop for every change.</h2>
-          <ol class="steps">
-            {
-              steps.map(([name, text], i) => (
-                <li>
-                  <span class="num action">{String(i + 1).padStart(2, '0')}</span>
-                  <span class="step-name">{name}</span>
-                  <span class="step-text">{text}</span>
-                </li>
-              ))
-            }
-          </ol>
-          <p class="after muted">
-            Every step is a single dta command. Same input, same result, wherever it runs.
-          </p>
-        </div>
-      </section>
-
-      <section id="workflow" class="sec" aria-labelledby="workflow-title">
-        <div class="wrap split">
-          <div class="split-text">
-            <p class="kicker">In your pull requests</p>
-            <h2 id="workflow-title">Every design change gets a review.</h2>
-            <div class="points">
+        <Scene
+          number={s2.number}
+          kicker={s2.kicker}
+          heading={s2.heading}
+          text={s2.text}
+          command={s2.command.text}
+          example="left"
+        >
+          <div class="two-states">
+            <div class="pair">
+              <ExampleButton state="main" label="main" />
+              <ExampleButton state="change" label="this change" />
+            </div>
+            <ul class="shares">
               {
-                githubPoints.map(([title, text], i) => (
-                  <div class="ruled">
-                    <p class="num">{String(i + 1).padStart(2, '0')}</p>
-                    <h3>{title}</h3>
-                    <p class="muted">{text}</p>
-                  </div>
+                DIFF_SHARES.lines.map((line) => (
+                  <li>
+                    <span class="token">{line.token}</span> {line.change} · {line.share}
+                  </li>
                 ))
               }
-            </div>
-            <p class="cmd"><span class="prompt" aria-hidden="true">uses:</span>Fuasmattn/design-token-authority/actions/diff@main</p>
-            <p class="section-note">
-              GitHub Actions out of the box; any other CI runs <code>npx dta diff</code> and publishes
-              the report through a hook you write.
-            </p>
-            <Button variant="outline" href="/guides/dta-diff-in-pull-requests/">Set it up in GitHub</Button>
+              <li class="note">{DIFF_SHARES.note}</li>
+            </ul>
           </div>
-          <div class="split-visual">
-            <DiffCard story="Card / pricing · desktop" ratio={4.2} threshold={10} state="review" />
-            <p class="caption"><Badge tone="example">example</Badge> One story in the review.</p>
-          </div>
-        </div>
-      </section>
+        </Scene>
 
-      <section id="agents" class="sec" aria-labelledby="agents-title">
-        <div class="wrap split">
-          <div class="split-text">
-            <p class="kicker">With your agent</p>
-            <h2 id="agents-title">Your agent proposes. The checks decide.</h2>
-            <div class="points">
-              {
-                agentPoints.map((point, i) => (
-                  <div class="ruled">
-                    <p class="num">{String(i + 1).padStart(2, '0')}</p>
-                    <h3>{point.title}</h3>
-                    <p class="muted">{point.text}</p>
-                  </div>
-                ))
-              }
-            </div>
-            <Button variant="outline" href="/guides/coding-agents/">DTA with coding agents</Button>
-          </div>
-          <div class="split-visual">
-            <div class="agent" aria-label="Example: an agent fixing a finding">
-              <p class="bubble">
-                <span class="who-agent">Agent</span>#2f55d4 is action.bg, so the button uses
-                var(--action-bg). Running dta audit before I ask for review.
-              </p>
-              <p class="pass-pill">dta audit · pass</p>
-            </div>
-            <p class="cmd">
-              <span class="prompt" aria-hidden="true">$</span>{COMMANDS.skill.text}
-              {!COMMANDS.skill.shipped && <Badge tone="coming">coming</Badge>}
-            </p>
-          </div>
-        </div>
-      </section>
+        <Scene
+          number={s3.number}
+          kicker={s3.kicker}
+          heading={s3.heading}
+          text={s3.text}
+          command={s3.command.text}
+          example="right"
+        >
+          <Checks checks={CHECKS} approve={APPROVE} />
+        </Scene>
 
-      <section id="why" class="sec" aria-labelledby="why-title">
-        <div class="wrap split">
-          <div class="split-text">
-            <p class="kicker">Why trust it</p>
-            <h2 id="why-title">Governance with AI, not by AI.</h2>
-            <dl class="trust">
-              {
-                trust.map(([term, text]) => (
-                  <div>
-                    <dt>{term}</dt>
-                    <dd>{text}</dd>
-                  </div>
-                ))
-              }
-            </dl>
+        <Scene
+          number={s4.number}
+          kicker={s4.kicker}
+          heading={s4.heading}
+          text={s4.text}
+          command={s4.command.text}
+          example="left"
+          id="agents"
+        >
+          <div class="agent">
+            <Terminal lines={AGENT_RUN.lines} label={AGENT_RUN.label} />
+            <p class="caption">Real output, from this website's own tokens.</p>
           </div>
-          <div class="split-visual">
-            <Terminal lines={TRUST_RUN.lines} cursor label={TRUST_RUN.label} />
-            <p class="caption">From a real run on this website's own design tokens.</p>
-          </div>
-        </div>
-      </section>
+        </Scene>
 
-      <section id="learn" class="sec" aria-labelledby="learn-title">
-        <div class="wrap">
-          <h2 id="learn-title" class="smaller">
-            Your structure, your names. With good blueprints if you want them.
-          </h2>
-          <div class="cards">
-            {
-              cards.map((c, i) => (
-                <Card href={c.href} grid={i === 0} class="link-card">
-                  <span class="num action">
-                    {c.eyebrow} {c.coming && <Badge tone="coming">coming</Badge>}
-                  </span>
-                  <span class="card-body">
-                    <span class="card-title">{c.title}</span>
-                    <span class="uline" aria-hidden="true" />
-                    <span class="muted">{c.text}</span>
-                  </span>
-                </Card>
-              ))
-            }
-          </div>
+        <Facts facts={FACTS} />
+      </div>
+
+      <FloatingObjects id="final">
+        <div class="wrap final">
+          <h2>{FINAL.heading}</h2>
+          <p>{FINAL.text}</p>
+          <CommandButton command={COMMANDS.init.text} size="large" />
         </div>
-      </section>
+      </FloatingObjects>
     </main>
 
-    <footer class="band">
-      <div class="wrap">
-        <div class="band-top">
-          <div>
-            <p class="band-title">Start in one command.</p>
-            <CommandButton command={COMMANDS.init.text} />
-            {
-              !COMMANDS.init.shipped && (
-                <p class="band-note">
-                  <Badge tone="coming">coming</Badge> with the npm release ·{' '}
-                  <a href="/start/quick-start/">run it from a clone today</a>
-                </p>
-              )
-            }
-          </div>
-          <nav class="band-nav" aria-label="Footer">
-            <a href="/start/">Docs</a>
-            <a href="/reference/">CLI reference</a>
-            <a href={github}>GitHub</a>
-          </nav>
-        </div>
-        <p class="titleblock">
-          <span>Drawn by: design</span><span>Checked by: dta</span><span>Approved by: your team</span>
-        </p>
+    <footer class="foot">
+      <div class="wrap foot-inner">
+        <span>Design Token Authority · MIT</span>
+        <nav aria-label="Footer">
+          <a href="/start/">Docs</a>
+          <a href="/reference/">CLI reference</a>
+          <a href={github}>GitHub</a>
+        </nav>
       </div>
     </footer>
-
   </body>
 </html>

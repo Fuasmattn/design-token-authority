@@ -74,7 +74,7 @@ describe.skipIf(!enabled)('motion on the rendered stories', () => {
     expect(running).toEqual({})
   }, 300_000)
 
-  it('draws the well once under reduced motion and keeps drawing otherwise', async () => {
+  it('draws the hero well once under reduced motion and keeps drawing otherwise', async () => {
     const frames = async (reduced: boolean) => {
       const context = await browser.newContext({
         viewport: { width: 1280, height: 900 },
@@ -82,7 +82,7 @@ describe.skipIf(!enabled)('motion on the rendered stories', () => {
       })
       try {
         const page = await context.newPage()
-        await page.goto(`${origin}/stories/gravity-well/default/`, { waitUntil: 'networkidle' })
+        await page.goto(`${origin}/`, { waitUntil: 'networkidle' })
         // the well draws through requestAnimationFrame; count the frames the page schedules
         return (await page.evaluate(`new Promise((resolve) => {
           let n = 0
@@ -94,8 +94,8 @@ describe.skipIf(!enabled)('motion on the rendered stories', () => {
         await context.close()
       }
     }
-    // the default story is `still`: no loop either way; the landing page's hero is not still
+    // the landing page's hero: one frame under reduced motion, a running loop otherwise
     expect(await frames(true)).toBe(0)
-    expect(await frames(false)).toBe(0)
+    expect(await frames(false)).toBeGreaterThan(20)
   }, 60_000)
 })

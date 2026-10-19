@@ -271,7 +271,7 @@ Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17, rev
 | [108](./108-landing-rebuild.md)           | Rebuild the landing page                                          | High     | M      | 106, 107   | Open   |
 | [109](./109-diff-report-before-after.md)  | `dta diff` report: before/after with the change outlined          | Medium   | M      | 108        | Open   |
 
-Order: 110 → 105 → 106 → 107 → 108; 109 later.
+Order: 110 → 105 → 106 → 107 → 108 (done); 109 and 111 later.
 
 ---
 

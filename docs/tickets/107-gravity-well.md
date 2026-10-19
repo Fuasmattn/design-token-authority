@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** L
 **Blocked by:** 110, 106
-**Status:** open
+**Status:** done (2026-10-18)
 **Spec:** [landing-redesign](../specs/landing-redesign.md) (decisions 3, 4, 10); accepted prototype `docs/specs/landing-redesign/prototypes/p17-page.html`, renderer in `gen15.py` (`Well` factory), objects and the free particles in `gen16.py`
 
 Replaces the earlier TICKET-107 (`LoopPath`, the two-lane loop diagram), dropped with the spec revision of 2026-10-18; the reference files `loop-path.html` and `loop-workbench-rejected.html` stay in the spec folder as rejected.
@@ -42,3 +42,10 @@ The final section's decoration: a handful of objects (two cubes, two spheres, fo
 - [ ] `FloatingObjects` with the parallax; no horizontal scroll at 390 px
 - [ ] Docs pages and stories; `dta diff --list` shows them; guards pass
 - [ ] All gates pass plus the site job, and the GitHub run is green
+
+## Outcome
+
+- `site/src/scripts/well.ts`: the renderer as a `Well` class (size, layout, draw, z, scale, mouthY) reading `well-*`, `bg-canvas` and `border-default` at run time; `readWellColors`. No literal anywhere.
+- `GravityWell.astro`: the section with the canvas field, the copy slot and the stage with the objects (same set, angles and dust as the prototype); props tilt/size/offset/position/still; re-reads colours on theme change; parallax; one frame under reduced motion or `still`; stops while the page is hidden; container query for the two-column layout.
+- `FloatingObjects.astro`: the free objects with drift, tumble and scroll depth.
+- Docs pages, stories (well at rest, size L / position B / tilt 52, floating objects), `motion.e2e.test.ts` (0 running animations on every story under reduced motion; the hero draws once under reduced motion and loops otherwise). Frame numbers in the 108 outcome.

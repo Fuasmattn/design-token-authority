@@ -91,6 +91,15 @@ const words = { passed: 'passed', pending: 'pending', changes: 'changes to revie
   .changes .status {
     color: var(--signal-text);
   }
+  @media (max-width: 559px) {
+    .check {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+    .status {
+      grid-column: 2;
+      white-space: normal;
+    }
+  }
   .approve {
     display: inline-block;
     padding: 11px var(--space-4);
