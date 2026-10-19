@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Playground workspace, desktop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;family=Martian+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f5f1e8}
+a{color:#2443ac}a:hover{color:#1e3a9e}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid #e3eafb;outline-offset:2px}
+</style>
+</helmet>
+<div style="box-sizing: border-box; min-height: 900px; background: #f5f1e8; color: #13213f; font-family: 'Instrument Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.5">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 40px; border-bottom: 1px solid #e2dccd">
+    <div style="display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px">
+      <span aria-hidden="true" style="display: inline-block; width: 22px; height: 22px; border-radius: 6px; background: #2443ac"></span>dta
+    </div>
+    <nav aria-label="Site" style="display: flex; flex-wrap: wrap; gap: 24px; font-weight: 600; font-size: 15px">
+      <a href="#" style="color: #13213f; text-decoration: none">How it works</a>
+      <a href="#" style="color: #13213f; text-decoration: none">Agents</a>
+      <a href="#" aria-current="page" style="color: #13213f; text-decoration: none; border-bottom: 2px solid #13213f">Playground</a>
+      <a href="#" style="color: #13213f; text-decoration: none">Docs</a>
+    </nav>
+  </header>
+
+  <div style="max-width: 1280px; margin: 0 auto; padding: 24px 40px 48px; display: flex; flex-direction: column; gap: 16px">
+
+    <section aria-label="Loaded files" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 16px; background: #ffffff; border: 1px solid #e2dccd; border-radius: 10px">
+      <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 13px; color: #44506c">Loaded</span>
+      <span style="font-weight: 600">brand-ab example</span>
+      <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 13px; color: #3a465e">6 files</span>
+      <span style="flex: 1 1 auto"></span>
+      <button type="button" style="min-height: 44px; padding: 0 16px; background: #ffffff; border: 2px solid #13213f; border-radius: 10px; font-weight: 600">Replace files</button>
+      <button type="button" style="min-height: 44px; padding: 0 16px; background: transparent; border: 2px solid transparent; border-radius: 10px; font-weight: 600; color: #2443ac; text-decoration: underline">Paste JSON instead</button>
+    </section>
+
+    <section aria-label="Summary" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 20px; font-family: 'Martian Mono', ui-monospace, monospace; font-size: 13px; color: #3a465e">
+      <button type="button" onClick="{{ goStructure }}" style="padding: 4px 0; background: none; border: 0; font-family: inherit; font-size: inherit; color: #13213f; text-decoration: underline; text-decoration-color: #e2dccd">3 collections</button>
+      <span>2 brands</span>
+      <span>3 breakpoints</span>
+      <span>42 tokens</span>
+      <button type="button" onClick="{{ goLint }}" style="padding: 4px 0; background: none; border: 0; font-family: inherit; font-size: inherit; color: #13213f; text-decoration: underline; text-decoration-color: #e2dccd">0 lint findings</button>
+      <button type="button" onClick="{{ goOutputs }}" style="padding: 4px 0; background: none; border: 0; font-family: inherit; font-size: inherit; color: #13213f; text-decoration: underline; text-decoration-color: #e2dccd">11 output files</button>
+    </section>
+
+    <div role="tablist" aria-label="Views" style="display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; background: #eae4d6; border-radius: 10px; align-self: flex-start">
+      <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="4">
+        <button type="button" role="tab" aria-selected="{{ tab.selected }}" onClick="{{ tab.pick }}" style="{{ tab.style }}">{{ tab.label }}</button>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+
+      <main style="flex: 999 1 560px; min-width: 0">
+
+        <sc-if value="{{ isStructure }}" hint-placeholder-val="{{ true }}">
+          <div style="background: #ffffff; border: 1px solid #e2dccd; border-radius: 18px; overflow-x: auto">
+            <div style="display: grid; grid-template-columns: minmax(140px, 1.4fr) minmax(180px, 2fr) 1fr 1fr 0.8fr; gap: 12px; padding: 14px 20px; border-bottom: 2px solid #13213f; font-family: 'Martian Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.04em; color: #44506c; min-width: 640px">
+              <span>COLLECTION</span><span>MODES</span><span>ROLE</span><span>CONFIDENCE</span><span>TOKENS</span>
+            </div>
+            <sc-for list="{{ collections }}" as="c" hint-placeholder-count="3">
+              <button type="button" onClick="{{ c.open }}" aria-expanded="{{ c.selected }}" style="{{ c.rowStyle }}">
+                <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-weight: 500; font-size: 13px">{{ c.name }}</span>
+                <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 13px; color: #3a465e">{{ c.modes }}</span>
+                <span style="font-weight: 600">{{ c.role }}</span>
+                <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 13px">{{ c.confidence }}</span>
+                <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 13px">{{ c.count }}  ›</span>
+              </button>
+            </sc-for>
+          </div>
+          <p style="margin: 12px 4px 0; color: #3a465e; font-size: 14px">Select a collection to see its tokens and aliases in the panel.</p>
+        </sc-if>
+
+        <sc-if value="{{ isLint }}" hint-placeholder-val="{{ false }}">
+          <div style="background: #ffffff; border: 1px solid #e2dccd; border-radius: 18px; padding: 20px 24px; display: flex; flex-direction: column; gap: 14px">
+            <p style="margin: 0; font-weight: 600"><span aria-hidden="true" style="display: inline-block; width: 8px; height: 8px; border-radius: 9999px; background: #27512f; margin-right: 8px; vertical-align: middle"></span>No lint violations found.</p>
+            <p style="margin: 0; color: #3a465e; font-size: 14px">Default rules, grouped. A rule with findings opens to its lines; a line opens the panel.</p>
+            <div style="display: flex; flex-direction: column; border-top: 1px solid #e2dccd">
+              <sc-for list="{{ rules }}" as="r" hint-placeholder-count="7">
+                <div style="display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid #e2dccd">
+                  <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 13px">{{ r.id }}</span>
+                  <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 13px; color: #3a465e">0 findings</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isGraph }}" hint-placeholder-val="{{ false }}">
+          <div style="background: #ffffff; border: 1px dashed #13213f; border-radius: 18px; padding: 40px; min-height: 360px; display: flex; flex-direction: column; gap: 16px; align-items: flex-start">
+            <div style="display: flex; flex-wrap: wrap; gap: 8px">
+              <span style="padding: 6px 12px; border-radius: 6px; background: #e3eafb; color: #1e3a9e; font-weight: 600; font-size: 14px">BrandA</span>
+              <span style="padding: 6px 12px; border-radius: 6px; border: 1px solid #e2dccd; font-size: 14px">BrandB</span>
+              <span style="width: 16px"></span>
+              <span style="padding: 6px 12px; border-radius: 6px; background: #e3eafb; color: #1e3a9e; font-weight: 600; font-size: 14px">Desktop</span>
+              <span style="padding: 6px 12px; border-radius: 6px; border: 1px solid #e2dccd; font-size: 14px">Tablet</span>
+              <span style="padding: 6px 12px; border-radius: 6px; border: 1px solid #e2dccd; font-size: 14px">Mobile</span>
+            </div>
+            <p style="margin: 0; color: #3a465e">The dependency graph with the brand and breakpoint switcher comes with TICKET-078. Selecting a token here opens its alias chain in the same panel.</p>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isOutputs }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 16px">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px 20px; background: #ffffff; border: 1px solid #e2dccd; border-radius: 18px">
+              <span style="font-weight: 600; margin-right: 4px">Outputs</span>
+              <label style="display: inline-flex; align-items: center; gap: 6px; min-height: 44px"><input type="checkbox" checked> CSS</label>
+              <label style="display: inline-flex; align-items: center; gap: 6px; min-height: 44px"><input type="checkbox" checked> Tailwind v4</label>
+              <label style="display: inline-flex; align-items: center; gap: 6px; min-height: 44px"><input type="checkbox" checked> Tailwind v3</label>
+              <label style="display: inline-flex; align-items: center; gap: 6px; min-height: 44px"><input type="checkbox" checked> JS</label>
+              <span style="flex: 1 1 auto"></span>
+              <button type="button" style="min-height: 44px; padding: 0 18px; background: #2443ac; color: #ffffff; border: 0; border-radius: 10px; font-weight: 600">Download all (.zip)</button>
+            </div>
+            <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+              <div style="background: #ffffff; border: 1px solid #e2dccd; border-radius: 18px; padding: 8px 20px 12px">
+                <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0">
+                  <h3 style="margin: 0; font-size: 17px">{{ g.name }}</h3>
+                  <button type="button" style="min-height: 44px; padding: 0 14px; background: #ffffff; border: 2px solid #13213f; border-radius: 10px; font-weight: 600">{{ g.zip }}</button>
+                </div>
+                <sc-for list="{{ g.files }}" as="f" hint-placeholder-count="2">
+                  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 6px 0; border-top: 1px solid #e2dccd">
+                    <button type="button" onClick="{{ f.open }}" style="flex: 1 1 260px; text-align: left; min-height: 44px; padding: 0; background: none; border: 0; font-family: 'Martian Mono', ui-monospace, monospace; font-size: 13px; color: #2443ac; text-decoration: underline">{{ f.path }}</button>
+                    <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 12px; color: #44506c">{{ f.size }}</span>
+                    <button type="button" style="min-height: 44px; padding: 0 12px; background: none; border: 1px solid #e2dccd; border-radius: 10px">Copy</button>
+                    <button type="button" style="min-height: 44px; padding: 0 12px; background: none; border: 1px solid #e2dccd; border-radius: 10px">Download</button>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px 20px; background: #13213f; color: #f5f1e8; border-radius: 18px">
+              <span style="font-weight: 600">Take it to the CLI</span>
+              <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 13px"><span style="color: #ffb38a">$</span> npx design-token-authority build</span>
+              <span style="flex: 1 1 auto"></span>
+              <button type="button" style="min-height: 44px; padding: 0 14px; background: transparent; color: #f5f1e8; border: 2px solid #f5f1e8; border-radius: 10px; font-weight: 600">Download dta.config.ts</button>
+            </div>
+          </div>
+        </sc-if>
+
+      </main>
+
+      <sc-if value="{{ hasPanel }}" hint-placeholder-val="{{ true }}">
+        <aside aria-label="Details" style="flex: 1 1 340px; min-width: 0; max-width: 420px; background: #ffffff; border: 2px solid #13213f; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px">
+            <div>
+              <p style="margin: 0; font-family: 'Martian Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.04em; color: #44506c">{{ panel.kicker }}</p>
+              <h2 style="margin: 2px 0 0; font-size: 20px; font-family: 'Martian Mono', ui-monospace, monospace; font-weight: 500">{{ panel.title }}</h2>
+            </div>
+            <button type="button" onClick="{{ closePanel }}" aria-label="Close details" style="width: 44px; height: 44px; background: none; border: 1px solid #e2dccd; border-radius: 10px; font-size: 20px; line-height: 1">×</button>
+          </div>
+          <p style="margin: 0; color: #3a465e; font-size: 14px">{{ panel.meta }}</p>
+          <div style="display: flex; flex-direction: column; border-top: 1px solid #e2dccd">
+            <sc-for list="{{ panel.lines }}" as="l" hint-placeholder-count="6">
+              <div style="display: flex; flex-direction: column; gap: 2px; padding: 8px 0; border-bottom: 1px solid #e2dccd">
+                <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 12.5px">{{ l.a }}</span>
+                <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 12px; color: #3a465e">{{ l.b }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </aside>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 'structure', panel: 'Brand(Alias)' };
+  }
+  renderVals() {
+    var self = this;
+    var tab = this.state.tab;
+    var panelKey = this.state.panel;
+    var tabDefs = [
+      { id: 'structure', label: 'Structure' },
+      { id: 'lint', label: 'Lint · 0' },
+      { id: 'graph', label: 'Graph' },
+      { id: 'outputs', label: 'Outputs · 11' }
+    ];
+    var tabs = tabDefs.map(function (t) {
+      var on = t.id === tab;
+      return {
+        label: t.label,
+        selected: on ? 'true' : 'false',
+        pick: function () { self.setState({ tab: t.id, panel: null }); },
+        style: 'min-height: 44px; padding: 0 18px; border-radius: 8px; font-weight: 600; ' + (on ? 'background: #ffffff; color: #13213f; border: 2px solid #13213f' : 'background: transparent; color: #3a465e; border: 2px solid transparent')
+      };
+    });
+    var details = {
+      'Brand(Alias)': { kicker: 'COLLECTION · brand · 0.94', meta: 'Modes BrandA, BrandB. 11 tokens, all aliases into Primitives. Values for BrandA:', lines: [
+        { a: 'Colors.Brand.Primary', b: '→ {Colors.Foundation.Blue.500}  #0057b8' },
+        { a: 'Colors.Brand.Primary Dark', b: '→ {Colors.Foundation.Blue.700}  #003f8a' },
+        { a: 'Colors.Brand.Accent', b: '→ {Colors.Foundation.Orange.500}  #e8731a' },
+        { a: 'Colors.Surface.Default', b: '→ {Colors.Foundation.White}  #ffffff' },
+        { a: 'Colors.Text.Default', b: '→ {Colors.Foundation.Gray.900}  #111827' },
+        { a: 'Typography.Body.Family', b: '→ {Typography.FontFamily.Sans}  Inter' },
+        { a: '+ 5 more', b: 'Surface.Muted, Text.Muted, Text.On Primary, overlay.Opacity, shadow.Blur' }
+      ] },
+      'Primitives': { kicker: 'COLLECTION · primitives · 0.90', meta: 'One mode, Value. 26 tokens, raw values only.', lines: [
+        { a: 'Colors.Foundation.Blue.500', b: '#0057b8' },
+        { a: 'Colors.Foundation.Orange.500', b: '#e8731a' },
+        { a: 'Dimensions.spacing.4', b: '16' },
+        { a: 'Dimensions.radius.md', b: '8' },
+        { a: 'Typography.FontSize.xl', b: '28' },
+        { a: '+ 21 more', b: 'Colors, Dimensions, Effects, Typography' }
+      ] },
+      'ScreenType': { kicker: 'COLLECTION · dimension · 0.92', meta: 'Modes Desktop, Mobile, Tablet. 5 tokens, all aliases. Values for Desktop:', lines: [
+        { a: 'Spacing.Gap', b: '→ {Dimensions.spacing.4}  16' },
+        { a: 'Spacing.Padding', b: '→ {Dimensions.spacing.8}  32' },
+        { a: 'Typography.Body.Size', b: '→ {Typography.FontSize.md}  16' },
+        { a: 'Typography.Heading.Size', b: '→ {Typography.FontSize.xl}  28' },
+        { a: 'Radius.Card', b: '→ {Dimensions.radius.md}  8' }
+      ] },
+      'output/css/themes/branda.css': { kicker: 'OUTPUT · CSS · 746 B', meta: 'Preview. Copy and Download sit next to the file in the list.', lines: [
+        { a: '[data-brand="branda"] {', b: '' },
+        { a: '  --colors-brand-primary:', b: 'var(--colors-foundation-blue-500);' },
+        { a: '  --colors-brand-primary-dark:', b: 'var(--colors-foundation-blue-700);' },
+        { a: '  --colors-brand-accent:', b: 'var(--colors-foundation-orange-500);' },
+        { a: '  --colors-surface-default:', b: 'var(--colors-foundation-white);' },
+        { a: '  …', b: '' },
+        { a: '}', b: '' }
+      ] }
+    };
+    var collDefs = [
+      { name: 'Brand(Alias)', modes: 'BrandA · BrandB', role: 'brand', confidence: '0.94', count: '11' },
+      { name: 'Primitives', modes: 'Value', role: 'primitives', confidence: '0.90', count: '26' },
+      { name: 'ScreenType', modes: 'Desktop · Mobile · Tablet', role: 'dimension', confidence: '0.92', count: '5' }
+    ];
+    var collections = collDefs.map(function (c) {
+      var on = c.name === panelKey;
+      return Object.assign({}, c, {
+        selected: on ? 'true' : 'false',
+        open: function () { self.setState({ panel: c.name }); },
+        rowStyle: 'display: grid; grid-template-columns: minmax(140px, 1.4fr) minmax(180px, 2fr) 1fr 1fr 0.8fr; gap: 12px; align-items: center; width: 100%; min-width: 640px; min-height: 52px; padding: 10px 20px; text-align: left; border: 0; border-bottom: 1px solid #e2dccd; ' + (on ? 'background: #e3eafb; color: #1e3a9e' : 'background: #ffffff; color: #13213f')
+      });
+    });
+    var openFile = function (p) { return function () { self.setState({ panel: p }); }; };
+    var groups = [
+      { name: 'CSS', zip: 'Download CSS (.zip)', files: [
+        { path: 'output/css/base.css', size: '1.0 KB' },
+        { path: 'output/css/variables.css', size: '1.0 KB' },
+        { path: 'output/css/themes/branda.css', size: '746 B' },
+        { path: 'output/css/themes/brandb.css', size: '749 B' }
+      ] },
+      { name: 'Tailwind', zip: 'Download Tailwind (.zip)', files: [
+        { path: 'output/tailwind/tailwind.css', size: '1.2 KB' },
+        { path: 'output/tailwind/tailwind.tokens.ts', size: '1.5 KB' },
+        { path: 'output/tailwind/branda/…  (2 files)', size: '' },
+        { path: 'output/tailwind/brandb/…  (2 files)', size: '' }
+      ] },
+      { name: 'JS', zip: 'Download JS (.zip)', files: [
+        { path: 'output/js/colorpalette.js', size: '1.2 KB' }
+      ] }
+    ].map(function (g) {
+      return Object.assign({}, g, { files: g.files.map(function (f) { return Object.assign({}, f, { open: openFile('output/css/themes/branda.css') }); }) });
+    });
+    var panel = panelKey ? Object.assign({ title: panelKey }, details[panelKey] || details['output/css/themes/branda.css']) : { title: '', kicker: '', meta: '', lines: [] };
+    return {
+      tabs: tabs,
+      isStructure: tab === 'structure',
+      isLint: tab === 'lint',
+      isGraph: tab === 'graph',
+      isOutputs: tab === 'outputs',
+      collections: collections,
+      rules: [
+        { id: 'semantic-must-alias' }, { id: 'no-dangling-aliases' }, { id: 'no-circular-aliases' },
+        { id: 'color-contrast' }, { id: 'no-duplicate-values' }, { id: 'naming-pattern' }, { id: 'no-default-mode-names' }
+      ],
+      groups: groups,
+      hasPanel: !!panelKey,
+      panel: panel,
+      closePanel: function () { self.setState({ panel: null }); },
+      goStructure: function () { self.setState({ tab: 'structure', panel: null }); },
+      goLint: function () { self.setState({ tab: 'lint', panel: null }); },
+      goOutputs: function () { self.setState({ tab: 'outputs', panel: null }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

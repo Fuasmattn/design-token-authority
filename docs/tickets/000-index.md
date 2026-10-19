@@ -195,12 +195,14 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 **Epic 7b — Playground ([spec](../specs/playground.md))**
 
-| #                                               | Ticket                                                          | Priority | Effort | Blocked by | Status |
-| ----------------------------------------------- | --------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| [076](./076-playground-browser-packages.md)     | Run the `@dta/*` packages in the browser                        | High     | M      | 069        | Done   |
-| [077](./077-playground-input-structure-lint.md) | Playground: input, structure and lint findings                  | High     | L      | 076        | Open   |
-| [078](./078-playground-graph.md)                | Playground: dependency graph with brand and breakpoint switcher | Medium   | M      | 077        | Open   |
-| [079](./079-playground-outputs-config.md)       | Playground: outputs, generated config and CLI handoff           | High     | M      | 077        | Open   |
+| #                                                | Ticket                                                          | Priority | Effort | Blocked by | Status |
+| ------------------------------------------------ | --------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
+| [076](./076-playground-browser-packages.md)      | Run the `@dta/*` packages in the browser                        | High     | M      | 069        | Done   |
+| [077](./077-playground-input-structure-lint.md)  | Playground: input, structure and lint findings                  | High     | L      | 076        | Done   |
+| [115](./115-playground-workspace-layout.md)      | Playground workspace: source bar, summary, tabs, detail panel   | High     | M      | 077        | Done   |
+| [078](./078-playground-graph.md)                 | Playground: dependency graph with brand and breakpoint switcher | Medium   | M      | 077        | Open   |
+| [079](./079-playground-outputs-config.md)        | Playground: outputs, generated config and CLI handoff           | High     | M      | 077        | Open   |
+| [113](./113-playground-example-with-findings.md) | Playground: an example that shows findings                      | Medium   | S      | 077        | Open   |
 
 **Epic 8 — `dta diff`, token-aware visual regression ([spec](../specs/visual-diff.md))**
 
@@ -242,7 +244,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [098](./098-site-hero-cleanup.md)          | Calmer hero with one command and one call to action                                     | Medium   | XS     | 096        | Done   |
 | [099](./099-site-landing-github-agents.md) | Landing page: GitHub and agents instead of the review demo; token cycle in the headline | Medium   | S      | 098        | Done   |
 
-Order: Epic 7 first (068 → 069 → 070 unblock the rest); 7b and 8 can run in parallel once 069/070 are done; 080 can start right after 039. Design sources: the maintainer's concept doc, the DTA Drafting Table design system and the landing page mockup (see the specs).
+Playground order (2026-10-19): 076 → 077 (done) → 115 (done) → 079 → 113 → 078. Order: Epic 7 first (068 → 069 → 070 unblock the rest); 7b and 8 can run in parallel once 069/070 are done; 080 can start right after 039. Design sources: the maintainer's concept doc, the DTA Drafting Table design system and the landing page mockup (see the specs).
 
 ## Phase 9 — Agent interop
 
@@ -262,18 +264,19 @@ Order: 100 → 101 → 102 → 103 → 104 (the audit section of the guide follo
 
 Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17, revised 2026-10-18). One story, quietly told: a hero on the gravity-well key visual, one change in four scenes with the Orbit Burger example, facts, final call; one surface, no grid, commands as copyable chips, AAA. Accepted prototype: `docs/specs/landing-redesign/prototypes/p17-page.html`.
 
-| #                                               | Ticket                                                                 | Priority | Effort | Blocked by | Status |
-| ----------------------------------------------- | ---------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| [110](./110-design-system-one-surface.md)       | Design system: one surface, the well's tokens, command chips, AAA      | High     | M      | —          | Done   |
-| [105](./105-orbit-burger-example.md)            | Orbit Burger: example brand as a real token set and fixture            | High     | M      | —          | Done   |
-| [106](./106-landing-components.md)              | Design-system components for the redesigned landing page               | High     | M      | 110, 105   | Done   |
-| [107](./107-gravity-well.md)                    | `GravityWell` and `FloatingObjects`: the key visual                    | High     | L      | 110, 106   | Done   |
-| [108](./108-landing-rebuild.md)                 | Rebuild the landing page                                               | High     | M      | 106, 107   | Done   |
-| [109](./109-diff-report-before-after.md)        | `dta diff` report: before/after with the change outlined               | Medium   | M      | 108        | Open   |
-| [111](./111-diff-attribution-scoped-example.md) | `dta diff` attribution for the Orbit Burger example (scoped selectors) | Medium   | M      | 108        | Open   |
-| [112](./112-landing-workflow-strip.md)          | Workflow strip below the hero; scenes in the same order                | Medium   | M      | —          | Done   |
+| #                                               | Ticket                                                                                       | Priority | Effort | Blocked by | Status |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
+| [110](./110-design-system-one-surface.md)       | Design system: one surface, the well's tokens, command chips, AAA                            | High     | M      | —          | Done   |
+| [105](./105-orbit-burger-example.md)            | Orbit Burger: example brand as a real token set and fixture                                  | High     | M      | —          | Done   |
+| [106](./106-landing-components.md)              | Design-system components for the redesigned landing page                                     | High     | M      | 110, 105   | Done   |
+| [107](./107-gravity-well.md)                    | `GravityWell` and `FloatingObjects`: the key visual                                          | High     | L      | 110, 106   | Done   |
+| [108](./108-landing-rebuild.md)                 | Rebuild the landing page                                                                     | High     | M      | 106, 107   | Done   |
+| [109](./109-diff-report-before-after.md)        | `dta diff` report: before/after with the change outlined                                     | Medium   | M      | 108        | Open   |
+| [111](./111-diff-attribution-scoped-example.md) | `dta diff` attribution for the Orbit Burger example (scoped selectors)                       | Medium   | M      | 108        | Open   |
+| [112](./112-landing-workflow-strip.md)          | Workflow strip below the hero; scenes in the same order                                      | Medium   | M      | —          | Done   |
+| [114](./114-site-polish-after-112-077.md)       | Site polish after 112 and 077 (strip label, nav current page, diagnostic links, scene order) | Low      | S      | 112, 077   | Open   |
 
-Order: 110 → 105 → 106 → 107 → 108 → 112 (done); 109 and 111 later.
+Order: 110 → 105 → 106 → 107 → 108 → 112 (done); 114 next (small polish); 109 and 111 later.
 
 ---
 
