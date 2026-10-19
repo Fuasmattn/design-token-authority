@@ -2,6 +2,9 @@
  * Tabs: a bg-subtle well holding the tabs; the selected one on bg-surface with a 2px ink
  * outline, the others transparent in fg-muted. Inline on wide containers, equal columns below
  * 560px, where `sticky` keeps the bar at the top of the screen on the canvas.
+ * Motion: with script, the selected look is one indicator that moves between the tabs; a tab
+ * change crossfades the panel only (View Transition type dta-tabs, timed in site.css). The bar
+ * and the panel carry view-transition names (`<idPrefix>-bar`, `<idPrefix>-panel`).
  */
 .dta-tabs {
   container-type: inline-size;
@@ -15,6 +18,7 @@
   min-width: 0;
 }
 .dta-tabs__list {
+  position: relative;
   display: inline-flex;
   flex-wrap: wrap;
   gap: var(--space-1);
@@ -24,6 +28,8 @@
   background: var(--bg-subtle);
 }
 .dta-tabs__tab {
+  position: relative;
+  z-index: 1;
   min-height: 44px;
   padding: 0 var(--space-4);
   border: var(--stroke-ink) solid transparent;
@@ -36,6 +42,7 @@
   line-height: var(--type-label-line-height);
   white-space: nowrap;
   cursor: pointer;
+  transition: color var(--motion-duration-fast) var(--motion-ease-standard);
 }
 .dta-tabs__tab:hover {
   color: var(--fg-default);
@@ -44,6 +51,31 @@
   border-color: var(--border-strong);
   background: var(--bg-surface);
   color: var(--fg-default);
+}
+/* The indicator: the selected look as one shape, measured onto the selected tab, that moves. */
+.dta-tabs__indicator {
+  display: none;
+}
+.dta-tabs__list[data-indicator] .dta-tabs__indicator {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: var(--dta-tab-w);
+  height: var(--dta-tab-h);
+  border: var(--stroke-ink) solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  transform: translate(var(--dta-tab-x), var(--dta-tab-y));
+  transition:
+    transform var(--motion-duration-base) var(--motion-ease-standard),
+    width var(--motion-duration-base) var(--motion-ease-standard),
+    height var(--motion-duration-base) var(--motion-ease-standard);
+}
+.dta-tabs__list[data-indicator] .dta-tabs__tab[aria-selected='true'] {
+  border-color: transparent;
+  background: transparent;
 }
 .dta-tabs__tab:focus-visible {
   outline: none;
@@ -54,6 +86,7 @@
 }
 .dta-tabs__panel {
   min-width: 0;
+  view-transition-class: dta-swap;
 }
 .dta-tabs__panel:focus-visible {
   outline: var(--stroke-focus) solid var(--action-bg);
@@ -82,5 +115,12 @@
     padding: var(--space-2) var(--space-1);
     border-bottom: var(--stroke-hairline) solid var(--border-default);
     background: var(--bg-canvas);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dta-tabs__tab,
+  .dta-tabs__list[data-indicator] .dta-tabs__indicator {
+    transition: none;
   }
 }

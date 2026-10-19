@@ -4,7 +4,13 @@
  * The paste field takes the drop area's place when asked for. One surface: the drop area and
  * the fields are bg-surface shapes, no shadows. PasteForm (also under the SourceBar) shares
  * these styles.
+ * Motion: the drop area (or the paste field in its place) is the view-transition part
+ * `dta-source`, the same as the SourceBar, so loading collapses it into the bar; the switch
+ * between drop area and paste field crossfades.
  */
+.dta-token-input > :first-child {
+  view-transition-name: dta-source;
+}
 .dta-token-input {
   container-type: inline-size;
   display: grid;
@@ -40,8 +46,8 @@
   text-align: center;
   cursor: pointer;
   transition:
-    border-color 0.15s ease,
-    background-color 0.15s ease;
+    border-color var(--motion-duration-fast) var(--motion-ease-standard),
+    background-color var(--motion-duration-fast) var(--motion-ease-standard);
 }
 .dta-token-input__drop:hover,
 .dta-token-input__drop[data-dragging] {

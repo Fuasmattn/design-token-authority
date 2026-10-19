@@ -1,0 +1,32 @@
+---
+title: Changed
+description: A value that lights up briefly when it changes, so nobody misses it.
+sidebar:
+  order: 28
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+A short value that lights up when it changes and fades back: the part of the design system's [motion rule](/design-system/motion/) that is about values. In the [playground](/playground/) the [Summary line](/design-system/components/summary-line/) wraps each count in it, and [Tabs](/design-system/components/tabs/) wrap a tab's count: after "Replace files" or after unchecking an output format, the counts that changed (`7 output files`, `Outputs · 7`) light up.
+
+## When to use
+
+- Around a short inline value that changes while the visitor looks elsewhere: a count, a size, a status word.
+- Not for a whole row or block (a selected row has its own tint), not for errors, and not to draw attention to something that did not change.
+
+<Examples component="changed" />
+
+## Guidelines
+
+- **Only after a change.** The first render is plain; each change of `value` (by default the text itself) restarts the highlight. `useChanged` in `motion.ts` counts the changes.
+- **Look:** `action-subtle` ground with `action-text` ink (the pair the design system keeps at 7:1), `radius-sm`; held for the first third of `motion.duration.highlight` (1200 ms), then fading back on `motion.ease.exit` to the element's own colours. Never `signal`: orange means "changed in a diff".
+- **No layout change:** the tint's padding (`space-1`) is taken back by a negative margin, so the text does not move.
+- **Reduced motion:** the highlight stays. It is colour, not movement, and it carries information, so it opts out of the frame's rule that turns animations off.
+- A Preact component; stories render it with `highlighted`, which holds the look still.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="Changed" />

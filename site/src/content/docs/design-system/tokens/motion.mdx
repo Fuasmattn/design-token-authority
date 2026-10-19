@@ -1,0 +1,32 @@
+---
+title: Motion
+description: Durations and easings of DTA Drafting Table, for transitions that show what changed.
+sidebar:
+  order: 4
+---
+
+import MotionTokens from '../../../../components/docs/MotionTokens.astro'
+
+A short scale: most transitions take `motion.duration.base`, small changes in place `fast`, larger moves such as a panel sliding in `slow`. Nothing waits longer than a third of a second, except the highlight of a changed value, which is colour and fades back on its own. How and when to use them is on the [Motion](/design-system/motion/) page.
+
+The tokens are `string` tokens in `Primitives.Value.json`, so `dta build` writes them as they are: `--motion-duration-base: 200ms;`, `--motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);`. (DTA's token model has the four Figma types; the DTCG `duration` and `cubicBezier` types are not read yet, so a string keeps the CSS exact.)
+
+## Durations
+
+<MotionTokens kind="duration" />
+
+## Easings
+
+Standard for something that stays on screen and moves or resizes, enter for things that appear (they arrive fast and settle), exit for things that leave (they start gently and go). Never a bounce or an overshoot.
+
+<MotionTokens kind="ease" />
+
+## In CSS
+
+```css
+.dta-detail[open] {
+  transition: transform var(--motion-duration-slow) var(--motion-ease-enter);
+}
+```
+
+Components use these variables only; a literal duration or easing in `src/components/ds` fails a test (`components.test.ts`). The endless loops of decoration (the gravity well's orbits, the floating objects, the terminal cursor) keep their own periods.

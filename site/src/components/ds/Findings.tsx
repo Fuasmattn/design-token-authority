@@ -10,6 +10,10 @@
  * with findings opens to its lines (native disclosure); one without is a plain row. With
  * `onSelect` each line is a button that opens its details (the playground's DetailPanel).
  *
+ * Motion: a rule's lines open and close by animating their height (CSS `::details-content` with
+ * `interpolate-size`; browsers without it open at once), the chevron turns, and the selected
+ * line's tint comes and goes over `motion.duration.fast`.
+ *
  * A Preact component (the playground island renders it); stories render it to static HTML.
  */
 import './Findings.css'

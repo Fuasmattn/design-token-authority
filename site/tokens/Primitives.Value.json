@@ -1505,5 +1505,119 @@
         }
       }
     }
+  },
+  "motion": {
+    "duration": {
+      "instant": {
+        "$type": "string",
+        "$value": "0ms",
+        "$description": "No motion: a change that must not animate, and every movement under prefers-reduced-motion.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "fast": {
+        "$type": "string",
+        "$value": "120ms",
+        "$description": "Small state changes in place: hover, a selected row's tint, a chevron turning.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "base": {
+        "$type": "string",
+        "$value": "200ms",
+        "$description": "Most transitions: a crossfade, a disclosure opening, a tab indicator moving.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "slow": {
+        "$type": "string",
+        "$value": "320ms",
+        "$description": "Larger moves: a panel or sheet sliding in, the input collapsing into the source bar.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "highlight": {
+        "$type": "string",
+        "$value": "1200ms",
+        "$description": "How long a changed value stays highlighted before it fades back.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [],
+            "codeSyntax": {}
+          }
+        }
+      }
+    },
+    "stagger": {
+      "$type": "string",
+      "$value": "40ms",
+      "$description": "Delay between items that appear one after another.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": [],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "ease": {
+      "standard": {
+        "$type": "string",
+        "$value": "cubic-bezier(0.2, 0, 0, 1)",
+        "$description": "Moves and resizes: something that stays on screen.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "enter": {
+        "$type": "string",
+        "$value": "cubic-bezier(0, 0, 0, 1)",
+        "$description": "Things that appear: fast start, gentle stop.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "exit": {
+        "$type": "string",
+        "$value": "cubic-bezier(0.3, 0, 1, 1)",
+        "$description": "Things that leave: gentle start, fast end.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [],
+            "codeSyntax": {}
+          }
+        }
+      }
+    }
   }
 }

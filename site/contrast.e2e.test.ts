@@ -208,6 +208,20 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
       await page.getByRole('button', { name: 'dta.config.ts', exact: true }).click()
       await page.getByRole('dialog').waitFor()
     },
+    // TICKET-116: changed counts held at the start of their highlight (action-subtle ground).
+    'changed counts highlighted': async (page) => {
+      await loadExample(page)
+      await page.getByRole('tab', { name: /^Outputs/ }).click()
+      await page.locator('.dta-outputs').waitFor()
+      await page.getByRole('checkbox', { name: 'CSS' }).click()
+      await page.getByRole('button', { name: '7 output files' }).waitFor()
+      const held = await page.evaluate(`(() => {
+        const animations = [...document.querySelectorAll('.dta-changed[data-changed]')].flatMap((el) => el.getAnimations())
+        for (const a of animations) { a.pause(); a.currentTime = 0 }
+        return animations.length
+      })()`)
+      expect(held).toBeGreaterThanOrEqual(2)
+    },
     'invalid input': async (page) => {
       await page.getByRole('button', { name: 'Paste JSON instead' }).click()
       await page.getByLabel('Paste JSON').fill('{"Colors": ')

@@ -7,6 +7,9 @@
  * The bar is a status region, so a screen reader hears what was read; `focusKey` moves focus to
  * it after a new read (the button that loaded it is gone by then).
  *
+ * Motion: the bar is the view-transition part `dta-source`, shared with TokenInput's drop area,
+ * so the input collapses into it when the page loads something inside `transition()`.
+ *
  * A Preact component (the playground island renders it); stories render it to static HTML.
  * Buttons use the shared Button.css, so they look like Button.
  */

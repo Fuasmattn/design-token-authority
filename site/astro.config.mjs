@@ -42,6 +42,7 @@ export default defineConfig({
           label: 'Design system',
           items: [
             { label: 'DTA Drafting Table', link: '/design-system/' },
+            { label: 'Motion', link: '/design-system/motion/' },
             { label: 'Tokens', items: [{ autogenerate: { directory: 'design-system/tokens' } }] },
             {
               label: 'Components',

@@ -1,0 +1,33 @@
+---
+// The highlight held still: the playground's summary after CSS was unchecked (7 output files)
+// and the Outputs tab's count, next to a value that did not change.
+import Changed from '../components/ds/Changed'
+---
+
+<ul class="changed-example">
+  <li><Changed>42 tokens</Changed></li>
+  <li><Changed>0 lint findings</Changed></li>
+  <li><Changed highlighted>7 output files</Changed></li>
+  <li class="tab">Outputs · <Changed highlighted>7</Changed></li>
+</ul>
+
+<style>
+  .changed-example {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    line-height: var(--type-meta-line-height);
+    color: var(--fg-default);
+  }
+  .tab {
+    font-family: var(--font-sans);
+    font-size: calc(var(--type-label-size) * 1px);
+    font-weight: var(--type-label-weight);
+  }
+</style>

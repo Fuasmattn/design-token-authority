@@ -8,10 +8,18 @@
  * Below 560px of container width the tabs share the row equally, and with `sticky` the list stays
  * at the top of the screen while the panel scrolls.
  *
+ * Motion (design-system/motion): once the script runs, the outline is one indicator that moves to
+ * the selected tab (measured, `motion.duration.base`); a tab's own outline is the no-script look.
+ * A tab change is a View Transition of type `dta-tabs` where the browser has one: only the panel
+ * crossfades (and its height eases to the new content), the rest of the page stays live. A count
+ * that changes is highlighted (Changed).
+ *
  * A Preact component (the playground island renders it); stories render it to static HTML.
  */
 import type { ComponentChildren } from 'preact'
-import { useRef } from 'preact/hooks'
+import { useLayoutEffect, useRef } from 'preact/hooks'
+import Changed from './Changed'
+import { transition } from './motion'
 import './Tabs.css'
 
 export interface Tab {
@@ -46,9 +54,36 @@ export default function Tabs({
 }: TabsProps) {
   const list = useRef<HTMLDivElement>(null)
 
+  // The indicator follows the selected tab: its box is measured into custom properties, again
+  // whenever a tab's size changes (fonts, counts, wrapping). Before that, the tab draws its own.
+  useLayoutEffect(() => {
+    const element = list.current
+    if (!element) return
+    const place = () => {
+      const tab = element.querySelector<HTMLElement>('[aria-selected="true"]')
+      if (!tab) return
+      element.style.setProperty('--dta-tab-x', `${tab.offsetLeft}px`)
+      element.style.setProperty('--dta-tab-y', `${tab.offsetTop}px`)
+      element.style.setProperty('--dta-tab-w', `${tab.offsetWidth}px`)
+      element.style.setProperty('--dta-tab-h', `${tab.offsetHeight}px`)
+      element.dataset.indicator = ''
+    }
+    place()
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(place)
+    observer.observe(element)
+    for (const tab of element.querySelectorAll('[role="tab"]')) observer.observe(tab)
+    return () => observer.disconnect()
+  }, [selected, tabs])
+
+  const choose = (id: string) => {
+    if (id === selected) return
+    transition(() => onSelect?.(id), 'dta-tabs')
+  }
+
   const move = (index: number) => {
     const next = tabs[(index + tabs.length) % tabs.length]
-    onSelect?.(next.id)
+    choose(next.id)
     list.current
       ?.querySelector<HTMLButtonElement>(`#${CSS.escape(tabId(idPrefix, next.id))}`)
       ?.focus()
@@ -69,7 +104,7 @@ export default function Tabs({
 
   return (
     <div class="dta-tabs" data-sticky={sticky ? '' : undefined}>
-      <div class="dta-tabs__bar">
+      <div class="dta-tabs__bar" style={{ viewTransitionName: `${idPrefix}-bar` }}>
         <div
           ref={list}
           class="dta-tabs__list"
@@ -77,6 +112,7 @@ export default function Tabs({
           aria-label={label}
           onKeyDown={onKeyDown}
         >
+          <span class="dta-tabs__indicator" aria-hidden="true" />
           {tabs.map((tab) => {
             const on = tab.id === selected
             return (
@@ -89,12 +125,13 @@ export default function Tabs({
                 aria-selected={on}
                 aria-controls={on ? `${idPrefix}-panel` : undefined}
                 tabIndex={on ? 0 : -1}
-                onClick={() => onSelect?.(tab.id)}
+                onClick={() => choose(tab.id)}
               >
                 {tab.label}
-                {tab.count !== undefined && (
-                  <span class="dta-tabs__count">{` · ${tab.count}`}</span>
-                )}
+                <span class="dta-tabs__count">
+                  {tab.count !== undefined && ' · '}
+                  <Changed value={tab.count ?? ''}>{tab.count}</Changed>
+                </span>
               </button>
             )
           })}
@@ -104,6 +141,7 @@ export default function Tabs({
         class="dta-tabs__panel"
         role="tabpanel"
         id={`${idPrefix}-panel`}
+        style={{ viewTransitionName: `${idPrefix}-panel` }}
         aria-labelledby={tabId(idPrefix, selected)}
       >
         {children}

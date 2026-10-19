@@ -8,10 +8,15 @@
  * `PasteForm` is the paste field on its own, also used under the SourceBar once something is
  * loaded; `readFiles` reads a FileList the same way for the SourceBar's "Replace files".
  *
+ * Motion: the drop area (or the paste field) is the view-transition part `dta-source`, as the
+ * SourceBar is, so a page that swaps one for the other inside `transition()` collapses the input
+ * into the bar; switching to the paste field and back crossfades.
+ *
  * A Preact component (the playground is a Preact island, decision 13); stories render it to
  * static HTML. Buttons use the shared Button.css, so they look like Button.
  */
 import { useEffect, useRef, useState } from 'preact/hooks'
+import { transition } from './motion'
 import './Button.css'
 import './TokenInput.css'
 
@@ -151,7 +156,7 @@ export default function TokenInput({
   }
   const toggle = () => {
     switched.current = true
-    setPasting(!pasting)
+    transition(() => setPasting(!pasting), 'dta-read')
   }
 
   return (

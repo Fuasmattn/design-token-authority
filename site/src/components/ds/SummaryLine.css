@@ -1,9 +1,11 @@
 /*
  * SummaryLine: mono meta text on the canvas, parts spaced apart (no separators to read out).
  * Parts that open a view are text buttons, underlined with a hairline-coloured rule that turns
- * ink on hover.
+ * ink on hover. A view-transition part (`dta-summary`), so it moves instead of jumping when
+ * something opens above it. Changed parts light up (Changed).
  */
 .dta-summary {
+  view-transition-name: dta-summary;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;

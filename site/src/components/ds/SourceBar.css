@@ -2,8 +2,11 @@
  * SourceBar: one line on the surface with a hairline border, like a card's edge but flat: the
  * mono "Loaded" kicker, what is loaded in label type, a mono detail, then the actions at the
  * end ("Replace files" outline, "Paste JSON instead" link). Wraps below the label when narrow.
+ * It is the view-transition part `dta-source` (as TokenInput's drop area): the input collapses
+ * into it, and a new read crossfades its text in place.
  */
 .dta-source {
+  view-transition-name: dta-source;
   container-type: inline-size;
   display: flex;
   flex-wrap: wrap;

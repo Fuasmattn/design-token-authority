@@ -200,7 +200,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [076](./076-playground-browser-packages.md)      | Run the `@dta/*` packages in the browser                                    | High     | M      | 069        | Done   |
 | [077](./077-playground-input-structure-lint.md)  | Playground: input, structure and lint findings                              | High     | L      | 076        | Done   |
 | [115](./115-playground-workspace-layout.md)      | Playground workspace: source bar, summary, tabs, detail panel               | High     | M      | 077        | Done   |
-| [116](./116-motion-tokens-and-transitions.md)    | Motion tokens, motion rule against change blindness, playground transitions | High     | M      | 079        | Open   |
+| [116](./116-motion-tokens-and-transitions.md)    | Motion tokens, motion rule against change blindness, playground transitions | High     | M      | 079        | Done   |
 | [078](./078-playground-graph.md)                 | Playground: dependency graph with brand and breakpoint switcher             | Medium   | M      | 077        | Open   |
 | [079](./079-playground-outputs-config.md)        | Playground: outputs, generated config and CLI handoff                       | High     | M      | 077        | Done   |
 | [113](./113-playground-example-with-findings.md) | Playground: an example that shows findings                                  | Medium   | S      | 077        | Open   |
@@ -247,7 +247,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [098](./098-site-hero-cleanup.md)          | Calmer hero with one command and one call to action                                     | Medium   | XS     | 096        | Done   |
 | [099](./099-site-landing-github-agents.md) | Landing page: GitHub and agents instead of the review demo; token cycle in the headline | Medium   | S      | 098        | Done   |
 
-Playground order (2026-10-19): 076 → 077 (done) → 115 (done) → 079 (done) → 116 → 113 → 078. Order: Epic 7 first (068 → 069 → 070 unblock the rest); 7b and 8 can run in parallel once 069/070 are done; 080 can start right after 039. Design sources: the maintainer's concept doc, the DTA Drafting Table design system and the landing page mockup (see the specs).
+Playground order (2026-10-19): 076 → 077 (done) → 115 (done) → 079 (done) → 116 (done) → 113 → 078. Order: Epic 7 first (068 → 069 → 070 unblock the rest); 7b and 8 can run in parallel once 069/070 are done; 080 can start right after 039. Design sources: the maintainer's concept doc, the DTA Drafting Table design system and the landing page mockup (see the specs).
 
 ## Phase 9 — Agent interop
 

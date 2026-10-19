@@ -114,6 +114,18 @@
 }
 .dta-findings__rule {
   border-bottom: var(--stroke-hairline) solid var(--border-default);
+  interpolate-size: allow-keywords;
+}
+/* A rule's lines open and close by animating their height (no script measures them). */
+.dta-findings__rule::details-content {
+  block-size: 0;
+  overflow-y: clip;
+  transition:
+    block-size var(--motion-duration-base) var(--motion-ease-standard),
+    content-visibility var(--motion-duration-base) allow-discrete;
+}
+.dta-findings__rule[open]::details-content {
+  block-size: auto;
 }
 .dta-findings__rule-row {
   display: flex;
@@ -136,7 +148,7 @@ summary.dta-findings__rule-row::after {
   content: '›';
   flex: none;
   color: var(--fg-subtle);
-  transition: transform 0.15s ease;
+  transition: transform var(--motion-duration-base) var(--motion-ease-standard);
 }
 .dta-findings__rule[open] > summary.dta-findings__rule-row::after {
   transform: rotate(90deg);
@@ -190,6 +202,9 @@ summary.dta-findings__rule-row:focus-visible {
   font: inherit;
   text-align: left;
   cursor: pointer;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    color var(--motion-duration-fast) var(--motion-ease-standard);
 }
 .dta-findings__open:hover {
   background: var(--bg-subtle);
@@ -217,7 +232,9 @@ summary.dta-findings__rule-row:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  summary.dta-findings__rule-row::after {
+  summary.dta-findings__rule-row::after,
+  .dta-findings__rule::details-content,
+  .dta-findings__open {
     transition: none;
   }
 }

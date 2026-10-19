@@ -9,6 +9,9 @@
  * are the page's. Copy is the CopyButton. Below 560px of container width the path takes its own
  * line and the size and actions follow under it.
  *
+ * Motion: each group is a view-transition part named after its heading id, so a page that
+ * changes the groups inside `transition()` moves the groups that stay and fades the others.
+ *
  * A Preact component (the playground island renders it); stories render it to static HTML.
  */
 import CopyButton from './CopyButton'
@@ -59,7 +62,12 @@ export default function OutputFiles({
       {groups.map((group) => {
         const headingId = `${idPrefix}-${group.id}`
         return (
-          <section class="dta-outputs__group" key={group.id} aria-labelledby={headingId}>
+          <section
+            class="dta-outputs__group"
+            key={group.id}
+            aria-labelledby={headingId}
+            style={{ viewTransitionName: headingId }}
+          >
             <div class="dta-outputs__head">
               <h3 class="dta-outputs__name" id={headingId}>
                 {group.name}

@@ -58,6 +58,41 @@ describe('site design tokens', () => {
     expect(value('font.mono')).toBe('"Martian Mono", ui-monospace, monospace')
   })
 
+  // Motion tokens are strings DTA builds as they are (TICKET-116): a CSS duration in ms and a
+  // cubic-bezier easing (DTCG `duration`/`cubicBezier` are not in DTA's token model yet).
+  it('keep the motion scale and come out of dta build as ms and cubic-bezier()', async () => {
+    const motion = model.collections
+      .find((c) => c.name === 'Primitives')!
+      .tokens.filter((token) => token.name[0] === 'motion')
+    const values = Object.fromEntries(
+      motion.map((token) => [token.name.join('.'), token.values.Value]),
+    )
+    expect(values).toEqual({
+      'motion.duration.instant': '0ms',
+      'motion.duration.fast': '120ms',
+      'motion.duration.base': '200ms',
+      'motion.duration.slow': '320ms',
+      'motion.duration.highlight': '1200ms',
+      'motion.stagger': '40ms',
+      'motion.ease.standard': 'cubic-bezier(0.2, 0, 0, 1)',
+      'motion.ease.enter': 'cubic-bezier(0, 0, 0, 1)',
+      'motion.ease.exit': 'cubic-bezier(0.3, 0, 1, 1)',
+    })
+    for (const token of motion) expect(token.type).toBe('string')
+
+    const { files: outputs } = await buildOutputs(model, {
+      brands: [...config.brands],
+      css: { outDir: config.outputs.css.outDir },
+    })
+    const base = outputs.find((f) => f.path === 'output/css/base.css')?.content ?? ''
+    expect(base).toMatch(/--motion-duration-base: 200ms;/)
+    expect(base).toMatch(/--motion-stagger: 40ms;/)
+    expect(base).toMatch(/--motion-ease-standard: cubic-bezier\(0\.2, 0, 0, 1\);/)
+    for (const [, value] of base.matchAll(/--motion-duration-[\w-]+: ([^;]+);/g)) {
+      expect(value).toMatch(/^\d+ms$/)
+    }
+  })
+
   it('lint clean with the site config', () => {
     const result = lintTokens(model, config.lint)
     expect(result.diagnostics).toEqual([])

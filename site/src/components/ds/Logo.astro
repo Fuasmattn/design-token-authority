@@ -46,7 +46,7 @@ const { href = '/' } = Astro.props
     top: 0;
     background: var(--action-bg);
     opacity: 0.9;
-    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: transform var(--motion-duration-slow) var(--motion-ease-standard);
   }
   .dta-logo:hover .fill {
     transform: translate(-4px, 4px);

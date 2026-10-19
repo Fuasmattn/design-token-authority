@@ -1,7 +1,7 @@
 /*
  * StructureTable: a quiet data table on the surface. Hairline rules between rows, mono for
  * names, modes and numbers, a mono meta header. Below 640px of container width each row is a
- * short labelled list.
+ * short labelled list. The selected row's tint comes and goes over motion.duration.fast.
  */
 .dta-structure {
   container-type: inline-size;
@@ -122,6 +122,12 @@
   text-decoration: underline;
   text-underline-offset: 4px;
 }
+.dta-structure__row > *,
+.dta-structure__notes > * {
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    color var(--motion-duration-fast) var(--motion-ease-standard);
+}
 .dta-structure .dta-structure__row[aria-current='true'] > *,
 .dta-structure .dta-structure__notes[aria-current='true'] > * {
   background: var(--action-subtle);
@@ -230,5 +236,12 @@
   }
   .dta-structure__table .dta-structure__notes td {
     display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dta-structure__row > *,
+  .dta-structure__notes > * {
+    transition: none;
   }
 }

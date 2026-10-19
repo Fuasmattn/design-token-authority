@@ -7,6 +7,8 @@
  *
  * Commands are shown as `npx design-token-authority …`, never `npx dta` (that npm name belongs
  * to another package). The component reports; saving the config is the page's (`onDownload`).
+ * It is a view-transition part named after its heading id, so it moves to its new place when the
+ * output files above it change inside `transition()`.
  *
  * A Preact component (the playground island renders it); stories render it to static HTML.
  */
@@ -93,7 +95,7 @@ export default function CliHandoff({
 }: CliHandoffProps) {
   const headingId = `${idPrefix}-title`
   return (
-    <section class="dta-cli" aria-labelledby={headingId}>
+    <section class="dta-cli" aria-labelledby={headingId} style={{ viewTransitionName: headingId }}>
       <h3 class="dta-cli__title" id={headingId}>
         {title}
       </h3>

@@ -57,7 +57,7 @@ if (marks.length > 3) throw new Error('Redline: at most three redlines per objec
     bottom: -20px;
     border-top: var(--stroke-redline) solid var(--signal-bg);
     transform-origin: left;
-    animation: draw 0.8s ease-out 0.3s both;
+    animation: draw var(--motion-duration-slow) var(--motion-ease-enter) var(--motion-duration-base) both;
   }
   .tag {
     position: absolute;
@@ -69,7 +69,7 @@ if (marks.length > 3) throw new Error('Redline: at most three redlines per objec
     font-size: calc(var(--type-redline-size) * 1px);
     line-height: var(--type-redline-line-height);
     white-space: nowrap;
-    animation: pop 0.4s ease-out 0.9s both;
+    animation: pop var(--motion-duration-base) var(--motion-ease-enter) calc(var(--motion-duration-base) + var(--motion-duration-slow)) both;
   }
   .below {
     left: 50%;

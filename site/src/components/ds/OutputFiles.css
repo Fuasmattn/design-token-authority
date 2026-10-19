@@ -3,7 +3,9 @@
  * with a mono count and the group download (outline) at the end, closed by the ink rule; file
  * rows are separated by hairlines: the path in mono as an action-text link, the size in mono
  * fg-muted, then Copy and Download as quiet buttons at the 44 px touch minimum. The open file's
- * row is tinted action-subtle. Below 560px of container width the path has its own line.
+ * row is tinted action-subtle (over motion.duration.fast). Below 560px of container width the
+ * path has its own line. Each group is a view-transition part (`<idPrefix>-<group>`), so when the
+ * formats change the groups that stay move and the others fade.
  */
 .dta-outputs {
   container-type: inline-size;
@@ -44,6 +46,9 @@
 .dta-outputs__zip.dta-button {
   padding: 0 var(--space-4);
 }
+.dta-outputs__group {
+  view-transition-class: dta-swap;
+}
 .dta-outputs__files {
   margin: 0;
   padding: 0;
@@ -56,6 +61,7 @@
   gap: var(--space-2) var(--space-4);
   padding: var(--space-1) var(--space-2);
   border-bottom: var(--stroke-hairline) solid var(--border-default);
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-standard);
 }
 .dta-outputs__file[aria-current='true'] {
   background: var(--action-subtle);
@@ -114,5 +120,11 @@
   }
   .dta-outputs__size {
     text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dta-outputs__file {
+    transition: none;
   }
 }

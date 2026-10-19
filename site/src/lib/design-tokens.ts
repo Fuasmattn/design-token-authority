@@ -130,3 +130,25 @@ export const fontFamilies = (): PrimitiveToken[] =>
   primitives()
     .filter((t) => t.name[0] === 'font')
     .map(primitive)
+
+export interface MotionToken extends PrimitiveToken {
+  /** `duration`, `stagger` or `ease`. */
+  kind: 'duration' | 'stagger' | 'ease'
+  /** The four control values of an easing (`cubic-bezier(x1, y1, x2, y2)`). */
+  bezier?: [number, number, number, number]
+}
+
+/** Motion primitives (`motion.duration.*`, `motion.stagger`, `motion.ease.*`), in file order. */
+export function motionTokens(): MotionToken[] {
+  return primitives()
+    .filter((t) => t.name[0] === 'motion')
+    .map((token) => {
+      const base = primitive(token)
+      const kind = token.name[1] as MotionToken['kind']
+      const match = /^cubic-bezier\(([^)]+)\)$/.exec(String(base.value))
+      const bezier = match
+        ? (match[1].split(',').map((n) => Number(n.trim())) as MotionToken['bezier'])
+        : undefined
+      return { ...base, kind, ...(bezier ? { bezier } : {}) }
+    })
+}

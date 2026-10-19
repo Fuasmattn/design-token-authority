@@ -142,14 +142,112 @@ a {
   }
 }
 
+/*
+ * Motion (design-system/motion), on the motion tokens. Shared by the pages and their components:
+ * - dta-appear: something that arrives fades in from a little below (stagger with --dta-order);
+ * - View Transitions started with `transition()` (src/components/ds/motion.ts): a new read
+ *   (type dta-read, or none) crossfades the page while named parts move to their new place; a
+ *   change in place (types dta-tabs, dta-outputs) leaves the page live and crossfades only the
+ *   named parts that changed, whose boxes ease to their new size.
+ */
+@keyframes dta-appear {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-2));
+  }
+}
+.dta-appear {
+  animation: dta-appear var(--motion-duration-base) var(--motion-ease-enter) both;
+  animation-delay: calc(var(--motion-stagger) * var(--dta-order, 0));
+}
+
+::view-transition-group(*) {
+  animation-duration: var(--motion-duration-slow);
+  animation-timing-function: var(--motion-ease-standard);
+}
+/*
+ * A new read: the page crossfades (old and new on one curve, so what stays the same stays solid),
+ * parts that move go to their new place, and parts that are new arrive once the moves are mostly
+ * done.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--motion-duration-base);
+  animation-timing-function: var(--motion-ease-standard);
+}
+::view-transition-new(*):only-child {
+  animation-delay: var(--motion-duration-base);
+  animation-timing-function: var(--motion-ease-enter);
+}
+/*
+ * A part that changes size crossfades at its own size inside a box that clips it: a panel's new
+ * content from the top, the drop area collapsing into the source bar around its middle.
+ */
+::view-transition-image-pair(*) {
+  overflow: clip;
+}
+::view-transition-old(*),
+::view-transition-new(*) {
+  height: 100%;
+  object-fit: none;
+  object-position: top;
+}
+::view-transition-old(dta-source),
+::view-transition-new(dta-source) {
+  object-position: center;
+}
+
+/*
+ * A change in place (types dta-tabs, dta-outputs): the page stays live and nothing else fades;
+ * only parts of view-transition-class dta-swap (a tab panel, output groups, the CLI hand-off)
+ * crossfade, while every named part moves and resizes to its new box.
+ */
+:root:active-view-transition-type(dta-tabs, dta-outputs)::view-transition-group(*) {
+  animation-duration: var(--motion-duration-base);
+}
+:root:active-view-transition-type(dta-tabs, dta-outputs)::view-transition-old(*) {
+  display: none;
+}
+:root:active-view-transition-type(dta-tabs, dta-outputs)::view-transition-new(*) {
+  animation: none;
+}
+:root:active-view-transition-type(dta-tabs, dta-outputs)::view-transition-old(*.dta-swap) {
+  display: block;
+  animation: dta-vt-out var(--motion-duration-fast) var(--motion-ease-standard) both;
+}
+:root:active-view-transition-type(dta-tabs, dta-outputs)::view-transition-new(*.dta-swap) {
+  animation: dta-vt-in var(--motion-duration-base) var(--motion-ease-enter) both;
+}
+@keyframes dta-vt-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes dta-vt-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/*
+ * Reduced motion: nothing moves. Animations and transitions are off (changes are instant), View
+ * Transitions are not started (motion.ts) and would not animate. The highlight of a changed value
+ * (Changed) is colour, not movement, and opts back in.
+ */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   *,
   *::before,
-  *::after {
+  *::after,
+  *::backdrop {
     animation: none !important;
     transition: none !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

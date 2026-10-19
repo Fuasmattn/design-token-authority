@@ -5,6 +5,10 @@
  * the page behind is inert, Escape and the backdrop close it). Opening moves focus to the
  * panel's title; closing returns it to the element that opened the panel (`opener`).
  *
+ * Motion (design-system/motion): the side panel fades in from the right, the sheet slides up from
+ * the bottom and its backdrop fades; both leave the way they came (CSS only: `@starting-style`
+ * and discrete `display`/`overlay` transitions). The page keeps the last content while it leaves.
+ *
  * Content: a kicker and a title, a meta line, optional actions (Copy and Download of a file), an
  * optional mode switch, an optional message (the full finding, mono), a list of lines (a token
  * name, then its alias chain and value, with a swatch for colours) or a file's text (`code`, an
@@ -155,6 +159,7 @@ export default function DetailPanel({
       ref={dialog}
       class="dta-detail"
       data-presentation={mode}
+      data-static={staticOpen ? '' : undefined}
       aria-labelledby={titleId}
       open={staticOpen || undefined}
       onCancel={(event) => {

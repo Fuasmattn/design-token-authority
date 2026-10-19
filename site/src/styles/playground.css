@@ -52,6 +52,23 @@
 .pg > .dta-tabs {
   margin-top: var(--space-2);
 }
+/*
+ * Once something is loaded, what arrives fades in one after another (the frame's dta-appear): the
+ * summary, then the tabs; later also the paste field or the input's findings. The source bar is
+ * not faded: the input collapses into it (the view-transition part dta-source).
+ */
+.pg[data-loaded] > :not(.dta-source) {
+  animation: dta-appear var(--motion-duration-base) var(--motion-ease-enter) both;
+}
+.pg[data-loaded] > :nth-child(2) {
+  animation-delay: var(--motion-stagger);
+}
+.pg[data-loaded] > :nth-child(3) {
+  animation-delay: calc(var(--motion-stagger) * 2);
+}
+.pg[data-loaded] > :nth-child(n + 4) {
+  animation-delay: calc(var(--motion-stagger) * 3);
+}
 /* The view and the detail panel: side by side from 1024px, the panel stays in view. */
 .pg-work {
   display: grid;
@@ -83,9 +100,27 @@
   border-top: var(--stroke-hairline) solid var(--border-default);
 }
 
+/* The panel's column opens and closes with the panel instead of jumping. */
 @media (min-width: 1024px) {
+  .pg-work {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0px);
+    column-gap: 0;
+    transition:
+      grid-template-columns var(--motion-duration-slow) var(--motion-ease-standard),
+      column-gap var(--motion-duration-slow) var(--motion-ease-standard);
+  }
   .pg-work[data-panel] {
     grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+    column-gap: var(--space-6);
+  }
+  /* Closing: the panel fades first, then its column closes (all within a third of a second). */
+  .pg-work:not([data-panel]) {
+    transition-duration: var(--motion-duration-base);
+    transition-delay: var(--motion-duration-fast);
+  }
+  /* The panel keeps its width while its column opens and closes; it slides in from the edge. */
+  .pg-work > .dta-detail {
+    min-width: 400px;
   }
 }
 

@@ -5,6 +5,7 @@
  * which may wrap here so a long command never runs past a phone screen. A note in fg-muted.
  */
 .dta-cli {
+  view-transition-class: dta-swap;
   container-type: inline-size;
   display: grid;
   gap: var(--space-3);

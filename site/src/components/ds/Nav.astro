@@ -134,7 +134,7 @@ const menuId = `${idPrefix}-menu`
     background-size: 0 var(--stroke-redline);
     background-repeat: no-repeat;
     background-position: 0 calc(100% - 10px);
-    transition: background-size 0.3s ease;
+    transition: background-size var(--motion-duration-base) var(--motion-ease-standard);
   }
   .links a:hover {
     background-size: 100% var(--stroke-redline);
@@ -169,7 +169,7 @@ const menuId = `${idPrefix}-menu`
       background: transparent;
       color: var(--fg-default);
       cursor: pointer;
-      transition: border-color 0.2s ease;
+      transition: border-color var(--motion-duration-fast) var(--motion-ease-standard);
     }
     .toggle:hover,
     .toggle:focus-visible {
@@ -189,8 +189,8 @@ const menuId = `${idPrefix}-menu`
       border-radius: var(--radius-full);
       background: currentColor;
       transition:
-        transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
-        opacity 0.2s ease;
+        transform var(--motion-duration-slow) var(--motion-ease-standard),
+        opacity var(--motion-duration-base) var(--motion-ease-standard);
     }
     .burger span:nth-child(1) {
       top: 0;
@@ -225,15 +225,15 @@ const menuId = `${idPrefix}-menu`
       clip-path: inset(0 0 100% 0);
       visibility: hidden;
       transition:
-        clip-path 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-        visibility 0s linear 0.3s;
+        clip-path var(--motion-duration-base) var(--motion-ease-exit),
+        visibility var(--motion-duration-instant) var(--motion-duration-base);
     }
     [data-open] .panel {
       clip-path: inset(0 0 0 0);
       visibility: visible;
       transition:
-        clip-path 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
-        visibility 0s;
+        clip-path var(--motion-duration-slow) var(--motion-ease-enter),
+        visibility var(--motion-duration-instant);
     }
     /* A redline drawn across the sheet, under the header. */
     .panel::before {
@@ -245,11 +245,11 @@ const menuId = `${idPrefix}-menu`
       border-top: var(--stroke-redline) solid var(--signal-bg);
       transform: scaleX(0);
       transform-origin: left center;
-      transition: transform 0.2s ease;
+      transition: transform var(--motion-duration-fast) var(--motion-ease-exit);
     }
     [data-open] .panel::before {
       transform: scaleX(1);
-      transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s;
+      transition: transform var(--motion-duration-slow) var(--motion-ease-enter) var(--motion-duration-fast);
     }
 
     .links {
@@ -261,15 +261,15 @@ const menuId = `${idPrefix}-menu`
     .extra {
       opacity: 0;
       transform: translateY(var(--space-2));
-      transition: opacity 0.15s ease;
+      transition: opacity var(--motion-duration-fast) var(--motion-ease-exit);
     }
     [data-open] .links li,
     [data-open] .extra {
       opacity: 1;
       transform: none;
       transition:
-        opacity 0.4s ease-out calc(0.2s + var(--i) * 0.06s),
-        transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) calc(0.2s + var(--i) * 0.06s);
+        opacity var(--motion-duration-base) var(--motion-ease-enter) calc(var(--motion-duration-fast) + var(--i) * var(--motion-stagger)),
+        transform var(--motion-duration-slow) var(--motion-ease-enter) calc(var(--motion-duration-fast) + var(--i) * var(--motion-stagger));
     }
     .links li {
       border-bottom: var(--stroke-hairline) solid var(--border-default);
@@ -302,7 +302,7 @@ const menuId = `${idPrefix}-menu`
       background-size: 0 var(--stroke-redline);
       background-repeat: no-repeat;
       background-position: 0 100%;
-      transition: background-size 0.3s ease;
+      transition: background-size var(--motion-duration-base) var(--motion-ease-standard);
     }
     .links a:hover .label,
     .links a:focus-visible .label {

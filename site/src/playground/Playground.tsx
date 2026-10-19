@@ -9,6 +9,9 @@
  * - Outputs (TICKET-079): which outputs to build, the files grouped with Copy and Download, one
  *   zip per group and "Download all", and the generated dta.config.ts with the CLI commands.
  * Everything it shows is a design-system component; src/styles/playground.css only places them.
+ * Motion (TICKET-116, design-system/motion): a new read is a View Transition (the input collapses
+ * into the source bar, the results fade in one after another), a tab change crossfades the view,
+ * new output files move into place, the detail panel slides in, and changed counts light up.
  * Nothing is uploaded: the example is bundled and the analysis runs here (analyse.ts). The only
  * requests after load are the page's own lazy chunks: `@dta/build` (Style Dictionary) and the
  * zip code (outputs-engine.ts) load when the Outputs tab first opens (spec decision 9).
@@ -31,6 +34,7 @@ import TokenInput, {
   PasteForm,
   type TokenInputFile,
 } from '../components/ds/TokenInput'
+import { transition } from '../components/ds/motion'
 import { NPM_RELEASED } from '../landing/content'
 import {
   analyse,
@@ -222,6 +226,11 @@ export default function Playground() {
   const [engineLoaded, setEngineLoaded] = useState(false)
   const engine = useRef<Promise<Engine> | null>(null)
   const pending = useRef<Promise<Built | null> | null>(null)
+  // The view the build lands in (read when it lands, not when it started).
+  const viewNow = useRef<View>(view)
+  viewNow.current = view
+  // The panel's last content, kept while it closes (it slides out with what it showed).
+  const lastPanel = useRef<Omit<DetailPanelProps, 'open'> | undefined>(undefined)
 
   // The selected view lives in the URL hash, so a reload or a shared link keeps it.
   useEffect(() => {
@@ -261,8 +270,15 @@ export default function Playground() {
       .then((result) => {
         const next = { ...result, run: runKey, formats: formatsKey }
         if (current) {
-          setBuilt(next)
-          setBuildError(null)
+          // Files that replace shown ones (other formats) move into place; the first files of a
+          // read appear as they are, right where the status was; elsewhere only counts change.
+          const land = () => {
+            setBuilt(next)
+            setBuildError(null)
+          }
+          const replacing = built?.run === runKey
+          if (viewNow.current === 'outputs' && replacing) transition(land, 'dta-outputs')
+          else land()
         }
         return next
       })
@@ -285,9 +301,11 @@ export default function Playground() {
 
   const read = (input: readonly TokenInputFile[], example = false) => {
     const result = analyse(input)
-    setRun({ result, source: sourceOf(result, input, example), key: (run?.key ?? 0) + 1 })
-    setSelection(null)
-    setPasting(false)
+    transition(() => {
+      setRun({ result, source: sourceOf(result, input, example), key: (run?.key ?? 0) + 1 })
+      setSelection(null)
+      setPasting(false)
+    }, 'dta-read')
   }
 
   const open = (next: Selection, element: HTMLElement) => {
@@ -313,11 +331,13 @@ export default function Playground() {
   const { structure, lint } = result
   const findings = lint?.rules.reduce((sum, rule) => sum + rule.findings.length, 0) ?? 0
   const fresh = built && built.run === run.key && built.formats === formatsKey ? built : null
-  const failed = fresh ? hasErrors(fresh.diagnostics) : false
+  // While other formats build, the files of this read stay until the new ones replace them.
+  const shown = fresh ?? (built && built.run === run.key ? built : null)
+  const failed = shown ? hasErrors(shown.diagnostics) : false
   // `dta build` writes nothing when the build has errors; the playground shows nothing either.
-  const outputFiles = fresh && !failed ? fresh.files : []
+  const outputFiles = shown && !failed ? shown.files : []
   const groups: OutputGroup[] = groupOutputs(outputFiles)
-  const outputCount = formats.length === 0 ? 0 : fresh ? outputFiles.length : undefined
+  const outputCount = formats.length === 0 ? 0 : shown ? outputFiles.length : undefined
   const tabs: Tab[] = [
     { id: 'structure', label: 'Structure' },
     { id: 'lint', label: 'Lint', count: String(findings) },
@@ -378,6 +398,8 @@ export default function Playground() {
     ),
   }
   const panel = selection ? panelOf(result, selection, previews) : undefined
+  if (panel) lastPanel.current = panel
+  const panelContent = panel ?? lastPanel.current
   const collection = selection?.kind === 'collection' ? selection : undefined
   const openFile = selection?.kind === 'file' ? selection.path : undefined
 
@@ -390,14 +412,14 @@ export default function Playground() {
         pasting={pasting}
         focusKey={run.key}
         onFiles={(input) => read(input)}
-        onPaste={() => setPasting(!pasting)}
+        onPaste={() => transition(() => setPasting(!pasting), 'dta-read')}
       />
       {pasting && (
         <PasteForm
           idPrefix={ID}
           autoFocus
           onFiles={(input) => read(input)}
-          onCancel={() => setPasting(false)}
+          onCancel={() => transition(() => setPasting(false), 'dta-read')}
         />
       )}
 
@@ -419,7 +441,7 @@ export default function Playground() {
           <SummaryLine
             parts={summaryParts(result, outputCount)}
             onSelect={(target) => {
-              select(target)
+              if (target !== view) transition(() => select(target), 'dta-tabs')
               document.getElementById(tabId(ID, target))?.focus()
             }}
           />
@@ -501,11 +523,11 @@ export default function Playground() {
                         to the folders.
                       </p>
                     )}
-                    {fresh && fresh.diagnostics.length > 0 && (
+                    {shown && shown.diagnostics.length > 0 && (
                       <Findings
                         title="Build"
                         level={3}
-                        groups={diagnosticGroups(fresh.diagnostics)}
+                        groups={diagnosticGroups(shown.diagnostics)}
                         summary={
                           failed
                             ? 'The build has errors: dta build writes no files until they are fixed.'
@@ -567,8 +589,8 @@ export default function Playground() {
               <DetailPanel
                 idPrefix={`${ID}-detail`}
                 open={Boolean(panel)}
-                title={panel?.title ?? ''}
-                {...panel}
+                title={panelContent?.title ?? ''}
+                {...panelContent}
                 opener={opener.current}
                 onClose={close}
                 onMode={(mode) => collection && setSelection({ ...collection, mode })}

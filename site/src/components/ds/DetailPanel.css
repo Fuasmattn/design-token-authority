@@ -3,7 +3,8 @@
  * kicker, a title, the close button and a list (or a file's text) that scrolls inside. Side: in the flow next to
  * the view, sticky while the page scrolls. Sheet: fixed to the bottom of the screen, ink rule on
  * top, rounded top corners, a grab handle; the page behind is veiled with the canvas.
- * Look by data-presentation; position by :modal (stories render the sheet in the flow).
+ * Look and position by data-presentation; stories render every presentation in the flow
+ * (data-static). The side panel fades in from the right, the sheet slides up and back down.
  */
 .dta-detail {
   box-sizing: border-box;
@@ -24,7 +25,7 @@
   display: flex;
 }
 /* Beside the view (and every presentation in a story): in the flow. */
-.dta-detail:not(:modal) {
+.dta-detail {
   position: sticky;
   top: var(--space-4);
   inset-inline: auto;
@@ -34,15 +35,65 @@
   border-width: var(--stroke-ink) 0 0;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
-.dta-detail:modal {
+/* The sheet on the page: fixed to the bottom of the screen, also while it slides away. */
+.dta-detail[data-presentation='sheet']:not([data-static]) {
   position: fixed;
   inset: auto 0 0;
-  width: 100%;
   max-height: 85dvh;
 }
 .dta-detail::backdrop {
   background: var(--bg-canvas);
   opacity: 0.8;
+}
+
+/*
+ * Motion: the side panel comes in from the right (a short way, with a fade), the sheet slides up
+ * from the bottom edge; both go back the way they came, and the sheet's backdrop fades. Closing
+ * keeps the dialog shown until its transition ends (display and overlay are discrete).
+ */
+.dta-detail:not([data-static]) {
+  transition:
+    opacity var(--motion-duration-fast) var(--motion-ease-exit),
+    transform var(--motion-duration-base) var(--motion-ease-exit),
+    display var(--motion-duration-base) allow-discrete,
+    overlay var(--motion-duration-base) allow-discrete;
+}
+.dta-detail[open]:not([data-static]) {
+  transition:
+    opacity var(--motion-duration-base) var(--motion-ease-enter),
+    transform var(--motion-duration-slow) var(--motion-ease-enter),
+    display var(--motion-duration-slow) allow-discrete,
+    overlay var(--motion-duration-slow) allow-discrete;
+}
+.dta-detail[data-presentation='side']:not([open]) {
+  opacity: 0;
+  transform: translateX(var(--space-6));
+}
+.dta-detail[data-presentation='sheet']:not([open]) {
+  transform: translateY(100%);
+}
+@starting-style {
+  .dta-detail[data-presentation='side'][open] {
+    opacity: 0;
+    transform: translateX(var(--space-6));
+  }
+  .dta-detail[data-presentation='sheet'][open] {
+    transform: translateY(100%);
+  }
+}
+.dta-detail::backdrop {
+  transition:
+    opacity var(--motion-duration-base) var(--motion-ease-standard),
+    display var(--motion-duration-base) allow-discrete,
+    overlay var(--motion-duration-base) allow-discrete;
+}
+.dta-detail:not([open])::backdrop {
+  opacity: 0;
+}
+@starting-style {
+  .dta-detail[open]::backdrop {
+    opacity: 0;
+  }
 }
 
 .dta-detail__head {
@@ -251,4 +302,16 @@
 .dta-detail__code:focus-visible {
   outline: var(--stroke-focus) solid var(--action-bg);
   outline-offset: var(--stroke-hairline);
+}
+
+/* Reduced motion: nothing slides; the panel and the sheet are there at once (the frame's rule). */
+@media (prefers-reduced-motion: reduce) {
+  .dta-detail,
+  .dta-detail::backdrop {
+    transition: none;
+  }
+  .dta-detail[data-presentation]:not([open]),
+  .dta-detail[data-presentation][open] {
+    transform: none;
+  }
 }

@@ -25,6 +25,7 @@ The component reads the files and hands them on as `{ fileName, content }`; it d
 - Its label says both ways in: "Drop token files", then "or choose files" in `action-text`, underlined like a link. The help line under it names what it accepts.
 - One row of actions under it: "Load example" (outline [Button](/design-system/components/button/)) with what the example is in mono, and at the end "Paste JSON instead" (link button). The paste field takes the drop area's place, and the button then says "Choose files instead"; switching moves focus to the field or back to the drop area.
 - The paste field is mono, labelled above like [Text field](/design-system/components/text-field/). A pasted per-mode file needs a `{Collection}.{Mode}.json` name; a plugin export needs none. "Check pasted JSON" is the one primary action; under the Source bar the form also has "Cancel" (and Escape).
+- **Motion:** the drop area (or the paste field in its place) is the view-transition part `dta-source`: a page that loads inside `transition()` collapses it into the [Source bar](/design-system/components/source-bar/). Switching between drop area and paste field crossfades; the drop area's hover and drag states change over `motion.duration.fast`. See [Motion](/design-system/motion/).
 
 ## Tokens used
 

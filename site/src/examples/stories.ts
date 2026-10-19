@@ -361,6 +361,13 @@ export const STORIES: readonly Story[] = [
     example: 'CliHandoffExport',
     viewports: [DESKTOP, MOBILE],
   },
+  {
+    component: 'changed',
+    variant: 'highlighted',
+    title: 'Changed values held at their highlight, next to unchanged ones',
+    example: 'ChangedHighlighted',
+    viewports: [DESKTOP],
+  },
 ]
 
 export const storyId = (story: Story) => `${story.component}--${story.variant}`

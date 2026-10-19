@@ -25,6 +25,7 @@ The structure of a token set, as `analyzeStructure` in `@dta/core` infers it and
 - In a container narrower than 640 px each collection becomes a short labelled list; the table keeps explicit roles for screen readers.
 - The brands (the modes of the brand collection) go under the table when there are any.
 - **Selectable rows** (`onSelect`): each collection name becomes a button with a `›`, and the whole row is its hit area. It opens the collection's details in the [Detail panel](/design-system/components/detail-panel/); the open row is marked with `aria-current` and tinted `action-subtle` (text in `action-text`), hovered rows `bg-subtle`. Inside a tab whose label already names the view, `hideCaption` keeps the caption for screen readers only.
+- **Motion:** the selected row's tint comes and goes over `motion.duration.fast`; instant under reduced motion. See [Motion](/design-system/motion/).
 
 ## Tokens used
 
