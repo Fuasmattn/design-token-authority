@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as z from 'zod'
 
 /**
  * Runtime schemas for the parts of the Figma Variables API that DTA reads. Strict about the

@@ -1,5 +1,5 @@
 import type { Diagnostic } from '@dta/core'
-import { z } from 'zod'
+import * as z from 'zod'
 
 const Severity = z
   .enum(['error', 'warn', 'off'])

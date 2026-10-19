@@ -197,7 +197,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 | #                                               | Ticket                                                          | Priority | Effort | Blocked by | Status |
 | ----------------------------------------------- | --------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| [076](./076-playground-browser-packages.md)     | Run the `@dta/*` packages in the browser                        | High     | M      | 069        | Open   |
+| [076](./076-playground-browser-packages.md)     | Run the `@dta/*` packages in the browser                        | High     | M      | 069        | Done   |
 | [077](./077-playground-input-structure-lint.md) | Playground: input, structure and lint findings                  | High     | M      | 076        | Open   |
 | [078](./078-playground-graph.md)                | Playground: dependency graph with brand and breakpoint switcher | Medium   | M      | 077        | Open   |
 | [079](./079-playground-outputs-config.md)       | Playground: outputs, generated config and CLI handoff           | High     | M      | 077        | Open   |
@@ -271,9 +271,9 @@ Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17, rev
 | [108](./108-landing-rebuild.md)                 | Rebuild the landing page                                               | High     | M      | 106, 107   | Done   |
 | [109](./109-diff-report-before-after.md)        | `dta diff` report: before/after with the change outlined               | Medium   | M      | 108        | Open   |
 | [111](./111-diff-attribution-scoped-example.md) | `dta diff` attribution for the Orbit Burger example (scoped selectors) | Medium   | M      | 108        | Open   |
-| [112](./112-landing-workflow-strip.md)          | Workflow strip below the hero; scenes in the same order                | Medium   | M      | —          | Open   |
+| [112](./112-landing-workflow-strip.md)          | Workflow strip below the hero; scenes in the same order                | Medium   | M      | —          | Done   |
 
-Order: 110 → 105 → 106 → 107 → 108 (done); 112 next; 109 and 111 later.
+Order: 110 → 105 → 106 → 107 → 108 → 112 (done); 109 and 111 later.
 
 ---
 

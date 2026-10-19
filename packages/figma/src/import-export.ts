@@ -1,6 +1,6 @@
 import { parseTokenFiles } from '@dta/core'
 import type { Diagnostic, TokenModel } from '@dta/core'
-import { z } from 'zod'
+import * as z from 'zod'
 import { adapters } from './adapters/index.js'
 
 /** Where the supported input formats are described. */

@@ -1,5 +1,5 @@
 import type { Diagnostic, TokenFileInput } from '@dta/core'
-import { z } from 'zod'
+import * as z from 'zod'
 import type { Adapter } from './types.js'
 
 /**

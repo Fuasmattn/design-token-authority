@@ -18,7 +18,7 @@ import type {
   VariableCodeSyntax,
   VariableScope,
 } from '@figma/rest-api-spec'
-import { z } from 'zod'
+import * as z from 'zod'
 import type { LocalVariable, LocalVariableCollection, LocalVariablesResponse } from './schemas.js'
 
 /** A value as it appears in token files: a raw value or an alias like `{Group.Token}`. */

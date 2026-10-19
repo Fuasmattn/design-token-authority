@@ -1,5 +1,5 @@
 import type { PostVariablesRequestBody } from '@figma/rest-api-spec'
-import type { z } from 'zod'
+import type * as z from 'zod'
 import { FigmaApiError, type FigmaApiIssue } from './errors.js'
 import {
   LocalVariablesResponseSchema,
