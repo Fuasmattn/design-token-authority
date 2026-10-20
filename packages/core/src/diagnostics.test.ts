@@ -1,3 +1,5 @@
+import fs from 'node:fs'
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { DOC_PATHS, formatDiagnostic, hasErrors } from './index.js'
 
@@ -28,5 +30,12 @@ describe('diagnostics', () => {
       'error [unknown-format] Could not recognise the export format.',
     )
     expect(DOC_PATHS['token-files']).toBe('docs/token-files/input-format.md')
+  })
+
+  it('points every doc id at a file of the repository', () => {
+    const repoRoot = path.resolve(import.meta.dirname, '..', '..', '..')
+    for (const [id, file] of Object.entries(DOC_PATHS)) {
+      expect(fs.existsSync(path.join(repoRoot, file)), `${id}: ${file}`).toBe(true)
+    }
   })
 })

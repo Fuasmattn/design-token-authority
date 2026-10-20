@@ -1,6 +1,8 @@
 export { colorsApproximatelyEqual, contrastRatio, parseColor, toHex } from './color.js'
 export type { Color, ParsedColor } from './color.js'
 export { parseAlias } from './alias.js'
+export { aliasProblems, circularAliasMessage, danglingAliasMessage } from './alias-problems.js'
+export type { AliasProblems } from './alias-problems.js'
 export { DOC_PATHS, formatDiagnostic, hasErrors } from './diagnostics.js'
 export type { FormatDiagnosticOptions } from './diagnostics.js'
 export { nameToDot, nameToSlash } from './names.js'

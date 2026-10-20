@@ -9,6 +9,7 @@ export const hasErrors = (diagnostics: readonly Diagnostic[]): boolean =>
  */
 export const DOC_PATHS: Readonly<Record<DocId, string>> = {
   'token-files': 'docs/token-files/input-format.md',
+  'lint-rules': 'site/src/content/docs/reference/lint-rules.mdx',
 }
 
 export interface FormatDiagnosticOptions {
@@ -28,6 +29,12 @@ export function formatDiagnostic(
   options: FormatDiagnosticOptions = {},
 ): string {
   const see = diagnostic.docs && options.docs !== false ? ` See ${DOC_PATHS[diagnostic.docs]}.` : ''
+  // A message without a full stop (the lint wording, shared with the build) gets one when a
+  // pointer to the docs follows it (here, or as the website's link).
+  const message =
+    diagnostic.docs && !/[.!?]$/.test(diagnostic.message)
+      ? `${diagnostic.message}.`
+      : diagnostic.message
   const where = diagnostic.file ? ` (${diagnostic.file})` : ''
-  return `${diagnostic.severity} [${diagnostic.code}] ${diagnostic.message}${see}${where}`
+  return `${diagnostic.severity} [${diagnostic.code}] ${message}${see}${where}`
 }

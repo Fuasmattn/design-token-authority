@@ -1,4 +1,10 @@
-import { analyzeGraph, contrastRatio, parseColor } from '@dta/core'
+import {
+  analyzeGraph,
+  circularAliasMessage,
+  contrastRatio,
+  danglingAliasMessage,
+  parseColor,
+} from '@dta/core'
 import type { GraphAnalysis, TokenModel } from '@dta/core'
 import { readLintConfig } from './config.js'
 import type { LintSeverity, ValidRules } from './config.js'
@@ -13,7 +19,7 @@ function noDanglingAliases(graph: GraphAnalysis): LintViolation[] {
     severity: 'error',
     tokenPath: dangling.sourceId,
     file: `${dangling.file}.json`,
-    message: `Alias ${dangling.rawAlias} references non-existent token "${dangling.targetName}"`,
+    message: danglingAliasMessage(dangling),
   }))
 }
 
@@ -23,7 +29,7 @@ function noCircularAliases(graph: GraphAnalysis): LintViolation[] {
     severity: 'error',
     tokenPath: cycle.path[0],
     file: '',
-    message: `Circular alias chain: ${cycle.path.join(' → ')}`,
+    message: circularAliasMessage(cycle),
   }))
 }
 

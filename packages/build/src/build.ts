@@ -1,3 +1,4 @@
+import { aliasProblems, analyzeGraph, nameToSlash } from '@dta/core'
 import type { Collection, Diagnostic, TokenModel } from '@dta/core'
 import StyleDictionary from 'style-dictionary'
 import type { DesignTokens, PlatformConfig } from 'style-dictionary/types'
@@ -60,12 +61,19 @@ function directory(value: string | undefined, fallback: string, name: string, in
   return `${trimmed}/`
 }
 
-/** One source per (collection, mode), holding the tokens that have a value in that mode. */
-function sourceOf(collection: Collection, mode: string): Source {
+/**
+ * One source per (collection, mode), holding the tokens that have a value in that mode, except
+ * the ones in `skip` (graph node ids, `Collection.Mode/Group/Token`): aliases that never reach a
+ * value.
+ */
+function sourceOf(collection: Collection, mode: string, skip: ReadonlySet<string>): Source {
+  const origin = `${collection.name}.${mode}`
   return {
-    origin: `${collection.name}.${mode}`,
+    origin,
     tokens: collection.tokens.flatMap((token) =>
-      token.values[mode] === undefined ? [] : [{ token, value: token.values[mode] }],
+      token.values[mode] === undefined || skip.has(`${origin}/${nameToSlash(token.name)}`)
+        ? []
+        : [{ token, value: token.values[mode] }],
     ),
   }
 }
@@ -113,6 +121,13 @@ function only(
 /**
  * Turns a token model into output files (CSS, JS, Tailwind). Nothing is read or written:
  * the caller writes the returned files. Data problems come back as diagnostics.
+ *
+ * Dangling and circular aliases are errors (`dangling-alias`, `circular-alias`, worded as
+ * `dta lint` words them, TICKET-119). The tokens they leave without a value, and every alias that
+ * runs into one, are left out of every file, so no file holds a `var()` that points back at
+ * itself or an unresolved `{…}`. The other files are still returned (`dta diff` reads the CSS of
+ * a base that has such an error); a caller that writes files writes none while there are errors,
+ * as `dta build` does.
  */
 export async function buildOutputs(
   fullModel: TokenModel,
@@ -140,6 +155,16 @@ export async function buildOutputs(
     }
   }
 
+  // Aliases that cannot resolve, in the collections this build reads (the graph is of the whole
+  // model, so an alias into a collection left out by `collections` is not counted as dangling).
+  const built = new Set(model.collections.map((c) => c.name))
+  const { diagnostics: aliasErrors, unresolvable } = aliasProblems(
+    analyzeGraph(fullModel),
+    (node) => built.has(node.collection),
+  )
+  diagnostics.push(...aliasErrors)
+  const source = (collection: Collection, mode: string) => sourceOf(collection, mode, unresolvable)
+
   const formats = new Set<OutputFormat>(options.formats ?? OUTPUT_FORMATS)
   const formatted = async (
     tree: Record<string, unknown>,
@@ -160,8 +185,8 @@ export async function buildOutputs(
     // Base layer: emit the single-mode collections; the first mode (alphabetically) of each
     // multi-mode collection is only there so that aliases into it resolve.
     const sources = [
-      ...singleMode.map((c) => sourceOf(c, c.modes[0])),
-      ...multiMode.map((c) => sourceOf(c, [...c.modes].sort()[0])),
+      ...singleMode.map((c) => source(c, c.modes[0])),
+      ...multiMode.map((c) => source(c, [...c.modes].sort()[0])),
     ]
     const merged = mergeSources(sources)
     const singleOrigins = new Set(singleMode.map((c) => `${c.name}.${c.modes[0]}`))
@@ -235,8 +260,8 @@ export async function buildOutputs(
     // Theme: emit the brand's mode of every multi-mode collection; the single-mode
     // collections are only there so that aliases into them resolve.
     const merged = mergeSources([
-      ...singleMode.map((c) => sourceOf(c, c.modes[0])),
-      ...brandCollections.map((c) => sourceOf(c, brand)),
+      ...singleMode.map((c) => source(c, c.modes[0])),
+      ...brandCollections.map((c) => source(c, brand)),
     ])
     const brandOrigins = new Set(brandCollections.map((c) => `${c.name}.${brand}`))
     const emitted = (dotPath: string) => brandOrigins.has(merged.origins.get(dotPath) ?? '')
@@ -295,5 +320,5 @@ export async function buildOutputs(
 }
 
 const dedupe = (diagnostics: Diagnostic[]) => [
-  ...new Map(diagnostics.map((d) => [`${d.code}|${d.message}`, d])).values(),
+  ...new Map(diagnostics.map((d) => [`${d.code}|${d.message}|${d.file ?? ''}`, d])).values(),
 ]

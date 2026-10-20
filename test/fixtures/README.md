@@ -26,6 +26,6 @@ From `test/fixtures/daisyui/`:
 
 | Command | `brand-ab` | `brand-ab-problems` | `daisyui` |
 |---|---|---|---|
-| `build` | success | success, 1 `broken-reference` warning | success |
+| `build` | success | exit code 1, 2 errors (`dangling-alias`, `circular-alias`), writes nothing (TICKET-119) | success |
 | `lint` | success, 8 warnings | exit code 2, 3 errors | exit code 2, 13 errors |
 | `graph` | success, 4 orphans | success, 1 cycle, 1 dangling alias, 4 orphans | success, no cycles |

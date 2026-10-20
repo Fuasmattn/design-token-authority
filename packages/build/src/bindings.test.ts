@@ -88,6 +88,23 @@ describe('cssBindings', () => {
     expect(bindings.some((b) => b.collection === 'Theme')).toBe(false)
   })
 
+  it('binds the tokens that resolve when others have broken aliases, and returns the errors', async () => {
+    // dta diff reads the CSS of a base that may have such an error (a PR that fixes it).
+    const broken = modelFrom({
+      'Primitives.Value.json': { blueprint: { '600': color('#2f55d4') } },
+      'Theme.BrandA.json': { action: { bg: color('{blueprint.600}'), fg: color('{nope}') } },
+      'Theme.BrandB.json': { action: { bg: color('{blueprint.600}'), fg: color('#ffffff') } },
+    })
+    const { bindings, diagnostics } = await cssBindings(broken, { brands: ['BrandA', 'BrandB'] })
+    expect(diagnostics).toMatchObject([{ severity: 'error', code: 'dangling-alias' }])
+    expect(bindings.map((b) => `${b.mode} ${b.name}`).sort()).toEqual([
+      'BrandA action.bg',
+      'BrandB action.bg',
+      'BrandB action.fg',
+      'Value blueprint.600',
+    ])
+  })
+
   it('follows a custom CSS output folder', async () => {
     const { bindings } = await cssBindings(model, { css: { outDir: 'styles/' } })
     expect(bindings.map((b) => b.name)).toContain('space.2')

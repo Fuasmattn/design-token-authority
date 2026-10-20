@@ -18,6 +18,10 @@ sidebar:
 | `output/tailwind/tailwind.tokens.ts`         | Tailwind v3 `theme.extend` object (`export const tokens`)                                   |
 | `output/tailwind/<brand>/tailwind.tokens.ts` | The same for one brand, resolved                                                            |
 
+## When the build fails
+
+An alias that points at a token that does not exist, or aliases that point at each other in a circle, have no value to write: in CSS they would become `var()` references to themselves or a literal `{Colors.…}`, which the files would show and the browser would drop. So `dta build` treats them as errors, the same ones `dta lint` reports (`no-dangling-aliases`, `no-circular-aliases`): it prints them, writes **no file** and exits with 1. A folder from an earlier build is left as it was, never partly rebuilt. See [Lint rules](/reference/lint-rules/#broken-aliases-fail-the-build) for the output.
+
 ## Choosing outputs
 
 By default `dta build` writes all four outputs. `outputs.formats` lists the ones you want; the others are not written:

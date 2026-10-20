@@ -537,6 +537,48 @@ describe.skipIf(!enabled)('playground on the built site', () => {
     60_000,
   )
 
+  it.each([1280, 390] as const)(
+    'at %i px the Outputs tab shows the build errors of the example with problems, and no files (TICKET-119)',
+    async (width) => {
+      const { context, page, errors } = await open(width, 'light')
+      try {
+        await page.getByRole('button', { name: 'Example with problems' }).click()
+        await page.getByRole('table', { name: 'Structure' }).waitFor()
+        await page.getByRole('button', { name: 'build outputs' }).click()
+        const build = page.locator('.dta-findings', {
+          has: page.getByRole('heading', { name: 'Build', level: 3 }),
+        })
+        await build.waitFor()
+        expect(await page.getByRole('tab', { selected: true }).textContent()).toBe('Outputs · 0')
+        expect(
+          await page.getByRole('list', { name: 'Summary' }).getByRole('listitem').allTextContents(),
+        ).toContain('build failed')
+        expect(await build.locator('.dta-findings__summary').textContent()).toBe(
+          'The build has errors: dta build writes no files until they are fixed.',
+        )
+        expect(await build.locator('.dta-findings__summary').getAttribute('data-outcome')).toBe(
+          'failed',
+        )
+        // The lines dta build prints, with the website's link instead of the repository path
+        expect(await build.locator('.dta-findings__line').allTextContents()).toEqual([
+          'error [dangling-alias] Alias {Colors.Foundation.Orange.550} references non-existent token "Colors.Foundation.Orange.550". (Brand(Alias).BrandB.json) See the Lint rules reference.',
+          'error [circular-alias] Circular alias chain: Brand(Alias).BrandA/Colors/Surface/Muted → Brand(Alias).BrandA/Colors/Text/Muted → Brand(Alias).BrandA/Colors/Surface/Muted. (Brand(Alias).BrandA.json) See the Lint rules reference.',
+        ])
+        const links = build.getByRole('link', { name: 'Lint rules reference' })
+        expect(await links.count()).toBe(2)
+        expect(await links.first().getAttribute('href')).toBe('/reference/lint-rules/')
+        // No files and nothing to download: dta build writes none either
+        expect(await page.locator('.dta-outputs__file').count()).toBe(0)
+        expect(await page.getByRole('button', { name: 'Download all (.zip)' }).count()).toBe(0)
+        expect(await page.evaluate(OVERFLOW), 'build errors').toEqual([])
+        expect(errors).toEqual([])
+      } finally {
+        await context.close()
+      }
+    },
+    60_000,
+  )
+
   it('keeps the tab bar at the top of a phone screen while the view scrolls', async () => {
     const { context, page } = await open(390, 'light')
     try {

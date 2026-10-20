@@ -8,7 +8,7 @@ sidebar:
 The two commands that belong in every pipeline:
 
 - `dta lint` exits with **2** when it finds errors (dangling or circular aliases, default mode names, rules you set to `error`). Warnings print but exit with 0.
-- `dta build` exits with **1** when the token files cannot be read or built, and writes the outputs otherwise.
+- `dta build` exits with **1** when the token files cannot be read or built, among them a dangling or circular alias, and then writes nothing; otherwise it writes the outputs.
 
 All exit codes: [Exit codes](/reference/exit-codes/).
 

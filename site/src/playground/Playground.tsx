@@ -116,8 +116,15 @@ interface Built extends BuildResult {
   formats: string
 }
 
-/** What the summary says about the outputs: their count once built, else the way to build them. */
-function summaryParts(result: PlaygroundResult, outputs: number | undefined): SummaryPart[] {
+/**
+ * What the summary says about the outputs: their count once built, that the build failed (broken
+ * aliases, TICKET-119: no files), else the way to build them.
+ */
+function summaryParts(
+  result: PlaygroundResult,
+  outputs: number | undefined,
+  failed: boolean,
+): SummaryPart[] {
   const { structure, lint } = result
   if (!structure || !lint) return []
   const parts: SummaryPart[] = [
@@ -132,7 +139,11 @@ function summaryParts(result: PlaygroundResult, outputs: number | undefined): Su
   parts.push({ text: plural(structure.tokens, 'token'), target: 'structure' })
   parts.push({ text: lint.counts, target: 'lint' })
   parts.push({
-    text: outputs === undefined ? 'build outputs' : plural(outputs, 'output file'),
+    text: failed
+      ? 'build failed'
+      : outputs === undefined
+        ? 'build outputs'
+        : plural(outputs, 'output file'),
     target: 'outputs',
   })
   return parts
@@ -478,7 +489,7 @@ export default function Playground() {
       {structure && lint && (
         <>
           <SummaryLine
-            parts={summaryParts(result, outputCount)}
+            parts={summaryParts(result, outputCount, failed)}
             onSelect={(target) => {
               if (target !== view) transition(() => select(target), 'dta-tabs')
               document.getElementById(tabId(ID, target))?.focus()
@@ -536,7 +547,7 @@ export default function Playground() {
                       selected={formats}
                       onChange={(next) => setFormats(next as OutputFormat[])}
                     >
-                      {formats.length > 0 && (
+                      {formats.length > 0 && !failed && (
                         <button
                           type="button"
                           class="dta-button primary"
@@ -556,7 +567,7 @@ export default function Playground() {
                       <p class="pg-hint" role="status">
                         Building the outputs with <code>@dta/build</code>, in your browser…
                       </p>
-                    ) : (
+                    ) : failed ? null : (
                       <p class="pg-hint" role="status">
                         {plural(outputFiles.length, 'file')} as <code>dta build</code> writes them.
                         Select one to see it in full; “Download all” adds <code>{CONFIG_FILE}</code>{' '}
@@ -592,7 +603,11 @@ export default function Playground() {
                     {formats.length > 0 && (
                       <CliHandoff
                         idPrefix={`${ID}-cli`}
-                        intro="The same files on your machine: the generated config carries the choices above."
+                        intro={
+                          failed
+                            ? 'Once the errors are fixed, dta build writes the files on your machine: the generated config carries the choices above.'
+                            : 'The same files on your machine: the generated config carries the choices above.'
+                        }
                         config={{
                           name: CONFIG_FILE,
                           size: formatSize(byteLength(config)),

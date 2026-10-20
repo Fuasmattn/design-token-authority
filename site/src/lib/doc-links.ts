@@ -15,4 +15,5 @@ export interface DocLink {
 
 export const DOC_LINKS: Readonly<Record<DocId, DocLink>> = {
   'token-files': { href: '/reference/token-files/', label: 'Token files reference' },
+  'lint-rules': { href: '/reference/lint-rules/', label: 'Lint rules reference' },
 }

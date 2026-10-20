@@ -87,6 +87,9 @@ export async function runBuild(context: CommandContext): Promise<number> {
     ;(diagnostic.severity === 'error' ? ui.log.error : ui.log.warn)(formatDiagnostic(diagnostic))
   }
   if (hasErrors(problems)) {
+    // All or nothing (TICKET-119): a folder with some files rebuilt and others left from an
+    // earlier build would look fine and be wrong, so nothing is written until the errors are fixed.
+    ui.log.message('Nothing was written: fix the errors above and build again.')
     ui.outro(pc.red('Build failed.'))
     return 1
   }

@@ -100,11 +100,36 @@ describe('buildOutputs: base layer', () => {
     expect(css).not.toContain('--color-red')
   })
 
-  it('reports aliases to tokens that do not exist as warnings', async () => {
+  it('reports an alias to a token that does not exist as an error and leaves the token out', async () => {
     const model = modelFrom({
-      'Base.Value.json': { Link: { $type: 'color', $value: '{Nowhere.Fast}' } },
+      'Base.Value.json': {
+        Link: { $type: 'color', $value: '{Nowhere.Fast}' },
+        Red: { $type: 'color', $value: '#ff0000' },
+      },
     })
-    const { diagnostics } = await buildOutputs(model, {})
+    const { files, diagnostics } = await buildOutputs(model, {})
+    expect(diagnostics).toEqual([
+      {
+        severity: 'error',
+        code: 'dangling-alias',
+        message: 'Alias {Nowhere.Fast} references non-existent token "Nowhere.Fast"',
+        file: 'Base.Value.json',
+        path: ['Link'],
+        docs: 'lint-rules',
+      },
+    ])
+    for (const file of files) {
+      expect(file.content, file.path).not.toMatch(/link|Link|Nowhere/)
+      expect(file.content, file.path).toMatch(/red|Red/)
+    }
+  })
+
+  it('still only warns about an alias into a collection the build leaves out', async () => {
+    const model = modelFrom({
+      'Base.Value.json': { Red: { $type: 'color', $value: '#ff0000' } },
+      'Other.Value.json': { Link: { $type: 'color', $value: '{Red}' } },
+    })
+    const { diagnostics } = await buildOutputs(model, { collections: ['Other'] })
     expect(diagnostics).toMatchObject([
       { severity: 'warning', code: 'broken-reference', path: ['Link'] },
     ])
@@ -203,14 +228,45 @@ describe('buildOutputs: brand themes', () => {
     expect(diagnostics).toEqual([])
   })
 
-  it('warns once about an alias that no layer defines', async () => {
+  it('reports an alias that no layer defines once per file, as dta lint does', async () => {
     const model = modelFrom({
       'Base.Value.json': { Color: { Red: { $type: 'color', $value: '#ff0000' } } },
       'Brand.A.json': { Accent: { $type: 'color', $value: '{Missing.Thing}' } },
       'Brand.B.json': { Accent: { $type: 'color', $value: '{Missing.Thing}' } },
     })
     const { diagnostics } = await buildOutputs(model, { brands: ['A'] })
-    expect(diagnostics).toMatchObject([{ code: 'broken-reference', path: ['Accent'] }])
+    expect(diagnostics).toMatchObject([
+      { severity: 'error', code: 'dangling-alias', path: ['Accent'], file: 'Brand.A.json' },
+      { severity: 'error', code: 'dangling-alias', path: ['Accent'], file: 'Brand.B.json' },
+    ])
+  })
+
+  it('reports a cycle as an error and leaves out its tokens and the aliases that run into it', async () => {
+    const model = modelFrom({
+      'Base.Value.json': { Color: { Red: { $type: 'color', $value: '#ff0000' } } },
+      'Brand.A.json': {
+        Ping: { $type: 'color', $value: '{Pong}' },
+        Pong: { $type: 'color', $value: '{Ping}' },
+        Echo: { $type: 'color', $value: '{Ping}' },
+        Fine: { $type: 'color', $value: '{Color.Red}' },
+      },
+      'Brand.B.json': { Fine: { $type: 'color', $value: '#00ff00' } },
+    })
+    const { files, diagnostics } = await buildOutputs(model, { brands: ['A', 'B'] })
+    expect(diagnostics).toEqual([
+      {
+        severity: 'error',
+        code: 'circular-alias',
+        message: 'Circular alias chain: Brand.A/Ping → Brand.A/Pong → Brand.A/Ping',
+        file: 'Brand.A.json',
+        path: ['Ping'],
+        docs: 'lint-rules',
+      },
+    ])
+    expect(find(files, 'output/css/themes/a.css')).toBe(
+      '/**\n * Do not edit directly, this file was auto-generated.\n */\n\n[data-brand="a"] {\n  --fine: var(--color-red);\n}\n',
+    )
+    for (const file of files) expect(file.content, file.path).not.toMatch(/ping|pong|echo/i)
   })
 
   it('handles a brand token that shadows a primitive by aliasing its own path', async () => {
@@ -385,5 +441,48 @@ describe('buildOutputs: purity', () => {
       process.chdir(cwd)
       fs.rmSync(dir, { recursive: true, force: true })
     }
+  })
+})
+
+describe('buildOutputs: broken aliases (TICKET-119, the brand-ab-problems fixture)', () => {
+  const brands = ['BrandA', 'BrandB']
+
+  it('reports the dangling and the circular alias as errors, worded as dta lint words them', async () => {
+    const { diagnostics } = await buildOutputs(fixtureModel('brand-ab-problems'), { brands })
+    expect(diagnostics.map((d) => [d.severity, d.code, d.message, d.file])).toEqual([
+      [
+        'error',
+        'dangling-alias',
+        'Alias {Colors.Foundation.Orange.550} references non-existent token "Colors.Foundation.Orange.550"',
+        'Brand(Alias).BrandB.json',
+      ],
+      [
+        'error',
+        'circular-alias',
+        'Circular alias chain: Brand(Alias).BrandA/Colors/Surface/Muted → Brand(Alias).BrandA/Colors/Text/Muted → Brand(Alias).BrandA/Colors/Surface/Muted',
+        'Brand(Alias).BrandA.json',
+      ],
+    ])
+  })
+
+  it('writes no broken declaration into any output', async () => {
+    const { files } = await buildOutputs(fixtureModel('brand-ab-problems'), { brands })
+    expect(new Set(files.map((file) => file.format))).toEqual(new Set(OUTPUT_FORMATS))
+    for (const file of files) {
+      // No unresolved alias, in CSS, Tailwind v4/v3 or JS
+      expect(file.content, file.path).not.toMatch(/\{[A-Z][^{}]*\.[^{}]*\}/)
+      // No custom property that refers to itself
+      for (const [, name, value] of file.content.matchAll(/(--[\w-]+):\s*([^;]+);/g)) {
+        expect(value, `${file.path} ${name}`).not.toContain(`var(${name})`)
+      }
+    }
+    const branda = find(files, 'output/css/themes/branda.css') ?? ''
+    const brandb = find(files, 'output/css/themes/brandb.css') ?? ''
+    expect(branda).not.toMatch(/muted/i)
+    expect(brandb).not.toMatch(/accent/i)
+    // The tokens that resolve are still there: the files are not what dta build writes (it
+    // writes nothing while there are errors), but what dta diff reads.
+    expect(brandb).toContain('--colors-surface-muted: var(--colors-foundation-gray-100);')
+    expect(branda).toContain('--colors-brand-accent:')
   })
 })

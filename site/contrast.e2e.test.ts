@@ -2,7 +2,8 @@
  * AAA on the rendered pages: every text node of the landing page and the playground (empty, the
  * paste field, after the example, the detail panel open beside the view or as the bottom sheet, a
  * lint finding open, the "Example with problems" with its rules open and a finding stepped to with
- * "Next finding" (TICKET-113), an unknown export with its docs link (TICKET-114), after invalid input, the Outputs view, an output file's preview, a
+ * "Next finding" (TICKET-113), an unknown export with its docs link (TICKET-114), the build errors of
+ * the example with problems (TICKET-119), after invalid input, the Outputs view, an output file's preview, a
  * copied file; both themes) and of every
  * story (each renders Light and Graphite side by side) reaches 7:1 against its effective
  * background, 4.5:1 when large (24 px, or 18.66 px bold). The token test checks the pairs the
@@ -251,6 +252,12 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
       await page.getByLabel('Paste JSON').fill('{"Colors": "not tokens"}')
       await page.getByRole('button', { name: 'Check pasted JSON' }).click()
       await page.getByRole('link', { name: 'Token files reference' }).waitFor()
+    },
+    // TICKET-119: the build errors of the example with problems, with their docs links
+    'example with problems, build errors': async (page) => {
+      await page.getByRole('button', { name: 'Example with problems' }).click()
+      await page.getByRole('tab', { name: /^Outputs/ }).click()
+      await page.getByRole('link', { name: 'Lint rules reference' }).first().waitFor()
     },
     'invalid input': async (page) => {
       await page.getByRole('button', { name: 'Paste JSON instead' }).click()

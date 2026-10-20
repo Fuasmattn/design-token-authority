@@ -52,7 +52,7 @@ export type DiagnosticSeverity = 'error' | 'warning'
  * A page of DTA's documentation a diagnostic points to. Each surface renders it its own way:
  * the CLI prints the repository path (`DOC_PATHS`), the website links its own page.
  */
-export type DocId = 'token-files'
+export type DocId = 'token-files' | 'lint-rules'
 
 export interface Diagnostic {
   severity: DiagnosticSeverity

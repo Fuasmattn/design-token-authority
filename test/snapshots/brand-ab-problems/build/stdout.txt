@@ -1,30 +1,10 @@
 T   ⚒  dta build 
 |
-!  warning [broken-reference] "Colors.Brand.Accent" aliases "Colors.Foundation.Orange.550", which does not exist.
+x  error [dangling-alias] Alias {Colors.Foundation.Orange.550} references non-existent token "Colors.Foundation.Orange.550". See site/src/content/docs/reference/lint-rules.mdx. (Brand(Alias).BrandB.json)
 |
-o  Base layer complete
+x  error [circular-alias] Circular alias chain: Brand(Alias).BrandA/Colors/Surface/Muted → Brand(Alias).BrandA/Colors/Text/Muted → Brand(Alias).BrandA/Colors/Surface/Muted. See site/src/content/docs/reference/lint-rules.mdx. (Brand(Alias).BrandA.json)
 |
-o  Brand BrandA complete
+|  Nothing was written: fix the errors above and build again.
 |
-o  Brand BrandB complete
-|
-o  Shared outputs complete
-|
-o  Generated files ---------------------------+
-|                                             |
-|  output/css/base.css                        |
-|  output/css/themes/branda.css               |
-|  output/tailwind/branda/tailwind.tokens.ts  |
-|  output/tailwind/branda/tailwind.css        |
-|  output/css/themes/brandb.css               |
-|  output/tailwind/brandb/tailwind.tokens.ts  |
-|  output/tailwind/brandb/tailwind.css        |
-|  output/css/variables.css                   |
-|  output/js/colorpalette.js                  |
-|  output/tailwind/tailwind.tokens.ts         |
-|  output/tailwind/tailwind.css               |
-|                                             |
-+---------------------------------------------+
-|
-—  Build complete!
+—  Build failed.
 

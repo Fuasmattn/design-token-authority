@@ -106,6 +106,41 @@ describe('dta build', () => {
     expect(exists('output')).toBe(false)
   })
 
+  it('fails on a dangling or circular alias, worded as dta lint, and writes nothing', async () => {
+    project(
+      {
+        'Base.Value.json': { Blue: color('#0000ff') },
+        'Brand.A.json': { Primary: color('{Blue}'), Ping: color('{Pong}'), Pong: color('{Ping}') },
+        'Brand.B.json': { Primary: color('{Red}'), Ping: color('#000000'), Pong: color('#ffffff') },
+      },
+      { brands: ['A', 'B'], context: { out: 'DESIGN.md' } },
+    )
+    const { exitCode, stdout } = await build()
+    expect(exitCode).toBe(1)
+    expect(stdout).toContain(
+      'error [dangling-alias] Alias {Red} references non-existent token "Red". See site/src/content/docs/reference/lint-rules.mdx. (Brand.B.json)',
+    )
+    expect(stdout).toContain(
+      'error [circular-alias] Circular alias chain: Brand.A/Ping → Brand.A/Pong → Brand.A/Ping.',
+    )
+    expect(stdout).toContain('Nothing was written: fix the errors above and build again.')
+    expect(stdout).toContain('Build failed.')
+    expect(exists('output')).toBe(false)
+    expect(exists('DESIGN.md')).toBe(false)
+  })
+
+  it('leaves the files of an earlier build as they were when a build fails', async () => {
+    project(tokens, { brands: ['A', 'B'] })
+    expect((await build()).exitCode).toBe(0)
+    const before = fs.readFileSync(path.join(dir, 'output/css/themes/b.css'), 'utf-8')
+    fs.writeFileSync(
+      path.join(dir, 'tokens', 'Brand.B.json'),
+      JSON.stringify({ Primary: color('{Nowhere}') }),
+    )
+    expect((await build()).exitCode).toBe(1)
+    expect(fs.readFileSync(path.join(dir, 'output/css/themes/b.css'), 'utf-8')).toBe(before)
+  })
+
   it('warns about a brand that does not exist and still builds', async () => {
     project(tokens, { brands: ['A', 'Nope'] })
     const { exitCode, stdout } = await build()

@@ -9,6 +9,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import type { OutputFormat } from '@dta/build'
+import { formatDiagnostic } from '@dta/core'
 import { loadConfig, runCli } from '@dta/cli'
 import { unzipSync, strFromU8 } from 'fflate'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -120,6 +121,20 @@ describe('playground outputs = dta build', () => {
       snapshot,
     )
   })
+
+  it('shows for the example with problems the errors `dta build` prints, and the CLI writes nothing', async () => {
+    const files = tokenFiles('brand-ab-problems')
+    const { built, config } = await playground(files, ALL_FORMATS)
+    const errors = built.diagnostics.filter((d) => d.severity === 'error')
+    expect(errors.map((d) => d.code)).toEqual(['dangling-alias', 'circular-alias'])
+    expect(built.diagnostics).toEqual(errors)
+
+    const cwd = project(config, files)
+    const { code, out } = await cli(cwd, 'build')
+    expect(code, out).toBe(1)
+    for (const error of errors) expect(out).toContain(formatDiagnostic(error))
+    expect(fs.existsSync(path.join(cwd, 'output'))).toBe(false)
+  }, 60_000)
 
   it('gives the same files for a plugin export as `dta pull --from-file` and `dta build`', async () => {
     const primitives = tokenFiles('brand-ab').find((f) => f.fileName === 'Primitives.Value.json')

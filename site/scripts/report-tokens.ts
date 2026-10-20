@@ -10,7 +10,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { buildOutputs } from '@dta/build'
-import { parseTokenFiles } from '@dta/core'
+import { formatDiagnostic, hasErrors, parseTokenFiles } from '@dta/core'
 import config from '../dta.config.js'
 
 const siteDir = path.resolve(import.meta.dirname, '..')
@@ -41,7 +41,11 @@ export async function reportTokensModule(): Promise<string> {
     .sort()
     .map((fileName) => ({ fileName, content: fs.readFileSync(path.join(dir, fileName), 'utf8') }))
   const { model } = parseTokenFiles(files)
-  const { files: outputs } = await buildOutputs(model, { brands: config.brands })
+  const { files: outputs, diagnostics } = await buildOutputs(model, { brands: config.brands })
+  // As `dta build`: no CSS from tokens with errors (a broken alias leaves its token out).
+  if (hasErrors(diagnostics)) {
+    throw new Error(diagnostics.map((d) => formatDiagnostic(d)).join('\n'))
+  }
   const pick = (name: string) => {
     const file = outputs.find((f) => f.path === `output/css/${name}`)
     if (!file) throw new Error(`dta build wrote no ${name}`)
