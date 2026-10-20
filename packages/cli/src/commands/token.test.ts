@@ -39,7 +39,7 @@ describe('dta token get', () => {
     expect(stdout).toMatch(
       /BrandA\s+#0057b8\s+Colors\.Brand\.Primary → Colors\.Foundation\.Blue\.500/,
     )
-    expect(stdout).toMatch(/BrandB\s+#2e9e5b/)
+    expect(stdout).toMatch(/BrandB\s+#3d5a80/)
     expect(stdout).toContain('var(--colors-brand-primary)')
     expect(stdout).toContain('Tailwind  --color-brand-primary')
   })

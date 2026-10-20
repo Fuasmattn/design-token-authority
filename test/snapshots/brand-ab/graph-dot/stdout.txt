@@ -46,9 +46,9 @@ digraph TokenDependencies {
     color="#e8f5e9";
     "Primitives.Value/Colors/Foundation/Blue/500" [label="Colors/Foundation/Blue/500"];
     "Primitives.Value/Colors/Foundation/Blue/700" [label="Colors/Foundation/Blue/700"];
-    "Primitives.Value/Colors/Foundation/Green/500" [label="Colors/Foundation/Green/500"];
-    "Primitives.Value/Colors/Foundation/Green/700" [label="Colors/Foundation/Green/700"];
-    "Primitives.Value/Colors/Foundation/Orange/500" [label="Colors/Foundation/Orange/500"];
+    "Primitives.Value/Colors/Foundation/Navy/500" [label="Colors/Foundation/Navy/500"];
+    "Primitives.Value/Colors/Foundation/Navy/700" [label="Colors/Foundation/Navy/700"];
+    "Primitives.Value/Colors/Foundation/Sky/500" [label="Colors/Foundation/Sky/500"];
     "Primitives.Value/Colors/Foundation/Gray/100" [label="Colors/Foundation/Gray/100"];
     "Primitives.Value/Colors/Foundation/Gray/500" [label="Colors/Foundation/Gray/500"];
     "Primitives.Value/Colors/Foundation/Gray/900" [label="Colors/Foundation/Gray/900"];
@@ -107,7 +107,7 @@ digraph TokenDependencies {
 
   "Brand(Alias).BrandA/Colors/Brand/Primary" -> "Primitives.Value/Colors/Foundation/Blue/500";
   "Brand(Alias).BrandA/Colors/Brand/Primary Dark" -> "Primitives.Value/Colors/Foundation/Blue/700";
-  "Brand(Alias).BrandA/Colors/Brand/Accent" -> "Primitives.Value/Colors/Foundation/Orange/500";
+  "Brand(Alias).BrandA/Colors/Brand/Accent" -> "Primitives.Value/Colors/Foundation/Sky/500";
   "Brand(Alias).BrandA/Colors/Surface/Default" -> "Primitives.Value/Colors/Foundation/White";
   "Brand(Alias).BrandA/Colors/Surface/Muted" -> "Primitives.Value/Colors/Foundation/Gray/100";
   "Brand(Alias).BrandA/Colors/Text/Default" -> "Primitives.Value/Colors/Foundation/Gray/900";
@@ -116,9 +116,9 @@ digraph TokenDependencies {
   "Brand(Alias).BrandA/Typography/Body/Family" -> "Primitives.Value/Typography/FontFamily/Sans";
   "Brand(Alias).BrandA/Effects/overlay/Opacity" -> "Primitives.Value/Effects/opacity/50";
   "Brand(Alias).BrandA/Effects/shadow/Blur" -> "Primitives.Value/Effects/blur/md";
-  "Brand(Alias).BrandB/Colors/Brand/Primary" -> "Primitives.Value/Colors/Foundation/Green/500";
-  "Brand(Alias).BrandB/Colors/Brand/Primary Dark" -> "Primitives.Value/Colors/Foundation/Green/700";
-  "Brand(Alias).BrandB/Colors/Brand/Accent" -> "Primitives.Value/Colors/Foundation/Orange/500";
+  "Brand(Alias).BrandB/Colors/Brand/Primary" -> "Primitives.Value/Colors/Foundation/Navy/500";
+  "Brand(Alias).BrandB/Colors/Brand/Primary Dark" -> "Primitives.Value/Colors/Foundation/Navy/700";
+  "Brand(Alias).BrandB/Colors/Brand/Accent" -> "Primitives.Value/Colors/Foundation/Sky/500";
   "Brand(Alias).BrandB/Colors/Surface/Default" -> "Primitives.Value/Colors/Foundation/White";
   "Brand(Alias).BrandB/Colors/Surface/Muted" -> "Primitives.Value/Colors/Foundation/Gray/100";
   "Brand(Alias).BrandB/Colors/Text/Default" -> "Primitives.Value/Colors/Foundation/Gray/900";

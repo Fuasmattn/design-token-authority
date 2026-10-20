@@ -112,7 +112,7 @@ describe('playground analysis', () => {
     const [dangling, circular, mode] = lint.rules.map((rule) => rule.findings[0])
     expect(findingChain(model, dangling.tokenPath)).toEqual({
       name: 'Colors.Brand.Accent',
-      detail: '"Colors.Brand.Accent" aliases "Colors.Foundation.Orange.550", which does not exist.',
+      detail: '"Colors.Brand.Accent" aliases "Colors.Foundation.Sky.550", which does not exist.',
     })
     expect(findingChain(model, circular.tokenPath)?.detail).toMatch(/circular/i)
     expect(circular.file).toBe('')
@@ -253,7 +253,7 @@ describe('playground analysis', () => {
         fileName: 'Brand.BrandA.json',
         content: JSON.stringify({
           Primary: { $type: 'color', $value: '{Blue}' },
-          Accent: { $type: 'color', $value: '{Orange}' },
+          Accent: { $type: 'color', $value: '{Sky}' },
         }),
       },
     ]
@@ -265,7 +265,7 @@ describe('playground analysis', () => {
     const chain = result.model && findingChain(result.model, found.tokenPath)
     expect(chain).toEqual({
       name: 'Accent',
-      detail: '"Accent" aliases "Orange", which does not exist.',
+      detail: '"Accent" aliases "Sky", which does not exist.',
     })
     expect(result.model && findingChain(result.model, 'Brand.BrandA/Primary')).toEqual({
       name: 'Primary',

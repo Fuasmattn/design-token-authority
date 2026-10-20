@@ -1,7 +1,8 @@
 ---
 /**
- * A small upper-case label that qualifies what is next to it: `example` (example data, signal),
- * `coming` (not released yet) or `note` (a hint such as "most teams"), both in the action colour.
+ * A small upper-case label that qualifies what is next to it: `example` (example data, a neutral
+ * ink outline: example content never uses the system colours, TICKET-122), `coming` (not released
+ * yet) or `note` (a hint such as "most teams"), both in the action colour.
  */
 interface Props {
   tone: 'example' | 'coming' | 'note'
@@ -9,10 +10,7 @@ interface Props {
 const { tone } = Astro.props
 ---
 
-<span
-  class:list={['dta-badge', tone]}
-  data-contrast-exception={tone === 'example' ? 'redline label' : undefined}><slot /></span
->
+<span class:list={['dta-badge', tone]}><slot /></span>
 
 <style>
   .dta-badge {
@@ -30,8 +28,8 @@ const { tone } = Astro.props
     vertical-align: middle;
   }
   .example {
-    background: var(--signal-bg);
-    color: var(--signal-fg);
+    border: var(--stroke-hairline) solid var(--border-strong);
+    color: var(--fg-default);
   }
   .coming,
   .note {

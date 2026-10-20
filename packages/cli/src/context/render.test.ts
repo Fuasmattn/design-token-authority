@@ -38,10 +38,10 @@ describe('renderDesignMd', () => {
 
   it('lists the semantic tokens with CSS, Tailwind and per-brand values, never primitives', () => {
     expect(text).toContain(
-      '| Colors.Brand.Primary | `var(--colors-brand-primary)` | `--color-brand-primary` | BrandA #0057b8, BrandB #2e9e5b |',
+      '| Colors.Brand.Primary | `var(--colors-brand-primary)` | `--color-brand-primary` | BrandA #0057b8, BrandB #3d5a80 |',
     )
     expect(text).toContain(
-      '| Colors.Brand.Accent | `var(--colors-brand-accent)` | `--color-brand-accent` | #e8731a |',
+      '| Colors.Brand.Accent | `var(--colors-brand-accent)` | `--color-brand-accent` | #3b8fd9 |',
     )
     expect(text).not.toContain('| Colors.Foundation.')
     expect(text).toContain('| Primitives | Value | 26 | no: primitives, reached through aliases |')

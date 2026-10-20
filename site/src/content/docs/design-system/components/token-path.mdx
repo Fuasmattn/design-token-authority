@@ -8,7 +8,7 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-Token paths are long and have no spaces: `Brand(Alias).BrandA/Colors/Surface/Muted`, `{Colors.Foundation.Orange.550}`, `output/tailwind/themes/branda/tailwind.tokens.ts`. Left alone, a browser either lets them run out of their box or, with `overflow-wrap: anywhere`, breaks them wherever the line ends ("Surface/Mu" and "ted" on the next line), so a segment is torn apart and reads as two names. Token path is the one shared way to render them: a line may break after each `/` and each `.` between two parts of a name, and every segment stays whole.
+Token paths are long and have no spaces: `Brand(Alias).BrandA/Colors/Surface/Muted`, `{Colors.Foundation.Sky.550}`, `output/tailwind/themes/branda/tailwind.tokens.ts`. Left alone, a browser either lets them run out of their box or, with `overflow-wrap: anywhere`, breaks them wherever the line ends ("Surface/Mu" and "ted" on the next line), so a segment is torn apart and reads as two names. Token path is the one shared way to render them: a line may break after each `/` and each `.` between two parts of a name, and every segment stays whole.
 
 ## When to use
 

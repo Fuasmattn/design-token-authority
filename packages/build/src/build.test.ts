@@ -453,7 +453,7 @@ describe('buildOutputs: broken aliases (TICKET-119, the brand-ab-problems fixtur
       [
         'error',
         'dangling-alias',
-        'Alias {Colors.Foundation.Orange.550} references non-existent token "Colors.Foundation.Orange.550"',
+        'Alias {Colors.Foundation.Sky.550} references non-existent token "Colors.Foundation.Sky.550"',
         'Brand(Alias).BrandB.json',
       ],
       [

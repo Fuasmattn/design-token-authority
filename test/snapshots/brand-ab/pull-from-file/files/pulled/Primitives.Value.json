@@ -30,10 +30,10 @@
           }
         }
       },
-      "Green": {
+      "Navy": {
         "500": {
           "$type": "color",
-          "$value": "#2e9e5b",
+          "$value": "#3d5a80",
           "$extensions": {
             "com.figma": {
               "hiddenFromPublishing": false,
@@ -46,7 +46,7 @@
         },
         "700": {
           "$type": "color",
-          "$value": "#1f7a43",
+          "$value": "#2c4466",
           "$extensions": {
             "com.figma": {
               "hiddenFromPublishing": false,
@@ -58,10 +58,10 @@
           }
         }
       },
-      "Orange": {
+      "Sky": {
         "500": {
           "$type": "color",
-          "$value": "#e8731a",
+          "$value": "#3b8fd9",
           "$extensions": {
             "com.figma": {
               "hiddenFromPublishing": false,

@@ -33,7 +33,7 @@ o  Graph built
 
 | Source | Alias | Target (missing) |
 |--------|-------|-------------------|
-| Brand(Alias).BrandB > Colors/Brand/Accent | {Colors.Foundation.Orange.550} | Colors.Foundation.Orange.550 |
+| Brand(Alias).BrandB > Colors/Brand/Accent | {Colors.Foundation.Sky.550} | Colors.Foundation.Sky.550 |
 
 ## Circular references
 

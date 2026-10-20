@@ -28,9 +28,9 @@ Attribute values: `branda`, `brandb`.
 
 | Token | CSS | Tailwind | Value |
 | --- | --- | --- | --- |
-| Colors.Brand.Accent | `var(--colors-brand-accent)` | `--color-brand-accent` | #e8731a |
-| Colors.Brand.Primary | `var(--colors-brand-primary)` | `--color-brand-primary` | BrandA #0057b8, BrandB #2e9e5b |
-| Colors.Brand.Primary Dark | `var(--colors-brand-primary-dark)` | `--color-brand-primary-dark` | BrandA #003f8a, BrandB #1f7a43 |
+| Colors.Brand.Accent | `var(--colors-brand-accent)` | `--color-brand-accent` | #3b8fd9 |
+| Colors.Brand.Primary | `var(--colors-brand-primary)` | `--color-brand-primary` | BrandA #0057b8, BrandB #3d5a80 |
+| Colors.Brand.Primary Dark | `var(--colors-brand-primary-dark)` | `--color-brand-primary-dark` | BrandA #003f8a, BrandB #2c4466 |
 | Colors.Surface.Default | `var(--colors-surface-default)` | `--color-surface-default` | #ffffff |
 | Colors.Surface.Muted | `var(--colors-surface-muted)` | `--color-surface-muted` | #f3f4f6 |
 | Colors.Text.Default | `var(--colors-text-default)` | `--color-text-default` | #111827 |

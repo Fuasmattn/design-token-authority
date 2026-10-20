@@ -29,7 +29,7 @@ Token Dependency Graph
 
 ⚠ Dangling aliases:
   Brand(Alias).BrandB > Colors/Brand/Accent
-    → {Colors.Foundation.Orange.550} — not found in any token file
+    → {Colors.Foundation.Sky.550} — not found in any token file
 
 ⚠ Circular references:
   Brand(Alias).BrandA/Colors/Surface/Muted → Brand(Alias).BrandA/Colors/Text/Muted → Brand(Alias).BrandA/Colors/Surface/Muted

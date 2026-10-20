@@ -66,7 +66,7 @@
   "Nova": {
     "400": {
       "$type": "color",
-      "$value": "#ff9a4d",
+      "$value": "#86bcff",
       "$description": "Nova, lighter: changed values in token rows.",
       "$extensions": {
         "com.figma": {
@@ -78,8 +78,8 @@
     },
     "500": {
       "$type": "color",
-      "$value": "#ff7a1a",
-      "$description": "Nova: the brand orange, the launch button.",
+      "$value": "#5aa2ff",
+      "$description": "Nova: the brand blue, the launch button.",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -90,8 +90,8 @@
     },
     "600": {
       "$type": "color",
-      "$value": "#e0600a",
-      "$description": "Nova, deeper: the brand orange after the change.",
+      "$value": "#3d87e8",
+      "$description": "Nova, deeper: the brand blue after the change.",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -101,10 +101,10 @@
       }
     }
   },
-  "Mint": {
+  "Ice": {
     "300": {
       "$type": "color",
-      "$value": "#9bebcb",
+      "$value": "#b9d8f7",
       "$description": "Fresh: the accent for ready, open, in orbit.",
       "$extensions": {
         "com.figma": {

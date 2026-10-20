@@ -4,7 +4,7 @@ o  Linting complete.
 |
 |  Brand(Alias).BrandB.json
 |
-|    error Alias {Colors.Foundation.Orange.550} references non-existent token "Colors.Foundation.Orange.550" [no-dangling-aliases]
+|    error Alias {Colors.Foundation.Sky.550} references non-existent token "Colors.Foundation.Sky.550" [no-dangling-aliases]
 |
 |  (unknown file)
 |

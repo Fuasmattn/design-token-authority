@@ -5,9 +5,9 @@
 :root {
   --colors-foundation-blue-500: #0057b8;
   --colors-foundation-blue-700: #003f8a; /** Deep blue */
-  --colors-foundation-green-500: #2e9e5b;
-  --colors-foundation-green-700: #1f7a43;
-  --colors-foundation-orange-500: #e8731a;
+  --colors-foundation-navy-500: #3d5a80;
+  --colors-foundation-navy-700: #2c4466;
+  --colors-foundation-sky-500: #3b8fd9;
   --colors-foundation-gray-100: #f3f4f6;
   --colors-foundation-gray-500: #6b7280;
   --colors-foundation-gray-900: #111827;

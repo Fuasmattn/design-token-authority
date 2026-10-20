@@ -5,7 +5,7 @@
 [data-brand="branda"] {
   --colors-brand-primary: var(--colors-foundation-blue-500);
   --colors-brand-primary-dark: var(--colors-foundation-blue-700);
-  --colors-brand-accent: var(--colors-foundation-orange-500);
+  --colors-brand-accent: var(--colors-foundation-sky-500);
   --colors-surface-default: var(--colors-foundation-white);
   --colors-surface-muted: var(--colors-foundation-gray-100);
   --colors-text-default: var(--colors-foundation-gray-900);

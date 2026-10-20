@@ -78,14 +78,14 @@ describe('diffTokens', () => {
 
   it('lists tokens whose resolved value changed through an alias, with the cause', () => {
     const base = model({
-      'Base.Value.json': { Blue: color('#0000ff'), Green: color('#00ff00') },
-      'Brand.A.json': { Primary: color('{Blue}'), Accent: color('{Green}') },
-      'Brand.B.json': { Primary: color('{Green}'), Accent: color('{Green}') },
+      'Base.Value.json': { Blue: color('#0000ff'), Sky: color('#66aaff') },
+      'Brand.A.json': { Primary: color('{Blue}'), Accent: color('{Sky}') },
+      'Brand.B.json': { Primary: color('{Sky}'), Accent: color('{Sky}') },
     })
     const head = model({
-      'Base.Value.json': { Blue: color('#0000cc'), Green: color('#00ff00') },
+      'Base.Value.json': { Blue: color('#0000cc'), Sky: color('#66aaff') },
       'Brand.A.json': { Primary: color('{Blue}'), Accent: color('{Blue}') },
-      'Brand.B.json': { Primary: color('{Green}'), Accent: color('{Green}') },
+      'Brand.B.json': { Primary: color('{Sky}'), Accent: color('{Sky}') },
     })
     const result = diffTokens(base, head)
     expect(result.changes.map(summary)).toEqual([
@@ -151,14 +151,14 @@ describe('diffTokens', () => {
       'changed Primitives.Value Colors.Foundation.Blue.500',
       'changed Primitives.Value Dimensions.spacing.8',
       'added Primitives.Value Dimensions.radius.pill',
-      'removed Primitives.Value Colors.Foundation.Red.500',
+      'removed Primitives.Value Colors.Foundation.Steel.500',
     ])
     expect(result.changes.filter((c) => c.kind === 'affected').map(summary)).toEqual([
       'affected Brand(Alias).BrandA Colors.Brand.Primary',
       'affected ScreenType.Desktop Spacing.Padding',
     ])
     const accent = result.changes.find((c) => c.name === 'Colors.Brand.Accent')!
-    expect(accent.before).toEqual({ raw: '{Colors.Foundation.Green.700}', resolved: '#1f7a43' })
-    expect(accent.after).toEqual({ raw: '{Colors.Foundation.Orange.500}', resolved: '#e8731a' })
+    expect(accent.before).toEqual({ raw: '{Colors.Foundation.Navy.700}', resolved: '#2c4466' })
+    expect(accent.after).toEqual({ raw: '{Colors.Foundation.Sky.500}', resolved: '#3b8fd9' })
   })
 })

@@ -609,7 +609,7 @@ describe.skipIf(!enabled)('playground on the built site', () => {
         )
         // The lines dta build prints, with the website's link instead of the repository path
         expect(await build.locator('.dta-findings__line').allTextContents()).toEqual([
-          'error [dangling-alias] Alias {Colors.Foundation.Orange.550} references non-existent token "Colors.Foundation.Orange.550". (Brand(Alias).BrandB.json) See the Lint rules reference.',
+          'error [dangling-alias] Alias {Colors.Foundation.Sky.550} references non-existent token "Colors.Foundation.Sky.550". (Brand(Alias).BrandB.json) See the Lint rules reference.',
           'error [circular-alias] Circular alias chain: Brand(Alias).BrandA/Colors/Surface/Muted → Brand(Alias).BrandA/Colors/Text/Muted → Brand(Alias).BrandA/Colors/Surface/Muted. (Brand(Alias).BrandA.json) See the Lint rules reference.',
         ])
         const links = build.getByRole('link', { name: 'Lint rules reference' })
@@ -752,7 +752,7 @@ describe.skipIf(!enabled)('playground on the built site', () => {
       await page.getByRole('button', { name: 'output/css/themes/branda.css', exact: true }).click()
       const panel = page.getByRole('dialog', { name: 'output/css/themes/branda.css' })
       await panel.waitFor()
-      expect(await panel.locator('.dta-detail__kicker').textContent()).toBe('Output · CSS · 746 B')
+      expect(await panel.locator('.dta-detail__kicker').textContent()).toBe('Output · CSS · 743 B')
       expect(await panel.getByRole('region', { name: /^Preview of/ }).textContent()).toBe(
         expected['output/css/themes/branda.css'],
       )

@@ -20,7 +20,7 @@ One finding of each, on the `brand-ab-problems` fixture (the brand-ab tokens wit
 ```txt title="dta lint (test/fixtures/brand-ab-problems)"
 |  Brand(Alias).BrandB.json
 |
-|    error Alias {Colors.Foundation.Orange.550} references non-existent token "Colors.Foundation.Orange.550" [no-dangling-aliases]
+|    error Alias {Colors.Foundation.Sky.550} references non-existent token "Colors.Foundation.Sky.550" [no-dangling-aliases]
 |
 |  (unknown file)
 |
@@ -41,7 +41,7 @@ One finding of each, on the `brand-ab-problems` fixture (the brand-ab tokens wit
 A dangling or a circular alias has no value, so `dta build` fails on the first two rules too: it prints the same message as `dta lint` (one error per alias and per cycle), writes no file at all and exits with 1. Files from an earlier build stay as they were, so the output folder is never half rebuilt. Fix the alias, then build again. On the same fixture:
 
 ```txt title="dta build (test/fixtures/brand-ab-problems)"
-x  error [dangling-alias] Alias {Colors.Foundation.Orange.550} references non-existent token "Colors.Foundation.Orange.550". See site/src/content/docs/reference/lint-rules.mdx. (Brand(Alias).BrandB.json)
+x  error [dangling-alias] Alias {Colors.Foundation.Sky.550} references non-existent token "Colors.Foundation.Sky.550". See site/src/content/docs/reference/lint-rules.mdx. (Brand(Alias).BrandB.json)
 |
 x  error [circular-alias] Circular alias chain: Brand(Alias).BrandA/Colors/Surface/Muted → Brand(Alias).BrandA/Colors/Text/Muted → Brand(Alias).BrandA/Colors/Surface/Muted. See site/src/content/docs/reference/lint-rules.mdx. (Brand(Alias).BrandA.json)
 |

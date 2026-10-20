@@ -68,12 +68,12 @@ describe('planReverts', () => {
     const set = setOf([
       change({ kind: 'changed', name: 'blue.600' }),
       change({ kind: 'affected', name: 'link', causes: ['blue.600'] }),
-      change({ kind: 'affected', name: 'other', causes: ['red.500'] }),
+      change({ kind: 'affected', name: 'other', causes: ['slate.500'] }),
     ])
     const base = [
       binding({ name: 'blue.600', value: '#2f55d4' }),
       binding({ name: 'link', value: 'var(--blue-600)' }),
-      binding({ name: 'other', value: 'var(--red-500)' }),
+      binding({ name: 'other', value: 'var(--slate-500)' }),
     ]
     const { groups } = planReverts(set, base, base)
     expect(groups[0].css.split('\n')).toEqual([
@@ -109,7 +109,7 @@ describe('planReverts', () => {
     const base = [
       binding({ name: 'a', value: '1px' }),
       binding({ name: 'b', value: '2px' }),
-      binding({ name: 'c', collection: 'Theme', mode: 'Light', value: 'red' }),
+      binding({ name: 'c', collection: 'Theme', mode: 'Light', value: 'steelblue' }),
     ]
     const { causes, groups } = planReverts(set, base, base)
     expect(causes.map((c) => c.id)).toEqual([

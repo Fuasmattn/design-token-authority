@@ -80,7 +80,7 @@
       "Primary": {
         "$type": "color",
         "$value": "{Nova.500}",
-        "$description": "The brand orange: the launch button, prices, the active tab.",
+        "$description": "The brand blue: the launch button, prices, the active tab.",
         "$extensions": {
           "com.figma": {
             "hiddenFromPublishing": false,
@@ -93,7 +93,7 @@
     "Accent": {
       "Fresh": {
         "$type": "color",
-        "$value": "{Mint.300}",
+        "$value": "{Ice.300}",
         "$description": "Ready, open, in orbit.",
         "$extensions": {
           "com.figma": {

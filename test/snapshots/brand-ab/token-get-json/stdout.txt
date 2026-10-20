@@ -20,11 +20,11 @@
       "modes": {
         "Brand(Alias)": "BrandB"
       },
-      "raw": "{Colors.Foundation.Green.500}",
-      "value": "#2e9e5b",
+      "raw": "{Colors.Foundation.Navy.500}",
+      "value": "#3d5a80",
       "chain": [
         "Colors.Brand.Primary",
-        "Colors.Foundation.Green.500"
+        "Colors.Foundation.Navy.500"
       ]
     }
   ],

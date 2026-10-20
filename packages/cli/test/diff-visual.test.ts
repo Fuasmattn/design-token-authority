@@ -49,7 +49,7 @@ fs.cpSync('pages', 'dist', { recursive: true })
 fs.writeFileSync(
   'dist/tokens.css',
   [
-    ':root { --brand: ' + base.Brand.$value + '; --green: ' + base.green.$value + '; --purple: ' + base.purple.$value + '; }',
+    ':root { --brand: ' + base.Brand.$value + '; --sky: ' + base.sky.$value + '; --slate: ' + base.slate.$value + '; }',
     theme('A'),
     theme('B'),
   ].join(' '),
@@ -79,12 +79,12 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
     const baseTokens = (brand: string) =>
       JSON.stringify({
         Brand: { $type: 'color', $value: brand },
-        green: { $type: 'color', $value: '#3c7646' },
-        purple: { $type: 'color', $value: '#7a3cc8' },
+        sky: { $type: 'color', $value: '#4c8fd6' },
+        slate: { $type: 'color', $value: '#5a6480' },
       })
     write('tokens/Base.Value.json', baseTokens('#2f55d4'))
-    write('tokens/Theme.A.json', JSON.stringify({ accent: { $type: 'color', $value: '{green}' } }))
-    write('tokens/Theme.B.json', JSON.stringify({ accent: { $type: 'color', $value: '{green}' } }))
+    write('tokens/Theme.A.json', JSON.stringify({ accent: { $type: 'color', $value: '{sky}' } }))
+    write('tokens/Theme.B.json', JSON.stringify({ accent: { $type: 'color', $value: '{sky}' } }))
     // Both themes side by side; only theme A's accent changes on the feature branch.
     write(
       'pages/stories/themes/index.html',
@@ -106,8 +106,8 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
     git('checkout', '-q', '-b', 'feature')
     // A token change (card), a token change in one theme mode (themes), a component change
     // (button), a new story (new).
-    write('tokens/Base.Value.json', baseTokens('#e8632a'))
-    write('tokens/Theme.A.json', JSON.stringify({ accent: { $type: 'color', $value: '{purple}' } }))
+    write('tokens/Base.Value.json', baseTokens('#13213f'))
+    write('tokens/Theme.A.json', JSON.stringify({ accent: { $type: 'color', $value: '{slate}' } }))
     write(
       'pages/stories/button/index.html',
       page('<button style="padding:12px 24px">Save</button>'),
@@ -193,7 +193,9 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
     expect(fs.existsSync(path.join(report, 'diff/text@320.png'))).toBe(false)
     const html = fs.readFileSync(path.join(report, 'index.html'), 'utf8')
     expect(html).toContain('src="diff/card@320.png"')
-    expect(html).toContain('<span class="tag big">Brand</span>')
+    expect(html).toContain(
+      '<span class="tag big" data-contrast-exception="redline label">Brand</span>',
+    )
     expect(fs.readFileSync(path.join(report, 'summary.md'), 'utf8')).toContain(
       '**Fail: unexplained changes above the threshold** · 3 changed · 1 added · 1 unchanged · 2 explained by token changes, 1 unexplained',
     )

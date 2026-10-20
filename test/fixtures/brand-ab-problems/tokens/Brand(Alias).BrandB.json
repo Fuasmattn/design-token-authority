@@ -3,7 +3,7 @@
     "Brand": {
       "Primary": {
         "$type": "color",
-        "$value": "{Colors.Foundation.Green.500}",
+        "$value": "{Colors.Foundation.Navy.500}",
         "$extensions": {
           "com.figma": {
             "hiddenFromPublishing": false,
@@ -16,7 +16,7 @@
       },
       "Primary Dark": {
         "$type": "color",
-        "$value": "{Colors.Foundation.Green.700}",
+        "$value": "{Colors.Foundation.Navy.700}",
         "$extensions": {
           "com.figma": {
             "hiddenFromPublishing": false,
@@ -29,7 +29,7 @@
       },
       "Accent": {
         "$type": "color",
-        "$value": "{Colors.Foundation.Orange.550}",
+        "$value": "{Colors.Foundation.Sky.550}",
         "$extensions": {
           "com.figma": {
             "hiddenFromPublishing": false,

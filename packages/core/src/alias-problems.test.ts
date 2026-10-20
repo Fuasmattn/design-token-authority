@@ -85,7 +85,7 @@ describe('aliasProblems', () => {
     }))
     const result = aliasProblems(analyzeGraph(parseTokenFiles(files).model))
     expect(result.diagnostics.map((d) => `${d.message} (${d.file})`)).toEqual([
-      'Alias {Colors.Foundation.Orange.550} references non-existent token "Colors.Foundation.Orange.550" (Brand(Alias).BrandB.json)',
+      'Alias {Colors.Foundation.Sky.550} references non-existent token "Colors.Foundation.Sky.550" (Brand(Alias).BrandB.json)',
       'Circular alias chain: Brand(Alias).BrandA/Colors/Surface/Muted → Brand(Alias).BrandA/Colors/Text/Muted → Brand(Alias).BrandA/Colors/Surface/Muted (Brand(Alias).BrandA.json)',
     ])
   })

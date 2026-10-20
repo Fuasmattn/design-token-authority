@@ -77,7 +77,7 @@ describe('resolve: aliases through collections', () => {
     const a = resolve(brand, name, { 'Brand(Alias)': 'BrandA' })
     const b = resolve(brand, name, { 'Brand(Alias)': 'BrandB' })
     expect(a).toMatchObject({ ok: true, value: '#0057b8', type: 'color' })
-    expect(b).toMatchObject({ ok: true, value: '#2e9e5b' })
+    expect(b).toMatchObject({ ok: true, value: '#3d5a80' })
     expect(a.chain.map((s) => [s.collection, s.mode])).toEqual([
       ['Brand(Alias)', 'BrandA'],
       ['Primitives', 'Value'],

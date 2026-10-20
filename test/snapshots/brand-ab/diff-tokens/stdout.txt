@@ -6,7 +6,7 @@ Base: `tokens-base` · **3 changed · 1 added · 1 removed · 2 affected**
 
 | Token | Collection · mode | Before | After |
 | --- | --- | --- | --- |
-| `Colors.Brand.Accent` | Brand(Alias) · BrandB | `{Colors.Foundation.Green.700}` → `#1f7a43` | `{Colors.Foundation.Orange.500}` → `#e8731a` |
+| `Colors.Brand.Accent` | Brand(Alias) · BrandB | `{Colors.Foundation.Navy.700}` → `#2c4466` | `{Colors.Foundation.Sky.500}` → `#3b8fd9` |
 | `Colors.Foundation.Blue.500` | Primitives · Value | `#0047a0` | `#0057b8` |
 | `Dimensions.spacing.8` | Primitives · Value | `28` | `32` |
 
@@ -20,7 +20,7 @@ Base: `tokens-base` · **3 changed · 1 added · 1 removed · 2 affected**
 
 | Token | Collection · mode | Was |
 | --- | --- | --- |
-| `Colors.Foundation.Red.500` | Primitives · Value | `#d1342f` |
+| `Colors.Foundation.Steel.500` | Primitives · Value | `#7d8ea3` |
 
 ### Affected through aliases (2)
 

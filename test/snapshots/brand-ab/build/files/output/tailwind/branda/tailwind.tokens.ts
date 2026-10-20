@@ -6,7 +6,7 @@ export const tokens = {
       colors: {
         'brand-primary': '#0057b8',
         'brand-primary-dark': '#003f8a',
-        'brand-accent': '#e8731a',
+        'brand-accent': '#3b8fd9',
         'surface-default': '#ffffff',
         'surface-muted': '#f3f4f6',
         'text-default': '#111827',

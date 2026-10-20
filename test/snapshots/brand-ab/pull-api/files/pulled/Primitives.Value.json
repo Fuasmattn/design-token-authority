@@ -31,10 +31,10 @@
           }
         }
       },
-      "Green": {
+      "Navy": {
         "500": {
           "$type": "color",
-          "$value": "#2e9e5b",
+          "$value": "#3d5a80",
           "$description": "",
           "$extensions": {
             "com.figma": {
@@ -48,7 +48,7 @@
         },
         "700": {
           "$type": "color",
-          "$value": "#1f7a43",
+          "$value": "#2c4466",
           "$description": "",
           "$extensions": {
             "com.figma": {
@@ -61,10 +61,10 @@
           }
         }
       },
-      "Orange": {
+      "Sky": {
         "500": {
           "$type": "color",
-          "$value": "#e8731a",
+          "$value": "#3b8fd9",
           "$description": "",
           "$extensions": {
             "com.figma": {

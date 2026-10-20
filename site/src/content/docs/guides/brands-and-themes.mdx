@@ -18,7 +18,7 @@ A brand (or a theme) is a **mode** of the collection that holds your semantic to
 ```json title="tokens/Brand(Alias).BrandB.json (excerpt)"
 {
   "Colors": {
-    "Brand": { "Primary": { "$type": "color", "$value": "{Colors.Foundation.Green.500}" } }
+    "Brand": { "Primary": { "$type": "color", "$value": "{Colors.Foundation.Navy.500}" } }
   }
 }
 ```
@@ -38,7 +38,7 @@ export default {
 
 ```css title="output/css/themes/brandb.css (excerpt)"
 [data-brand="brandb"] {
-  --colors-brand-primary: var(--colors-foundation-green-500);
+  --colors-brand-primary: var(--colors-foundation-navy-500);
   …
 }
 ```

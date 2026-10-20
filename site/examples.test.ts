@@ -48,11 +48,11 @@ describe('the Orbit Burger example token set', () => {
     expect(main).toHaveLength(change.length)
     const differing = change.filter((line, i) => line !== main[i]).map((line) => line.trim())
     expect(differing).toEqual([
-      '--colors-brand-primary: #e0600a; /** The brand orange: the launch button, prices, the active tab. */',
+      '--colors-brand-primary: #3d87e8; /** The brand blue: the launch button, prices, the active tab. */',
       '--radius-card: 24px; /** Cards and the launch button. */',
     ])
     expect(main.map((line) => line.trim())).toContain(
-      '--colors-brand-primary: #ff7a1a; /** The brand orange: the launch button, prices, the active tab. */',
+      '--colors-brand-primary: #5aa2ff; /** The brand blue: the launch button, prices, the active tab. */',
     )
     // The example's variables never shadow the site's own tokens.
     const siteBase = fs.readFileSync(path.join(import.meta.dirname, 'output/css/base.css'), 'utf8')

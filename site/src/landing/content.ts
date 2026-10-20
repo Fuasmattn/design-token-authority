@@ -84,7 +84,7 @@ export const SCENES = [
     number: '01',
     kicker: 'Something changes',
     heading: 'A change lands as a pull request.',
-    text: 'A rounder card and a slightly deeper brand orange. Made in Figma Variables or in a token file; either way DTA pulls them into the repository as one change.',
+    text: 'A rounder card and a slightly deeper brand blue. Made in Figma Variables or in a token file; either way DTA pulls them into the repository as one change.',
     command: COMMANDS.pull,
   },
   {
@@ -98,7 +98,7 @@ export const SCENES = [
     number: '03',
     kicker: 'A person decides',
     heading: 'Approve by token, not by screenshot.',
-    text: 'dta diff renders the stories before and after and names the token behind each change. The rounder corners are obvious; the darker orange is easy to miss. Approving is a label on the pull request; a new push asks again.',
+    text: 'dta diff renders the stories before and after and names the token behind each change. The rounder corners are obvious; the darker blue is easy to miss. Approving is a label on the pull request; a new push asks again.',
     command: COMMANDS.diff,
   },
   {

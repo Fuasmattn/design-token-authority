@@ -153,15 +153,15 @@
       },
       "VariableID:1:3": {
         "id": "VariableID:1:3",
-        "name": "Colors/Foundation/Green/500",
+        "name": "Colors/Foundation/Navy/500",
         "key": "e5e0a4e2ed00b9b66929ce929fb1785f3db5196d",
         "variableCollectionId": "VariableCollectionId:1:1",
         "resolvedType": "COLOR",
         "valuesByMode": {
           "1:0": {
-            "r": 0.1803921568627451,
-            "g": 0.6196078431372549,
-            "b": 0.3568627450980392,
+            "r": 0.23921568627450981,
+            "g": 0.35294117647058826,
+            "b": 0.5019607843137255,
             "a": 1
           }
         },
@@ -175,15 +175,15 @@
       },
       "VariableID:1:4": {
         "id": "VariableID:1:4",
-        "name": "Colors/Foundation/Green/700",
+        "name": "Colors/Foundation/Navy/700",
         "key": "1fae9acf9b07165d55a80ab414ff260a9521fda2",
         "variableCollectionId": "VariableCollectionId:1:1",
         "resolvedType": "COLOR",
         "valuesByMode": {
           "1:0": {
-            "r": 0.12156862745098039,
-            "g": 0.47843137254901963,
-            "b": 0.2627450980392157,
+            "r": 0.17254901960784313,
+            "g": 0.26666666666666666,
+            "b": 0.4,
             "a": 1
           }
         },
@@ -197,15 +197,15 @@
       },
       "VariableID:1:5": {
         "id": "VariableID:1:5",
-        "name": "Colors/Foundation/Orange/500",
+        "name": "Colors/Foundation/Sky/500",
         "key": "535495a565708db5f6546139b4698a21145c7985",
         "variableCollectionId": "VariableCollectionId:1:1",
         "resolvedType": "COLOR",
         "valuesByMode": {
           "1:0": {
-            "r": 0.9098039215686274,
-            "g": 0.45098039215686275,
-            "b": 0.10196078431372549,
+            "r": 0.23137254901960785,
+            "g": 0.5607843137254902,
+            "b": 0.8509803921568627,
             "a": 1
           }
         },

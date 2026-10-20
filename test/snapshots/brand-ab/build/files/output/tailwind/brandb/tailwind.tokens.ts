@@ -4,9 +4,9 @@ export const tokens = {
   theme: {
     extend: {
       colors: {
-        'brand-primary': '#2e9e5b',
-        'brand-primary-dark': '#1f7a43',
-        'brand-accent': '#e8731a',
+        'brand-primary': '#3d5a80',
+        'brand-primary-dark': '#2c4466',
+        'brand-accent': '#3b8fd9',
         'surface-default': '#ffffff',
         'surface-muted': '#f3f4f6',
         'text-default': '#111827',

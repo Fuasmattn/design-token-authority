@@ -6,9 +6,9 @@ export const tokens = {
       colors: {
         'foundation-blue-500': 'var(--colors-foundation-blue-500)',
         'foundation-blue-700': 'var(--colors-foundation-blue-700)',
-        'foundation-green-500': 'var(--colors-foundation-green-500)',
-        'foundation-green-700': 'var(--colors-foundation-green-700)',
-        'foundation-orange-500': 'var(--colors-foundation-orange-500)',
+        'foundation-navy-500': 'var(--colors-foundation-navy-500)',
+        'foundation-navy-700': 'var(--colors-foundation-navy-700)',
+        'foundation-sky-500': 'var(--colors-foundation-sky-500)',
         'foundation-gray-100': 'var(--colors-foundation-gray-100)',
         'foundation-gray-500': 'var(--colors-foundation-gray-500)',
         'foundation-gray-900': 'var(--colors-foundation-gray-900)',

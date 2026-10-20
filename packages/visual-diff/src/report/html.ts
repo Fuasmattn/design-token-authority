@@ -31,7 +31,10 @@ const layerOf = (id: string) => /\(([^)]*)\)$/.exec(id)?.[1] ?? ''
 
 /**
  * The verdicts in the status colours (TICKET-120): pass is success (the dot), fail error (the
- * square); "changes to review" is a diff state, not a problem, and keeps the action tint.
+ * square). "Changes to review" is a diff state, not a problem: it is `signal` like Checks'
+ * "changes to review" and the design system's changed chip (TICKET-121): the tint in
+ * signal-subtle, the word and its dot in signal-text (signal-bg is under 3:1 on the tint in
+ * Light). The action tint stays for actions and links.
  */
 const VERDICT: Record<NonNullable<DiffResult['verdict']>, { label: string; tone: string }> = {
   pass: { label: 'Pass', tone: 'pass' },
@@ -56,7 +59,14 @@ function value(state: State) {
   return `<span class="value">${swatch}${alias}</span>`
 }
 
-const chip = (tone: string, text: string) => `<span class="chip ${tone}">${escape(text)}</span>`
+/**
+ * Redline labels (signal-fg on signal-bg) are the design system's one AA exception (4.5:1, see
+ * the Redline component): marked so the rendered contrast audit knows, like Redline and Badge.
+ */
+const REDLINE_LABEL = ' data-contrast-exception="redline label"'
+
+const chip = (tone: string, text: string) =>
+  `<span class="chip ${tone}"${tone === 'token' ? REDLINE_LABEL : ''}>${escape(text)}</span>`
 
 function cause(story: Story) {
   if (story.status !== 'changed') return ''
@@ -76,11 +86,11 @@ function marks(story: Story) {
     .filter((t) => t.regions.length > 0)
     .map(
       (t) =>
-        `<span class="mark" style="${box(t.regions[0])}"><span class="tag">${escape(shortToken(t.id))}</span></span>`,
+        `<span class="mark" style="${box(t.regions[0])}"><span class="tag"${REDLINE_LABEL}>${escape(shortToken(t.id))}</span></span>`,
     )
   const unexplained = a.unexplainedRegion
     ? [
-        `<span class="mark unexplained" style="${box(a.unexplainedRegion)}"><span class="tag">unexplained</span></span>`,
+        `<span class="mark unexplained" style="${box(a.unexplainedRegion)}"><span class="tag"${REDLINE_LABEL}>unexplained</span></span>`,
       ]
     : []
   return tokenMarks.concat(unexplained).join('')
@@ -132,10 +142,10 @@ function group(g: Group, stories: Map<string, Story>) {
   return `<article class="group" id="${anchor('token', g.id)}">
   <header>
     <div class="token-title">
-      <span class="tag big">${escape(shortToken(g.id))}</span>
+      <span class="tag big"${REDLINE_LABEL}>${escape(shortToken(g.id))}</span>
       <span class="meta">${escape(layerOf(g.id))}</span>
     </div>
-    <p class="change">${value(g.before)} <span class="arrow">→</span> ${value(g.after)}</p>
+    <p class="change">${value(g.before)} <span class="arrow" data-contrast-exception="redline arrow (non-text, 3:1)">→</span> ${value(g.after)}</p>
     <p class="explains">Explains <strong>${members.length}</strong> ${members.length === 1 ? 'story' : 'stories'} ${g.needsReview ? chip('review', 'to review') : chip('pass', 'below threshold')}</p>
   </header>
   <div class="samples">${samples.map(compare).join('\n')}</div>
@@ -198,11 +208,13 @@ nav.toc{display:flex;flex-wrap:wrap;gap:var(--space-2)}
 nav.toc a{padding:6px 12px;border:var(--stroke-hairline) solid var(--border-default);border-radius:var(--radius-full);background:var(--bg-surface);color:var(--fg-default);text-decoration:none;font-size:calc(var(--type-body-sm-size)*1px)}
 .chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:var(--radius-full);font-family:var(--font-mono);font-size:calc(var(--type-meta-size)*1px);background:var(--bg-subtle);color:var(--fg-muted);white-space:nowrap}
 .chip.pass,.chip.unchanged{background:var(--status-success-subtle);color:var(--status-success-text)}
-.chip.review,.chip.changed,.chip.added,.chip.affected{background:var(--action-subtle);color:var(--action-text)}
+.chip.changed,.chip.added,.chip.affected{background:var(--action-subtle);color:var(--action-text)}
+.chip.review{background:var(--signal-subtle);color:var(--signal-text)}
 .chip.removed{background:var(--signal-subtle);color:var(--signal-text)}
 .chip.fail{background:var(--status-error-subtle);color:var(--status-error-text)}
-.chip.pass::before,.chip.unchanged::before,.chip.fail::before{content:"";flex:none;width:6px;height:6px;margin-right:6px;border-radius:var(--radius-full);background:var(--status-success-marker)}
+.chip.pass::before,.chip.unchanged::before,.chip.review::before,.chip.fail::before{content:"";flex:none;width:6px;height:6px;margin-right:6px;border-radius:var(--radius-full);background:var(--status-success-marker)}
 .chip.fail::before{border-radius:0;background:var(--status-error-marker)}
+.chip.review::before{background:currentColor}
 .chip.token{background:var(--signal-bg);color:var(--signal-fg);border-radius:4px}
 .verdict{font-size:calc(var(--type-body-sm-size)*1px);padding:6px 14px}
 .theme{min-height:44px;padding:0 16px;border:var(--stroke-ink) solid var(--border-strong);border-radius:var(--radius-md);background:transparent;color:var(--fg-default);font:inherit;font-weight:var(--type-label-weight);cursor:pointer}

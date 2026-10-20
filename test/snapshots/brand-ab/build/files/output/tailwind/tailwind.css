@@ -2,9 +2,9 @@
 @theme {
   --color-foundation-blue-500: var(--colors-foundation-blue-500);
   --color-foundation-blue-700: var(--colors-foundation-blue-700);
-  --color-foundation-green-500: var(--colors-foundation-green-500);
-  --color-foundation-green-700: var(--colors-foundation-green-700);
-  --color-foundation-orange-500: var(--colors-foundation-orange-500);
+  --color-foundation-navy-500: var(--colors-foundation-navy-500);
+  --color-foundation-navy-700: var(--colors-foundation-navy-700);
+  --color-foundation-sky-500: var(--colors-foundation-sky-500);
   --color-foundation-gray-100: var(--colors-foundation-gray-100);
   --color-foundation-gray-500: var(--colors-foundation-gray-500);
   --color-foundation-gray-900: var(--colors-foundation-gray-900);

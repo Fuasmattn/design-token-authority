@@ -31,7 +31,7 @@
       },
       "Accent": {
         "$type": "color",
-        "$value": "{Colors.Foundation.Orange.500}",
+        "$value": "{Colors.Foundation.Sky.500}",
         "$description": "",
         "$extensions": {
           "com.figma": {

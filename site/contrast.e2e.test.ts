@@ -7,8 +7,9 @@
  * invalid input, the Outputs view, an output file's preview, a copied file; both themes) and of
  * every story (each renders Light and Graphite side by side) reaches 7:1 against its effective
  * background, 4.5:1 when large (24 px, or 18.66 px bold). So does the `dta diff` report for each
- * verdict (pass, review, fail; TICKET-120 status colours). Findings markers (non-text) reach 3:1
- * on what they are painted on, a selected line's tint included. The token test checks the pairs
+ * verdict (pass, review, fail; TICKET-120 status colours, review in signal since TICKET-121).
+ * Findings markers and the report's chip dots (non-text) reach 3:1 on what they are painted on, a
+ * selected line's tint included. The token test checks the pairs
  * the system names; this checks what the browser paints, nesting and opacity included.
  *
  * Needs the built site (`pnpm build` → dist/) and a browser: runs when DTA_E2E=1 (CI job
@@ -90,6 +91,23 @@ const AUDIT = `(() => {
     const key = ['marker', fill[3] > 0 ? s.backgroundColor : s.borderTopColor, bg.map(Math.round).join(',')].join('|')
     if (seen.has(key)) continue
     seen.set(key, { text: '(marker)', element: 'span.dta-findings__marker', fg: fill[3] > 0 ? s.backgroundColor : s.borderTopColor, bg: 'rgb(' + bg.map(Math.round).join(', ') + ')', size: rect.width, weight: 0, ratio: Math.round(r * 100) / 100 })
+  }
+  // Chip dots of the dta diff report (non-text, TICKET-120/121): the ::before marker of a pass,
+  // review or fail chip, 3:1 on the chip's tint.
+  for (const el of document.querySelectorAll('.chip')) {
+    const b = getComputedStyle(el, '::before')
+    if (!b.content || b.content === 'none' || b.display === 'none') continue
+    const rect = el.getBoundingClientRect()
+    if (rect.width === 0 || rect.height === 0) continue
+    const raw = parse(b.backgroundColor)
+    if (raw[3] === 0) continue
+    const bg = bgOf(el)
+    const fg = over([raw[0], raw[1], raw[2], raw[3] * opacityOf(el)], bg)
+    const r = ratio(fg, bg)
+    if (r >= 3) continue
+    const key = ['chip-marker', b.backgroundColor, bg.map(Math.round).join(',')].join('|')
+    if (seen.has(key)) continue
+    seen.set(key, { text: '(chip marker)', element: 'span.' + String(el.className).replace(/ /g, '.') + '::before', fg: b.backgroundColor, bg: 'rgb(' + bg.map(Math.round).join(', ') + ')', size: parseFloat(b.width), weight: 0, ratio: Math.round(r * 100) / 100 })
   }
   return [...seen.values()]
 })()`
@@ -322,7 +340,11 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
     60_000,
   )
 
-  // The dta diff report (TICKET-120): each verdict in its status colours, with pass and fail chips.
+  // The dta diff report (TICKET-120): each verdict in its status colours, with pass and fail chips;
+  // review in signal (TICKET-121), its dot in the chip marker audit. The example change is
+  // brand-ab's headline (BrandB's accent, navy to sky): example content stays blue or grey, never a
+  // system colour (TICKET-122).
+  const TOKEN = 'Colors.Brand.Accent (Brand(Alias) · BrandB)'
   const report = (verdict: 'pass' | 'review' | 'fail') => {
     const story = (id: string, status: 'changed' | 'unchanged', explained: boolean) => ({
       id,
@@ -337,7 +359,17 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
         ? {
             attribution: {
               explained,
-              tokens: [],
+              tokens: explained
+                ? [
+                    {
+                      id: TOKEN,
+                      dependents: 1,
+                      pixels: 200,
+                      elements: ['.card'],
+                      regions: [{ x: 10, y: 20, width: 100, height: 40 }],
+                    },
+                  ]
+                : [],
               unexplainedPixels: explained ? 0 : 200,
               canvas: { width: 400, height: 200 },
             },
@@ -349,6 +381,28 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
         schema: 'dta.diff/1',
         base: 'merge base with origin/main (1a2b3c4)',
         verdict,
+        // The review case has a token group, so its "to review" chip and the redline tags show.
+        ...(verdict === 'review'
+          ? {
+              review: {
+                verdict,
+                changed: 1,
+                explained: 1,
+                tokens: [
+                  {
+                    id: TOKEN,
+                    before: { raw: '{Colors.Foundation.Navy.700}', resolved: '#2c4466' },
+                    after: { raw: '{Colors.Foundation.Sky.500}', resolved: '#3b8fd9' },
+                    stories: ['card@1280'],
+                    needsReview: true,
+                  },
+                ],
+                unexplained: [],
+                added: [],
+                removed: [],
+              },
+            }
+          : {}),
         tokens: { counts: { changed: 0, added: 0, removed: 0, affected: 0 }, changes: [] },
         stories: [
           story('text', 'unchanged', true),

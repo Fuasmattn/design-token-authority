@@ -129,7 +129,9 @@ describe('renderReportHtml', () => {
 
   it('groups explained stories by token change with samples and a contact sheet', () => {
     const group = html.slice(html.indexOf('id="by-token"'), html.indexOf('id="unexplained"'))
-    expect(group).toContain('<span class="tag big">action.bg</span>')
+    expect(group).toContain(
+      '<span class="tag big" data-contrast-exception="redline label">action.bg</span>',
+    )
     expect(group).toContain('Theme · Light')
     expect(group).toContain('style="background:#2f55d4"')
     expect(group).toContain('Explains <strong>3</strong> stories')
@@ -146,7 +148,7 @@ describe('renderReportHtml', () => {
     expect(html).toContain('aria-label="Divider between baseline (left) and candidate (right)')
     // Redline label on the token's dependent, in % of the canvas.
     expect(html).toContain(
-      '<span class="mark" style="left:2.500%;top:10.000%;width:25.000%;height:20.000%"><span class="tag">action.bg</span></span>',
+      '<span class="mark" style="left:2.500%;top:10.000%;width:25.000%;height:20.000%"><span class="tag" data-contrast-exception="redline label">action.bg</span></span>',
     )
   })
 
@@ -181,5 +183,24 @@ describe('renderReportHtml', () => {
     expect(html).toContain('--status-error-text: var(--crimson-700);')
     expect(html).toContain('--status-error-text: var(--crimson-300);')
     expect(html).not.toMatch(/\.chip\.fail[^{]*\{[^}]*--signal-/)
+  })
+
+  // TICKET-121: "changes to review" is a change, not a status: signal like Checks, never action.
+  it('shows the review verdict in signal with its dot, like Checks\' "changes to review"', () => {
+    const review = renderReportHtml({ ...result, verdict: 'review' })
+    expect(review).toContain('<title>dta diff · Changes to review</title>')
+    expect(review).toContain('<p><span class="chip review">Changes to review</span></p>')
+    expect(review).toContain('<span class="chip review">to review</span>')
+    const rule = (selector: string) => review.match(new RegExp(`\\n${selector}\\{([^}]*)\\}`))?.[1]
+    expect(rule('\\.chip\\.review')).toBe(
+      'background:var(--signal-subtle);color:var(--signal-text)',
+    )
+    // The dot: a 6 px circle in the word's colour (signal-bg is under 3:1 on signal-subtle).
+    expect(review).toMatch(/\.chip\.review::before[,{][^}]*width:6px;height:6px/)
+    expect(rule('\\.chip\\.review::before')).toBe('background:currentColor')
+    // The action tint stays for actions; a review chip never takes it, nor a status colour.
+    expect(review).not.toMatch(/\.chip\.review[^:{]*\{[^}]*--(action|status)-/)
+    expect(review).toContain('--signal-text: var(--redline-900);')
+    expect(review).toContain('--signal-text: var(--redline-200);')
   })
 })

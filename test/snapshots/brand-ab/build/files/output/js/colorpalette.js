@@ -4,9 +4,9 @@
 
 export const ColorsFoundationBlue500 = "#0057b8";
 export const ColorsFoundationBlue700 = "#003f8a"; // Deep blue
-export const ColorsFoundationGreen500 = "#2e9e5b";
-export const ColorsFoundationGreen700 = "#1f7a43";
-export const ColorsFoundationOrange500 = "#e8731a";
+export const ColorsFoundationNavy500 = "#3d5a80";
+export const ColorsFoundationNavy700 = "#2c4466";
+export const ColorsFoundationSky500 = "#3b8fd9";
 export const ColorsFoundationGray100 = "#f3f4f6";
 export const ColorsFoundationGray500 = "#6b7280";
 export const ColorsFoundationGray900 = "#111827";
