@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** L
 **Blocked by:** 121
-**Status:** done (pending the GitHub run)
+**Status:** done
 
 ## Why
 

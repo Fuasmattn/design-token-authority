@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** M
 **Blocked by:** 108
-**Status:** open
+**Status:** in progress
 **Spec:** [landing-redesign](../specs/landing-redesign.md) (decision 2: "the numbers on the page come from a real `dta diff` run")
 
 ## Problem
@@ -20,6 +20,8 @@ One of:
 1. **Attribution through the page's own declarations.** `planReverts` derives the revert rule from where the variable is actually declared in the rendered page (every rule that declares `--colors-brand-primary`, from the page's stylesheets), not only from the build's selectors. Then any project whose build output is re-scoped still gets explained.
 2. **A `diff.attribution.selectors` config**, mapping a collection · mode to the selector(s) the project declares it under, so the site can say `Brand · OrbitBurger → [data-example="orbit-burger"][data-state="change"]`.
 
+**Decided (maintainer, 2026-10-20): option 1**, attribution through the page's own declarations: re-scoped CSS (themes per wrapper or component) is common, and it needs no config. Option 2 is not built.
+
 Then record the run (`dta diff --base <sha>` in `site/examples/orbit-burger`, with a throwaway commit holding the main state), replace `DIFF_SHARES` with the real shares and set `real: true`; the illustrative note disappears from the page.
 
 ## Acceptance criteria
@@ -27,3 +29,7 @@ Then record the run (`dta diff --base <sha>` in `site/examples/orbit-burger`, wi
 - [ ] Attribution explains the Orbit Burger stories' changes by `Radius.Card` and `Colors.Brand.Primary`
 - [ ] `DIFF_SHARES` on the landing page comes from a recorded run, `real: true`, no illustrative note
 - [ ] All gates pass plus the site job, and the GitHub run is green
+
+## Outcome
+
+_(open)_

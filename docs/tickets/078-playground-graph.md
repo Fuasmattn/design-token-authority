@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** M
 **Blocked by:** 077, 115, 113, 120
-**Status:** done (pending the GitHub run)
+**Status:** done
 **Spec:** [playground](../specs/playground.md) (decisions 3, 5, 8, 15, 16)
 
 ## What to build
@@ -32,7 +32,7 @@ The Graph tab (today a "comes next" note in `Playground.tsx`) shows the token de
 - [x] Decision on reusing it for `dta graph --format html` recorded: later, separate ticket (spec decision 8)
 - [x] Playground JS budget (60 KB gzip for the page) holds, or the graph loads lazily like the outputs
 - [x] Screenshots 1280 and 390, light and dark, shown before pushing
-- [ ] All gates pass plus the site job, and the GitHub run is green
+- [x] All gates pass plus the site job, and the GitHub run is green
 
 ## Outcome
 

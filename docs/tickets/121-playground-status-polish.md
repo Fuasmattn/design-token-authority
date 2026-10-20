@@ -4,7 +4,7 @@
 **Priority:** Low
 **Effort:** S
 **Blocked by:** 120
-**Status:** done (pending the GitHub run)
+**Status:** done
 
 ## What to build
 
@@ -23,7 +23,7 @@ Small things left open by 120 and noticed on its screenshots (2026-10-19):
 - [x] 4: decided by the maintainer and applied (report, Checks or docs); Status colours page records the decision
 - [x] AAA text contrast and 3:1 markers in both themes (`test:contrast`), layout shift 0
 - [x] Screenshots 1280 and 390, light and dark, shown before pushing
-- [ ] All gates pass plus the site job, and the GitHub run is green
+- [x] All gates pass plus the site job, and the GitHub run is green
 
 ## Outcome
 
