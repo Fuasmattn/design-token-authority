@@ -44,8 +44,11 @@
   cursor: pointer;
   transition: color var(--motion-duration-fast) var(--motion-ease-standard);
 }
+/* Hover at once: only a change of tab runs on the tokens, so a pointer passing by never leaves a
+   transition cut short (a reversed transition runs for a fraction of its duration). */
 .dta-tabs__tab:hover {
   color: var(--fg-default);
+  transition: none;
 }
 .dta-tabs__tab[aria-selected='true'] {
   border-color: var(--border-strong);

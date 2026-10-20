@@ -1,0 +1,28 @@
+---
+// Real output: the "Example with problems" in BrandB as a phone shows the graph: layers as
+// disclosures, Brand(Alias) open with every token's chain, Colors.Brand.Accent selected (its
+// alias does not exist).
+import GraphList from '../components/ds/GraphList'
+import { analyse } from '../playground/analyse'
+import { PROBLEM_EXAMPLE } from '../playground/example'
+import { buildGraph } from '../playground/graph'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'graph-list-problems' } = Astro.props
+const view = buildGraph(analyse(PROBLEM_EXAMPLE.files), {
+  'Brand(Alias)': 'BrandB',
+  ScreenType: 'Desktop',
+})
+---
+
+<GraphList
+  idPrefix={idPrefix}
+  label={`Dependency graph, ${view.label}`}
+  data={view.data}
+  selected="Brand(Alias).BrandB/Colors/Brand/Accent"
+  onSelect={() => {}}
+  onFinding={() => {}}
+  open={['Brand(Alias)']}
+/>

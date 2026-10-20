@@ -12,8 +12,12 @@
  * Content: a kicker (for a finding with its severity: the marker shape and the word in the
  * status colours, TICKET-120) and a title, a meta line, optional actions (Copy and Download of a file), an
  * optional mode switch, an optional message (the full finding, mono), a list of lines (a token
- * name, then its alias chain and value, with a swatch for colours) or a file's text (`code`, an
- * output file's preview). The list and the code scroll inside the panel. With `next`, a step row at
+ * name, then its alias chain and value, with a swatch for colours; a line may carry a tag such as
+ * `in view` and a severity, the marker and status text for a value that does not resolve) or a
+ * file's text (`code`, an output file's preview). The list and the code scroll inside the panel.
+ * A token (TICKET-078) adds `facts` (its CSS and Tailwind names, as `dta token get` prints them)
+ * and `notes` (its findings: marker, kicker and message in the status colours). `links` end the
+ * body with buttons that lead elsewhere ("Show in graph", "Show in lint", "Show BrandB"). With `next`, a step row at
  * the end ("Next finding", "2 of 3") moves through a list without closing the panel (TICKET-113):
  * focus stays on the button, the new content fades in, the position lights up (Changed) and a
  * polite status says what is shown now.
@@ -35,6 +39,17 @@ export interface DetailLine {
   detail?: string
   /** A CSS colour for a small swatch (decoration; the value is in `detail`). */
   swatch?: string
+  /** A short word after the name in the action ink, e.g. `in view`. */
+  tag?: string
+  /** The detail is a problem: its marker before it, the detail in the status text. */
+  severity?: 'error' | 'warning'
+}
+
+/** A finding shown in the panel: marker and kicker (`error · rule · BrandB`), then its text. */
+export interface DetailNote {
+  severity: 'error' | 'warning'
+  kicker: string
+  text: string
 }
 
 export type DetailPresentation = 'side' | 'sheet'
@@ -56,6 +71,12 @@ export interface DetailPanelProps {
   lines?: readonly DetailLine[]
   /** Accessible name of the scrolling list. */
   linesLabel?: string
+  /** Short label and value pairs after the lines (`CSS  var(--colors-brand-accent)`). */
+  facts?: readonly { label: string; value: string }[]
+  /** Findings after the facts. */
+  notes?: readonly DetailNote[]
+  /** Buttons that end the body and lead elsewhere ("Show in graph", "Show in lint"). */
+  links?: ComponentChildren
   /** Buttons under the meta line (a file's Copy and Download). */
   actions?: ComponentChildren
   /** A file's text, shown as it is (mono, lines kept whole, scrolls inside its own box). */
@@ -90,6 +111,9 @@ export default function DetailPanel({
   message,
   lines,
   linesLabel = 'Lines',
+  facts,
+  notes,
+  links,
   actions,
   code,
   codeLabel = 'Preview',
@@ -241,9 +265,13 @@ export default function DetailPanel({
             <ul class="dta-detail__lines" tabIndex={0} aria-label={linesLabel}>
               {lines.map((line, index) => (
                 <li class="dta-detail__line" key={`${line.name}-${index}`}>
-                  <span class="dta-detail__name">{breakPaths(line.name)}</span>
+                  <span class="dta-detail__name">
+                    {breakPaths(line.name)}
+                    {line.tag && <span class="dta-detail__tag"> · {line.tag}</span>}
+                  </span>
                   {line.detail && (
-                    <span class="dta-detail__value">
+                    <span class="dta-detail__value" data-severity={line.severity}>
+                      {line.severity && <span class="dta-detail__marker" aria-hidden="true" />}
                       {line.swatch && (
                         <span
                           class="dta-detail__swatch"
@@ -258,12 +286,36 @@ export default function DetailPanel({
               ))}
             </ul>
           )}
+          {facts && facts.length > 0 && (
+            <dl class="dta-detail__facts">
+              {facts.map((fact) => (
+                <div class="dta-detail__fact" key={fact.label}>
+                  <dt>{fact.label}</dt>
+                  <dd>{breakPaths(fact.value)}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+          {notes && notes.length > 0 && (
+            <ul class="dta-detail__notes">
+              {notes.map((note, index) => (
+                <li class="dta-detail__note" key={index}>
+                  <p class="dta-detail__kicker" data-severity={note.severity}>
+                    <span class="dta-detail__marker" aria-hidden="true" />
+                    {breakPaths(note.kicker)}
+                  </p>
+                  <p class="dta-detail__message">{breakPaths(note.text)}</p>
+                </li>
+              ))}
+            </ul>
+          )}
           {code !== undefined && (
             <pre class="dta-detail__code" tabIndex={0} role="region" aria-label={codeLabel}>
               <code>{code}</code>
             </pre>
           )}
         </div>
+        {links && <div class="dta-detail__links">{links}</div>}
         {next && (
           <div class="dta-detail__step">
             <button

@@ -195,18 +195,18 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 **Epic 7b — Playground ([spec](../specs/playground.md))**
 
-| #                                                | Ticket                                                                      | Priority | Effort | Blocked by | Status      |
-| ------------------------------------------------ | --------------------------------------------------------------------------- | -------- | ------ | ---------- | ----------- |
-| [076](./076-playground-browser-packages.md)      | Run the `@dta/*` packages in the browser                                    | High     | M      | 069        | Done        |
-| [077](./077-playground-input-structure-lint.md)  | Playground: input, structure and lint findings                              | High     | L      | 076        | Done        |
-| [115](./115-playground-workspace-layout.md)      | Playground workspace: source bar, summary, tabs, detail panel               | High     | M      | 077        | Done        |
-| [116](./116-motion-tokens-and-transitions.md)    | Motion tokens, motion rule against change blindness, playground transitions | High     | M      | 079        | Done        |
-| [120](./120-status-colours.md)                   | Status colours for success, warning and error                               | High     | M      | —          | Done        |
-| [078](./078-playground-graph.md)                 | Playground: dependency graph with brand and breakpoint switcher             | Medium   | M      | 077        | In progress |
-| [079](./079-playground-outputs-config.md)        | Playground: outputs, generated config and CLI handoff                       | High     | M      | 077        | Done        |
-| [113](./113-playground-example-with-findings.md) | Playground: an example that shows findings                                  | Medium   | S      | 077        | Done        |
-| [122](./122-example-colours-off-system.md)       | Example content never uses the system colours                               | Medium   | L      | 121        | In progress |
-| [121](./121-playground-status-polish.md)         | Polish: path breaks, selected finding marker, CopyButton, review colour     | Low      | S      | 120        | In progress |
+| #                                                | Ticket                                                                      | Priority | Effort | Blocked by | Status |
+| ------------------------------------------------ | --------------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
+| [076](./076-playground-browser-packages.md)      | Run the `@dta/*` packages in the browser                                    | High     | M      | 069        | Done   |
+| [077](./077-playground-input-structure-lint.md)  | Playground: input, structure and lint findings                              | High     | L      | 076        | Done   |
+| [115](./115-playground-workspace-layout.md)      | Playground workspace: source bar, summary, tabs, detail panel               | High     | M      | 077        | Done   |
+| [116](./116-motion-tokens-and-transitions.md)    | Motion tokens, motion rule against change blindness, playground transitions | High     | M      | 079        | Done   |
+| [120](./120-status-colours.md)                   | Status colours for success, warning and error                               | High     | M      | —          | Done   |
+| [078](./078-playground-graph.md)                 | Playground: dependency graph with brand and breakpoint switcher             | Medium   | M      | 077        | Done   |
+| [079](./079-playground-outputs-config.md)        | Playground: outputs, generated config and CLI handoff                       | High     | M      | 077        | Done   |
+| [113](./113-playground-example-with-findings.md) | Playground: an example that shows findings                                  | Medium   | S      | 077        | Done   |
+| [122](./122-example-colours-off-system.md)       | Example content never uses the system colours                               | Medium   | L      | 121        | Done   |
+| [121](./121-playground-status-polish.md)         | Polish: path breaks, selected finding marker, CopyButton, review colour     | Low      | S      | 120        | Done   |
 
 **Epic 8 — `dta diff`, token-aware visual regression ([spec](../specs/visual-diff.md))**
 
@@ -251,7 +251,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [098](./098-site-hero-cleanup.md)          | Calmer hero with one command and one call to action                                     | Medium   | XS     | 096        | Done   |
 | [099](./099-site-landing-github-agents.md) | Landing page: GitHub and agents instead of the review demo; token cycle in the headline | Medium   | S      | 098        | Done   |
 
-Playground order (2026-10-19): 076 → 077 (done) → 115 (done) → 079 (done) → 116 (done) → 113 (done) → 078. Order: Epic 7 first (068 → 069 → 070 unblock the rest); 7b and 8 can run in parallel once 069/070 are done; 080 can start right after 039. Design sources: the maintainer's concept doc, the DTA Drafting Table design system and the landing page mockup (see the specs).
+Playground order (2026-10-20): 076 → 077 → 115 → 079 → 116 → 113 → 078 (all done). Order: Epic 7 first (068 → 069 → 070 unblock the rest); 7b and 8 can run in parallel once 069/070 are done; 080 can start right after 039. Design sources: the maintainer's concept doc, the DTA Drafting Table design system and the landing page mockup (see the specs).
 
 ## Phase 9 — Agent interop
 

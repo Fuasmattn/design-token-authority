@@ -39,6 +39,7 @@ An end-to-end test drives the playground under reduced motion and checks that on
 | Use `var(--motion-duration-*)` and `var(--motion-ease-*)`.                        | Write `0.2s ease` or `cubic-bezier(…)` in a component (a test fails).                                  |
 | Keep a move under `slow` (320 ms).                                                | Bounce, overshoot, or decorate a state change.                                                         |
 | Turn movement off under reduced motion and keep the highlight.                    | Turn the highlight off with the movement.                                                              |
+| Change a hover at once; transition the state change (a tab, a selection).         | Transition a hover on a property a state also changes: a pointer passing by cuts it short.             |
 
 ## Tokens
 
@@ -50,7 +51,7 @@ The tokens are in `site/tokens` and built with `dta build` like the rest ([Motio
 
 ## How it is built
 
-- **CSS transitions on the tokens** in each component's stylesheet: the [Detail panel](/design-system/components/detail-panel/) uses `@starting-style` and discrete `display`/`overlay` transitions, so a native `<dialog>` slides in and out; [Findings](/design-system/components/findings/) open a rule's lines with `::details-content` and `interpolate-size`; [Tabs](/design-system/components/tabs/) move one indicator.
+- **CSS transitions on the tokens** in each component's stylesheet: the [Detail panel](/design-system/components/detail-panel/) uses `@starting-style` and discrete `display`/`overlay` transitions, so a native `<dialog>` slides in and out; [Findings](/design-system/components/findings/) open a rule's lines with `::details-content` and `interpolate-size`; [Tabs](/design-system/components/tabs/) move one indicator; the [Graph canvas](/design-system/components/graph-canvas/) tints the selected chain over `fast` and scrolls a row revealed from elsewhere into view (smoothly, unless reduced motion).
 - **View Transitions** where the browser has them, through `transition(update, type)` in `src/components/ds/motion.ts` (`document.startViewTransition`; without the API, or under reduced motion, the change happens at once). Parts with a `view-transition-name` move to their new place: the [Token input](/design-system/components/token-input/)'s drop area and the [Source bar](/design-system/components/source-bar/) share `dta-source`, so the input collapses into the bar. A new read (type `dta-read`) crossfades the page; a change in place (`dta-tabs`, `dta-outputs`) leaves the page live and crossfades only the parts of `view-transition-class: dta-swap`. The timing is in the frame (`src/styles/site.css`).
 - **Arrival:** `dta-appear` (in the frame) fades something in from `space-2` below; the playground staggers its parts with `motion.stagger`.
 - **Highlight:** the [Changed](/design-system/components/changed/) component (`useChanged` in `motion.ts` counts changes, so the first render is never highlighted).

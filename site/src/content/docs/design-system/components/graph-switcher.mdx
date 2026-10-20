@@ -1,0 +1,32 @@
+---
+title: Graph switcher
+description: Which brand and breakpoint the dependency graph shows; segmented on desktop, native selects on phones.
+sidebar:
+  order: 23
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+Chooses the modes the [playground](/playground/)'s dependency graph shows: one control per collection with more than one mode, "Brand" and "Breakpoint" in the 3-layer model. The graph shows one brand and one breakpoint at a time (as `dta token get --mode` reads a token); the [Detail panel](/design-system/components/detail-panel/) shows a token in every mode.
+
+## When to use
+
+- Above a view that shows one mode of several, where the visitor switches between them and keeps their place: the [Graph canvas](/design-system/components/graph-canvas/) and the [Graph list](/design-system/components/graph-list/).
+- Not for choosing a view (that is [Tabs](/design-system/components/tabs/)) and not for options that combine (that is [Output options](/design-system/components/output-options/)).
+
+<Examples component="graph-switcher" />
+
+## Guidelines
+
+- **Desktop: segmented wells.** Each control is a mono label (`fg-subtle`, uppercase) over a `bg-subtle` well of buttons (`aria-pressed`, at least 44 px tall) in a labelled group; the selected mode sits on `bg-surface` inside a 2 px ink outline, like the detail panel's mode switch. The label sits above its well so the row keeps one line when the detail panel opens beside the view (the graph never jumps when a token is selected).
+- **Phones (up to 760 px, the site's break): native selects.** A 2 px ink box with the label and the chosen mode, the native `<select>` laid over it, so the phone's own picker opens. No custom list to learn, no pinch or drag.
+- **Findings per mode:** a mode with lint findings shows their count with the marker shape and the word in the [status colours](/design-system/status-colours/) (`BrandB ■ 1 error`); inside a select's option it is text (`BrandB · 1 error`).
+- **The note** under the controls says what is in view: the token and alias counts of the modes shown and how many of the findings are in this view (`2 of 3 errors`, in the status text), and how to read and move along the graph. On phones `narrowNote` replaces it ("On a phone the graph is a list…").
+- **Motion:** a pressed option changes its tint over `motion.duration.fast`; the playground redraws the graph in a crossfade of the view (View Transition `dta-tabs`). Under reduced motion it changes at once. See [Motion](/design-system/motion/).
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="GraphSwitcher" />

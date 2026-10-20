@@ -50,7 +50,7 @@ x  error [circular-alias] Circular alias chain: Brand(Alias).BrandA/Colors/Surfa
 —  Build failed.
 ```
 
-The playground's Outputs view shows these errors instead of files. A default mode name does not stop the build.
+The playground's Outputs view shows these errors instead of files. A default mode name does not stop the build. Its Graph view draws them where they are: BrandB's dangling alias ends in a dashed "missing" row, BrandA's circular pair gets two error arcs, and the default mode name sits on the primitives' header; "Show in graph" on a finding leads there.
 
 ## Configurable
 

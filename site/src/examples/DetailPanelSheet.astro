@@ -1,6 +1,8 @@
 ---
 // Real output: the first finding of the "Example with problems" (a dangling alias), as the
-// bottom sheet on a phone shows it (in the flow here), with the step to the next finding.
+// bottom sheet on a phone shows it (in the flow here), with "Show in graph" (TICKET-078) and the
+// step to the next finding.
+import { h } from 'preact'
 import DetailPanel from '../components/ds/DetailPanel'
 import { analyse, findingChain } from '../playground/analyse'
 import { PROBLEM_EXAMPLE } from '../playground/example'
@@ -28,6 +30,7 @@ if (!found || !chain) throw new Error('the problem example has no dangling alias
   message={found.cli}
   lines={[chain]}
   linesLabel="Alias chain"
+  links={h('button', { type: 'button', class: 'dta-button outline' }, 'Show in graph')}
   next={{
     label: 'Next finding',
     position: `${findings.indexOf(found) + 1} of ${findings.length}`,

@@ -238,8 +238,10 @@ summary.dta-findings__rule-row:focus-visible {
     background-color var(--motion-duration-fast) var(--motion-ease-standard),
     color var(--motion-duration-fast) var(--motion-ease-standard);
 }
+/* Hover at once; only the selection tints over a duration (see Tabs.css). */
 .dta-findings__open:hover {
   background: var(--bg-subtle);
+  transition: none;
 }
 .dta-findings__open:focus-visible {
   outline: var(--stroke-focus) solid var(--action-bg);

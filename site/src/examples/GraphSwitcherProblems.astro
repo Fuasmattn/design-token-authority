@@ -1,0 +1,25 @@
+---
+// Real output: the brand and breakpoint of the "Example with problems", each brand with its
+// error, and the note on what is in view (BrandA · Desktop). On a phone: native selects.
+import GraphSwitcher from '../components/ds/GraphSwitcher'
+import { analyse } from '../playground/analyse'
+import { PROBLEM_EXAMPLE } from '../playground/example'
+import { buildGraph } from '../playground/graph'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'switcher-problems' } = Astro.props
+const view = buildGraph(analyse(PROBLEM_EXAMPLE.files), {
+  'Brand(Alias)': 'BrandA',
+  ScreenType: 'Desktop',
+})
+---
+
+<GraphSwitcher
+  idPrefix={idPrefix}
+  groups={view.switcher}
+  onChange={() => {}}
+  note={view.note}
+  narrowNote="On a phone the graph is a list: each layer, its tokens and their alias chains."
+/>

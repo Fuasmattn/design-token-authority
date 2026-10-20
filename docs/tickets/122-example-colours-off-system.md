@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** L
 **Blocked by:** 121
-**Status:** in progress (all but screenshots shown and the GitHub run)
+**Status:** done (pending the GitHub run)
 
 ## Why
 
@@ -29,7 +29,7 @@ Survey (2026-10-20) of what to change:
 - [x] Badge `example` tone decided and recorded
 - [x] Rule in the design-system docs
 - [x] AAA contrast in both themes (`test:contrast`), layout shift 0
-- [ ] Screenshots 1280 and 390, light and dark (report review case, landing scenes 01 and 03, playground with the brand-ab example) shown before pushing
+- [x] Screenshots 1280 and 390, light and dark (report review case, landing scenes 01 and 03, playground with the brand-ab example) shown before pushing
 - [ ] All gates pass plus the site job (done locally, below), and the GitHub run is green
 
 ## Outcome

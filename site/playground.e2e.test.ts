@@ -3,9 +3,11 @@
  * the workspace with the real components in Chromium (input → source bar, summary, tabs, detail
  * panel), no request after load, Preact on this page only, the tabs' keyboard and URL hash, the
  * panel's focus and Escape (side panel and bottom sheet), the "Example with problems" and the
- * panel's "Next finding" (TICKET-113), no horizontal scroll at 390 and 1280 px
- * and no layout shift in both themes, and the JavaScript the page transfers. AAA contrast is
- * checked in contrast.e2e.test.ts.
+ * panel's "Next finding" (TICKET-113), the dependency graph (TICKET-078: a token selected, its
+ * chain and readings, "Show in graph" and "Show in lint" both ways with the hash, the brand switch,
+ * the keyboard, the phone's list and sheet, the graph's chunk loaded lazily), no horizontal scroll
+ * at 390 and 1280 px and no layout shift in both themes, and the JavaScript the page transfers.
+ * AAA contrast is checked in contrast.e2e.test.ts.
  *
  * Same conditions as contrast.e2e.test.ts: needs the built site (`pnpm build` → dist/) and a
  * browser (DTA_E2E=1 in the CI job "site", or DTA_BROWSER_PATH); otherwise skipped.
@@ -356,7 +358,7 @@ describe.skipIf(!enabled)('playground on the built site', () => {
       await page.goto(`${origin}/playground/#graph`, { waitUntil: 'networkidle' })
       await page.getByRole('button', { name: 'Load example' }).click()
       expect(await selected()).toBe('Graph')
-      expect(await page.getByRole('tabpanel').textContent()).toMatch(/TICKET-078/)
+      await page.getByRole('group', { name: 'Dependency graph, BrandA · Desktop' }).waitFor()
       expect(errors).toEqual([])
     } finally {
       await context.close()
@@ -887,6 +889,336 @@ describe.skipIf(!enabled)('playground on the built site', () => {
     60_000,
   )
 
+  /** The example with problems, on the Graph view (its chunk loaded). */
+  async function problemsGraph(page: any, width: number) {
+    await page.getByRole('button', { name: 'Example with problems' }).click()
+    await page.getByRole('table', { name: 'Structure' }).waitFor()
+    await page.getByRole('tab', { name: 'Graph' }).click()
+    await page.locator(width < 761 ? '.dta-graph-list' : '.dta-graph').waitFor()
+  }
+  const hashOf = (page: any) => decodeURI(new URL(page.url()).hash)
+
+  it('selects a token on the graph: its chain, its readings, Show BrandB, Show in lint and Show in graph back, with the hash', async () => {
+    const { context, page, errors } = await open(1280, 'light')
+    try {
+      const requests: string[] = []
+      page.on('request', (request: { url(): string }) => {
+        if (new URL(request.url()).pathname !== '/favicon.svg') requests.push(request.url())
+      })
+      await problemsGraph(page, 1280)
+      // Only the graph's own lazy chunks were fetched for the view: not the outputs' engine (Style
+      // Dictionary), and small (its names in code come from @dta/build's pure helpers).
+      expect(requests.length).toBeGreaterThan(0)
+      for (const url of requests) expect(url.startsWith(`${origin}/_astro/`), url).toBe(true)
+      expect(requests.some((url) => url.includes('outputs-engine'))).toBe(false)
+      const lazy = requests.map((url) => fs.readFileSync(path.join(dist, new URL(url).pathname)))
+      const lazyGzip = lazy.reduce((sum, bytes) => sum + zlib.gzipSync(bytes).length, 0)
+      expect(lazyGzip).toBeLessThan(20_000)
+      expect(hashOf(page)).toBe('#graph')
+
+      // Three layer columns in the modes shown; the switcher says what is in view
+      const graph = page.getByRole('group', { name: 'Dependency graph, BrandA · Desktop' })
+      expect(await page.locator('.dta-graph__kicker').allTextContents()).toEqual([
+        'Primitives',
+        'Brand(Alias)',
+        'ScreenType',
+      ])
+      expect(await page.locator('.dta-graph__layer').allTextContents()).toEqual([
+        'Mode 1 26 tokens',
+        'BrandA 11 tokens',
+        'Desktop 5 tokens',
+      ])
+      const brand = page.getByRole('group', { name: 'Brand' })
+      expect(await brand.getByRole('button', { pressed: true }).textContent()).toBe('BrandA1 error')
+      expect(await page.locator('.dta-switcher__note').first().textContent()).toMatch(
+        /^42 tokens in BrandA · Desktop, 16 aliases; 2 of 3 errors are in this view\./,
+      )
+      // Findings: the circular pair as errors with two arcs and a chip; the file finding on its header
+      expect(
+        await graph
+          .getByRole('button', { name: /^Colors\.Surface\.Muted error/ })
+          .getAttribute('data-severity'),
+      ).toBe('error')
+      expect(
+        await page.locator('.dta-graph__edges .dta-graph__edge[data-kind="circular"]').count(),
+      ).toBe(2)
+      expect(await page.locator('.dta-graph__chip').textContent()).toBe('circular')
+      expect(await page.locator('.dta-graph__finding').textContent()).toBe(
+        'error · default mode name',
+      )
+
+      // Selecting a token: the side panel with every brand, the chain highlighted, the hash
+      const accent = graph.getByRole('button', { name: /^Colors\.Brand\.Accent / })
+      const box = await page.locator('.dta-graph').boundingBox()
+      await accent.click()
+      const panel = page.getByRole('dialog', { name: 'Colors.Brand.Accent' })
+      await panel.waitFor()
+      expect(await panel.evaluate((el: Element) => el.matches(':modal'))).toBe(false)
+      // The graph stays where it was behind the panel.
+      expect(await page.locator('.dta-graph').boundingBox()).toEqual(
+        expect.objectContaining({ x: box.x, y: box.y }),
+      )
+      expect(await accent.getAttribute('aria-current')).toBe('true')
+      expect(
+        await graph
+          .getByRole('button', { name: /^Colors\.Foundation\.Sky\.500 / })
+          .getAttribute('data-chain'),
+      ).toBe('')
+      expect(await page.locator('.dta-graph__edges .dta-graph__edge[data-chain]').count()).toBe(1)
+      expect(hashOf(page)).toBe('#graph/Brand(Alias).BrandA/Colors/Brand/Accent')
+      expect(await panel.locator('.dta-detail__kicker').first().textContent()).toBe(
+        'Token · color · Brand(Alias)',
+      )
+      expect(await panel.locator('.dta-detail__line').allTextContents()).toEqual([
+        'BrandA · in view#3b8fd9  Colors.Brand.Accent → Colors.Foundation.Sky.500',
+        'BrandBunresolved: "Colors.Brand.Accent" aliases "Colors.Foundation.Sky.550", which does not exist.',
+      ])
+      expect(await panel.locator('.dta-detail__fact').allTextContents()).toEqual([
+        'CSSvar(--colors-brand-accent)',
+        'Tailwind--color-brand-accent',
+      ])
+      expect(await panel.locator('.dta-detail__note .dta-detail__kicker').textContent()).toBe(
+        'error · no-dangling-aliases · BrandB',
+      )
+
+      // "Show BrandB": the graph switches, the token follows, the dangling arrow ends in a missing row
+      await panel.getByRole('button', { name: 'Show BrandB' }).click()
+      await page.getByRole('group', { name: 'Dependency graph, BrandB · Desktop' }).waitFor()
+      expect(hashOf(page)).toBe('#graph/Brand(Alias).BrandB/Colors/Brand/Accent')
+      expect(await brand.getByRole('button', { pressed: true }).textContent()).toBe('BrandB1 error')
+      const missing = page.getByRole('img', { name: /^Colors\.Foundation\.Sky\.550 missing/ })
+      expect(await missing.getAttribute('data-chain')).toBe('')
+      expect(
+        await page.locator('.dta-graph__edges .dta-graph__edge[data-kind="dangling"]').count(),
+      ).toBe(1)
+      expect(
+        await page
+          .getByRole('button', { name: /^Colors\.Brand\.Accent error/ })
+          .getAttribute('aria-current'),
+      ).toBe('true')
+      expect(await panel.locator('.dta-detail__tag').textContent()).toBe(' · in view')
+      expect(
+        await panel
+          .locator('.dta-detail__line', { hasText: 'BrandB' })
+          .locator('.dta-detail__tag')
+          .count(),
+      ).toBe(1)
+
+      // "Show in lint": the Lint view with that finding open
+      await panel.getByRole('button', { name: 'Show in lint' }).click()
+      await expect
+        .poll(() => page.getByRole('tab', { selected: true }).textContent())
+        .toBe('Lint · 3')
+      expect(hashOf(page)).toBe('#lint')
+      const finding = page.getByRole('dialog')
+      await expect
+        .poll(() => finding.locator('.dta-detail__kicker').first().textContent())
+        .toBe('error · no-dangling-aliases')
+      await expect
+        .poll(() =>
+          page
+            .locator('#pg-finding-0-0')
+            .evaluate((el: Element) => el.closest('li')?.getAttribute('aria-current')),
+        )
+        .toBe('true')
+
+      // ...and "Show in graph" back: BrandB, the token selected and in view
+      await finding.getByRole('button', { name: 'Show in graph' }).click()
+      await page.getByRole('group', { name: 'Dependency graph, BrandB · Desktop' }).waitFor()
+      expect(await page.getByRole('tab', { selected: true }).textContent()).toBe('Graph')
+      expect(hashOf(page)).toBe('#graph/Brand(Alias).BrandB/Colors/Brand/Accent')
+      const row = page.getByRole('button', { name: /^Colors\.Brand\.Accent error/ })
+      await expect.poll(() => row.getAttribute('aria-current')).toBe('true')
+      await page.getByRole('dialog', { name: 'Colors.Brand.Accent' }).waitFor()
+      await expect
+        .poll(() =>
+          row.evaluate((el: Element) => {
+            const r = el.getBoundingClientRect()
+            return r.top >= 0 && r.bottom <= window.innerHeight
+          }),
+        )
+        .toBe(true)
+      // Closing returns focus to the row; the hash keeps the view
+      await page.keyboard.press('Escape')
+      await expect.poll(() => page.getByRole('dialog').isVisible()).toBe(false)
+      await expect
+        .poll(() => page.evaluate('document.activeElement?.dataset.node'))
+        .toBe('Brand(Alias).BrandB/Colors/Brand/Accent')
+      expect(hashOf(page)).toBe('#graph')
+
+      // A circular finding's "Show in graph" goes to BrandA, the circle in view
+      await page.getByRole('tab', { name: /^Lint/ }).click()
+      await page.locator('summary', { hasText: 'no-circular-aliases' }).click()
+      await page.locator('#pg-finding-1-0').click()
+      await page.getByRole('button', { name: 'Show in graph' }).click()
+      await page.getByRole('group', { name: 'Dependency graph, BrandA · Desktop' }).waitFor()
+      expect(hashOf(page)).toBe('#graph/Brand(Alias).BrandA/Colors/Surface/Muted')
+
+      // A shared link opens the token once the tokens are read
+      await page.goto('about:blank')
+      await page.goto(
+        `${origin}/playground/#graph/${encodeURI('Brand(Alias).BrandB/Colors/Brand/Accent')}`,
+        {
+          waitUntil: 'networkidle',
+        },
+      )
+      await page.getByRole('button', { name: 'Example with problems' }).click()
+      await page.getByRole('dialog', { name: 'Colors.Brand.Accent' }).waitFor()
+      expect(await page.getByRole('tab', { selected: true }).textContent()).toBe('Graph')
+      await page.getByRole('group', { name: 'Dependency graph, BrandB · Desktop' }).waitFor()
+      expect(errors).toEqual([])
+    } finally {
+      await context.close()
+    }
+  }, 90_000)
+
+  it('moves along the graph with the arrow keys and opens a token with Enter', async () => {
+    const { context, page, errors } = await open(1280, 'light')
+    try {
+      await problemsGraph(page, 1280)
+      const graph = page.getByRole('group', { name: /^Dependency graph/ })
+      // One row in the tab order: the first, until another is focused or selected
+      expect(await graph.locator('button[tabindex="0"]').count()).toBe(1)
+      const focused = () => page.evaluate('document.activeElement?.dataset.node')
+      await graph.getByRole('button', { name: /^Colors\.Brand\.Accent / }).focus()
+      await page.keyboard.press('ArrowLeft')
+      expect(await focused()).toBe('Primitives.Mode 1/Colors/Foundation/Sky/500')
+      await page.keyboard.press('ArrowRight')
+      expect(await focused()).toBe('Brand(Alias).BrandA/Colors/Brand/Accent')
+      await page.keyboard.press('ArrowDown')
+      expect(await focused()).toBe('Brand(Alias).BrandA/Colors/Surface/Default')
+      await page.keyboard.press('ArrowUp')
+      await page.keyboard.press('Home')
+      expect(await focused()).toBe('Brand(Alias).BrandA/Colors/Brand/Primary')
+      await page.keyboard.press('End')
+      expect(await focused()).toBe('Brand(Alias).BrandA/Effects/shadow/Blur')
+      // The row that has focus is the one in the tab order
+      expect(await graph.locator('button[tabindex="0"]').getAttribute('data-node')).toBe(
+        'Brand(Alias).BrandA/Effects/shadow/Blur',
+      )
+      await page.keyboard.press('ArrowLeft')
+      expect(await focused()).toBe('Primitives.Mode 1/Effects/blur/md')
+      await page.keyboard.press('Enter')
+      const panel = page.getByRole('dialog', { name: 'Effects.blur.md' })
+      await panel.waitFor()
+      expect(await page.evaluate('document.activeElement?.id')).toBe('pg-detail-title')
+      await page.keyboard.press('Escape')
+      await expect.poll(focused).toBe('Primitives.Mode 1/Effects/blur/md')
+      // The brand switch by keyboard: the segments are buttons
+      await page
+        .getByRole('group', { name: 'Brand' })
+        .getByRole('button', { name: /^BrandB/ })
+        .focus()
+      await page.keyboard.press('Enter')
+      await page.getByRole('group', { name: 'Dependency graph, BrandB · Desktop' }).waitFor()
+      expect(errors).toEqual([])
+    } finally {
+      await context.close()
+    }
+  }, 60_000)
+
+  it('at 390 px the graph is a list with selects; a row opens the sheet, Show in lint and Show in graph lead both ways', async () => {
+    const { context, page, errors } = await open(390, 'light')
+    try {
+      await problemsGraph(page, 390)
+      expect(await page.locator('.dta-graph').isVisible()).toBe(false)
+      const list = page.getByRole('group', { name: 'Dependency graph, BrandA · Desktop' })
+      expect(await list.isVisible()).toBe(true)
+      // Summaries first: the brand layer open, the others closed, each with its findings
+      expect(
+        await page
+          .locator('.dta-graph-list__layer')
+          .evaluateAll((all: Element[]) => all.map((el) => (el as HTMLDetailsElement).open)),
+      ).toEqual([false, true, false])
+      expect(await page.locator('.dta-graph-list__status').allTextContents()).toEqual([
+        '1 error',
+        '1 error',
+      ])
+      // Native selects for brand and breakpoint
+      await page.getByRole('combobox', { name: 'Brand' }).selectOption('BrandB')
+      await page.getByRole('group', { name: 'Dependency graph, BrandB · Desktop' }).waitFor()
+      const row = page.getByRole('button', { name: /^Colors\.Brand\.Accent/ })
+      expect(await row.textContent()).toBe(
+        'Colors.Brand.Accent→ Colors.Foundation.Sky.550 does not existerror',
+      )
+      await row.click()
+      const sheet = page.getByRole('dialog', { name: 'Colors.Brand.Accent' })
+      await sheet.waitFor()
+      expect(await sheet.evaluate((el: Element) => el.matches(':modal'))).toBe(true)
+      expect(hashOf(page)).toBe('#graph/Brand(Alias).BrandB/Colors/Brand/Accent')
+      await sheet.getByRole('button', { name: 'Show in lint' }).click()
+      await expect
+        .poll(() => page.getByRole('tab', { selected: true }).textContent())
+        .toBe('Lint · 3')
+      const finding = page.getByRole('dialog')
+      await expect
+        .poll(() => finding.locator('.dta-detail__title').textContent())
+        .toBe('Colors.Brand.Accent')
+      await finding.getByRole('button', { name: 'Show in graph' }).click()
+      await page.getByRole('group', { name: 'Dependency graph, BrandB · Desktop' }).waitFor()
+      await expect
+        .poll(() =>
+          page
+            .locator('.dta-graph-list__row[aria-current="true"] [data-node]')
+            .getAttribute('data-node'),
+        )
+        .toBe('Brand(Alias).BrandB/Colors/Brand/Accent')
+      await page.getByRole('dialog', { name: 'Colors.Brand.Accent' }).waitFor()
+      await page.getByRole('button', { name: 'Close details' }).click()
+      await expect.poll(() => page.getByRole('dialog').isVisible()).toBe(false)
+      // A row in a closed layer opens it when selected from elsewhere (the circle in BrandA)
+      await page.getByRole('tab', { name: /^Lint/ }).click()
+      await page.locator('summary', { hasText: 'no-circular-aliases' }).click()
+      await page.locator('#pg-finding-1-0').click()
+      await page.getByRole('button', { name: 'Show in graph' }).click()
+      await page.getByRole('group', { name: 'Dependency graph, BrandA · Desktop' }).waitFor()
+      expect(await page.getByRole('combobox', { name: 'Brand' }).inputValue()).toBe('BrandA')
+      expect(errors).toEqual([])
+    } finally {
+      await context.close()
+    }
+  }, 60_000)
+
+  it.each([
+    [390, 'light'],
+    [390, 'dark'],
+    [1280, 'light'],
+    [1280, 'dark'],
+  ] as const)(
+    'at %i px in %s the graph shifts nothing and has nothing wider than the screen',
+    async (width, theme) => {
+      const { context, page } = await open(width, theme)
+      try {
+        await page.getByRole('button', { name: 'Example with problems' }).click()
+        await page.getByRole('table', { name: 'Structure' }).waitFor()
+        await page.evaluate(`window.__shift = 0; new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) if (!entry.hadRecentInput) window.__shift += entry.value
+        }).observe({ type: 'layout-shift' })`)
+        await page.getByRole('tab', { name: 'Graph' }).click()
+        await page.locator(width < 761 ? '.dta-graph-list' : '.dta-graph').waitFor()
+        await page.waitForTimeout(300)
+        expect(await page.evaluate('window.__shift')).toBe(0)
+        expect(await page.evaluate(OVERFLOW), 'graph').toEqual([])
+        await page.getByRole('button', { name: /^Colors\.Brand\.Accent/ }).click()
+        await page.getByRole('dialog').waitFor()
+        await page.waitForTimeout(400)
+        expect(await page.evaluate(OVERFLOW), 'token open').toEqual([])
+        expect(await page.evaluate('window.__shift')).toBe(0)
+        // Paths in the panel break between segments
+        const detail = (await page.getByRole('dialog').evaluate(SEGMENTS)) as Segments
+        expect(detail.broken, 'token panel').toEqual([])
+        await page.getByRole('button', { name: 'Show BrandB' }).click()
+        await page.getByRole('group', { name: /BrandB · Desktop$/ }).waitFor()
+        await page.waitForTimeout(400)
+        expect(await page.evaluate(OVERFLOW), 'BrandB').toEqual([])
+        expect(await page.evaluate('window.__shift')).toBe(0)
+      } finally {
+        await context.close()
+      }
+    },
+    60_000,
+  )
+
   it('keeps the JavaScript the page transfers within its budget', async () => {
     const { context, page } = await open(1280, 'light')
     try {
@@ -899,6 +1231,15 @@ describe.skipIf(!enabled)('playground on the built site', () => {
       const gzip = bytes.reduce((sum, b) => sum + zlib.gzipSync(b).length, 0)
       console.log(`playground JS: ${scripts.length} files, ${raw} B minified, ${gzip} B gzip`)
       for (const chunk of fs.readdirSync(path.join(dist, '_astro'))) {
+        // The graph (TICKET-078) loads with its tab, like the outputs.
+        if (chunk.startsWith('graph-engine')) {
+          const lazy = fs.readFileSync(path.join(dist, '_astro', chunk))
+          console.log(
+            `lazy ${chunk}: ${lazy.length} B minified, ${zlib.gzipSync(lazy).length} B gzip`,
+          )
+          expect(scripts.some((script) => script.includes('graph-engine'))).toBe(false)
+          continue
+        }
         if (!chunk.startsWith('outputs-engine')) continue
         const lazy = fs.readFileSync(path.join(dist, '_astro', chunk))
         console.log(

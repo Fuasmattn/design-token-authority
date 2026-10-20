@@ -4,12 +4,13 @@
  * lint finding open, the "Example with problems" with its rules open, an error selected
  * (TICKET-121) and a finding stepped to with "Next finding" (TICKET-113), an unknown export with
  * its docs link (TICKET-114), the build errors of the example with problems (TICKET-119), after
- * invalid input, the Outputs view, an output file's preview, a copied file; both themes) and of
+ * invalid input, the Outputs view, an output file's preview, a copied file, the dependency graph
+ * with a token selected and with BrandB's dangling alias (TICKET-078); both themes) and of
  * every story (each renders Light and Graphite side by side) reaches 7:1 against its effective
  * background, 4.5:1 when large (24 px, or 18.66 px bold). So does the `dta diff` report for each
  * verdict (pass, review, fail; TICKET-120 status colours, review in signal since TICKET-121).
  * Findings markers and the report's chip dots (non-text) reach 3:1 on what they are painted on, a
- * selected line's tint included. The token test checks the pairs
+ * selected line's tint included; so do the graph's markers, row outlines and arrows. The token test checks the pairs
  * the system names; this checks what the browser paints, nesting and opacity included.
  *
  * Needs the built site (`pnpm build` → dist/) and a browser: runs when DTA_E2E=1 (CI job
@@ -75,8 +76,9 @@ const AUDIT = `(() => {
     seen.set(key, { text: text.slice(0, 40), element: el.tagName.toLowerCase() + (el.className ? '.' + String(el.className).split(' ')[0] : ''), fg: s.color, bg: 'rgb(' + bg.map(Math.round).join(', ') + ')', size, weight, ratio: Math.round(r * 100) / 100 })
   }
   // Findings markers (non-text, TICKET-120/121): 3:1 on their effective background, a selected
-  // line's tint included. The filled square is its background, the open ring its border.
-  for (const el of document.querySelectorAll('.dta-findings__marker')) {
+  // line's tint included. The filled square is its background, the open ring its border. The
+  // graph's markers (TICKET-078: rows, chips, headers, the list, the switcher, the panel) too.
+  for (const el of document.querySelectorAll('.dta-findings__marker, .dta-graph__marker, .dta-graph-list__marker, .dta-switcher__marker, .dta-detail__marker')) {
     const s = getComputedStyle(el)
     if (s.display === 'none' || s.visibility === 'hidden') continue
     const rect = el.getBoundingClientRect()
@@ -91,6 +93,28 @@ const AUDIT = `(() => {
     const key = ['marker', fill[3] > 0 ? s.backgroundColor : s.borderTopColor, bg.map(Math.round).join(',')].join('|')
     if (seen.has(key)) continue
     seen.set(key, { text: '(marker)', element: 'span.dta-findings__marker', fg: fill[3] > 0 ? s.backgroundColor : s.borderTopColor, bg: 'rgb(' + bg.map(Math.round).join(', ') + ')', size: rect.width, weight: 0, ratio: Math.round(r * 100) / 100 })
+  }
+  // The dependency graph (non-text, TICKET-078): every row's outline on what is around it, and
+  // every arrow (line and head) on the canvas, 3:1 (WCAG 1.4.11), the selected chain included.
+  const graphPart = (el, colour, bg, label) => {
+    const raw = parse(colour)
+    if (raw.length < 4 || raw[3] === 0) return
+    const fg = over([raw[0], raw[1], raw[2], raw[3] * opacityOf(el)], bg)
+    const r = ratio(fg, bg)
+    if (r >= 3) return
+    const key = [label, colour, bg.map(Math.round).join(',')].join('|')
+    if (!seen.has(key)) seen.set(key, { text: '(' + label + ')', element: label, fg: colour, bg: 'rgb(' + bg.map(Math.round).join(', ') + ')', size: 0, weight: 0, ratio: Math.round(r * 100) / 100 })
+  }
+  for (const el of document.querySelectorAll('.dta-graph__node')) {
+    const s = getComputedStyle(el)
+    if (s.display === 'none' || el.getBoundingClientRect().width === 0) continue
+    graphPart(el, s.borderTopColor, bgOf(el.parentElement), 'graph row outline' + (el.dataset.severity ? ' ' + el.dataset.severity : '') + (el.matches('[aria-current], [data-chain]') ? ' selected' : ''))
+  }
+  for (const el of document.querySelectorAll('.dta-graph__edges path, .dta-graph__edges polygon')) {
+    if (el.getBoundingClientRect().width === 0 && el.getBoundingClientRect().height === 0) continue
+    const s = getComputedStyle(el)
+    const g = el.parentElement
+    graphPart(el, el.tagName === 'path' ? s.stroke : s.fill, bgOf(el.closest('svg').parentElement), 'graph arrow ' + (g.dataset.kind || '') + (g.hasAttribute('data-chain') ? ' chain' : ''))
   }
   // Chip dots of the dta diff report (non-text, TICKET-120/121): the ::before marker of a pass,
   // review or fail chip, 3:1 on the chip's tint.
@@ -305,6 +329,41 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
         return animations.length
       })()`)
       expect(held).toBeGreaterThanOrEqual(2)
+    },
+    // TICKET-078: the dependency graph of the example with problems, a token selected (canvas and
+    // side panel at 1280, list and bottom sheet at 390): its chain in the selection colours, the
+    // circular pair and the default mode name in the status colours.
+    'graph, a token selected': async (page) => {
+      await page.getByRole('button', { name: 'Example with problems' }).click()
+      await page.getByRole('tab', { name: 'Graph' }).click()
+      await page
+        .getByRole('group', { name: /^Dependency graph/ })
+        .first()
+        .waitFor()
+      await page.getByRole('button', { name: /^Colors\.Brand\.Accent/ }).click()
+      await page.getByRole('dialog', { name: 'Colors.Brand.Accent' }).waitFor()
+    },
+    // ...BrandB: the dangling alias and its missing row on the selected chain, a selected error
+    'graph, BrandB with the dangling alias selected': async (page) => {
+      await page.getByRole('button', { name: 'Example with problems' }).click()
+      await page.getByRole('tab', { name: 'Graph' }).click()
+      await page
+        .getByRole('group', { name: /^Dependency graph/ })
+        .first()
+        .waitFor()
+      const select = page.getByRole('combobox', { name: 'Brand' })
+      if (await select.isVisible()) await select.selectOption('BrandB')
+      else
+        await page
+          .getByRole('group', { name: 'Brand' })
+          .getByRole('button', { name: /^BrandB/ })
+          .click()
+      await page.getByRole('group', { name: /BrandB · Desktop$/ }).waitFor()
+      await page.getByRole('button', { name: /^Colors\.Brand\.Accent/ }).click()
+      await page.getByRole('dialog', { name: 'Colors.Brand.Accent' }).waitFor()
+      if (await page.locator('.dta-graph').isVisible()) {
+        expect(await page.locator('.dta-graph__node[data-missing][data-chain]').count()).toBe(1)
+      }
     },
     // TICKET-114: an export in no known format, its docs pointer a link to the website's page
     'unknown export with its docs link': async (page) => {

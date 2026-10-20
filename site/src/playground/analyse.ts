@@ -13,6 +13,7 @@
  * Lint runs with the default rules: a visitor has no `dta.config.ts`.
  */
 import {
+  analyzeGraph,
   analyzeStructure,
   formatDiagnostic,
   hasErrors,
@@ -23,7 +24,7 @@ import {
   resolve,
   toColor,
 } from '@dta/core'
-import type { Diagnostic, TokenFileInput, TokenModel, TokenValue } from '@dta/core'
+import type { Diagnostic, GraphAnalysis, TokenFileInput, TokenModel, TokenValue } from '@dta/core'
 import { detectFormat, importPluginExport } from '@dta/figma'
 import {
   formatLintSummary,
@@ -66,6 +67,8 @@ export interface PlaygroundResult {
   format: string
   /** The token model read (for the detail panel); absent when the input could not be read. */
   model?: TokenModel
+  /** Its alias graph (`analyzeGraph`), for the Graph view; absent with the model. */
+  graph?: GraphAnalysis
   /** The files read (after a plugin import: the files it converts to). */
   files: string[]
   /** Problems reading the input, with the CLI's `error [code] message (file)` wording. */
@@ -161,6 +164,7 @@ export function analyse(files: readonly TokenFileInput[]): PlaygroundResult {
   if (failed) return result
 
   result.model = model
+  result.graph = analyzeGraph(model)
   const structure = analyzeStructure(model)
   const dimension = structure.collections.find(
     (collection) => collection.name === structure.suggestedLayers.dimension,
@@ -272,20 +276,33 @@ export function collectionDetail(
 }
 
 /**
- * The token a finding is about, read in the finding's mode: `Collection.Mode/Group/Token` →
- * its alias chain and value. None for findings about a file or a pair of tokens.
+ * A graph id (`Collection.Mode/Group/Token`, as `@dta/core`'s `analyzeGraph` and `@dta/lint`
+ * name tokens) split by the model's collections; undefined unless the token exists there.
  */
-export function findingChain(model: TokenModel, tokenPath: string): DetailLine | undefined {
-  const slash = tokenPath.indexOf('/')
+export function parseTokenId(
+  model: TokenModel,
+  id: string,
+): { collection: string; mode: string; path: string } | undefined {
+  const slash = id.indexOf('/')
   if (slash < 0) return undefined
-  const prefix = tokenPath.slice(0, slash)
+  const prefix = id.slice(0, slash)
   const collection = model.collections.find(
     (c) => prefix.startsWith(`${c.name}.`) && c.modes.includes(prefix.slice(c.name.length + 1)),
   )
   if (!collection) return undefined
-  const mode = prefix.slice(collection.name.length + 1)
-  const name = tokenPath.slice(slash + 1).split('/')
+  const path = id.slice(slash + 1)
+  const name = path.split('/')
   if (!collection.tokens.some((token) => nameToDot(token.name) === nameToDot(name)))
     return undefined
-  return tokenLine(model, name, { [collection.name]: mode })
+  return { collection: collection.name, mode: prefix.slice(collection.name.length + 1), path }
+}
+
+/**
+ * The token a finding is about, read in the finding's mode: `Collection.Mode/Group/Token` →
+ * its alias chain and value. None for findings about a file or a pair of tokens.
+ */
+export function findingChain(model: TokenModel, tokenPath: string): DetailLine | undefined {
+  const token = parseTokenId(model, tokenPath)
+  if (!token) return undefined
+  return tokenLine(model, token.path.split('/'), { [token.collection]: token.mode })
 }

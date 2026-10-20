@@ -122,6 +122,37 @@ describe('@dta packages in a browser bundle', () => {
     expect(bytes.length).toBeLessThan(BUDGET[pkg])
   })
 
+  // TICKET-078: the graph's chunk shows a token's CSS and Tailwind names (`codeNames`, as
+  // `dta token get`). @dta/build is side-effect free ("sideEffects": false), so its pure helpers
+  // tree-shake into a few KB without Style Dictionary.
+  it('bundles the code-name helpers of @dta/build without Style Dictionary', async () => {
+    const result = await build({
+      stdin: {
+        contents: `export { codeNames, cssVariableName, isBuilt, tailwindThemeProperty } from '@dta/build'`,
+        resolveDir: site,
+        loader: 'ts',
+      },
+      bundle: true,
+      platform: 'browser',
+      format: 'esm',
+      minify: true,
+      metafile: true,
+      write: false,
+      absWorkingDir: repo,
+      logLevel: 'silent',
+    })
+    // What ends up in the output (the metafile's inputs list every file read, shaken or not).
+    const [output] = Object.values(result.metafile.outputs)
+    const kept = Object.entries(output.inputs)
+      .filter(([, input]) => input.bytesInOutput > 0)
+      .map(([file]) => file)
+    expect(kept.filter((file) => file.includes('style-dictionary'))).toEqual([])
+    expect(kept.some((file) => file.includes('packages/build/src/code-names'))).toBe(true)
+    const bytes = result.outputFiles[0].contents
+    console.info(`@dta/build code names: ${bytes.length} B minified, ${gzip(bytes)} B gzip`)
+    expect(bytes.length).toBeLessThan(12_000)
+  })
+
   it('splits @dta/build (Style Dictionary) out of the playground entry', async () => {
     const outdir = fs.mkdtempSync(path.join(os.tmpdir(), 'dta-browser-'))
     try {

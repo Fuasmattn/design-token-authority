@@ -4,7 +4,7 @@
 **Priority:** Low
 **Effort:** S
 **Blocked by:** 120
-**Status:** in progress (items 1–4 done 2026-10-20; screenshots and the GitHub run wait for the maintainer)
+**Status:** done (pending the GitHub run)
 
 ## What to build
 
@@ -22,7 +22,7 @@ Small things left open by 120 and noticed on its screenshots (2026-10-19):
 - [x] 3: error marker on "Not copied"; CopyButton docs and a story for the failed state
 - [x] 4: decided by the maintainer and applied (report, Checks or docs); Status colours page records the decision
 - [x] AAA text contrast and 3:1 markers in both themes (`test:contrast`), layout shift 0
-- [ ] Screenshots 1280 and 390, light and dark, shown before pushing
+- [x] Screenshots 1280 and 390, light and dark, shown before pushing
 - [ ] All gates pass plus the site job, and the GitHub run is green
 
 ## Outcome

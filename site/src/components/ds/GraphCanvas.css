@@ -1,0 +1,339 @@
+/*
+ * GraphCanvas: the layers as columns inside a hairline box on the canvas (no grid paper: nothing
+ * is measured here), headers over a 2px ink rule, rows as ink outlines on the surface, arrows in
+ * the subtle ink. Findings in the status colours with shape + word; the selection and its chain
+ * in the blueprint action colours. The drawing has a fixed width; a narrower box scrolls it.
+ */
+.dta-graph {
+  box-sizing: border-box;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-4);
+  border: var(--stroke-hairline) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  color: var(--fg-default);
+  font-family: var(--font-sans);
+}
+.dta-graph__scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+.dta-graph__sheet {
+  display: grid;
+  gap: var(--space-4);
+}
+
+/* Layer headers: the collection, its mode and count, a file finding; a 2px ink rule under them. */
+.dta-graph__heads {
+  display: grid;
+  align-items: start;
+  padding-bottom: var(--space-3);
+  border-bottom: var(--stroke-ink) solid var(--border-strong);
+}
+.dta-graph__head {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.dta-graph__kicker {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  letter-spacing: var(--type-meta-letter-spacing);
+  color: var(--fg-subtle);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.dta-graph__layer {
+  margin: 0;
+  line-height: var(--type-body-sm-line-height);
+}
+.dta-graph__mode {
+  font-size: calc(var(--type-body-size) * 1px);
+  font-weight: var(--type-title-weight);
+}
+.dta-graph__count {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  color: var(--fg-muted);
+}
+/* A file finding on its layer: the status tint, its marker and word; a button to the finding. */
+.dta-graph__finding {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 28px;
+  margin: var(--space-1) 0 0;
+  padding: 0 var(--space-2);
+  border: var(--stroke-hairline) solid transparent;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  text-align: left;
+  white-space: nowrap;
+}
+.dta-graph__finding[data-severity='error'] {
+  background: var(--status-error-subtle);
+  color: var(--status-error-text);
+}
+.dta-graph__finding[data-severity='warning'] {
+  background: var(--status-warning-subtle);
+  color: var(--status-warning-text);
+}
+button.dta-graph__finding {
+  cursor: pointer;
+}
+button.dta-graph__finding:hover {
+  border-color: currentColor;
+}
+button.dta-graph__finding:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: var(--stroke-hairline);
+}
+
+/* The drawing: arrows underneath, group labels and rows placed on top. */
+.dta-graph__drawing {
+  position: relative;
+}
+.dta-graph__edges {
+  position: absolute;
+  inset: 0 auto auto 0;
+  overflow: visible;
+}
+.dta-graph__group {
+  position: absolute;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  color: var(--fg-subtle);
+  white-space: nowrap;
+}
+
+/* Arrows: the subtle ink, hairline; the selected chain in action-bg, an ink stroke thick. */
+.dta-graph__edge path {
+  fill: none;
+  stroke: var(--fg-subtle);
+  stroke-width: var(--stroke-hairline);
+  transition: stroke var(--motion-duration-fast) var(--motion-ease-standard);
+}
+.dta-graph__edge polygon {
+  fill: var(--fg-subtle);
+  transition: fill var(--motion-duration-fast) var(--motion-ease-standard);
+}
+.dta-graph__edge[data-kind='circular'] path,
+.dta-graph__edge[data-kind='dangling'] path {
+  stroke: var(--status-error-marker);
+  stroke-width: var(--stroke-redline);
+}
+.dta-graph__edge[data-kind='dangling'] path {
+  stroke-dasharray: 4 3;
+}
+.dta-graph__edge[data-kind='circular'] polygon,
+.dta-graph__edge[data-kind='dangling'] polygon {
+  fill: var(--status-error-marker);
+}
+.dta-graph__edge[data-chain] path {
+  stroke: var(--action-bg);
+  stroke-width: var(--stroke-ink);
+}
+.dta-graph__edge[data-chain] polygon {
+  fill: var(--action-bg);
+}
+
+/* Rows: the leaf name, then the value (or the status word) at the end. */
+.dta-graph__node {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0 calc(var(--space-2) - var(--stroke-hairline));
+  border: var(--stroke-hairline) solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--fg-default);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: 1;
+  text-align: left;
+  white-space: nowrap;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    border-color var(--motion-duration-fast) var(--motion-ease-standard),
+    color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+button.dta-graph__node {
+  cursor: pointer;
+}
+/*
+ * Hover tints a plain row only (a selection or a finding keeps its own tint under the pointer),
+ * and at once: only a change of selection tints over a duration, so a pointer passing by never
+ * leaves a transition cut short.
+ */
+button.dta-graph__node:not([aria-current]):not([data-chain]):not([data-severity]):hover {
+  background: var(--bg-subtle);
+  transition: none;
+}
+.dta-graph__node:focus-visible {
+  z-index: 1;
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: var(--stroke-hairline);
+}
+.dta-graph__name {
+  min-width: 0;
+  overflow: hidden;
+  line-height: var(--type-meta-line-height);
+  text-overflow: ellipsis;
+}
+.dta-graph__value {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  color: var(--fg-muted);
+}
+.dta-graph__swatch {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 10px;
+  height: 10px;
+  margin-right: var(--space-2);
+  border: var(--stroke-hairline) solid var(--border-strong);
+  border-radius: 2px;
+}
+.dta-graph__unused {
+  color: var(--fg-subtle);
+}
+.dta-graph__status {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Markers: 8px; error a filled square, warning an open ring (shape + word, never colour alone). */
+.dta-graph__marker {
+  flex: none;
+  box-sizing: border-box;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+}
+[data-severity='error'] .dta-graph__marker,
+.dta-graph__chip .dta-graph__marker {
+  background: var(--status-error-marker);
+}
+[data-severity='warning'] .dta-graph__marker {
+  border: var(--stroke-ink) solid var(--status-warning-marker);
+  border-radius: var(--radius-full);
+}
+
+/* A row with a finding: its status tint inside a complete 2px outline in the marker colour. */
+.dta-graph__node[data-severity] {
+  padding: 0 calc(var(--space-2) - var(--stroke-ink));
+  border-width: var(--stroke-ink);
+}
+.dta-graph__node[data-severity='error'] {
+  border-color: var(--status-error-marker);
+  background: var(--status-error-subtle);
+}
+.dta-graph__node[data-severity='warning'] {
+  border-color: var(--status-warning-marker);
+  background: var(--status-warning-subtle);
+}
+.dta-graph__node[data-severity='error'] .dta-graph__status {
+  color: var(--status-error-text);
+}
+.dta-graph__node[data-severity='warning'] .dta-graph__status {
+  color: var(--status-warning-text);
+}
+/* The target of a dangling alias: drawn dashed, it does not exist. */
+.dta-graph__node[data-missing] {
+  border-style: dashed;
+}
+
+/*
+ * The selection (aria-current) and its chain: the blueprint tint inside a 2px action-bg outline,
+ * the row's ink in action-text. A row with a finding keeps its marker and word (TICKET-121).
+ */
+.dta-graph__node[aria-current='true'],
+.dta-graph__node[data-chain] {
+  padding: 0 calc(var(--space-2) - var(--stroke-ink));
+  border-width: var(--stroke-ink);
+  border-color: var(--action-bg);
+  background: var(--action-subtle);
+  color: var(--action-text);
+}
+.dta-graph__node[aria-current='true'] .dta-graph__value,
+.dta-graph__node[data-chain] .dta-graph__value,
+.dta-graph__node[aria-current='true'] .dta-graph__unused,
+.dta-graph__node[data-chain] .dta-graph__unused {
+  color: var(--action-text);
+}
+
+/* A circular pair's chip, beside its arcs. */
+.dta-graph__chip {
+  position: absolute;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 22px;
+  padding: 0 var(--space-2);
+  border: var(--stroke-hairline) solid var(--status-error-marker);
+  border-radius: var(--radius-sm);
+  background: var(--status-error-subtle);
+  color: var(--status-error-text);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* The legend under the drawing, as wide as the drawing (it never widens the box). */
+.dta-graph__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  width: 0;
+  min-width: 100%;
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: var(--stroke-hairline) solid var(--border-default);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  color: var(--fg-muted);
+}
+.dta-graph__key {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.dta-graph__glyph {
+  flex: none;
+  overflow: visible;
+}
+.dta-graph__key[data-severity='error'] .dta-graph__word {
+  color: var(--status-error-text);
+}
+.dta-graph__key[data-severity='warning'] .dta-graph__word {
+  color: var(--status-warning-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dta-graph__node,
+  .dta-graph__edge path,
+  .dta-graph__edge polygon {
+    transition: none;
+  }
+}

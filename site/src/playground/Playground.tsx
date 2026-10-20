@@ -10,17 +10,23 @@
  *   to the next finding ("Next finding");
  * - Outputs (TICKET-079): which outputs to build, the files grouped with Copy and Download, one
  *   zip per group and "Download all", and the generated dta.config.ts with the CLI commands.
+ * - Graph (TICKET-078): the dependency graph from `@dta/core` for one brand and breakpoint
+ *   (GraphSwitcher), drawn as layer columns (GraphCanvas) or, on phones, as a list (GraphList);
+ *   a token opens its readings in every mode, as `dta token get` gives them, in the panel. A lint
+ *   finding's "Show in graph" and a token's "Show in lint" lead from one view to the other; the
+ *   hash keeps the selected token (`#graph/<id>`, its mode chosen from the id).
  * Everything it shows is a design-system component; src/styles/playground.css only places them.
  * Motion (TICKET-116, design-system/motion): a new read is a View Transition (the input collapses
  * into the source bar, the results fade in one after another), a tab change crossfades the view,
  * new output files move into place, the detail panel slides in, and changed counts light up.
  * Nothing is uploaded: the example is bundled and the analysis runs here (analyse.ts). The only
  * requests after load are the page's own lazy chunks: `@dta/build` (Style Dictionary) and the
- * zip code (outputs-engine.ts) load when the Outputs tab first opens (spec decision 9).
+ * zip code (outputs-engine.ts) load when the Outputs tab first opens (spec decision 9), the graph
+ * (graph-engine.ts) when the Graph tab first opens.
  */
 import type { BuildResult, OutputFormat } from '@dta/build'
 import { hasErrors } from '@dta/core'
-import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import CliHandoff from '../components/ds/CliHandoff'
 import CopyButton from '../components/ds/CopyButton'
 import DetailPanel, { type DetailPanelProps } from '../components/ds/DetailPanel'
@@ -43,6 +49,7 @@ import {
   collectionDetail,
   diagnosticGroups,
   findingChain,
+  parseTokenId,
   type Outcome,
   type PlaygroundResult,
   type RuleFindings,
@@ -64,17 +71,41 @@ import {
 } from './outputs'
 
 type Engine = typeof import('./outputs-engine')
+type Graph = typeof import('./graph-engine')
+type Modes = Record<string, string>
 
 const ID = 'pg'
 const FINDINGS_ID = `${ID}-finding`
 const VIEWS = ['structure', 'lint', 'graph', 'outputs'] as const
 type View = (typeof VIEWS)[number]
 
-/** The selected view from the URL hash (`#lint`), or none for any other hash. */
-function viewOfHash(): View | undefined {
+/**
+ * The selected view from the URL hash (`#lint`), and on the graph the selected token
+ * (`#graph/Brand(Alias).BrandB/Colors/Brand/Accent`); none for any other hash.
+ */
+function hashState(): { view?: View; token?: string } {
   const hash = window.location.hash.slice(1)
-  return (VIEWS as readonly string[]).includes(hash) ? (hash as View) : undefined
+  const slash = hash.indexOf('/')
+  const view = slash < 0 ? hash : hash.slice(0, slash)
+  if (!(VIEWS as readonly string[]).includes(view)) return {}
+  if (slash < 0 || view !== 'graph') return { view: view as View }
+  let token: string | undefined
+  try {
+    token = decodeURIComponent(hash.slice(slash + 1)) || undefined
+  } catch {
+    token = undefined
+  }
+  return { view: 'graph', token }
 }
+
+/** The hash for a view, and a token on the graph. */
+const hashOf = (view: View, token?: string) => (token ? `#${view}/${encodeURI(token)}` : `#${view}`)
+
+/** The element that shows a token on screen: the canvas row or the list row, whichever shows. */
+const visibleNode = (id: string) =>
+  [...document.querySelectorAll<HTMLElement>('[data-node]')].find(
+    (element) => element.dataset.node === id && element.offsetParent !== null,
+  ) ?? null
 
 interface Source {
   label: string
@@ -110,6 +141,7 @@ type Selection =
   | { kind: 'collection'; name: string; mode?: string }
   | { kind: 'finding'; group: number; line: number }
   | { kind: 'file'; path: string }
+  | { kind: 'token'; id: string }
 
 /** The outputs built for one read and one choice of formats. */
 interface Built extends BuildResult {
@@ -184,6 +216,7 @@ function panelOf(
 ): Omit<DetailPanelProps, 'open'> | undefined {
   const { model, structure, lint } = result
   if (!model || !structure || !lint) return undefined
+  if (selection.kind === 'token') return undefined
   if (selection.kind === 'file') {
     const file = files.find(selection.path)
     if (!file) return undefined
@@ -257,17 +290,76 @@ export default function Playground() {
   viewNow.current = view
   // The panel's last content, kept while it closes (it slides out with what it showed).
   const lastPanel = useRef<Omit<DetailPanelProps, 'open'> | undefined>(undefined)
+  // Graph (TICKET-078): its chunk loads with the tab; the modes shown (brand, breakpoint) are
+  // chosen per collection; `reveal` counts selections made elsewhere, to scroll them into view.
+  const [graph, setGraph] = useState<Graph | null>(null)
+  const graphLoading = useRef<Promise<Graph> | null>(null)
+  const [modes, setModes] = useState<Modes>({})
+  const [reveal, setReveal] = useState(0)
+  const runNow = useRef(run)
+  runNow.current = run
 
-  // The selected view lives in the URL hash, so a reload or a shared link keeps it.
+  /** Selects a token from its id (a hash, "Show in graph"): its mode is shown, it is revealed. */
+  const showToken = (id: string, result = runNow.current?.result): boolean => {
+    const token = result?.model && parseTokenId(result.model, id)
+    if (!token) return false
+    setModes((current) => ({ ...current, [token.collection]: token.mode }))
+    setSelection({ kind: 'token', id })
+    setReveal((count) => count + 1)
+    opener.current = null
+    return true
+  }
+
+  // The selected view lives in the URL hash, so a reload or a shared link keeps it; on the graph
+  // also the selected token.
   useEffect(() => {
     const sync = () => {
-      const fromHash = viewOfHash()
-      if (fromHash) setView(fromHash)
+      const { view: fromHash, token } = hashState()
+      if (!fromHash) return
+      setView(fromHash)
+      if (token && runNow.current) showToken(token)
     }
     sync()
     window.addEventListener('hashchange', sync)
     return () => window.removeEventListener('hashchange', sync)
   }, [])
+
+  // The graph's chunk loads the first time the Graph view opens.
+  useEffect(() => {
+    if (view !== 'graph' || graph) return
+    graphLoading.current ??= import('./graph-engine')
+    let current = true
+    void graphLoading.current.then((module) => {
+      if (current) setGraph(module)
+    })
+    return () => {
+      current = false
+    }
+  }, [view, graph])
+
+  const graphView = useMemo(
+    () =>
+      graph && run?.result.model && run.result.structure
+        ? graph.buildGraph(run.result, modes)
+        : null,
+    [graph, run, modes],
+  )
+
+  // A selection made from another view (or a hash) has no row that opened it: once its row (or
+  // finding) is on screen, closing the panel returns focus there (one more render hands it over).
+  const [, setOpenerFound] = useState(0)
+  useEffect(() => {
+    if (opener.current?.isConnected) return
+    let found: HTMLElement | null = null
+    if (selection?.kind === 'token' && view === 'graph' && graphView) {
+      found = visibleNode(selection.id)
+    } else if (selection?.kind === 'finding' && view === 'lint') {
+      found = document.getElementById(findingId(FINDINGS_ID, selection.group, selection.line))
+    }
+    if (!found) return
+    opener.current = found
+    setOpenerFound((count) => count + 1)
+  })
 
   const loadEngine = () => {
     engine.current ??= import('./outputs-engine').then((module) => {
@@ -322,23 +414,68 @@ export default function Playground() {
     if (!(VIEWS as readonly string[]).includes(next)) return
     setView(next as View)
     setSelection(null)
-    history.replaceState(null, '', `#${next}`)
+    history.replaceState(null, '', hashOf(next as View))
   }
 
   const read = (input: readonly TokenInputFile[], example?: Example) => {
     const result = analyse(input)
+    const { view: fromHash, token } = hashState()
     transition(() => {
       setRun({ result, source: sourceOf(result, input, example), key: (run?.key ?? 0) + 1 })
       setSelection(null)
       setPasting(false)
+      setModes({})
+      // A shared link to a token on the graph opens it once the tokens are read.
+      if (fromHash === 'graph' && token) showToken(token, result)
     }, 'dta-read')
   }
 
   const open = (next: Selection, element: HTMLElement) => {
     opener.current = element
     setSelection(next)
+    if (next.kind === 'token') history.replaceState(null, '', hashOf('graph', next.id))
   }
-  const close = useCallback(() => setSelection(null), [])
+  const selectionNow = useRef(selection)
+  selectionNow.current = selection
+  const close = useCallback(() => {
+    if (selectionNow.current?.kind === 'token') history.replaceState(null, '', hashOf('graph'))
+    setSelection(null)
+  }, [])
+
+  /** A finding's "Show in graph": the Graph view with its token selected and in view. */
+  const showInGraph = (id: string) =>
+    transition(() => {
+      if (!showToken(id)) return
+      setView('graph')
+      history.replaceState(null, '', hashOf('graph', id))
+    }, 'dta-tabs')
+
+  /** A token's (or a layer's) "Show in lint": the Lint view with that finding open. */
+  const showInLint = (ref: { group: number; line: number } | undefined) => {
+    if (!ref) return
+    transition(() => {
+      opener.current = null
+      setView('lint')
+      setSelection({ kind: 'finding', ...ref })
+      history.replaceState(null, '', hashOf('lint'))
+    }, 'dta-tabs')
+  }
+
+  /** Another brand or breakpoint: the graph redraws; a selected token follows into that mode. */
+  const changeMode = (collection: string, mode: string) => {
+    const model = run?.result.model
+    transition(() => {
+      setModes((current) => ({ ...current, [collection]: mode }))
+      if (selection?.kind !== 'token' || !model) return
+      const token = parseTokenId(model, selection.id)
+      if (token?.collection !== collection) return
+      const id = `${collection}.${mode}/${token.path}`
+      opener.current = null
+      setSelection({ kind: 'token', id })
+      setReveal((count) => count + 1)
+      history.replaceState(null, '', hashOf('graph', id))
+    }, 'dta-tabs')
+  }
 
   if (!run) {
     return (
@@ -427,6 +564,17 @@ export default function Playground() {
       </>
     ),
   }
+  /** A token's panel: every reading as `dta token get` gives it, its names and its findings. */
+  function tokenPanel(): Omit<DetailPanelProps, 'open'> | undefined {
+    if (selection?.kind !== 'token' || !graph || !graphView) return undefined
+    const detail = graph.tokenDetail(result, graphView, selection.id)
+    if (!detail) return undefined
+    return {
+      ...graph.tokenPanelContent(detail, { onLint: showInLint, onMode: changeMode }),
+      contentKey: `token-${selection.id}`,
+    }
+  }
+
   // A finding's panel steps through every finding, rule by rule, in the order of the Lint view.
   const order = (lint?.rules ?? []).flatMap((rule, group) =>
     rule.findings.map((_, line) => ({ group, line })),
@@ -435,11 +583,26 @@ export default function Playground() {
     selection?.kind === 'finding'
       ? order.findIndex((f) => f.group === selection.group && f.line === selection.line)
       : -1
-  const found = selection ? panelOf(result, selection, previews) : undefined
+  const finding =
+    selection?.kind === 'finding'
+      ? lint?.rules[selection.group]?.findings[selection.line]
+      : undefined
+  // A finding about a token leads to it on the graph.
+  const inGraph = finding && result.model && parseTokenId(result.model, finding.tokenPath)
+  const found = selection ? (panelOf(result, selection, previews) ?? tokenPanel()) : undefined
   const panel: Omit<DetailPanelProps, 'open'> | undefined =
     found && at >= 0
       ? {
           ...found,
+          links: inGraph ? (
+            <button
+              type="button"
+              class="dta-button outline"
+              onClick={() => finding && showInGraph(finding.tokenPath)}
+            >
+              Show in graph
+            </button>
+          ) : undefined,
           contentKey: `finding-${order[at].group}-${order[at].line}`,
           next:
             order.length > 1
@@ -462,6 +625,7 @@ export default function Playground() {
   const panelContent = panel ?? lastPanel.current
   const collection = selection?.kind === 'collection' ? selection : undefined
   const openFile = selection?.kind === 'file' ? selection.path : undefined
+  const tokenId = selection?.kind === 'token' ? selection.id : undefined
 
   return (
     <div class="pg" data-loaded="">
@@ -544,12 +708,44 @@ export default function Playground() {
                     }
                   />
                 )}
-                {view === 'graph' && (
-                  <p class="pg-coming">
-                    The dependency graph, with a brand and breakpoint switcher, comes next
-                    (TICKET-078).
-                  </p>
-                )}
+                {view === 'graph' &&
+                  (graph && graphView ? (
+                    <div class="pg-graph">
+                      <graph.GraphSwitcher
+                        idPrefix={`${ID}-modes`}
+                        groups={graphView.switcher}
+                        onChange={changeMode}
+                        note={graphView.note}
+                        narrowNote="On a phone the graph is a list: each layer, its tokens and their alias chains."
+                      />
+                      <div class="pg-graph__canvas">
+                        <graph.GraphCanvas
+                          idPrefix={`${ID}-graph`}
+                          label={`Dependency graph, ${graphView.label || 'every mode'}`}
+                          data={graphView.data}
+                          selected={tokenId}
+                          onSelect={(id, element) => open({ kind: 'token', id }, element)}
+                          onFinding={(id) => showInLint(graphView.layerFindings.get(id))}
+                          reveal={reveal}
+                        />
+                      </div>
+                      <div class="pg-graph__list">
+                        <graph.GraphList
+                          idPrefix={`${ID}-graph-list`}
+                          label={`Dependency graph, ${graphView.label || 'every mode'}`}
+                          data={graphView.data}
+                          selected={tokenId}
+                          onSelect={(id, element) => open({ kind: 'token', id }, element)}
+                          onFinding={(id) => showInLint(graphView.layerFindings.get(id))}
+                          open={graphView.switcher.slice(0, 1).map((group) => group.id)}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <p class="pg-hint" role="status">
+                      Drawing the graph with <code>@dta/core</code>, in your browser…
+                    </p>
+                  ))}
                 {view === 'outputs' && (
                   <div class="pg-outputs">
                     <OutputOptions

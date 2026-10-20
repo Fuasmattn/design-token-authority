@@ -3,7 +3,8 @@
  * `prefers-reduced-motion: reduce` the well, the floating objects and every other story have no
  * running animation, and the well's canvas is drawn once (its loop stops); the playground moves
  * nothing under reduced motion but still highlights changed values, and with motion its
- * transitions run on the motion tokens (also the detail panel's "Next finding", TICKET-113); neither the playground nor the landing page shifts its
+ * transitions run on the motion tokens (also the detail panel's "Next finding", TICKET-113, and
+ * the graph's selection and brand switch, TICKET-078); neither the playground nor the landing page shifts its
  * layout. Same conditions as contrast.e2e.test.ts (built site, Chromium).
  */
 import fs from 'node:fs'
@@ -337,6 +338,93 @@ describe.skipIf(!enabled)('motion on the rendered stories', () => {
           expect(motion.props.opacity ?? []).toContain('dta-detail__message')
           for (const [, , duration] of motion.timings)
             expect(TOKEN_MS).toContain(Math.round(duration))
+        }
+        expect(await page.evaluate('window.__shift')).toBe(0)
+      } finally {
+        await context.close()
+      }
+    },
+    60_000,
+  )
+
+  it.each([
+    [1280, 'reduce'],
+    [390, 'reduce'],
+    [1280, 'no-preference'],
+    [390, 'no-preference'],
+  ] as const)(
+    'the graph at %i px (%s motion): a selection tints on the tokens or at once, the brand switch crossfades with motion only, no shift',
+    async (width, reducedMotion) => {
+      const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion })
+      try {
+        const page = await context.newPage()
+        await page.goto(`${origin}/playground/#graph`, { waitUntil: 'networkidle' })
+        await page.getByRole('button', { name: 'Example with problems' }).click()
+        await page.locator(width >= 1024 ? '.dta-graph' : '.dta-graph-list').waitFor()
+        await page.waitForTimeout(400)
+        await page.evaluate(RECORD)
+        await page.evaluate(WATCH_SHIFTS)
+        const subtle = await page.evaluate(`(() => {
+          const probe = document.createElement('span')
+          probe.style.background = 'var(--action-subtle)'
+          document.body.append(probe)
+          const value = getComputedStyle(probe).backgroundColor
+          probe.remove()
+          return value
+        })()`)
+        const accent = page.getByRole('button', { name: /^Colors\.Brand\.Accent/ })
+        await accent.click()
+        // The highlight is there on the first frame under reduced motion, and in the end with it.
+        const tint = (selector: string) =>
+          page.evaluate(
+            `getComputedStyle(document.querySelector(${JSON.stringify(selector)})).backgroundColor`,
+          )
+        const target =
+          width >= 1024
+            ? '.dta-graph__node[aria-current="true"]'
+            : '.dta-graph-list__row[aria-current="true"] button'
+        if (reducedMotion === 'reduce') expect(await tint(target)).toBe(subtle)
+        await page.getByRole('dialog').waitFor()
+        await page.waitForTimeout(400)
+        expect(await tint(target)).toBe(subtle)
+        if (width >= 1024) expect(await tint('.dta-graph__node[data-chain]')).toBe(subtle)
+        await page.getByRole('button', { name: 'Close details' }).click()
+        await page.waitForTimeout(400)
+        if (width >= 1024)
+          await page
+            .getByRole('group', { name: 'Brand' })
+            .getByRole('button', { name: /^BrandB/ })
+            .click()
+        else {
+          // By keyboard, as a visitor changes it: a scripted selectOption is no user input, so the
+          // taller BrandB layer would count as a layout shift whenever it lands after 500 ms.
+          await page.getByRole('combobox', { name: 'Brand' }).focus()
+          await page.keyboard.press('ArrowDown')
+        }
+        await page.getByRole('group', { name: /BrandB · Desktop$/ }).waitFor()
+        await page.waitForTimeout(400)
+        const motion = (await page.evaluate('window.__motion')) as {
+          props: Record<string, string[]>
+          timings: Array<[string, string, number, number]>
+          vt: number
+        }
+        if (reducedMotion === 'reduce') {
+          expect(motion.vt).toBe(0)
+          // Nothing moves or fades; only a changed value's highlight could.
+          expect(
+            [...new Set(Object.values(motion.props).flat())].filter((t) => t !== 'dta-changed'),
+          ).toEqual([])
+        } else {
+          // The brand switch redraws the view in a crossfade; the rows' tint follows the selection.
+          expect(motion.vt).toBeGreaterThanOrEqual(1)
+          const tinted = width >= 1024 ? 'dta-graph__node' : 'dta-graph-list__token'
+          expect(motion.props['background-color'] ?? []).toContain(tinted)
+          const sums = new Set(TOKEN_MS.flatMap((a) => TOKEN_MS.map((b) => a + b)))
+          const off = motion.timings.filter(([, , duration, delay]) => {
+            const ms = (value: number) => Math.round(value)
+            return !sums.has(ms(duration)) || !(sums.has(ms(delay)) || ms(delay) % 40 === 0)
+          })
+          expect(off).toEqual([])
         }
         expect(await page.evaluate('window.__shift')).toBe(0)
       } finally {

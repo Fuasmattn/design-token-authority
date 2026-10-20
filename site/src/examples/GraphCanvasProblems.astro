@@ -1,0 +1,27 @@
+---
+// Real output: the "Example with problems" in BrandA · Desktop as the playground's Graph view
+// draws it (analyzeGraph from @dta/core), Colors.Brand.Accent selected: its chain to Sky.500 in
+// the blueprint selection, the circular pair, the default mode name on the primitives' header.
+import GraphCanvas from '../components/ds/GraphCanvas'
+import { analyse } from '../playground/analyse'
+import { PROBLEM_EXAMPLE } from '../playground/example'
+import { buildGraph } from '../playground/graph'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'graph-problems' } = Astro.props
+const view = buildGraph(analyse(PROBLEM_EXAMPLE.files), {
+  'Brand(Alias)': 'BrandA',
+  ScreenType: 'Desktop',
+})
+---
+
+<GraphCanvas
+  idPrefix={idPrefix}
+  label={`Dependency graph, ${view.label}`}
+  data={view.data}
+  selected="Brand(Alias).BrandA/Colors/Brand/Accent"
+  onSelect={() => {}}
+  onFinding={() => {}}
+/>
