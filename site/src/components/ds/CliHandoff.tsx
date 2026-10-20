@@ -15,6 +15,7 @@
 import type { ComponentChildren } from 'preact'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import CopyButton from './CopyButton'
+import { breakPaths } from './TokenPath'
 import './Button.css'
 import './CommandButton.css'
 import './CliHandoff.css'
@@ -67,7 +68,7 @@ function Command({ command }: { command: string }) {
       <span class="dta-command__prompt" aria-hidden="true">
         $
       </span>
-      <span class="dta-command__text">{command}</span>
+      <span class="dta-command__text">{breakPaths(command)}</span>
       <svg class="dta-command__icon dta-command__copy" viewBox="0 0 24 24" aria-hidden="true">
         <rect x="9" y="9" width="12" height="12" rx="2"></rect>
         <path d="M15 9V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4"></path>
@@ -106,7 +107,7 @@ export default function CliHandoff({
           class="dta-cli__name"
           onClick={(event) => onOpenConfig?.(event.currentTarget)}
         >
-          {config.name}
+          {breakPaths(config.name)}
         </button>
         <span class="dta-cli__size">{config.size}</span>
         <span class="dta-cli__actions">
@@ -124,7 +125,7 @@ export default function CliHandoff({
       <ol class="dta-cli__steps">
         {steps.map((step, index) => (
           <li class="dta-cli__step" key={index}>
-            <span class="dta-cli__text">{step.text}</span>
+            <span class="dta-cli__text">{breakPaths(step.text)}</span>
             {step.command && <Command command={step.command} />}
           </li>
         ))}

@@ -24,6 +24,7 @@
 import type { ComponentChildren } from 'preact'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import Changed from './Changed'
+import { breakPaths } from './TokenPath'
 import './Button.css'
 import './DetailPanel.css'
 
@@ -72,12 +73,6 @@ export interface DetailPanelProps {
   presentation?: DetailPresentation
   /** Renders the panel open without script (stories). */
   staticOpen?: boolean
-}
-
-/** A path with a line-break opportunity after each `/`, so it wraps between folders. */
-export function breakable(text: string): ComponentChildren {
-  const parts = text.split('/')
-  return parts.map((part, index) => (index < parts.length - 1 ? [part, '/', <wbr />] : part))
 }
 
 /** The width from which the panel sits beside the view. */
@@ -204,11 +199,11 @@ export default function DetailPanel({
           {kicker && (
             <p class="dta-detail__kicker" data-severity={kickerSeverity}>
               {kickerSeverity && <span class="dta-detail__marker" aria-hidden="true" />}
-              {kicker}
+              {breakPaths(kicker)}
             </p>
           )}
           <h2 class="dta-detail__title" id={titleId} ref={heading} tabIndex={-1}>
-            {breakable(title)}
+            {breakPaths(title)}
           </h2>
         </div>
         <button
@@ -222,7 +217,9 @@ export default function DetailPanel({
       </div>
       <div class="dta-detail__body">
         <div class="dta-detail__content" key={key} data-stepped={stepped > 0 ? '' : undefined}>
-          {meta && <p class="dta-detail__meta">{meta}</p>}
+          {meta && (
+            <p class="dta-detail__meta">{typeof meta === 'string' ? breakPaths(meta) : meta}</p>
+          )}
           {actions && <div class="dta-detail__actions">{actions}</div>}
           {modes && modes.options.length > 1 && (
             <div class="dta-detail__modes" role="group" aria-label={modes.label}>
@@ -239,12 +236,12 @@ export default function DetailPanel({
               ))}
             </div>
           )}
-          {message && <p class="dta-detail__message">{message}</p>}
+          {message && <p class="dta-detail__message">{breakPaths(message)}</p>}
           {lines && lines.length > 0 && (
             <ul class="dta-detail__lines" tabIndex={0} aria-label={linesLabel}>
               {lines.map((line, index) => (
                 <li class="dta-detail__line" key={`${line.name}-${index}`}>
-                  <span class="dta-detail__name">{line.name}</span>
+                  <span class="dta-detail__name">{breakPaths(line.name)}</span>
                   {line.detail && (
                     <span class="dta-detail__value">
                       {line.swatch && (
@@ -254,7 +251,7 @@ export default function DetailPanel({
                           style={{ background: line.swatch }}
                         />
                       )}
-                      {line.detail}
+                      {breakPaths(line.detail)}
                     </span>
                   )}
                 </li>

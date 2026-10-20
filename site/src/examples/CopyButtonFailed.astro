@@ -1,0 +1,34 @@
+---
+// The browser refused the clipboard: "Not copied" with the error square, at the width the
+// button had before (all three labels share one cell), next to the idle and copied buttons.
+import CopyButton from '../components/ds/CopyButton'
+---
+
+<div class="row">
+  <CopyButton text="output/css/base.css" accessibleLabel="Copy output/css/base.css" />
+  <CopyButton
+    text="output/css/base.css"
+    accessibleLabel="Copy output/css/base.css"
+    staticState="copied"
+  />
+  <CopyButton
+    text="output/css/base.css"
+    accessibleLabel="Copy output/css/base.css"
+    staticState="failed"
+  />
+  <CopyButton
+    text="dta.config.ts"
+    accessibleLabel="Copy dta.config.ts"
+    variant="outline"
+    staticState="failed"
+  />
+</div>
+
+<style>
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+</style>

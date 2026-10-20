@@ -24,6 +24,7 @@
  * A Preact component (the playground island renders it); stories render it to static HTML.
  */
 import { useEffect, useRef } from 'preact/hooks'
+import { breakPaths } from './TokenPath'
 import './Findings.css'
 
 export interface FindingLine {
@@ -92,7 +93,7 @@ function Line({
     <>
       <span class="dta-findings__marker" aria-hidden="true" />
       <span class="dta-findings__text">
-        <span class="dta-findings__label">{line.label}</span> {line.text}
+        <span class="dta-findings__label">{line.label}</span> {breakPaths(line.text)}
         {line.link && !onSelect && (
           <>
             {' '}
@@ -103,7 +104,7 @@ function Line({
             .
           </>
         )}
-        {line.detail && <span class="dta-findings__detail">{line.detail}</span>}
+        {line.detail && <span class="dta-findings__detail">{breakPaths(line.detail)}</span>}
       </span>
     </>
   )
@@ -213,7 +214,7 @@ export default function Findings({
       ) : (
         groups.map((group, g) => (
           <div class="dta-findings__group" key={group.title ?? g}>
-            {group.title && <p class="dta-findings__file">{group.title}</p>}
+            {group.title && <p class="dta-findings__file">{breakPaths(group.title)}</p>}
             {lines(group, g)}
           </div>
         ))

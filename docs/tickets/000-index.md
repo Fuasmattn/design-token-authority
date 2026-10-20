@@ -205,7 +205,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [078](./078-playground-graph.md)                 | Playground: dependency graph with brand and breakpoint switcher             | Medium   | M      | 077        | In progress |
 | [079](./079-playground-outputs-config.md)        | Playground: outputs, generated config and CLI handoff                       | High     | M      | 077        | Done        |
 | [113](./113-playground-example-with-findings.md) | Playground: an example that shows findings                                  | Medium   | S      | 077        | Done        |
-| [121](./121-playground-status-polish.md)         | Polish: path breaks, selected finding marker, CopyButton, review colour     | Low      | S      | 120        | Open        |
+| [121](./121-playground-status-polish.md)         | Polish: path breaks, selected finding marker, CopyButton, review colour     | Low      | S      | 120        | In progress |
 
 **Epic 8 — `dta diff`, token-aware visual regression ([spec](../specs/visual-diff.md))**
 

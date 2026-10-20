@@ -390,6 +390,20 @@ export const STORIES: readonly Story[] = [
     viewports: [DESKTOP, MOBILE],
   },
   {
+    component: 'copy-button',
+    variant: 'failed',
+    title: 'Not copied: the error square, at the same width',
+    example: 'CopyButtonFailed',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
+    component: 'token-path',
+    variant: 'wrapping',
+    title: 'Paths that break between segments, alone and inside a line',
+    example: 'TokenPathWrapping',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
     component: 'cli-handoff',
     variant: 'files',
     title: 'Token files: the config and one command',

@@ -84,6 +84,49 @@ async function open(width: number, theme: 'light' | 'dark') {
  * ancestor inside the viewport clips them (overflow other than visible). The body itself hides
  * horizontal overflow, so the page's scroll width alone would not tell.
  */
+interface Segments {
+  /** Words (between spaces and hyphens) that run over more than one line inside a segment. */
+  broken: string[]
+  /** Paths that wrap: a line ends after a separator inside a run of text without spaces. */
+  paths: number
+}
+/**
+ * Every word of the element's visible text (split at spaces and after hyphens) inside one text
+ * node: the components cut paths into text nodes at their breaks (a <wbr> after each `/` or
+ * `.`), so a word that covers more than one line has broken inside a segment.
+ */
+const SEGMENTS = (root: Element) => {
+  const broken: string[] = []
+  let paths = 0
+  const lineOf = (range: Range) =>
+    [...range.getClientRects()].filter((r) => r.width > 0).map((r) => Math.round(r.top))
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+  let last: { node: Text; top: number } | undefined
+  for (let node = walker.nextNode() as Text | null; node; node = walker.nextNode() as Text | null) {
+    for (const match of node.data.matchAll(/[^\s-]+-?/g)) {
+      const at = match.index ?? 0
+      const range = document.createRange()
+      range.setStart(node, at)
+      range.setEnd(node, at + match[0].length)
+      const tops = new Set(lineOf(range))
+      if (tops.size > 1) broken.push(match[0])
+      if (tops.size === 0) continue
+      const top = Math.min(...tops)
+      // A text node that starts its word right after a <wbr> on a new line: a path wrapped there
+      if (
+        at === 0 &&
+        last &&
+        last.top < top &&
+        node.previousSibling?.nodeName === 'WBR' &&
+        !/\s$/.test(last.node.data)
+      )
+        paths++
+      last = { node, top: Math.max(...tops) }
+    }
+  }
+  return { broken, paths }
+}
+
 const OVERFLOW = `(() => {
   const width = document.documentElement.clientWidth
   const clipped = (el) => {
@@ -576,6 +619,52 @@ describe.skipIf(!enabled)('playground on the built site', () => {
         expect(await page.locator('.dta-outputs__file').count()).toBe(0)
         expect(await page.getByRole('button', { name: 'Download all (.zip)' }).count()).toBe(0)
         expect(await page.evaluate(OVERFLOW), 'build errors').toEqual([])
+        expect(errors).toEqual([])
+      } finally {
+        await context.close()
+      }
+    },
+    60_000,
+  )
+
+  it.each([1280, 390] as const)(
+    'at %i px token paths break between their segments, never inside one (TICKET-121)',
+    async (width) => {
+      const { context, page, errors } = await open(width, 'light')
+      try {
+        await page.getByRole('button', { name: 'Example with problems' }).click()
+        await page.getByRole('table', { name: 'Structure' }).waitFor()
+
+        // The status banner: the build's circular alias names Brand(Alias).BrandA/Colors/Surface/Muted
+        await page.getByRole('button', { name: 'build outputs' }).click()
+        const banner = page.locator('.dta-findings--banner', {
+          has: page.getByRole('heading', { name: 'Build', level: 3 }),
+        })
+        await banner.waitFor()
+        const inBanner = (await banner.evaluate(SEGMENTS)) as Segments
+        expect(inBanner.broken, 'banner').toEqual([])
+        // Beside the side panel (the config's preview) the banner is narrower on a wide screen too
+        await page.getByRole('button', { name: 'dta.config.ts', exact: true }).click()
+        await page.getByRole('dialog', { name: 'dta.config.ts' }).waitFor()
+        const beside = (await banner.evaluate(SEGMENTS)) as Segments
+        expect(beside.broken, 'banner beside the panel').toEqual([])
+        expect(beside.paths, 'the banner wraps a long path').toBeGreaterThan(0)
+        await page.getByRole('button', { name: 'Close details' }).click()
+
+        // The lint panel: every rule open, every line and its file
+        await page.getByRole('tab', { name: /^Lint/ }).click()
+        for (const rule of await page.locator('summary').all()) await rule.click()
+        const lint = (await page.locator('.dta-findings').evaluate(SEGMENTS)) as Segments
+        expect(lint.broken, 'lint panel').toEqual([])
+
+        // The detail panel of the circular alias: title, message and the alias chain
+        await page.locator('#pg-finding-1-0').click()
+        const panel = page.getByRole('dialog')
+        await panel.waitFor()
+        expect(await panel.locator('.dta-detail__title').textContent()).toBe('Colors.Surface.Muted')
+        const detail = (await panel.evaluate(SEGMENTS)) as Segments
+        expect(detail.broken, 'detail panel').toEqual([])
+        expect(detail.paths, 'the panel wraps a long path').toBeGreaterThan(0)
         expect(errors).toEqual([])
       } finally {
         await context.close()

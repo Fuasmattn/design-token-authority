@@ -1,0 +1,33 @@
+---
+title: Token path
+description: Token paths, alias ids and file paths that wrap between their segments, never inside one.
+sidebar:
+  order: 29
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+Token paths are long and have no spaces: `Brand(Alias).BrandA/Colors/Surface/Muted`, `{Colors.Foundation.Orange.550}`, `output/tailwind/themes/branda/tailwind.tokens.ts`. Left alone, a browser either lets them run out of their box or, with `overflow-wrap: anywhere`, breaks them wherever the line ends ("Surface/Mu" and "ted" on the next line), so a segment is torn apart and reads as two names. Token path is the one shared way to render them: a line may break after each `/` and each `.` between two parts of a name, and every segment stays whole.
+
+## When to use
+
+- Everywhere a path can wrap: a token's name, an alias id, a token file, an output file, a command with a file in it.
+- In a line of prose that contains paths (a diagnostic as the CLI prints it): the helper finds the paths in the text; the prose around them is left as it is.
+- Not for code shown as it is (the [Detail panel](/design-system/components/detail-panel/)'s file preview keeps every line whole and scrolls inside its box).
+
+<Examples component="token-path" />
+
+## Guidelines
+
+- **One helper:** `breakPaths(text)` from `TokenPath.tsx` adds a `<wbr>` (a line-break opportunity, no visible character, nothing in the copied text) after each separator. [Findings](/design-system/components/findings/) (the lines, their files and details, also as a status banner), the [Detail panel](/design-system/components/detail-panel/) (kicker, title, meta, message, the token lines), [Output files](/design-system/components/output-files/) (the paths), the [Source bar](/design-system/components/source-bar/) (what is loaded) and the [CLI hand-off](/design-system/components/cli-handoff/) (the config's name, the steps, the commands) render their text through it. `<TokenPath path="…" />` is the same as an element of its own, in mono, for a path that stands alone.
+- **What breaks:** after a `/` between two characters; after a `.` that follows a letter or a closing bracket (`Blue.`, `Brand(Alias).`), or a digit when a letter follows (`Mode 1.json`). **What does not:** a decimal (`0.94`, `1.2 KB`), a full stop before a space or at the end, `...`, a `/` next to a space or another `/`.
+- **The last resort:** a single segment wider than its box still breaks inside it. The components keep `overflow-wrap: anywhere` for that, which only applies when a line has no other place to break; with the `<wbr>`s, that is only a segment longer than the line.
+- Screen readers and copying are unaffected: `<wbr>` is not text.
+- The playground's browser test checks it on the "Example with problems": no word of the build's status banner, the lint panel's lines or the detail panel breaks inside a segment, at 390 and 1280 px.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="TokenPath" />

@@ -16,7 +16,7 @@
  * A Preact component (the playground island renders it); stories render it to static HTML.
  */
 import CopyButton from './CopyButton'
-import { breakable } from './DetailPanel'
+import { breakPaths } from './TokenPath'
 import './Button.css'
 import './OutputFiles.css'
 
@@ -97,7 +97,7 @@ export default function OutputFiles({
                       class="dta-outputs__path"
                       onClick={(event) => onOpen?.(file.path, event.currentTarget)}
                     >
-                      {breakable(file.path)}
+                      {breakPaths(file.path)}
                     </button>
                     {file.tag && <span class="dta-outputs__tag">{file.tag}</span>}
                   </span>

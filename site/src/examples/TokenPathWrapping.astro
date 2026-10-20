@@ -1,0 +1,59 @@
+---
+// Paths in a narrow column: each breaks after a `/` or `.` and keeps its segments whole. The
+// line under them has the same paths inside prose (as a Findings line shows it): its decimal
+// and its full stop stay as they are.
+import TokenPath from '../components/ds/TokenPath'
+
+const PATHS = [
+  ['Token path', 'Brand(Alias).BrandA/Colors/Surface/Muted'],
+  ['Alias id', '{Colors.Foundation.Orange.550}'],
+  ['Token file', 'Brand(Alias).BrandA.json'],
+  ['Output file', 'output/tailwind/themes/branda/tailwind.tokens.ts'],
+]
+const LINE =
+  'Circular alias chain: Brand(Alias).BrandA/Colors/Surface/Muted → Brand(Alias).BrandA/Colors/Text/Muted, at 0.94.'
+---
+
+<dl class="paths">
+  {
+    PATHS.map(([name, path]) => (
+      <div class="row">
+        <dt>{name}</dt>
+        <dd>
+          <TokenPath path={path} />
+        </dd>
+      </div>
+    ))
+  }
+</dl>
+<p class="line"><TokenPath path={LINE} /></p>
+
+<style>
+  .paths {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 12ch minmax(0, 16ch);
+    gap: var(--space-3);
+    padding-bottom: var(--space-2);
+    border-bottom: var(--stroke-hairline) solid var(--border-default);
+  }
+  dt {
+    font-size: calc(var(--type-meta-size) * 1px);
+    color: var(--fg-muted);
+  }
+  dd {
+    margin: 0;
+    font-size: calc(var(--type-meta-size) * 1px);
+    line-height: var(--type-meta-line-height);
+  }
+  .line {
+    max-width: 36ch;
+    margin: var(--space-4) 0 0;
+    font-size: calc(var(--type-meta-size) * 1px);
+    line-height: var(--type-code-line-height);
+  }
+</style>

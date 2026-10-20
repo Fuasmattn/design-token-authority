@@ -21,7 +21,7 @@ import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
 - A section under a `stroke-ink` rule in `border-strong`, the title in the `title` type, an intro in `fg-muted`.
 - The config is one file row like an [output file](/design-system/components/output-files/): the name in mono `action-text`, its size, Copy and Download (quiet Buttons). Its row is tinted `action-subtle` while its preview is open.
-- Numbered steps in `body-sm`; a command is the site's command chip (`CommandButton.css`: `terminal-bg`, the `$` in `terminal-prompt`, a copy icon that turns into a tick). Here the chip may wrap, so a long command never runs past a phone screen.
+- Numbered steps in `body-sm`; a command is the site's command chip (`CommandButton.css`: `terminal-bg`, the `$` in `terminal-prompt`, a copy icon that turns into a tick). Here the chip may wrap, so a long command never runs past a phone screen; a file in it breaks after a `/` or `.`, like the config's name and the steps ([Token path](/design-system/components/token-path/)).
 - Commands read `npx design-token-authority …`, never `npx dta` (that npm name belongs to another package). While the package is not on npm (`NPM_RELEASED` in the landing content), a note says so and links to the Quick start.
 - A Preact component; stories render it to static HTML.
 - **Motion:** a view-transition part (`dta-swap`), so it moves to its new place when the output files above it change. See [Motion](/design-system/motion/).

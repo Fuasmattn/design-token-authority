@@ -15,6 +15,7 @@
  */
 import { useEffect, useRef } from 'preact/hooks'
 import { readFiles, type TokenInputFile } from './TokenInput'
+import { breakPaths } from './TokenPath'
 import './Button.css'
 import './SourceBar.css'
 
@@ -53,8 +54,8 @@ export default function SourceBar({
     <section class="dta-source" aria-label="Loaded files">
       <p class="dta-source__status" role="status" tabIndex={-1} ref={status}>
         <span class="dta-source__kicker">Loaded</span>{' '}
-        <span class="dta-source__label">{label}</span>{' '}
-        {detail && <span class="dta-source__detail">{detail}</span>}
+        <span class="dta-source__label">{breakPaths(label)}</span>{' '}
+        {detail && <span class="dta-source__detail">{breakPaths(detail)}</span>}
         {files && files.length > 0 && <span class="dta-source__files">: {files.join(', ')}</span>}
       </p>
       <div class="dta-source__actions">

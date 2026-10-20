@@ -19,7 +19,7 @@ Once something is loaded, the [playground](/playground/)'s input shrinks to this
 
 ## Guidelines
 
-- **One line on the surface:** `bg-surface` with a `stroke-hairline` in `border-default` and `radius-md`, like a card's edge but flat. It wraps (actions under the label) when the container is narrow; it never scrolls sideways.
+- **One line on the surface:** `bg-surface` with a `stroke-hairline` in `border-default` and `radius-md`, like a card's edge but flat. It wraps (actions under the label) when the container is narrow; it never scrolls sideways. A file name as the label breaks between its segments ([Token path](/design-system/components/token-path/)).
 - **Words:** the kicker "Loaded" and the detail in mono `fg-subtle` / `fg-muted`; what is loaded in label type. For an import, the words of `dta pull --from-file` ("converted into 1 token file").
 - **Actions:** "Replace files" is an outline [Button](/design-system/components/button/) and opens the file picker (several files at once); "Paste JSON instead" is a link button that opens the paste field under the bar (`aria-expanded` says whether it is open). Both 44 px tall.
 - **Screen readers:** the line is a status region that also reads out the file names (visually the detail stands for them). After a new read, focus moves to it, because the button that started the read is gone.

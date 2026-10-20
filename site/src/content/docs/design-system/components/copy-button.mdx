@@ -20,9 +20,10 @@ Copies a text to the clipboard and says so. In the [playground](/playground/) ev
 ## Guidelines
 
 - It is the [Button](/design-system/components/button/) (`Button.css`), quiet by default (the small action repeated on every row), outline where it stands alone (the preview).
-- After copying, the label reads "Copied" for 1.6 s, after the pass dot in `status-success-marker` (not colour alone); "Not copied" when the browser refuses. Both labels share one grid cell, so the width never changes and nothing moves.
+- After copying, the label reads "Copied" for 1.6 s, after the pass dot in `status-success-marker`. When the browser refuses, it reads "Not copied" after the error square in `status-error-marker`, the same 6 px shape as in [Findings](/design-system/components/findings/) (see [Status colours](/design-system/status-colours/)): shape and word, never colour alone, and the word keeps the button's ink. The screen reader hears "Not copied: select the text".
+- All three labels ("Copy", "Copied", "Not copied") share one grid cell, the hidden ones invisible but measured, so the button is as wide as the widest from the start: the width never changes and nothing moves, whatever the result.
 - A polite live region announces the result. When the visible label alone does not say what is copied, the accessible name does and starts with it: "Copy output/css/base.css".
-- A Preact component; stories render it to static HTML (`staticState` shows the copied state).
+- A Preact component; stories render it to static HTML (`staticState` shows the copied or the failed state).
 
 ## Tokens used
 

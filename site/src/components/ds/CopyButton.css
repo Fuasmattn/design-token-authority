@@ -1,36 +1,45 @@
 /*
- * CopyButton: the Button (quiet or outline) whose label turns into "Copied". Both labels sit in
- * one grid cell, the hidden one with visibility: hidden, so the width never changes. The copied
- * state shows the pass dot in status-success-marker before the word: not colour alone.
+ * CopyButton: the Button (quiet or outline) whose label turns into "Copied" or "Not copied".
+ * The three labels sit in one grid cell, the hidden ones with visibility: hidden, so the button
+ * is as wide as the widest from the start and the width never changes. Each result has its
+ * marker before the word, as in Findings: the pass dot in status-success-marker, the error
+ * square in status-error-marker. Shape and word, not colour alone; the word keeps the button's
+ * ink.
  */
 .dta-copy__face {
   display: inline-grid;
 }
 .dta-copy__label,
-.dta-copy__done {
+.dta-copy__done,
+.dta-copy__failed {
   grid-area: 1 / 1;
   text-align: center;
 }
-.dta-copy__done {
-  visibility: hidden;
-}
-.dta-copy[data-state='copied'] .dta-copy__done,
-.dta-copy[data-state='failed'] .dta-copy__done {
-  visibility: visible;
-}
+.dta-copy__done,
+.dta-copy__failed,
 .dta-copy[data-state='copied'] .dta-copy__label,
 .dta-copy[data-state='failed'] .dta-copy__label {
   visibility: hidden;
 }
-.dta-copy[data-state='copied'] .dta-copy__done::before {
+.dta-copy[data-state='copied'] .dta-copy__done,
+.dta-copy[data-state='failed'] .dta-copy__failed {
+  visibility: visible;
+}
+.dta-copy__done::before,
+.dta-copy__failed::before {
   content: '';
   display: inline-block;
   width: 6px;
   height: 6px;
   margin-right: var(--space-2);
+  vertical-align: 2px;
+}
+.dta-copy__done::before {
   border-radius: var(--radius-full);
   background: var(--status-success-marker);
-  vertical-align: 2px;
+}
+.dta-copy__failed::before {
+  background: var(--status-error-marker);
 }
 .dta-copy__status {
   position: absolute;
