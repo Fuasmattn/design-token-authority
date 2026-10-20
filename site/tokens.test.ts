@@ -205,6 +205,27 @@ describe('site design tokens', () => {
     }
   })
 
+  // A selected finding (TICKET-121) keeps its severity on the selection tint: the error and
+  // warning markers at 3:1 and their words at 7:1 on action.subtle.
+  it.each(THEMES)(
+    'keep the marker and word of a selected finding on action.subtle in %s',
+    (theme) => {
+      for (const status of ['error', 'warning']) {
+        for (const [role, min] of [
+          ['marker', 3],
+          ['text', 7],
+        ] as const) {
+          const fg = `status.${status}.${role}`
+          const ratio = contrastRatio(color(model, fg, theme), color(model, 'action.subtle', theme))
+          expect(
+            ratio,
+            `${fg} on action.subtle in ${theme}: ${ratio.toFixed(2)}`,
+          ).toBeGreaterThanOrEqual(min)
+        }
+      }
+    },
+  )
+
   // The one exception: the redline label (signal.fg on signal.bg). No orange can both stand
   // 3:1 on paper as a line and carry 7:1 text, so the label stays at AA (4.5:1) and the design
   // system says so.

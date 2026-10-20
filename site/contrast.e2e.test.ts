@@ -1,14 +1,15 @@
 /**
  * AAA on the rendered pages: every text node of the landing page and the playground (empty, the
  * paste field, after the example, the detail panel open beside the view or as the bottom sheet, a
- * lint finding open, the "Example with problems" with its rules open and a finding stepped to with
- * "Next finding" (TICKET-113), an unknown export with its docs link (TICKET-114), the build errors of
- * the example with problems (TICKET-119), after invalid input, the Outputs view, an output file's preview, a
- * copied file; both themes) and of every
- * story (each renders Light and Graphite side by side) reaches 7:1 against its effective
+ * lint finding open, the "Example with problems" with its rules open, an error selected
+ * (TICKET-121) and a finding stepped to with "Next finding" (TICKET-113), an unknown export with
+ * its docs link (TICKET-114), the build errors of the example with problems (TICKET-119), after
+ * invalid input, the Outputs view, an output file's preview, a copied file; both themes) and of
+ * every story (each renders Light and Graphite side by side) reaches 7:1 against its effective
  * background, 4.5:1 when large (24 px, or 18.66 px bold). So does the `dta diff` report for each
- * verdict (pass, review, fail; TICKET-120 status colours). The token test checks the pairs the
- * system names; this checks what the browser paints, nesting and opacity included.
+ * verdict (pass, review, fail; TICKET-120 status colours). Findings markers (non-text) reach 3:1
+ * on what they are painted on, a selected line's tint included. The token test checks the pairs
+ * the system names; this checks what the browser paints, nesting and opacity included.
  *
  * Needs the built site (`pnpm build` → dist/) and a browser: runs when DTA_E2E=1 (CI job
  * "site") or when DTA_BROWSER_PATH points at Chromium; otherwise skipped.
@@ -71,6 +72,24 @@ const AUDIT = `(() => {
     const key = [s.color, bg.map(Math.round).join(','), size, weight].join('|')
     if (seen.has(key)) continue
     seen.set(key, { text: text.slice(0, 40), element: el.tagName.toLowerCase() + (el.className ? '.' + String(el.className).split(' ')[0] : ''), fg: s.color, bg: 'rgb(' + bg.map(Math.round).join(', ') + ')', size, weight, ratio: Math.round(r * 100) / 100 })
+  }
+  // Findings markers (non-text, TICKET-120/121): 3:1 on their effective background, a selected
+  // line's tint included. The filled square is its background, the open ring its border.
+  for (const el of document.querySelectorAll('.dta-findings__marker')) {
+    const s = getComputedStyle(el)
+    if (s.display === 'none' || s.visibility === 'hidden') continue
+    const rect = el.getBoundingClientRect()
+    if (rect.width === 0 || rect.height === 0) continue
+    const fill = parse(s.backgroundColor), ring = parse(s.borderTopColor)
+    const raw = fill[3] > 0 ? fill : parseFloat(s.borderTopWidth) > 0 && ring[3] > 0 ? ring : null
+    if (!raw) continue
+    const bg = bgOf(el.parentElement)
+    const fg = over([raw[0], raw[1], raw[2], raw[3] * opacityOf(el)], bg)
+    const r = ratio(fg, bg)
+    if (r >= 3) continue
+    const key = ['marker', fill[3] > 0 ? s.backgroundColor : s.borderTopColor, bg.map(Math.round).join(',')].join('|')
+    if (seen.has(key)) continue
+    seen.set(key, { text: '(marker)', element: 'span.dta-findings__marker', fg: fill[3] > 0 ? s.backgroundColor : s.borderTopColor, bg: 'rgb(' + bg.map(Math.round).join(', ') + ')', size: rect.width, weight: 0, ratio: Math.round(r * 100) / 100 })
   }
   return [...seen.values()]
 })()`
@@ -199,6 +218,27 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
       await page.getByRole('tab', { name: /^Lint/ }).click()
       for (const rule of await page.locator('summary').all()) await rule.click()
       await page.locator('.dta-findings__line').nth(2).waitFor()
+    },
+    // TICKET-121: a selected error keeps its square in status-error-marker on the selection tint
+    // (the marker audit checks it reaches 3:1 there).
+    'example with problems, an error selected': async (page) => {
+      await page.getByRole('button', { name: 'Example with problems' }).click()
+      await page.getByRole('tab', { name: /^Lint/ }).click()
+      await page.locator('summary').first().click()
+      await page.locator('.dta-findings__line').first().getByRole('button').click()
+      await page.getByRole('dialog').waitFor()
+      const same = await page.evaluate(`(() => {
+        const line = document.querySelector('.dta-findings__line[aria-current="true"][data-severity="error"]')
+        const probe = document.createElement('span')
+        probe.style.background = 'var(--status-error-marker)'
+        document.body.append(probe)
+        const want = getComputedStyle(probe).backgroundColor
+        probe.remove()
+        const marker = getComputedStyle(line.querySelector('.dta-findings__marker'))
+        const open = getComputedStyle(line.querySelector('.dta-findings__open'))
+        return [marker.backgroundColor === want, open.backgroundColor !== 'rgba(0, 0, 0, 0)']
+      })()`)
+      expect(same).toEqual([true, true])
     },
     // ...a finding stepped to with "Next finding", its position held at the highlight's start
     'next finding': async (page) => {

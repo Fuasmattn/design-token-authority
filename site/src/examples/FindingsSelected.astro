@@ -1,0 +1,71 @@
+---
+// A selected line keeps its severity (TICKET-121): the selection tint, and the marker and word in
+// their status colours. The error is real output: the playground's lint view of the "Example with
+// problems", its first rule open and its line selected. The warning is `dta lint` on the brand-ab
+// fixture with its config (test/snapshots/brand-ab/lint), grouped by rule as the playground does.
+import Findings from '../components/ds/Findings'
+import { analyse } from '../playground/analyse'
+import { PROBLEM_EXAMPLE } from '../playground/example'
+
+const lint = analyse(PROBLEM_EXAMPLE.files).lint
+if (!lint) throw new Error('the problem example did not lint')
+const first = lint.rules[0]
+if (first?.severity !== 'error') throw new Error('the first rule of the problem example is no error')
+const errors = [
+  {
+    title: first.rule,
+    count: first.count,
+    severity: first.severity,
+    open: true,
+    lines: first.findings.map((f) => ({ ...f, detail: f.file || undefined })),
+  },
+]
+
+const pattern = (segment: string) =>
+  `Token path segment "${segment}" does not match pattern /^[A-Z][A-Za-z ]*$/ for collection "Brand(Alias)"`
+const warn = (segment: string, file: string) => ({
+  severity: 'warning' as const,
+  label: 'warn',
+  text: pattern(segment),
+  detail: file,
+})
+const warnings = [
+  {
+    title: 'naming-pattern',
+    count: '4 warnings',
+    severity: 'warning' as const,
+    open: true,
+    lines: [
+      warn('overlay', 'Brand(Alias).BrandA.json'),
+      warn('shadow', 'Brand(Alias).BrandA.json'),
+      warn('overlay', 'Brand(Alias).BrandB.json'),
+      warn('shadow', 'Brand(Alias).BrandB.json'),
+    ],
+  },
+]
+---
+
+<div class="pair">
+  <Findings
+    title="A selected error"
+    level={3}
+    groups={errors}
+    selected={{ group: 0, line: 0 }}
+    onSelect={() => {}}
+  />
+  <Findings
+    title="A selected warning"
+    level={3}
+    groups={warnings}
+    selected={{ group: 0, line: 1 }}
+    onSelect={() => {}}
+  />
+</div>
+
+<style>
+  .pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: var(--space-6);
+  }
+</style>

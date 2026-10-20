@@ -293,6 +293,13 @@ export const STORIES: readonly Story[] = [
   },
   {
     component: 'findings',
+    variant: 'selected',
+    title: 'A selected error and a selected warning: selection tint, status marker and word',
+    example: 'FindingsSelected',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
+    component: 'findings',
     variant: 'clean',
     title: 'No findings',
     example: 'FindingsClean',

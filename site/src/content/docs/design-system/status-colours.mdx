@@ -42,7 +42,7 @@ A test over the token files checks every pair in both themes: each status text a
 And what is **not** a status:
 
 - **Changed is `signal`, never a status.** The redline orange means "this changed" (a redline, a diff, "changes to review"). A change is not a problem, and a problem is never orange: `signal` is never used for errors or warnings, and an error is never shown as "changed".
-- **Information is `action`.** Notes, hints and the selection (the tint of a selected row or line) stay in the action colours; a selected finding turns its marker and words `action-text`.
+- **Information is `action`.** Notes, hints and the selection (the tint of a selected row or line) stay in the action colours. Selection and a status can meet: a selected finding is tinted `action-subtle` and keeps its marker and word in their status colours, so both show at once (below).
 - **Pending is the ink.** Something that has not run yet has no status colour.
 
 ## Shape, word and colour
@@ -64,6 +64,22 @@ What stops the work (input that cannot be read, a build with errors) is a **stat
 <ThemePair example={story('findings--build-failed')} idPrefix="status-banner" />
 
 Not a banner: a lint view (findings to work through, not a stop), a hint, or anything that only changed.
+
+## Selection and status
+
+A selected finding (the line whose details are open) shows both: the selection is the `action-subtle` tint with the line in `action-text`, the severity keeps its marker shape in `status-*-marker` and its word in `status-*-text` (TICKET-121). Selection never hides a status. On the tint, both themes:
+
+| On `action-subtle`         | Light  | Graphite | Needs |
+| -------------------------- | ------ | -------- | ----- |
+| `status-error-marker`      | 4.67:1 | 4.93:1   | 3:1   |
+| `status-warning-marker`    | 5.23:1 | 8.62:1   | 3:1   |
+| `status-error-text`        | 7.78:1 | 8.24:1   | 7:1   |
+| `status-warning-text`      | 7.97:1 | 9.48:1   | 7:1   |
+| `action-text` (line, file) | 8.09:1 | 9.42:1   | 7:1   |
+
+The token test checks these pairs and the browser test the rendered markers; `fg-subtle` (6.68:1 and 5.96:1) is not used on the tint, so a selected line's file turns `action-text`.
+
+<ThemePair example={story('findings--selected')} idPrefix="status-selected" />
 
 ## Colour vision
 

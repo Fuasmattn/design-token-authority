@@ -648,7 +648,9 @@ describe.skipIf(!enabled)('playground on the built site', () => {
         await page.getByRole('dialog', { name: 'dta.config.ts' }).waitFor()
         const beside = (await banner.evaluate(SEGMENTS)) as Segments
         expect(beside.broken, 'banner beside the panel').toEqual([])
-        expect(beside.paths, 'the banner wraps a long path').toBeGreaterThan(0)
+        // Whether it wraps there at 1280 depends on font metrics (it did locally, not in CI), so
+        // the non-vacuous check is made where it always wraps: the phone.
+        if (width === 390) expect(beside.paths, 'the banner wraps a long path').toBeGreaterThan(0)
         await page.getByRole('button', { name: 'Close details' }).click()
 
         // The lint panel: every rule open, every line and its file

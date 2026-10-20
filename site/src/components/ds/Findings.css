@@ -245,19 +245,18 @@ summary.dta-findings__rule-row:focus-visible {
   outline: var(--stroke-focus) solid var(--action-bg);
   outline-offset: calc(var(--stroke-focus) * -1);
 }
+/*
+ * The selected line (TICKET-121): selection is the action tint and the line's ink in action-text;
+ * severity stays as it is, the marker in its status colour and shape and the word in its status
+ * text (both hold on action-subtle: markers 3:1, words 7:1). The detail turns action-text, as
+ * fg-subtle is under 7:1 on the tint.
+ */
 .dta-findings__line[aria-current='true'] .dta-findings__open {
   background: var(--action-subtle);
   color: var(--action-text);
 }
-.dta-findings__line[aria-current='true'] .dta-findings__label,
 .dta-findings__line[aria-current='true'] .dta-findings__detail {
   color: var(--action-text);
-}
-.dta-findings__line[aria-current='true'] .dta-findings__marker {
-  border-color: var(--action-text);
-}
-.dta-findings__line[aria-current='true'][data-severity='error'] .dta-findings__marker {
-  background: var(--action-text);
 }
 .dta-findings__line:has(> .dta-findings__open) {
   display: block;
