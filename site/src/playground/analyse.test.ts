@@ -15,7 +15,8 @@ function lintReport(stdout: string) {
   const lines = stdout
     .replace(/\u001b\[[0-9;?]*[A-Za-z]/g, '')
     .split('\n')
-    .map((line) => line.replace(/^[|—o]\s*/, '').trim())
+    // clack's gutter differs by terminal: ASCII (`|`, `o`, `—`) or Unicode (`│`, `◇`, `■`, …)
+    .map((line) => line.replace(/^[|—ox│┌└├◇◆■▲●○▪✔✖×](?=\s|$)\s*/u, '').trim())
   return {
     findings: lines.filter((line) => /^(error|warn) .* \[[a-z-]+\]$/.test(line)),
     summary: lines.find((line) => / found\.$|^No lint violations found\.$/.test(line)),

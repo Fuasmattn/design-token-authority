@@ -447,16 +447,21 @@ describe.skipIf(!enabled)('playground on the built site', () => {
         )
         expect(await panel.getByRole('status').textContent()).toBe('2 of 3: Colors.Surface.Muted')
         expect(await page.evaluate('document.activeElement?.textContent')).toBe('Next finding')
-        expect(
-          await page
-            .locator('details', { hasText: 'no-circular-aliases' })
-            .evaluate((el: Element) => (el as HTMLDetailsElement).open),
-        ).toBe(true)
-        expect(
-          await page
-            .locator('#pg-finding-1-0')
-            .evaluate((el: Element) => el.closest('li')?.getAttribute('aria-current')),
-        ).toBe('true')
+        // The rule opens and the row is marked after the next render: wait for it
+        await expect
+          .poll(() =>
+            page
+              .locator('details', { hasText: 'no-circular-aliases' })
+              .evaluate((el: Element) => (el as HTMLDetailsElement).open),
+          )
+          .toBe(true)
+        await expect
+          .poll(() =>
+            page
+              .locator('#pg-finding-1-0')
+              .evaluate((el: Element) => el.closest('li')?.getAttribute('aria-current')),
+          )
+          .toBe('true')
 
         // By keyboard to the third, then round to the first
         await page.keyboard.press('Enter')
