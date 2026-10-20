@@ -141,9 +141,6 @@ describe('site design tokens', () => {
     ['action.fg', 'action.text'],
     ['signal.text', 'bg.canvas'],
     ['signal.text', 'signal.subtle'],
-    ['success.fg', 'bg.canvas'],
-    ['success.fg', 'bg.surface'],
-    ['success.fg', 'success.subtle'],
     ['terminal.fg', 'terminal.bg'],
     ['terminal.prompt', 'terminal.bg'],
     ['terminal.success', 'terminal.bg'],
@@ -154,6 +151,57 @@ describe('site design tokens', () => {
     for (const [fg, bg] of TEXT_PAIRS) {
       const ratio = contrastRatio(color(model, fg, theme), color(model, bg, theme))
       expect(ratio, `${fg} on ${bg} in ${theme}: ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(7)
+    }
+  })
+
+  // Status colours (TICKET-120): the proposal's values, exactly, per theme.
+  const STATUS = ['success', 'warning', 'error'] as const
+  const STATUS_VALUES: Record<(typeof THEMES)[number], Record<string, [string, string, string]>> = {
+    Light: {
+      success: ['#27512f', '#3c7646', '#e1eee2'],
+      warning: ['#5e3f00', '#7d5a00', '#faecc8'],
+      error: ['#8c151c', '#c42b30', '#fde4e1'],
+    },
+    Graphite: {
+      success: ['#9ad3a2', '#7fb887', '#1c2a1e'],
+      warning: ['#f2d08a', '#f0c64a', '#3a2d10'],
+      error: ['#ffb3ad', '#f0736b', '#3d1b19'],
+    },
+  }
+  it.each(THEMES)('keep the status colours of the proposal in %s', (theme) => {
+    for (const status of STATUS) {
+      const actual = ['text', 'marker', 'subtle'].map((role) => {
+        const result = resolve(model, ['status', status, role], { Theme: theme })
+        return result.ok ? String(result.value) : undefined
+      })
+      expect(actual, `status.${status} in ${theme}`).toEqual(STATUS_VALUES[theme][status])
+    }
+  })
+
+  // Status text at 7:1 and markers (non-text) at 3:1 on every ground they are used on: the
+  // canvas, the surface, bg-subtle and their own subtle tint (a chip, a banner).
+  const STATUS_GROUNDS = (status: string) => [
+    'bg.canvas',
+    'bg.surface',
+    'bg.subtle',
+    `status.${status}.subtle`,
+  ]
+  it.each(THEMES)('keep status text at least 7:1 on its grounds in %s', (theme) => {
+    for (const status of STATUS) {
+      for (const bg of STATUS_GROUNDS(status)) {
+        const fg = `status.${status}.text`
+        const ratio = contrastRatio(color(model, fg, theme), color(model, bg, theme))
+        expect(ratio, `${fg} on ${bg} in ${theme}: ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(7)
+      }
+    }
+  })
+  it.each(THEMES)('keep status markers at least 3:1 on their grounds in %s', (theme) => {
+    for (const status of STATUS) {
+      for (const bg of STATUS_GROUNDS(status)) {
+        const fg = `status.${status}.marker`
+        const ratio = contrastRatio(color(model, fg, theme), color(model, bg, theme))
+        expect(ratio, `${fg} on ${bg} in ${theme}: ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(3)
+      }
     }
   })
 

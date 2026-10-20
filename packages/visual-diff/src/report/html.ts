@@ -29,6 +29,10 @@ const storyAnchor = (s: Pick<Story, 'id' | 'viewport'>) => anchor('story', ref(s
 const shortToken = (id: string) => id.split(' (')[0]
 const layerOf = (id: string) => /\(([^)]*)\)$/.exec(id)?.[1] ?? ''
 
+/**
+ * The verdicts in the status colours (TICKET-120): pass is success (the dot), fail error (the
+ * square); "changes to review" is a diff state, not a problem, and keeps the action tint.
+ */
 const VERDICT: Record<NonNullable<DiffResult['verdict']>, { label: string; tone: string }> = {
   pass: { label: 'Pass', tone: 'pass' },
   review: { label: 'Changes to review', tone: 'review' },
@@ -193,9 +197,12 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:var(--stroke-fo
 nav.toc{display:flex;flex-wrap:wrap;gap:var(--space-2)}
 nav.toc a{padding:6px 12px;border:var(--stroke-hairline) solid var(--border-default);border-radius:var(--radius-full);background:var(--bg-surface);color:var(--fg-default);text-decoration:none;font-size:calc(var(--type-body-sm-size)*1px)}
 .chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:var(--radius-full);font-family:var(--font-mono);font-size:calc(var(--type-meta-size)*1px);background:var(--bg-subtle);color:var(--fg-muted);white-space:nowrap}
-.chip.pass,.chip.unchanged{background:var(--success-subtle);color:var(--success-fg)}
+.chip.pass,.chip.unchanged{background:var(--status-success-subtle);color:var(--status-success-text)}
 .chip.review,.chip.changed,.chip.added,.chip.affected{background:var(--action-subtle);color:var(--action-text)}
-.chip.fail,.chip.removed{background:var(--signal-subtle);color:var(--signal-text)}
+.chip.removed{background:var(--signal-subtle);color:var(--signal-text)}
+.chip.fail{background:var(--status-error-subtle);color:var(--status-error-text)}
+.chip.pass::before,.chip.unchanged::before,.chip.fail::before{content:"";flex:none;width:6px;height:6px;margin-right:6px;border-radius:var(--radius-full);background:var(--status-success-marker)}
+.chip.fail::before{border-radius:0;background:var(--status-error-marker)}
 .chip.token{background:var(--signal-bg);color:var(--signal-fg);border-radius:4px}
 .verdict{font-size:calc(var(--type-body-sm-size)*1px);padding:6px 14px}
 .theme{min-height:44px;padding:0 16px;border:var(--stroke-ink) solid var(--border-strong);border-radius:var(--radius-md);background:transparent;color:var(--fg-default);font:inherit;font-weight:var(--type-label-weight);cursor:pointer}

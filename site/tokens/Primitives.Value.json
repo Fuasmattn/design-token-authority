@@ -553,7 +553,7 @@
     "300": {
       "$type": "color",
       "$value": "#9ad3a2",
-      "$description": "Primitive. Success on the light terminal (9:1 on ink).",
+      "$description": "Primitive. Success text on graphite and on the terminals (10.6:1 on the graphite canvas).",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -565,7 +565,7 @@
     "400": {
       "$type": "color",
       "$value": "#7fb887",
-      "$description": "Primitive. Success on graphite.",
+      "$description": "Primitive. Success marker on graphite (non-text).",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -577,7 +577,19 @@
     "600": {
       "$type": "color",
       "$value": "#3c7646",
-      "$description": "Primitive. Decorative success on light (5.4:1: not for text).",
+      "$description": "Primitive. Success marker on paper (non-text, 4.3:1 on bg-subtle: not for text).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "700": {
+      "$type": "color",
+      "$value": "#27512f",
+      "$description": "Primitive. Success text on paper (8.1:1 on the canvas, 7.6:1 on the tint).",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,
@@ -597,11 +609,147 @@
           "codeSyntax": {}
         }
       }
+    }
+  },
+  "crimson": {
+    "100": {
+      "$type": "color",
+      "$value": "#fde4e1",
+      "$description": "Primitive. Error tint on light.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "300": {
+      "$type": "color",
+      "$value": "#ffb3ad",
+      "$description": "Primitive. Error text on graphite (10.7:1 on the canvas, 9:1 on the tint).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "400": {
+      "$type": "color",
+      "$value": "#f0736b",
+      "$description": "Primitive. Error marker on graphite (non-text, 5.4:1 on bg-subtle).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "600": {
+      "$type": "color",
+      "$value": "#c42b30",
+      "$description": "Primitive. Error marker on paper (non-text, 4.4:1 on bg-subtle: not for text).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
     },
     "700": {
       "$type": "color",
-      "$value": "#27512f",
-      "$description": "Primitive. Success on paper (7.6:1 on the tint, 9:1 on white).",
+      "$value": "#8c151c",
+      "$description": "Primitive. Error text on paper (8.3:1 on the canvas, 7.8:1 on the tint).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "950": {
+      "$type": "color",
+      "$value": "#3d1b19",
+      "$description": "Primitive. Error tint on graphite.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "ochre": {
+    "100": {
+      "$type": "color",
+      "$value": "#faecc8",
+      "$description": "Primitive. Warning tint on light.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "300": {
+      "$type": "color",
+      "$value": "#f2d08a",
+      "$description": "Primitive. Warning text on graphite (12.3:1 on the canvas, 9.1:1 on the tint).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "400": {
+      "$type": "color",
+      "$value": "#f0c64a",
+      "$description": "Primitive. Warning marker on graphite (non-text; told apart from the redline under protanopia and deuteranopia).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "600": {
+      "$type": "color",
+      "$value": "#7d5a00",
+      "$description": "Primitive. Warning marker on paper (non-text, 5:1 on bg-subtle; told apart from the redline under protanopia and deuteranopia).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "700": {
+      "$type": "color",
+      "$value": "#5e3f00",
+      "$description": "Primitive. Warning text on paper (8.5:1 on the canvas, 8.2:1 on the tint).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL", "EFFECT_COLOR"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "950": {
+      "$type": "color",
+      "$value": "#3a2d10",
+      "$description": "Primitive. Warning tint on graphite.",
       "$extensions": {
         "com.figma": {
           "hiddenFromPublishing": false,

@@ -35,23 +35,24 @@
   --sl-color-hairline-light: var(--border-default);
   --sl-color-hairline-shade: var(--border-default);
 
-  /* Asides and badges: note → action, tip → success, caution and danger → signal (the system
-     has no error red; errors are plain text on a signal-subtle well). */
+  /* Asides and badges: note → action, tip → success, caution → warning, danger → error (the
+     status colours, TICKET-120: text on the tint, the marker as the edge). Never signal, which
+     means "changed". */
   --sl-color-blue-low: var(--action-subtle);
   --sl-color-blue: var(--action-bg);
   --sl-color-blue-high: var(--action-text);
   --sl-color-purple-low: var(--action-subtle);
   --sl-color-purple: var(--action-bg);
   --sl-color-purple-high: var(--action-text);
-  --sl-color-green-low: var(--success-subtle);
-  --sl-color-green: var(--success-fg);
-  --sl-color-green-high: var(--success-fg);
-  --sl-color-orange-low: var(--signal-subtle);
-  --sl-color-orange: var(--signal-bg);
-  --sl-color-orange-high: var(--signal-text);
-  --sl-color-red-low: var(--signal-subtle);
-  --sl-color-red: var(--signal-bg);
-  --sl-color-red-high: var(--signal-text);
+  --sl-color-green-low: var(--status-success-subtle);
+  --sl-color-green: var(--status-success-marker);
+  --sl-color-green-high: var(--status-success-text);
+  --sl-color-orange-low: var(--status-warning-subtle);
+  --sl-color-orange: var(--status-warning-marker);
+  --sl-color-orange-high: var(--status-warning-text);
+  --sl-color-red-low: var(--status-error-subtle);
+  --sl-color-red: var(--status-error-marker);
+  --sl-color-red-high: var(--status-error-text);
 
   /* Borders, not shadows. */
   --sl-shadow-sm: none;

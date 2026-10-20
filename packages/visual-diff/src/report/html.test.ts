@@ -166,4 +166,20 @@ describe('renderReportHtml', () => {
     expect(table).toContain('<code>text</code>')
     expect(table).toContain('Every explained story (1 more)')
   })
+
+  // TICKET-120: verdicts in the status colours, never signal for a failure.
+  it('shows the verdicts in the status colours: pass success, fail error, with their markers', () => {
+    expect(html).toContain('<span class="chip fail">Unexplained changes</span>')
+    const rule = (selector: string) => html.match(new RegExp(`\\n${selector}\\{([^}]*)\\}`))?.[1]
+    expect(rule('\\.chip\\.fail')).toBe(
+      'background:var(--status-error-subtle);color:var(--status-error-text)',
+    )
+    expect(rule('\\.chip\\.pass,\\.chip\\.unchanged')).toBe(
+      'background:var(--status-success-subtle);color:var(--status-success-text)',
+    )
+    expect(html).toMatch(/\.chip\.fail::before\{[^}]*background:var\(--status-error-marker\)/)
+    expect(html).toContain('--status-error-text: var(--crimson-700);')
+    expect(html).toContain('--status-error-text: var(--crimson-300);')
+    expect(html).not.toMatch(/\.chip\.fail[^{]*\{[^}]*--signal-/)
+  })
 })

@@ -15,7 +15,7 @@ Summarises one `dta diff` result: story and viewport, baseline / candidate / dif
 ## Guidelines
 
 - The diff thumbnail uses `signal-bg` hatching over `signal-subtle`; the change bar fills with `signal-bg` relative to the threshold.
-- The state chip says "review", "pass" or "blocked"; a blocked card says why in text.
+- The state chip says "review", "pass" or "blocked", as a [Chip](/design-system/components/chip/): review is a change to look at (`changed`, signal), pass a success (`pass`), blocked an error (`error`, the filled square in the [status colours](/design-system/status-colours/); never signal). A blocked card says why in text.
 - Thumbnails are placeholders until `dta diff` renders real screenshots.
 - One primary action, "Approve change", only when there is something to review.
 

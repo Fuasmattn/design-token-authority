@@ -213,28 +213,118 @@
       }
     }
   },
-  "success": {
-    "fg": {
-      "$type": "color",
-      "$value": "{sage.700}",
-      "$description": "Passed checks: text and dots on bg-surface, bg-canvas or success-subtle (7:1).",
-      "$extensions": {
-        "com.figma": {
-          "hiddenFromPublishing": false,
-          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
-          "codeSyntax": {}
+  "status": {
+    "success": {
+      "text": {
+        "$type": "color",
+        "$value": "{sage.700}",
+        "$description": "Success words and counts (\"passed\", \"0 findings\"): 7:1 on bg-canvas, bg-surface, bg-subtle and status-success-subtle.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "marker": {
+        "$type": "color",
+        "$value": "{sage.600}",
+        "$description": "The success marker (a dot) and the outline of a success banner: 3:1 on the four grounds. Not for text.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "subtle": {
+        "$type": "color",
+        "$value": "{sage.100}",
+        "$description": "Ground of success chips and banners; text on it is status-success-text.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
         }
       }
     },
-    "subtle": {
-      "$type": "color",
-      "$value": "{sage.100}",
-      "$description": "Pass chips.",
-      "$extensions": {
-        "com.figma": {
-          "hiddenFromPublishing": false,
-          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
-          "codeSyntax": {}
+    "warning": {
+      "text": {
+        "$type": "color",
+        "$value": "{ochre.700}",
+        "$description": "Warning words and counts (\"2 warnings\", \"passed with warnings\"): 7:1 on bg-canvas, bg-surface, bg-subtle and status-warning-subtle.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "marker": {
+        "$type": "color",
+        "$value": "{ochre.600}",
+        "$description": "The warning marker (an open ring) and the outline of a warning banner: 3:1 on the four grounds. Not for text.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "subtle": {
+        "$type": "color",
+        "$value": "{ochre.100}",
+        "$description": "Ground of warning chips and banners; text on it is status-warning-text.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      }
+    },
+    "error": {
+      "text": {
+        "$type": "color",
+        "$value": "{crimson.700}",
+        "$description": "Error words and counts (\"failed\", \"3 errors\"): 7:1 on bg-canvas, bg-surface, bg-subtle and status-error-subtle. Never signal for errors.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "marker": {
+        "$type": "color",
+        "$value": "{crimson.600}",
+        "$description": "The error marker (a filled square) and the outline of an error banner: 3:1 on the four grounds. Not for text.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "subtle": {
+        "$type": "color",
+        "$value": "{crimson.100}",
+        "$description": "Ground of error chips and banners; text on it is status-error-text.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
         }
       }
     }

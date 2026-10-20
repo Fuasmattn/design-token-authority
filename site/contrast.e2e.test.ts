@@ -6,7 +6,8 @@
  * the example with problems (TICKET-119), after invalid input, the Outputs view, an output file's preview, a
  * copied file; both themes) and of every
  * story (each renders Light and Graphite side by side) reaches 7:1 against its effective
- * background, 4.5:1 when large (24 px, or 18.66 px bold). The token test checks the pairs the
+ * background, 4.5:1 when large (24 px, or 18.66 px bold). So does the `dta diff` report for each
+ * verdict (pass, review, fail; TICKET-120 status colours). The token test checks the pairs the
  * system names; this checks what the browser paints, nesting and opacity included.
  *
  * Needs the built site (`pnpm build` → dist/) and a browser: runs when DTA_E2E=1 (CI job
@@ -15,6 +16,7 @@
 import fs from 'node:fs'
 import http from 'node:http'
 import path from 'node:path'
+import { diffResultSchema, renderReportHtml } from '@dta/visual-diff'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 const enabled = process.env.DTA_E2E === '1' || Boolean(process.env.DTA_BROWSER_PATH)
@@ -276,6 +278,61 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
     'playground (%s) in %s at %i px',
     async (state, brand, width) => {
       expect(await audit(`${origin}/playground/`, width, brand, PLAYGROUND[state])).toEqual([])
+    },
+    60_000,
+  )
+
+  // The dta diff report (TICKET-120): each verdict in its status colours, with pass and fail chips.
+  const report = (verdict: 'pass' | 'review' | 'fail') => {
+    const story = (id: string, status: 'changed' | 'unchanged', explained: boolean) => ({
+      id,
+      title: id,
+      url: `/stories/${id}/`,
+      viewport: 1280,
+      status,
+      ratio: status === 'changed' ? 0.02 : 0,
+      changedPixels: status === 'changed' ? 200 : 0,
+      images: { base: `base/${id}.png`, head: `head/${id}.png`, diff: `diff/${id}.png` },
+      ...(status === 'changed'
+        ? {
+            attribution: {
+              explained,
+              tokens: [],
+              unexplainedPixels: explained ? 0 : 200,
+              canvas: { width: 400, height: 200 },
+            },
+          }
+        : {}),
+    })
+    return renderReportHtml(
+      diffResultSchema.parse({
+        schema: 'dta.diff/1',
+        base: 'merge base with origin/main (1a2b3c4)',
+        verdict,
+        tokens: { counts: { changed: 0, added: 0, removed: 0, affected: 0 }, changes: [] },
+        stories: [
+          story('text', 'unchanged', true),
+          ...(verdict === 'pass' ? [] : [story('card', 'changed', verdict === 'review')]),
+        ],
+      }),
+    )
+  }
+  it.each(
+    (['pass', 'review', 'fail'] as const).flatMap((verdict) =>
+      (['light', 'graphite'] as const).flatMap((brand) =>
+        [1280, 390].map((width) => [verdict, brand, width] as const),
+      ),
+    ),
+  )(
+    'dta diff report (%s) in %s at %i px',
+    async (verdict, brand, width) => {
+      const html = report(verdict)
+      expect(html).toContain(`<span class="chip ${verdict}">`)
+      const found = await audit(`${origin}/`, width, brand, async (page) => {
+        await page.setContent(html)
+        expect(await page.evaluate('document.documentElement.dataset.brand')).toBe(brand)
+      })
+      expect(found).toEqual([])
     },
     60_000,
   )

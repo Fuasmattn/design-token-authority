@@ -2,7 +2,8 @@
  * SummaryLine: mono meta text on the canvas, parts spaced apart (no separators to read out).
  * Parts that open a view are text buttons, underlined with a hairline-coloured rule that turns
  * ink on hover. A view-transition part (`dta-summary`), so it moves instead of jumping when
- * something opens above it. Changed parts light up (Changed).
+ * something opens above it. Changed parts light up (Changed). Status parts (`data-tone`) carry
+ * their marker shape before the words and read in the status text colour.
  */
 .dta-summary {
   view-transition-name: dta-summary;
@@ -20,6 +21,44 @@
 }
 .dta-summary__part {
   min-width: 0;
+}
+.dta-summary__part[data-tone] {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+/* Markers: 8px on the text's baseline, the shapes of Findings. */
+.dta-summary__marker {
+  flex: none;
+  box-sizing: border-box;
+  width: 8px;
+  height: 8px;
+}
+[data-tone='error'] > .dta-summary__marker {
+  background: var(--status-error-marker);
+}
+[data-tone='warning'] > .dta-summary__marker {
+  border: var(--stroke-ink) solid var(--status-warning-marker);
+  border-radius: var(--radius-full);
+}
+[data-tone='success'] > .dta-summary__marker {
+  border-radius: var(--radius-full);
+  background: var(--status-success-marker);
+}
+.dta-summary__part[data-tone='error'],
+.dta-summary__part[data-tone='error'] .dta-summary__button {
+  color: var(--status-error-text);
+}
+.dta-summary__part[data-tone='warning'],
+.dta-summary__part[data-tone='warning'] .dta-summary__button {
+  color: var(--status-warning-text);
+}
+.dta-summary__part[data-tone='success'],
+.dta-summary__part[data-tone='success'] .dta-summary__button {
+  color: var(--status-success-text);
+}
+.dta-summary__part[data-tone] .dta-summary__button {
+  text-decoration-color: currentColor;
 }
 .dta-summary__button {
   min-height: 24px;

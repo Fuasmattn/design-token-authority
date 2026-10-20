@@ -201,7 +201,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [077](./077-playground-input-structure-lint.md)  | Playground: input, structure and lint findings                              | High     | L      | 076        | Done   |
 | [115](./115-playground-workspace-layout.md)      | Playground workspace: source bar, summary, tabs, detail panel               | High     | M      | 077        | Done   |
 | [116](./116-motion-tokens-and-transitions.md)    | Motion tokens, motion rule against change blindness, playground transitions | High     | M      | 079        | Done   |
-| [120](./120-status-colours.md)                   | Status colours for success, warning and error                               | High     | M      | —          | Open   |
+| [120](./120-status-colours.md)                   | Status colours for success, warning and error                               | High     | M      | —          | Done   |
 | [078](./078-playground-graph.md)                 | Playground: dependency graph with brand and breakpoint switcher             | Medium   | M      | 077        | Open   |
 | [079](./079-playground-outputs-config.md)        | Playground: outputs, generated config and CLI handoff                       | High     | M      | 077        | Done   |
 | [113](./113-playground-example-with-findings.md) | Playground: an example that shows findings                                  | Medium   | S      | 077        | Done   |

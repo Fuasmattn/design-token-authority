@@ -1,0 +1,24 @@
+---
+// Real output: the playground's summary of the "Example with problems" (brand-ab-problems): its
+// lint count in the error colour, and the build that failed (TICKET-119), each with its marker.
+import SummaryLine from '../components/ds/SummaryLine'
+import { analyse } from '../playground/analyse'
+import { PROBLEM_EXAMPLE } from '../playground/example'
+import { plural } from '../playground/outputs'
+
+const { structure, lint } = analyse(PROBLEM_EXAMPLE.files)
+if (!structure || !lint || lint.outcome !== 'failed') {
+  throw new Error('the problem example has no lint errors')
+}
+---
+
+<SummaryLine
+  parts={[
+    { text: plural(structure.rows.length, 'collection'), target: 'structure' },
+    { text: plural(structure.brands.length, 'brand'), target: 'structure' },
+    { text: plural(structure.breakpoints.length, 'breakpoint'), target: 'structure' },
+    { text: plural(structure.tokens, 'token'), target: 'structure' },
+    { text: lint.counts, target: 'lint', tone: 'error' },
+    { text: 'build failed', target: 'outputs', tone: 'error' },
+  ]}
+/>

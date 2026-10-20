@@ -1,7 +1,7 @@
 /*
  * CopyButton: the Button (quiet or outline) whose label turns into "Copied". Both labels sit in
  * one grid cell, the hidden one with visibility: hidden, so the width never changes. The copied
- * state shows the pass dot in success-fg before the word: not colour alone.
+ * state shows the pass dot in status-success-marker before the word: not colour alone.
  */
 .dta-copy__face {
   display: inline-grid;
@@ -29,7 +29,7 @@
   height: 6px;
   margin-right: var(--space-2);
   border-radius: var(--radius-full);
-  background: var(--success-fg);
+  background: var(--status-success-marker);
   vertical-align: 2px;
 }
 .dta-copy__status {

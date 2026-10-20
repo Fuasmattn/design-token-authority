@@ -22,6 +22,7 @@ if (!found || !chain) throw new Error('the problem example has no dangling alias
   staticOpen
   presentation="sheet"
   kicker={`${found.label} · ${found.rule}`}
+  kickerSeverity={found.severity}
   title={found.tokenPath.slice(found.tokenPath.indexOf('/') + 1).split('/').join('.')}
   meta={`In ${found.file}.`}
   message={found.cli}

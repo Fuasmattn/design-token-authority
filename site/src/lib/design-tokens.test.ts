@@ -16,7 +16,12 @@ describe('design tokens for the Design system pages', () => {
 
   it('lists every semantic colour with its value and alias chain per theme', () => {
     const colors = semanticColors()
-    expect(colors).toHaveLength(40)
+    expect(colors).toHaveLength(47)
+    expect(colors.filter((c) => c.name.startsWith('status-')).map((c) => c.name)).toEqual(
+      ['success', 'warning', 'error'].flatMap((s) =>
+        ['text', 'marker', 'subtle'].map((role) => `status-${s}-${role}`),
+      ),
+    )
     const canvas = colors.find((c) => c.name === 'bg-canvas')!
     expect(canvas).toEqual({
       name: 'bg-canvas',
@@ -37,6 +42,8 @@ describe('design tokens for the Design system pages', () => {
       'blueprint',
       'redline',
       'sage',
+      'crimson',
+      'ochre',
     ])
     expect(colorScales().find((s) => s.scale === 'blueprint')!.tokens[6]).toMatchObject({
       name: 'blueprint-600',

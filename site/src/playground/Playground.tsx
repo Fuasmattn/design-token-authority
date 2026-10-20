@@ -29,7 +29,7 @@ import OutputFiles from '../components/ds/OutputFiles'
 import OutputOptions from '../components/ds/OutputOptions'
 import SourceBar from '../components/ds/SourceBar'
 import StructureTable from '../components/ds/StructureTable'
-import SummaryLine, { type SummaryPart } from '../components/ds/SummaryLine'
+import SummaryLine, { type SummaryPart, type SummaryTone } from '../components/ds/SummaryLine'
 import Tabs, { tabId, type Tab } from '../components/ds/Tabs'
 import TokenInput, {
   PASTE_FILE_NAME,
@@ -43,6 +43,7 @@ import {
   collectionDetail,
   diagnosticGroups,
   findingChain,
+  type Outcome,
   type PlaygroundResult,
   type RuleFindings,
 } from './analyse'
@@ -116,6 +117,13 @@ interface Built extends BuildResult {
   formats: string
 }
 
+/** The status colour of the lint count: errors, warnings or clean (TICKET-120). */
+const LINT_TONE: Record<Outcome, SummaryTone> = {
+  failed: 'error',
+  warnings: 'warning',
+  clean: 'success',
+}
+
 /**
  * What the summary says about the outputs: their count once built, that the build failed (broken
  * aliases, TICKET-119: no files), else the way to build them.
@@ -137,7 +145,7 @@ function summaryParts(
     parts.push({ text: plural(structure.breakpoints.length, 'breakpoint'), target: 'structure' })
   }
   parts.push({ text: plural(structure.tokens, 'token'), target: 'structure' })
-  parts.push({ text: lint.counts, target: 'lint' })
+  parts.push({ text: lint.counts, target: 'lint', tone: LINT_TONE[lint.outcome] })
   parts.push({
     text: failed
       ? 'build failed'
@@ -145,6 +153,7 @@ function summaryParts(
         ? 'build outputs'
         : plural(outputs, 'output file'),
     target: 'outputs',
+    tone: failed ? 'error' : undefined,
   })
   return parts
 }
@@ -208,6 +217,7 @@ function panelOf(
   const chain = findingChain(model, found.tokenPath)
   return {
     kicker: `${found.label} · ${found.rule}`,
+    kickerSeverity: found.severity,
     title:
       slash >= 0
         ? found.tokenPath
@@ -483,6 +493,7 @@ export default function Playground() {
               : undefined
           }
           outcome={result.input.failed ? 'failed' : undefined}
+          banner
         />
       )}
 
@@ -585,6 +596,7 @@ export default function Playground() {
                             : undefined
                         }
                         outcome={failed ? 'failed' : undefined}
+                        banner
                       />
                     )}
                     {groups.length > 0 && (

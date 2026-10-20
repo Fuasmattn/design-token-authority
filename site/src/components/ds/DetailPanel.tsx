@@ -9,7 +9,8 @@
  * the bottom and its backdrop fades; both leave the way they came (CSS only: `@starting-style`
  * and discrete `display`/`overlay` transitions). The page keeps the last content while it leaves.
  *
- * Content: a kicker and a title, a meta line, optional actions (Copy and Download of a file), an
+ * Content: a kicker (for a finding with its severity: the marker shape and the word in the
+ * status colours, TICKET-120) and a title, a meta line, optional actions (Copy and Download of a file), an
  * optional mode switch, an optional message (the full finding, mono), a list of lines (a token
  * name, then its alias chain and value, with a swatch for colours) or a file's text (`code`, an
  * output file's preview). The list and the code scroll inside the panel. With `next`, a step row at
@@ -42,6 +43,8 @@ export interface DetailPanelProps {
   open: boolean
   /** Mono line above the title, e.g. `Collection · brand · 0.94`. */
   kicker?: string
+  /** A finding's severity: the kicker gets its marker and status text colour. */
+  kickerSeverity?: 'error' | 'warning'
   title: string
   meta?: ComponentChildren
   /** A mode switch above the lines (a collection's modes). */
@@ -84,6 +87,7 @@ export default function DetailPanel({
   idPrefix = 'dta-detail',
   open,
   kicker,
+  kickerSeverity,
   title,
   meta,
   modes,
@@ -197,7 +201,12 @@ export default function DetailPanel({
       <span class="dta-detail__handle" aria-hidden="true" />
       <div class="dta-detail__head">
         <div class="dta-detail__titles">
-          {kicker && <p class="dta-detail__kicker">{kicker}</p>}
+          {kicker && (
+            <p class="dta-detail__kicker" data-severity={kickerSeverity}>
+              {kickerSeverity && <span class="dta-detail__marker" aria-hidden="true" />}
+              {kicker}
+            </p>
+          )}
           <h2 class="dta-detail__title" id={titleId} ref={heading} tabIndex={-1}>
             {breakable(title)}
           </h2>

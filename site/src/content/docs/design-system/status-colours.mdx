@@ -1,0 +1,80 @@
+---
+title: Status colours
+description: Success, warning and error in DTA Drafting Table - the status tokens, when to use which, and why shape and word always come with the colour.
+---
+
+import StatusTokens from '../../../components/docs/StatusTokens.astro'
+import ThemePair from '../../../components/docs/ThemePair.astro'
+import { EXAMPLES, storyId } from '../../../examples/registry'
+
+export const story = (id) => {
+  const example = EXAMPLES.find((e) => storyId(e) === id)
+  if (!example) throw new Error(`No story ${id}`)
+  return example
+}
+
+Lint findings, a failed build, the checks of a pull request and the counts of the summary line need colours people read at a glance. DTA Drafting Table has three status colours for them: **success**, **warning** and **error**. They add to what is already there, a marker shape and a word; they never replace it.
+
+## The tokens
+
+Each status has three semantic tokens per theme (TICKET-120), built with `dta build` from `site/tokens` like every other token:
+
+| Token               | For                                                                                                                                        |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `status-<s>-text`   | The words and counts: "passed", "2 warnings", "failed", "3 errors". 7:1 on `bg-canvas`, `bg-surface`, `bg-subtle` and its own subtle tint. |
+| `status-<s>-marker` | The marker shape and the outline of a status banner. Non-text: 3:1 on the same four grounds. Never for text.                               |
+| `status-<s>-subtle` | The tint of a status chip or banner. Text on it is that status's `text`.                                                                   |
+
+The primitives behind them are `sage` (success, which was there before), `ochre` (warning) and `crimson` (error); see [Colours](/design-system/tokens/colors/). The values, with the lowest contrast each one reaches on its grounds, computed from the token files:
+
+<StatusTokens />
+
+A test over the token files checks every pair in both themes: each status text at least 7:1, each marker at least 3:1, on the canvas, the surface, `bg-subtle` and its own subtle tint. The lowest text pair is Light success text on `bg-subtle` (7.19:1); the lowest marker pair Light success marker on `bg-subtle` (4.28:1). A browser test checks the rendered pages too (playground, landing page, every story).
+
+## When to use which
+
+| Status      | Means                                                      | Marker        | Examples                                                                 |
+| ----------- | ---------------------------------------------------------- | ------------- | ------------------------------------------------------------------------ |
+| **success** | It ran and nothing is wrong.                               | dot           | `dta lint` passed, `0 lint findings`, a `dta diff` report that passes    |
+| **warning** | It ran, but something deserves a look; nothing is blocked. | open ring     | lint warnings, "passed with warnings", a structure role to review        |
+| **error**   | Something is broken and stops the work until it is fixed.  | filled square | lint errors, "build failed", input that cannot be read, unexplained diff |
+
+And what is **not** a status:
+
+- **Changed is `signal`, never a status.** The redline orange means "this changed" (a redline, a diff, "changes to review"). A change is not a problem, and a problem is never orange: `signal` is never used for errors or warnings, and an error is never shown as "changed".
+- **Information is `action`.** Notes, hints and the selection (the tint of a selected row or line) stay in the action colours; a selected finding turns its marker and words `action-text`.
+- **Pending is the ink.** Something that has not run yet has no status colour.
+
+## Shape, word and colour
+
+Colour is never the only carrier. Every status is a **marker shape**, a **word** and a **colour**, in that order of importance:
+
+- **Shapes:** a filled square for an error, an open ring for a warning, a dot for success. The same shapes everywhere: [Findings](/design-system/components/findings/), [Checks](/design-system/components/checks/), [Chips](/design-system/components/chip/), the [Summary line](/design-system/components/summary-line/), the kicker of a finding in the [Detail panel](/design-system/components/detail-panel/), the verdict of the `dta diff` report.
+- **Words:** the CLI's words ("error", "warn", "passed", "failed", "3 errors"), coloured in `status-*-text`. The rest of a finding's line stays in the ink, so a long list does not turn into a block of colour.
+- **Colour:** the marker in `status-*-marker`, the word in `status-*-text`.
+
+<ThemePair example={story('checks--states')} idPrefix="status-checks" />
+
+<ThemePair example={story('chip--states')} idPrefix="status-chips" />
+
+## The status banner
+
+What stops the work (input that cannot be read, a build with errors) is a **status banner**: the status's subtle tint inside a **complete 2 px outline** (`stroke-ink`) in its marker colour and `radius-md`, every line in its status text. Borders are complete or straight (principle 3): the outline runs round every side, never a coloured bar on one side of a rounded box. It is [Findings](/design-system/components/findings/) with `banner`, so the lines stay the CLI's.
+
+<ThemePair example={story('findings--build-failed')} idPrefix="status-banner" />
+
+Not a banner: a lint view (findings to work through, not a stop), a hint, or anything that only changed.
+
+## Colour vision
+
+The three statuses and `signal` were checked with simulated protanopia and deuteranopia (2026-10-19). The first warning marker (`#a86f00`, Graphite `#dfa93a`) was almost the redline orange for these viewers (ΔE 7), so the warning markers moved to `#7d5a00` and `#f0c64a` (ΔE at least 12 to `signal`, at least 9 to error). Even so, red and green, or orange and amber, are not told apart by everyone: the shapes and words carry the meaning, the colour helps those who see it.
+
+## Do and don't
+
+| Do                                                                                  | Don't                                                                          |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Pair every status colour with its marker shape and a word.                          | Tell a status by colour alone (a red number, a green row).                     |
+| Use `status-error-*` for errors and failures.                                       | Use `signal` for an error or a warning: orange means "changed".                |
+| Keep "changes to review" in `signal`: a diff is a change, not a problem.            | Turn a change into a warning because it needs a look.                          |
+| Put text in `status-*-text`; markers and outlines in `status-*-marker`.             | Write text in a marker colour (it is only 3:1).                                |
+| Draw a banner with a complete 2 px outline in the marker colour on the subtle tint. | Draw a coloured bar on one side of a rounded box, or a banner for a lint view. |

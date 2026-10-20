@@ -1,9 +1,14 @@
 /**
  * A list of findings in the CLI's words: input diagnostics (`error [code] message (file)`) or
  * lint violations (`warn message [rule]`), with the summary line `dta lint` ends with. Severity
- * shows as the word and a marker shape (a filled square for errors, an open ring for warnings),
- * never colour alone; the design system has no error colour and `signal` is never used for
- * errors.
+ * shows as the word and a marker shape (a filled square for errors, an open ring for warnings,
+ * the pass dot for a clean result), coloured with the status tokens (`status-*-marker` for the
+ * marker, `status-*-text` for the words; TICKET-120): never colour alone, and never `signal`,
+ * which means "changed".
+ *
+ * With `banner` and an `outcome`, the findings are a status banner: the outcome's subtle tint
+ * inside a complete 2px outline in its marker colour, every line in its status text. For what
+ * stops the work (input that cannot be read, a build with errors), not for a lint view.
  *
  * Groups are either titled lists (a file and its lines) or, with a `count`, a summary row per
  * rule (playground spec decision 15: summaries first): `no-dangling-aliases   1 error ›`. A rule
@@ -60,6 +65,8 @@ export interface FindingsProps {
   verdict?: string
   /** A quiet line under the summary (which rules ran, how to read the list). */
   note?: string
+  /** Shows the findings as a status banner in the colours of `outcome` (needs an `outcome`). */
+  banner?: boolean
   /** Makes each line a button; gets the group and line index and the button. */
   onSelect?: (group: number, line: number, button: HTMLButtonElement) => void
   /** The line whose details are open. */
@@ -132,6 +139,7 @@ export default function Findings({
   outcome,
   verdict,
   note,
+  banner = false,
   onSelect,
   selected,
 }: FindingsProps) {
@@ -167,7 +175,11 @@ export default function Findings({
   )
 
   return (
-    <section class="dta-findings" ref={root}>
+    <section
+      class={banner && outcome ? 'dta-findings dta-findings--banner' : 'dta-findings'}
+      data-outcome={banner ? outcome : undefined}
+      ref={root}
+    >
       <Heading class="dta-findings__title">{title}</Heading>
       {summary && (
         <p class="dta-findings__summary" data-outcome={outcome}>
@@ -184,12 +196,16 @@ export default function Findings({
           {groups.map((group, g) =>
             group.lines.length > 0 ? (
               <details class="dta-findings__rule" key={group.title ?? g} open={group.open}>
-                <summary class="dta-findings__rule-row">{rule(group)}</summary>
+                <summary class="dta-findings__rule-row" data-severity={group.severity}>
+                  {rule(group)}
+                </summary>
                 {lines(group, g)}
               </details>
             ) : (
               <div class="dta-findings__rule" key={group.title ?? g}>
-                <div class="dta-findings__rule-row">{rule(group)}</div>
+                <div class="dta-findings__rule-row" data-severity={group.severity}>
+                  {rule(group)}
+                </div>
               </div>
             ),
           )}

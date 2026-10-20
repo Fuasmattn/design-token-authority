@@ -78,7 +78,7 @@
   font-weight: var(--type-label-weight);
 }
 .dta-structure__low {
-  color: var(--signal-text);
+  color: var(--status-warning-text);
 }
 .dta-structure__caption[data-hidden] {
   position: absolute;

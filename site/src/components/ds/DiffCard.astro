@@ -2,6 +2,7 @@
 /**
  * One visual-diff result: story and viewport, baseline / candidate / diff thumbnails, change
  * ratio against the threshold, one action. Thumbnails are placeholders until dta diff renders.
+ * The state chip: review is a change (signal), pass a success, blocked an error (TICKET-120).
  */
 import Button from './Button.astro'
 import Chip from './Chip.astro'
@@ -14,7 +15,7 @@ interface Props {
   reason?: string
 }
 const { story, ratio, threshold, state, reason } = Astro.props
-const tone = state === 'pass' ? 'pass' : 'changed'
+const tone = state === 'pass' ? 'pass' : state === 'blocked' ? 'error' : 'changed'
 const fill = `${Math.min(100, (ratio / threshold) * 100)}%`
 ---
 

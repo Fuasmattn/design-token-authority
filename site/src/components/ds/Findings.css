@@ -1,7 +1,10 @@
 /*
  * Findings: lines on the surface, mono like the terminal they come from but in the page's ink.
  * The marker carries the severity together with the word: error a filled square, warning an
- * open ring, a clean summary the pass dot.
+ * open ring, a clean summary the pass dot. Status colours (TICKET-120) add to shape and word:
+ * markers in status-*-marker, the words in status-*-text; never colour alone, never signal.
+ * As a banner (`banner`), the whole list sits on its outcome's subtle tint inside a complete
+ * 2px outline in the marker colour, and every line reads in the status text.
  */
 .dta-findings {
   display: grid;
@@ -63,8 +66,11 @@
 .dta-findings__label {
   font-weight: 700;
 }
+.dta-findings__line[data-severity='error'] .dta-findings__label {
+  color: var(--status-error-text);
+}
 .dta-findings__line[data-severity='warning'] .dta-findings__label {
-  color: var(--fg-muted);
+  color: var(--status-warning-text);
 }
 
 /* Markers: 8px, on the first line's baseline. */
@@ -77,19 +83,25 @@
 }
 .dta-findings__line[data-severity='error'] .dta-findings__marker,
 .dta-findings__summary[data-outcome='failed'] .dta-findings__marker {
-  background: var(--fg-default);
+  background: var(--status-error-marker);
 }
 .dta-findings__line[data-severity='warning'] .dta-findings__marker,
 .dta-findings__summary[data-outcome='warnings'] .dta-findings__marker {
-  border: var(--stroke-ink) solid var(--fg-default);
+  border: var(--stroke-ink) solid var(--status-warning-marker);
   border-radius: var(--radius-full);
 }
+.dta-findings__summary[data-outcome='failed'] {
+  color: var(--status-error-text);
+}
+.dta-findings__summary[data-outcome='warnings'] {
+  color: var(--status-warning-text);
+}
 .dta-findings__summary[data-outcome='clean'] {
-  color: var(--success-fg);
+  color: var(--status-success-text);
 }
 .dta-findings__summary[data-outcome='clean'] .dta-findings__marker {
   border-radius: var(--radius-full);
-  background: var(--success-fg);
+  background: var(--status-success-marker);
 }
 .dta-findings__summary:not([data-outcome]) .dta-findings__marker {
   display: none;
@@ -190,11 +202,17 @@ summary.dta-findings__rule-row:focus-visible {
   visibility: hidden;
 }
 .dta-findings__rule-row .dta-findings__marker[data-severity='error'] {
-  background: var(--fg-default);
+  background: var(--status-error-marker);
 }
 .dta-findings__rule-row .dta-findings__marker[data-severity='warning'] {
-  border: var(--stroke-ink) solid var(--fg-default);
+  border: var(--stroke-ink) solid var(--status-warning-marker);
   border-radius: var(--radius-full);
+}
+.dta-findings__rule-row[data-severity='error'] .dta-findings__count {
+  color: var(--status-error-text);
+}
+.dta-findings__rule-row[data-severity='warning'] .dta-findings__count {
+  color: var(--status-warning-text);
 }
 .dta-findings__rule .dta-findings__lines {
   gap: 0;
@@ -243,6 +261,52 @@ summary.dta-findings__rule-row:focus-visible {
 }
 .dta-findings__line:has(> .dta-findings__open) {
   display: block;
+}
+
+/*
+ * The status banner: the outcome's subtle tint, a complete 2px outline in its marker colour
+ * (borders are complete or straight), everything in its status text (7:1 on the tint). Links
+ * keep their underline in the same ink.
+ */
+.dta-findings--banner {
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--stroke-ink) solid var(--fg-default);
+  border-radius: var(--radius-md);
+}
+.dta-findings--banner[data-outcome='failed'] {
+  --dta-findings-ink: var(--status-error-text);
+  border-color: var(--status-error-marker);
+  background: var(--status-error-subtle);
+}
+.dta-findings--banner[data-outcome='warnings'] {
+  --dta-findings-ink: var(--status-warning-text);
+  border-color: var(--status-warning-marker);
+  background: var(--status-warning-subtle);
+}
+.dta-findings--banner[data-outcome='clean'] {
+  --dta-findings-ink: var(--status-success-text);
+  border-color: var(--status-success-marker);
+  background: var(--status-success-subtle);
+}
+.dta-findings--banner,
+.dta-findings--banner .dta-findings__summary,
+.dta-findings--banner .dta-findings__note,
+.dta-findings--banner .dta-findings__detail,
+.dta-findings--banner .dta-findings__label,
+.dta-findings--banner .dta-findings__link {
+  color: var(--dta-findings-ink);
+}
+.dta-findings--banner .dta-findings__file {
+  border-bottom-color: currentColor;
+}
+.dta-findings--banner .dta-findings__link:focus-visible {
+  box-shadow: 0 0 0 var(--stroke-focus) var(--action-bg);
+}
+@media (max-width: 559px) {
+  .dta-findings--banner {
+    padding: var(--space-3);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

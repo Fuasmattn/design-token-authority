@@ -135,6 +135,31 @@
   color: var(--fg-subtle);
   text-transform: uppercase;
 }
+/* A finding's kicker: its severity's marker shape and status text (never colour alone). */
+.dta-detail__kicker[data-severity] {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.dta-detail__kicker[data-severity='error'] {
+  color: var(--status-error-text);
+}
+.dta-detail__kicker[data-severity='warning'] {
+  color: var(--status-warning-text);
+}
+.dta-detail__marker {
+  flex: none;
+  box-sizing: border-box;
+  width: 8px;
+  height: 8px;
+}
+[data-severity='error'] > .dta-detail__marker {
+  background: var(--status-error-marker);
+}
+[data-severity='warning'] > .dta-detail__marker {
+  border: var(--stroke-ink) solid var(--status-warning-marker);
+  border-radius: var(--radius-full);
+}
 .dta-detail__title {
   margin: var(--space-1) 0 0;
   font-family: var(--font-mono);

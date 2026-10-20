@@ -69,6 +69,13 @@ export const STORIES: readonly Story[] = [
   },
   {
     component: 'checks',
+    variant: 'states',
+    title: 'Every status: passed, with warnings, failed, changes to review, pending',
+    example: 'ChecksStates',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
+    component: 'checks',
     variant: 'decision',
     title: 'The check that waits for a person, and the approve action',
     example: 'ChecksDecision',
@@ -105,9 +112,9 @@ export const STORIES: readonly Story[] = [
   {
     component: 'chip',
     variant: 'states',
-    title: 'Info, changed, pass',
+    title: 'Info, changed, and the status colours: pass, error, warning',
     example: 'ChipStates',
-    viewports: [DESKTOP],
+    viewports: [DESKTOP, MOBILE],
   },
   {
     component: 'text-field',
@@ -272,6 +279,13 @@ export const STORIES: readonly Story[] = [
   },
   {
     component: 'findings',
+    variant: 'build-failed',
+    title: 'The build has errors: a status banner',
+    example: 'FindingsBuildFailed',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
+    component: 'findings',
     variant: 'rules',
     title: 'Grouped by rule with counts, one rule open',
     example: 'FindingsRules',
@@ -303,6 +317,13 @@ export const STORIES: readonly Story[] = [
     variant: 'default',
     title: 'Counts that open their view, outputs built',
     example: 'SummaryLineDefault',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
+    component: 'summary-line',
+    variant: 'problems',
+    title: 'Status counts: lint errors and a failed build',
+    example: 'SummaryLineProblems',
     viewports: [DESKTOP, MOBILE],
   },
   {
