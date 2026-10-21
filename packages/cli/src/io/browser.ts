@@ -20,16 +20,15 @@ export interface Screenshotter {
    */
   capture(url: string, width: number, ready?: string): Promise<Uint8Array | null>
   /**
-   * Loads `url` like `capture` and runs `script` (a function expression) with `arg` in the
-   * page; returns its result, or null on HTTP errors.
+   * Loads `url` like `capture` and hands `use` a function that runs `script` (a function
+   * expression) with `arg` in that page; returns what `use` returns, or null on HTTP errors.
    */
-  evaluate(
+  inspect<T>(
     url: string,
     width: number,
-    script: string,
-    arg: unknown,
-    ready?: string,
-  ): Promise<unknown>
+    ready: string | undefined,
+    use: (run: (script: string, arg: unknown) => Promise<unknown>) => Promise<T>,
+  ): Promise<T | null>
   close(): Promise<void>
 }
 
@@ -98,8 +97,10 @@ export async function launchScreenshotter(): Promise<Screenshotter> {
       withPage(url, width, ready, (page) =>
         page.screenshot({ fullPage: true, animations: 'disabled', caret: 'hide' }),
       ),
-    evaluate: (url, width, script, arg, ready) =>
-      withPage(url, width, ready, (page) => page.evaluate(`(${script})(${JSON.stringify(arg)})`)),
+    inspect: (url, width, ready, use) =>
+      withPage(url, width, ready, (page) =>
+        use((script, arg) => page.evaluate(`(${script})(${JSON.stringify(arg)})`)),
+      ),
     close: () => browser.close(),
   }
 }

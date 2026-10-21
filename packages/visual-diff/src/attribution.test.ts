@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
   attributePixels,
+  PAGE_DECLARATIONS_SCRIPT,
   planReverts,
   type CssBinding,
   type Dependent,
+  type PageDeclaration,
   type TokenChange,
   type TokenChangeSet,
 } from './index.js'
@@ -123,6 +125,212 @@ describe('planReverts', () => {
       'b (Primitives · Value)',
     ])
     expect(groups[0].css).toBe(groups[0].children?.map((g) => g.css).join('\n'))
+  })
+})
+
+describe('planReverts on re-scoped CSS (groupsFor the page)', () => {
+  // One brand, one mode: `dta build` declares it on :root; the page re-scopes it per state.
+  const set = setOf([
+    change({ kind: 'changed', name: 'Radius.Card', collection: 'Brand', mode: 'OrbitBurger' }),
+  ])
+  const base = [
+    binding({
+      name: 'Radius.Card',
+      collection: 'Brand',
+      mode: 'OrbitBurger',
+      variable: '--radius-card',
+      value: 'var(--orbit-radius-sm)',
+    }),
+  ]
+  const head = [{ ...base[0], value: 'var(--orbit-radius-lg)' }]
+  const declared = (d: Partial<PageDeclaration> & Pick<PageDeclaration, 'selector'>) => ({
+    variable: '--radius-card',
+    value: '24px',
+    context: [],
+    ...d,
+  })
+
+  it('puts the token back where the page declares it, besides the build selector', () => {
+    const plan = planReverts(set, base, head)
+    expect(plan.variables).toEqual(['--radius-card'])
+    expect(plan.groups).toEqual(plan.groupsFor([]))
+    const [group] = plan.groupsFor([
+      declared({ selector: '[data-state="main"]', value: '8px' }),
+      declared({ selector: '[data-state="change"]' }),
+      declared({ selector: '[data-state="change"]' }), // twice in the page: one rule
+    ])
+    expect(group.css.split('\n')).toEqual([
+      ':root { --radius-card: var(--orbit-radius-sm) !important; }',
+      '[data-state="main"] { --radius-card: var(--orbit-radius-sm) !important; }',
+      '[data-state="change"] { --radius-card: var(--orbit-radius-sm) !important; }',
+    ])
+  })
+
+  it('keeps the at-rules and nesting the declaration is in', () => {
+    const [group] = planReverts(set, base, head).groupsFor([
+      declared({ selector: '.card', context: ['@layer theme', '@media (min-width: 40rem)'] }),
+      declared({ selector: '&', context: ['.shell', '@supports (display: grid)'] }),
+      declared({ selector: ':root', context: ['@media (prefers-color-scheme: dark)'] }),
+      declared({ selector: ':root' }), // the build rule already covers it
+    ])
+    expect(group.css.split('\n')).toEqual([
+      ':root { --radius-card: var(--orbit-radius-sm) !important; }',
+      '@layer theme { @media (min-width: 40rem) { .card { --radius-card: var(--orbit-radius-sm) !important; } } }',
+      '.shell { @supports (display: grid) { & { --radius-card: var(--orbit-radius-sm) !important; } } }',
+      '@media (prefers-color-scheme: dark) { :root { --radius-card: var(--orbit-radius-sm) !important; } }',
+    ])
+  })
+
+  it('ignores declarations of other variables', () => {
+    const [group] = planReverts(set, base, head).groupsFor([
+      declared({ selector: '.x', variable: '--radius-pill' }),
+    ])
+    expect(group.css).toBe(':root { --radius-card: var(--orbit-radius-sm) !important; }')
+  })
+
+  it('unsets an added token wherever the page declares it', () => {
+    const added = setOf([
+      change({ kind: 'added', name: 'Radius.Card', collection: 'Brand', mode: 'OrbitBurger' }),
+    ])
+    const [group] = planReverts(added, [], head).groupsFor([declared({ selector: '.scope' })])
+    expect(group.css.split('\n')).toEqual([
+      ':root { --radius-card: initial !important; }',
+      '.scope { --radius-card: initial !important; }',
+    ])
+  })
+
+  describe('with several brands declaring the variable', () => {
+    const brand = (mode: string, value: string) =>
+      binding({
+        name: 'accent',
+        collection: 'Theme',
+        mode,
+        selector: `[data-brand="${mode.toLowerCase()}"]`,
+        value,
+      })
+    const changed = setOf([
+      change({ kind: 'changed', name: 'accent', collection: 'Theme', mode: 'A' }),
+    ])
+    const baseBrands = [brand('A', 'var(--sky)'), brand('B', 'var(--sky)')]
+    const headBrands = [brand('A', 'var(--slate)'), brand('B', 'var(--sky)')]
+    const page = (selector: string, value: string, context: string[] = []) => ({
+      variable: '--accent',
+      selector,
+      value,
+      context,
+    })
+
+    it("re-scoped rules count when they hold this brand's head value", () => {
+      const [group] = planReverts(changed, baseBrands, headBrands).groupsFor([
+        page('.theme-a', ' var(--slate) '),
+        page('.theme-b', 'var(--sky)'),
+        page('[data-brand="b"]', 'var(--slate)'), // another brand's own selector
+        page('[data-brand="a"]', 'var(--slate)', ['@layer brands']),
+      ])
+      expect(group.css.split('\n')).toEqual([
+        '[data-brand="a"] { --accent: var(--sky) !important; }',
+        '.theme-a { --accent: var(--sky) !important; }',
+        '@layer brands { [data-brand="a"] { --accent: var(--sky) !important; } }',
+      ])
+    })
+
+    it('leaves a re-scoped rule alone when two brands share its value', () => {
+      const same = [brand('A', 'var(--slate)'), brand('B', 'var(--slate)')]
+      const [group] = planReverts(changed, baseBrands, same).groupsFor([
+        page('.theme-a', 'var(--slate)'),
+      ])
+      expect(group.css).toBe('[data-brand="a"] { --accent: var(--sky) !important; }')
+    })
+  })
+})
+
+/** A minimal CSSOM: what PAGE_DECLARATIONS_SCRIPT reads of rules and sheets. */
+const style = (decls: Record<string, string>) =>
+  Object.assign(Object.keys(decls), { getPropertyValue: (name: string) => decls[name] ?? '' })
+const styleRule = (selectorText: string, decls: Record<string, string>, cssRules?: unknown[]) => ({
+  selectorText,
+  style: style(decls),
+  cssText: `${selectorText} { … }`,
+  ...(cssRules ? { cssRules } : {}),
+})
+const group = (prelude: string, cssRules: unknown[]) => ({ cssText: `${prelude} { … }`, cssRules })
+const nested = (decls: Record<string, string>) => ({ style: style(decls), cssText: '…' })
+
+function pageDeclarations(sheets: unknown[], variables: string[], adopted: unknown[] = []) {
+  const script = new Function('document', `return (${PAGE_DECLARATIONS_SCRIPT})`)
+  return script({ styleSheets: sheets, adoptedStyleSheets: adopted })(variables) as unknown
+}
+
+describe('PAGE_DECLARATIONS_SCRIPT', () => {
+  it('finds the variables in plain, nested and at-rule scoped rules', () => {
+    const sheet = {
+      cssRules: [
+        styleRule(':root', { '--a': '1px', '--other': 'x' }),
+        styleRule('[data-state="change"]', { '--a': ' 24px' }),
+        group('@media (min-width: 40rem)', [
+          group('@layer theme', [styleRule('.card', { '--b': 'red' })]),
+        ]),
+        group('@supports (display: grid)', [
+          styleRule('.shell', {}, [nested({ '--a': '2px' }), styleRule('& .x', { '--b': 'blue' })]),
+        ]),
+        group('@layer', [styleRule('.anon', { '--a': '3px' })]),
+        group('@keyframes spin', [{ keyText: 'from', style: style({ '--a': '0' }), cssText: '' }]),
+        group('@font-face', []),
+      ],
+    }
+    expect(pageDeclarations([sheet], ['--a', '--b'])).toEqual([
+      { variable: '--a', value: '1px', selector: ':root', context: [] },
+      { variable: '--a', value: '24px', selector: '[data-state="change"]', context: [] },
+      {
+        variable: '--b',
+        value: 'red',
+        selector: '.card',
+        context: ['@media (min-width: 40rem)', '@layer theme'],
+      },
+      {
+        variable: '--a',
+        value: '2px',
+        selector: '&',
+        context: ['@supports (display: grid)', '.shell'],
+      },
+      {
+        variable: '--b',
+        value: 'blue',
+        selector: '& .x',
+        context: ['@supports (display: grid)', '.shell'],
+      },
+      { variable: '--a', value: '3px', selector: '.anon', context: [] },
+    ])
+  })
+
+  it('follows @import and sheet media, skips cross-origin and disabled sheets', () => {
+    const imported = { cssRules: [styleRule('.in', { '--a': '1px' })] }
+    const sheets = [
+      {
+        cssRules: [
+          {
+            styleSheet: imported,
+            layerName: 'base',
+            supportsText: '',
+            media: { mediaText: 'screen' },
+            cssText: '@import …',
+          },
+        ],
+      },
+      { media: { mediaText: 'print' }, cssRules: [styleRule('.p', { '--a': '2px' })] },
+      {
+        get cssRules() {
+          throw new Error('SecurityError: cross-origin')
+        },
+      },
+      { disabled: true, cssRules: [styleRule('.off', { '--a': '9px' })] },
+    ]
+    const adopted = [{ cssRules: [styleRule(':host', { '--a': '4px' })] }]
+    expect(pageDeclarations(sheets, ['--a'], adopted)).toEqual([
+      { variable: '--a', value: '1px', selector: '.in', context: ['@layer base', '@media screen'] },
+      { variable: '--a', value: '2px', selector: '.p', context: ['@media print'] },
+      { variable: '--a', value: '4px', selector: ':host', context: [] },
+    ])
   })
 })
 

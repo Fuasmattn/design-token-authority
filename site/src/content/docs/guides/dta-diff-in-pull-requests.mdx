@@ -19,6 +19,8 @@ import template from '../../../../../actions/recipes/template.sh?raw'
 - **A status check, "dta diff"**: green when nothing needs a look, pending with _changes to review_, red with _unexplained changes_ above your threshold.
 - **One comment** that updates on every push: the changes grouped by token, a table per story and viewport, and a link to the full report (baseline, candidate, diff, drag-to-compare slider).
 
+A change is explained when putting the token back to its base value in the rendered page makes it go away, wherever your CSS declares the variable (see [How changes are explained](/guides/dta-diff-with-storybook/#how-changes-are-explained)).
+
 Everything is rendered in your CI. Nothing is stored between runs: the baseline is built from the base commit in the same run. Where the report is hosted is up to you: DTA runs a **publish hook** you write, and this page has three recipes.
 
 ## Before you start

@@ -60,7 +60,18 @@ import '../output/css/variables.css'
 import '../output/css/themes/branda.css' // one theme per brand, selected with [data-brand]
 ```
 
-Values your build bakes in as literals (a Tailwind config with resolved colors, JavaScript reading token values) cannot be reverted: the pixels they change stay **unexplained**. Everything else (the report, the pull-request comment, the status check) works as described in [dta diff in pull requests](/guides/dta-diff-in-pull-requests/).
+The variables do not have to stay where `dta build` declares them. Each token is put back under the build's selector (`:root`, `[data-brand="…"]`) and under every rule in the page's stylesheets that declares its custom property, with the same selector, inside the same `@media`, `@layer`, `@supports`, `@container`, `@scope` or CSS nesting. So a theme re-scoped to a wrapper or a component is explained too:
+
+```css
+/* your CSS: the brand shown inside a preview frame */
+.preview[data-state='after'] {
+  --action-bg: var(--blueprint-700);
+}
+```
+
+With several brands, a re-scoped rule counts for the brand whose value it declares (as `dta build` writes it); a rule whose value two brands share is left alone, so one brand is never put back to another brand's value.
+
+Values your build bakes in as literals (a Tailwind config with resolved colors, JavaScript reading token values), variables set in inline `style` attributes, and stylesheets from another origin that the page may not read cannot be reverted: the pixels they change stay **unexplained**. Everything else (the report, the pull-request comment, the status check) works as described in [dta diff in pull requests](/guides/dta-diff-in-pull-requests/).
 
 ## Tried on a small Storybook
 

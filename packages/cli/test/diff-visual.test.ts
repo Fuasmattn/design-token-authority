@@ -54,6 +54,14 @@ fs.writeFileSync(
     theme('B'),
   ].join(' '),
 )
+// Re-scoped copies, as a site that shows a theme inside a wrapper writes them: the page declares
+// the variables itself, nested in at-rules (TICKET-111).
+const accent = (mode) => 'var(--' + read('Theme.' + mode + '.json').accent.$value.replace(/[{}]/g, '') + ')'
+fs.writeFileSync(
+  'dist/scoped.css',
+  '@layer example { @media (min-width: 1px) { .preview { --brand: ' + base.Brand.$value + '; } } } ' +
+    '.preview { .theme-a { --accent: ' + accent('A') + '; } .theme-b { --accent: ' + accent('B') + '; } }',
+)
 `
 
 function stories(ids: string[]) {
@@ -97,9 +105,17 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
       'pages/stories/card/index.html',
       page('<div style="width:200px;height:80px;background:var(--brand)"></div>'),
     )
+    write(
+      'pages/stories/scoped/index.html',
+      page(
+        '<div class="preview"><div id="scoped-card" style="width:200px;height:40px;background:var(--brand)"></div>' +
+          '<div class="theme-a"><div id="scoped-a" style="width:100px;height:40px;background:var(--accent)"></div></div>' +
+          '<div class="theme-b"><div id="scoped-b" style="width:100px;height:40px;background:var(--accent)"></div></div></div>',
+      ).replace('</head>', '<link rel="stylesheet" href="/scoped.css"></head>'),
+    )
     write('pages/stories/text/index.html', page('<p>Unchanged text</p>'))
     write('pages/stories/button/index.html', page('<button style="padding:8px 16px">Save</button>'))
-    write('pages/stories/manifest.json', stories(['card', 'text', 'button', 'themes']))
+    write('pages/stories/manifest.json', stories(['card', 'text', 'button', 'themes', 'scoped']))
     git('init', '-q', '-b', 'main')
     git('add', '.')
     git('commit', '-q', '-m', 'base')
@@ -113,7 +129,10 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
       page('<button style="padding:12px 24px">Save</button>'),
     )
     write('pages/stories/new/index.html', page('<p>New story</p>'))
-    write('pages/stories/manifest.json', stories(['card', 'text', 'button', 'themes', 'new']))
+    write(
+      'pages/stories/manifest.json',
+      stories(['card', 'text', 'button', 'themes', 'scoped', 'new']),
+    )
     git('add', '.')
     git('commit', '-q', '-m', 'head')
   })
@@ -145,6 +164,7 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
       text: 'unchanged',
       button: 'changed',
       themes: 'changed',
+      scoped: 'changed',
       new: 'added',
     })
 
@@ -166,6 +186,15 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
       explained: true,
       tokens: [{ id: 'accent (Theme · A)', dependents: 1, elements: ['div#in-a'] }],
     })
+    // Declared by the page under its own selectors (nested @layer/@media, CSS nesting): explained
+    // through those declarations; theme B's re-scoped copy keeps its value.
+    expect(byId.scoped.attribution).toMatchObject({
+      explained: true,
+      tokens: [
+        { id: 'Brand (Base · Value)', elements: ['div#scoped-card'] },
+        { id: 'accent (Theme · A)', dependents: 1, elements: ['div#scoped-a'] },
+      ],
+    })
     expect(byId.button.attribution?.explained).toBe(false)
     expect(byId.button.attribution?.tokens).toEqual([])
     expect(byId.button.attribution?.unexplainedPixels).toBeGreaterThan(0)
@@ -174,8 +203,8 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
     expect(
       result.review.tokens.map((t: { id: string; stories: string[] }) => [t.id, t.stories]),
     ).toEqual([
-      ['Brand (Base · Value)', ['card@320']],
-      ['accent (Theme · A)', ['themes@320']],
+      ['Brand (Base · Value)', ['card@320', 'scoped@320']],
+      ['accent (Theme · A)', ['themes@320', 'scoped@320']],
     ])
 
     const report = path.join(dir, '.dta', 'diff')
@@ -197,7 +226,7 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
       '<span class="tag big" data-contrast-exception="redline label">Brand</span>',
     )
     expect(fs.readFileSync(path.join(report, 'summary.md'), 'utf8')).toContain(
-      '**Fail: unexplained changes above the threshold** · 3 changed · 1 added · 1 unchanged · 2 explained by token changes, 1 unexplained',
+      '**Fail: unexplained changes above the threshold** · 4 changed · 1 added · 1 unchanged · 3 explained by token changes, 1 unexplained',
     )
     // The working tree is untouched and the temporary worktree is gone.
     expect(

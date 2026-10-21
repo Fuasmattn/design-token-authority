@@ -147,6 +147,8 @@ const at = (angle: number) =>
         set(`--r${suffix}`, `${radius}px`)
       }
       set('--tilt', `${tilt}deg`)
+      // The objects are first painted where they belong (see .stage below).
+      root.dataset.placed = ''
     }
 
     function frame(now: number) {
@@ -234,6 +236,11 @@ const at = (angle: number) =>
     max-width: none;
     overflow: visible;
     transform-style: preserve-3d;
+  }
+  /* Hidden until the script has placed the orbits: objects painted at a default position and
+     moved by the script were rasterised at a scale that depended on timing (TICKET-111). */
+  .dta-well:not([data-placed]) .stage {
+    visibility: hidden;
   }
   .size-L .stage {
     height: 240px;

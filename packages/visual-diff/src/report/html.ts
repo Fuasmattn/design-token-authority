@@ -82,15 +82,29 @@ function marks(story: Story) {
   if (!a || a.canvas.width === 0 || a.canvas.height === 0) return ''
   const box = (r: { x: number; y: number; width: number; height: number }) =>
     `left:${((r.x / a.canvas.width) * 100).toFixed(3)}%;top:${((r.y / a.canvas.height) * 100).toFixed(3)}%;width:${((r.width / a.canvas.width) * 100).toFixed(3)}%;height:${((r.height / a.canvas.height) * 100).toFixed(3)}%`
-  const tokenMarks = a.tokens
-    .filter((t) => t.regions.length > 0)
-    .map(
-      (t) =>
-        `<span class="mark" style="${box(t.regions[0])}"><span class="tag"${REDLINE_LABEL}>${escape(shortToken(t.id))}</span></span>`,
-    )
+  // Tokens that explain the same box (e.g. a colour and a radius on one button) share one mark
+  // whose labels stack, so they never overlap.
+  const byBox = new Map<
+    string,
+    { region: (typeof a.tokens)[number]['regions'][number]; ids: string[] }
+  >()
+  for (const t of a.tokens) {
+    const region = t.regions[0]
+    if (!region) continue
+    const key = box(region)
+    const entry = byBox.get(key) ?? { region, ids: [] }
+    entry.ids.push(t.id)
+    byBox.set(key, entry)
+  }
+  const tags = (labels: string[]) =>
+    `<span class="tags">${labels.map((l) => `<span class="tag"${REDLINE_LABEL}>${escape(l)}</span>`).join('')}</span>`
+  const tokenMarks = [...byBox.values()].map(
+    ({ region, ids }) =>
+      `<span class="mark" style="${box(region)}">${tags(ids.map(shortToken))}</span>`,
+  )
   const unexplained = a.unexplainedRegion
     ? [
-        `<span class="mark unexplained" style="${box(a.unexplainedRegion)}"><span class="tag"${REDLINE_LABEL}>unexplained</span></span>`,
+        `<span class="mark unexplained" style="${box(a.unexplainedRegion)}">${tags(['unexplained'])}</span>`,
       ]
     : []
   return tokenMarks.concat(unexplained).join('')
@@ -250,7 +264,7 @@ figcaption{margin-top:6px;font-family:var(--font-mono);font-size:calc(var(--type
 .marks{position:absolute;inset:0;pointer-events:none}
 .mark{position:absolute;outline:var(--stroke-redline) solid var(--signal-bg);outline-offset:2px;border-radius:2px}
 .mark.unexplained{outline-style:dashed}
-.mark .tag{position:absolute;left:-2px;top:-22px}
+.mark .tags{position:absolute;left:-2px;bottom:calc(100% + 4px);display:flex;flex-direction:column;align-items:flex-start;gap:2px}
 .controls{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3)}
 .controls input[type=range]{flex:1 1 200px;accent-color:var(--signal-bg);min-height:44px}
 .toggle{display:inline-flex;align-items:center;gap:6px;font-size:calc(var(--type-body-sm-size)*1px)}

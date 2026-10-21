@@ -34,11 +34,88 @@ export interface RevertGroup {
   children?: RevertGroup[]
 }
 
+/**
+ * A rule in a rendered page that declares a custom property (from `PAGE_DECLARATIONS_SCRIPT`).
+ * `context` holds the preludes it is nested in, outermost first: `@media (…)`, `@layer name`,
+ * `@supports (…)`, `@container …`, `@scope (…)` or a parent rule's selector (CSS nesting).
+ */
+export interface PageDeclaration {
+  variable: string
+  value: string
+  selector: string
+  context: string[]
+}
+
+/** What to put back for one custom property of a changed token. */
+interface Revert {
+  variable: string
+  /** The rule `dta build` declares it in. */
+  selector: string
+  /** The value to put back: the base value, or `initial` for a token added in the head. */
+  value: string
+  /** The head value as the build writes it. */
+  head?: string
+  /** The same variable for other collection · modes in the head build (e.g. other brands). */
+  siblings: Array<{ selector: string; value: string }>
+}
+
+/**
+ * Revert rules for a token change set, planned once and scoped per page: `groups` puts the
+ * tokens back under the selectors `dta build` writes; `groupsFor(page)` also puts them back
+ * wherever the rendered page itself declares their variables (re-scoped CSS, TICKET-111).
+ */
+export interface RevertPlan {
+  causes: TokenCause[]
+  /** Every custom property a revert touches: what to look for in the page's stylesheets. */
+  variables: string[]
+  groups: RevertGroup[]
+  groupsFor(page: PageDeclaration[]): RevertGroup[]
+}
+
 export const causeId = (change: Pick<TokenChange, 'name' | 'collection' | 'mode'>) =>
   `${change.name} (${change.collection} · ${change.mode})`
 
 const key = (b: Pick<CssBinding, 'collection' | 'mode' | 'name'>) =>
   `${b.collection}\u0000${b.mode}\u0000${b.name}`
+
+const sameValue = (a: string, b: string) =>
+  a.trim().replace(/\s+/g, ' ').toLowerCase() === b.trim().replace(/\s+/g, ' ').toLowerCase()
+
+/** `selector { variable: value !important; }`, nested in the page rule's context. */
+function ruleIn(context: string[], selector: string, variable: string, value: string): string {
+  return context.reduceRight(
+    (inner, prelude) => `${prelude} { ${inner} }`,
+    `${selector} { ${variable}: ${value} !important; }`,
+  )
+}
+
+/**
+ * Whether a page rule declares this revert's token (and so gets the revert too):
+ * - the build's own selector: yes inside an at-rule or nesting (the plain rule is already
+ *   covered by the build rule);
+ * - the build selector of another mode of the variable (another brand): no;
+ * - any other selector (re-scoped CSS): yes when the build declares the variable for one
+ *   collection · mode only; otherwise only when its value is this mode's head value and no
+ *   other mode's, so a re-scoped brand is not put back to another brand's base value.
+ */
+function declares(revert: Revert, page: PageDeclaration): boolean {
+  if (page.variable !== revert.variable) return false
+  if (page.selector === revert.selector) return page.context.length > 0
+  if (revert.siblings.some((s) => s.selector === page.selector)) return false
+  if (revert.siblings.length === 0) return true
+  if (revert.head === undefined || !sameValue(page.value, revert.head)) return false
+  return !revert.siblings.some((s) => sameValue(s.value, page.value))
+}
+
+function revertCss(reverts: Revert[], page: PageDeclaration[]): string {
+  const rules = reverts.flatMap((r) => [
+    ruleIn([], r.selector, r.variable, r.value),
+    ...page
+      .filter((p) => declares(r, p))
+      .map((p) => ruleIn(p.context, p.selector, r.variable, r.value)),
+  ])
+  return [...new Set(rules)].join('\n')
+}
 
 /**
  * Revert rules for a token change set. One leaf per changed, added or removed token: the token
@@ -50,27 +127,50 @@ export function planReverts(
   set: TokenChangeSet,
   base: CssBinding[],
   head: CssBinding[],
-): { causes: TokenCause[]; groups: RevertGroup[] } {
+): RevertPlan {
   const baseByKey = new Map(base.map((b) => [key(b), b]))
   const headByKey = new Map(head.map((b) => [key(b), b]))
-  const rule = (change: TokenChange): string | null => {
+  const headByVariable = new Map<string, CssBinding[]>()
+  for (const b of head)
+    headByVariable.set(b.variable, [...(headByVariable.get(b.variable) ?? []), b])
+  const siblings = (b: CssBinding) =>
+    (headByVariable.get(b.variable) ?? [])
+      .filter((other) => key(other) !== key(b))
+      .map(({ selector, value }) => ({ selector, value }))
+  const revertOf = (change: TokenChange): Revert | null => {
     const before = baseByKey.get(key(change))
-    if (before) return `${before.selector} { ${before.variable}: ${before.value} !important; }`
-    // Added in the head: without it, var() falls back as it did in the base.
     const after = headByKey.get(key(change))
-    return after ? `${after.selector} { ${after.variable}: initial !important; }` : null
+    if (before) {
+      return {
+        variable: before.variable,
+        selector: before.selector,
+        value: before.value,
+        head: after?.value,
+        siblings: siblings(after ?? before),
+      }
+    }
+    // Added in the head: without it, var() falls back as it did in the base.
+    return after
+      ? {
+          variable: after.variable,
+          selector: after.selector,
+          value: 'initial',
+          head: after.value,
+          siblings: siblings(after),
+        }
+      : null
   }
 
   const causes: TokenCause[] = []
-  const leavesByLayer = new Map<string, RevertGroup[]>()
+  const leavesByLayer = new Map<string, Array<{ id: string; reverts: Revert[] }>>()
   for (const change of set.changes) {
     if (change.kind === 'affected') continue
     const members = [
       change,
       ...set.changes.filter((c) => c.kind === 'affected' && c.causes?.includes(change.name)),
     ]
-    const css = [...new Set(members.map(rule).filter((r): r is string => r !== null))]
-    if (css.length === 0) continue
+    const reverts = members.map(revertOf).filter((r): r is Revert => r !== null)
+    if (reverts.length === 0) continue
     const id = causeId(change)
     causes.push({
       id,
@@ -83,17 +183,92 @@ export function planReverts(
     })
     const layer = `${change.collection} · ${change.mode}`
     const leaves = leavesByLayer.get(layer) ?? []
-    leaves.push({ id, css: css.join('\n') })
+    leaves.push({ id, reverts })
     leavesByLayer.set(layer, leaves)
   }
 
-  const groups = [...leavesByLayer].map(([layer, leaves]) =>
-    leaves.length === 1
-      ? leaves[0]
-      : { id: `group: ${layer}`, css: leaves.map((l) => l.css).join('\n'), children: leaves },
-  )
-  return { causes, groups }
+  const groupsFor = (page: PageDeclaration[]): RevertGroup[] =>
+    [...leavesByLayer].map(([layer, leaves]) => {
+      const children = leaves.map((leaf) => ({ id: leaf.id, css: revertCss(leaf.reverts, page) }))
+      return children.length === 1
+        ? children[0]
+        : { id: `group: ${layer}`, css: children.map((l) => l.css).join('\n'), children }
+    })
+  const variables = [
+    ...new Set(
+      [...leavesByLayer.values()].flat().flatMap((leaf) => leaf.reverts.map((r) => r.variable)),
+    ),
+  ]
+  return { causes, variables, groups: groupsFor([]), groupsFor }
 }
+
+/**
+ * Runs in the browser: `(variables) => PageDeclaration[]`, every rule in the page's stylesheets
+ * (`document.styleSheets`, adopted sheets, `@import`s) that declares one of `variables`,
+ * through `@media`, `@supports`, `@layer`, `@container`, `@scope` and CSS nesting. Sheets the
+ * page may not read (cross-origin) are skipped. A string, like `DEPENDENTS_SCRIPT`.
+ */
+export const PAGE_DECLARATIONS_SCRIPT = `(variables) => {
+  const wanted = new Set(variables)
+  const out = []
+  const GROUPS = ['@media', '@supports', '@layer', '@container', '@scope', '@starting-style']
+  const prelude = (rule) => {
+    const text = String(rule.cssText || '')
+    const brace = text.indexOf('{')
+    return (brace < 0 ? text : text.slice(0, brace)).trim()
+  }
+  const collect = (style, selector, context) => {
+    if (!style) return
+    for (let i = 0; i < style.length; i++) {
+      const name = style[i]
+      if (wanted.has(name)) {
+        out.push({ variable: name, value: String(style.getPropertyValue(name)).trim(), selector, context })
+      }
+    }
+  }
+  const walk = (rules, context, inStyle) => {
+    for (const rule of rules) {
+      if (rule.styleSheet) {
+        const wrap = [...context]
+        if (rule.layerName) wrap.push('@layer ' + rule.layerName)
+        if (rule.supportsText) wrap.push('@supports ' + rule.supportsText)
+        if (rule.media && rule.media.mediaText) wrap.push('@media ' + rule.media.mediaText)
+        read(rule.styleSheet, wrap)
+        continue
+      }
+      if (typeof rule.selectorText === 'string') {
+        collect(rule.style, rule.selectorText, context)
+        if (rule.cssRules && rule.cssRules.length) walk(rule.cssRules, [...context, rule.selectorText], true)
+        continue
+      }
+      // Declarations between nested rules (CSSNestedDeclarations) belong to the parent rule.
+      if (inStyle && rule.style && !rule.cssRules) {
+        collect(rule.style, '&', context)
+        continue
+      }
+      const head = prelude(rule)
+      const at = head.split(/[\\s(]/)[0]
+      if (!GROUPS.includes(at) || !rule.cssRules) continue
+      // An anonymous layer cannot be named again: its declarations are put back unlayered.
+      walk(rule.cssRules, head === '@layer' ? context : [...context, head], inStyle || at === '@scope')
+    }
+  }
+  const read = (sheet, context) => {
+    if (!sheet || sheet.disabled) return
+    let rules
+    try {
+      rules = sheet.cssRules
+    } catch (error) {
+      return
+    }
+    if (!rules) return
+    const media = sheet.media && sheet.media.mediaText
+    walk(rules, media && !context.length ? ['@media ' + media] : context, false)
+  }
+  for (const sheet of document.styleSheets) read(sheet, [])
+  for (const sheet of document.adoptedStyleSheets || []) read(sheet, [])
+  return out
+}`
 
 /** `[left, top, right, bottom]` in page pixels. */
 export type Box = [number, number, number, number]

@@ -37,7 +37,7 @@ Nothing numbered beyond the scene kickers. No FAQ, no cards, no "why trust it", 
 
 4. **Motion.** The mesh flows and the objects orbit continuously; a slight parallax on scroll (mesh 0.35, objects 0.18) and, at the end of the page, the free objects at their own depths (0.12–0.4). `prefers-reduced-motion`: one still frame of the mesh, objects at rest, no parallax. Tapping the well pauses it (prototype; optional on the site). Canvas work is capped at 2× device pixel ratio and is purely decorative (`aria-hidden`).
 
-5. **Honesty rule, unchanged.** Every command on the page exists (`landing.test.ts` checks against `COMMAND_NAMES`); `npm create dta` is shown unmarked by maintainer decision (098); outputs shown as real are real (the agent scene; the diff numbers once the fixture exists); illustrative text is labelled.
+5. **Honesty rule, unchanged.** Every command on the page exists (`landing.test.ts` checks against `COMMAND_NAMES`); `npm create dta` is shown unmarked by maintainer decision (098); outputs shown as real are real (the agent scene; the diff shares, from a recorded `dta diff` run in `site/src/landing/diff-run.json`, TICKET-111); illustrative text is labelled.
 
 6. **Design system first.** New UI becomes components under `site/src/components/ds` with a docs page and stories before the page uses them (CLAUDE.md rule): `Scene`, `ExampleButton` (Orbit Burger, two states), `TokenRows`, `Checks`, `Facts`, `CommandChip` (the copyable command; `CommandButton` is retired or becomes it), `GravityWell` and `FloatingObjects`. The current `DiffCard` is retired from the landing page (kept for the design-system docs until the diff report moves, TICKET-109).
 

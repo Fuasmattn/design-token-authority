@@ -404,6 +404,8 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
   // brand-ab's headline (BrandB's accent, navy to sky): example content stays blue or grey, never a
   // system colour (TICKET-122).
   const TOKEN = 'Colors.Brand.Accent (Brand(Alias) · BrandB)'
+  // A second token on the same box (TICKET-111): its label stacks with the first one.
+  const RADIUS = 'Radius.Card (Brand(Alias) · BrandB)'
   const report = (verdict: 'pass' | 'review' | 'fail') => {
     const story = (id: string, status: 'changed' | 'unchanged', explained: boolean) => ({
       id,
@@ -419,15 +421,13 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
             attribution: {
               explained,
               tokens: explained
-                ? [
-                    {
-                      id: TOKEN,
-                      dependents: 1,
-                      pixels: 200,
-                      elements: ['.card'],
-                      regions: [{ x: 10, y: 20, width: 100, height: 40 }],
-                    },
-                  ]
+                ? [TOKEN, RADIUS].map((id) => ({
+                    id,
+                    dependents: 1,
+                    pixels: 200,
+                    elements: ['.card'],
+                    regions: [{ x: 10, y: 20, width: 100, height: 40 }],
+                  }))
                 : [],
               unexplainedPixels: explained ? 0 : 200,
               canvas: { width: 400, height: 200 },
@@ -452,6 +452,13 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
                     id: TOKEN,
                     before: { raw: '{Colors.Foundation.Navy.700}', resolved: '#2c4466' },
                     after: { raw: '{Colors.Foundation.Sky.500}', resolved: '#3b8fd9' },
+                    stories: ['card@1280'],
+                    needsReview: true,
+                  },
+                  {
+                    id: RADIUS,
+                    before: { raw: '{Radius.sm}', resolved: 8 },
+                    after: { raw: '{Radius.lg}', resolved: 24 },
                     stories: ['card@1280'],
                     needsReview: true,
                   },
@@ -484,6 +491,21 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
       const found = await audit(`${origin}/`, width, brand, async (page) => {
         await page.setContent(html)
         expect(await page.evaluate('document.documentElement.dataset.brand')).toBe(brand)
+        if (verdict !== 'review') return
+        // Labels of tokens on the same box stack: none overlaps another.
+        const boxes =
+          (await page.evaluate(`[...document.querySelectorAll('.mark .tags')].map((tags) =>
+          [...tags.querySelectorAll('.tag')].map((t) => { const r = t.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom] }))`)) as number[][][]
+        expect(boxes.some((tags) => tags.length === 2)).toBe(true)
+        for (const tags of boxes) {
+          for (let i = 0; i < tags.length; i++) {
+            for (let j = i + 1; j < tags.length; j++) {
+              const [a, b] = [tags[i], tags[j]]
+              const overlap = a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3]
+              expect(overlap, `labels ${i} and ${j} overlap`).toBe(false)
+            }
+          }
+        }
       })
       expect(found).toEqual([])
     },

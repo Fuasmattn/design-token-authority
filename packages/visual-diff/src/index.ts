@@ -34,6 +34,7 @@ export {
   BOX_TOLERANCE,
   causeId,
   DEPENDENTS_SCRIPT,
+  PAGE_DECLARATIONS_SCRIPT,
   planReverts,
 } from './attribution.js'
 export type {
@@ -41,8 +42,10 @@ export type {
   Box,
   CssBinding,
   Dependent,
+  PageDeclaration,
   Region,
   RevertGroup,
+  RevertPlan,
   TokenCause,
 } from './attribution.js'
 export { reviewStories } from './review.js'

@@ -83,9 +83,6 @@ h1 .accent {
 .shares .token {
   color: var(--fg-default);
 }
-.shares .note {
-  color: var(--fg-subtle);
-}
 .agent {
   display: grid;
   gap: var(--space-3);

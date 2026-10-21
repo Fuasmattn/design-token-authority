@@ -148,7 +148,51 @@ describe('renderReportHtml', () => {
     expect(html).toContain('aria-label="Divider between baseline (left) and candidate (right)')
     // Redline label on the token's dependent, in % of the canvas.
     expect(html).toContain(
-      '<span class="mark" style="left:2.500%;top:10.000%;width:25.000%;height:20.000%"><span class="tag" data-contrast-exception="redline label">action.bg</span></span>',
+      '<span class="mark" style="left:2.500%;top:10.000%;width:25.000%;height:20.000%"><span class="tags"><span class="tag" data-contrast-exception="redline label">action.bg</span></span></span>',
+    )
+  })
+
+  it('stacks the labels of tokens that explain the same box in one mark', () => {
+    const story = result.stories[0]
+    const token = (id: string, regions = [region]) => ({
+      id,
+      dependents: 1,
+      pixels: 200,
+      elements: ['span.button'],
+      regions,
+    })
+    const page = renderReportHtml({
+      ...result,
+      stories: [
+        {
+          ...story,
+          attribution: {
+            explained: true,
+            tokens: [
+              token('Colors.Brand.Primary (Brand · OrbitBurger)'),
+              token('Radius.Card (Brand · OrbitBurger)'),
+              token('Colors.Text.Muted (Brand · OrbitBurger)', [
+                { x: 200, y: 100, width: 40, height: 20 },
+              ]),
+            ],
+            unexplainedPixels: 0,
+            canvas: { width: 400, height: 200 },
+          },
+        },
+      ],
+    })
+    const tag = (text: string) =>
+      `<span class="tag" data-contrast-exception="redline label">${text}</span>`
+    expect(page).toContain(
+      `<span class="mark" style="left:2.500%;top:10.000%;width:25.000%;height:20.000%"><span class="tags">${tag('Colors.Brand.Primary')}${tag('Radius.Card')}</span></span>`,
+    )
+    expect(page).toContain(
+      `<span class="mark" style="left:50.000%;top:50.000%;width:10.000%;height:10.000%"><span class="tags">${tag('Colors.Text.Muted')}</span></span>`,
+    )
+    expect((page.match(/<span class="mark"/g) ?? []).length).toBe(2)
+    // Stacked above the box, one label per line, so they cannot overlap.
+    expect(page).toContain(
+      '.mark .tags{position:absolute;left:-2px;bottom:calc(100% + 4px);display:flex;flex-direction:column;align-items:flex-start;gap:2px}',
     )
   })
 

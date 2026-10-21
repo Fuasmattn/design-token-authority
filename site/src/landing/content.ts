@@ -3,6 +3,7 @@
  * honesty rule is testable: every command the page shows exists (landing.test.ts checks the
  * names against the CLI), and every output shown as real comes from a real run.
  */
+import DIFF_RUN from './diff-run.json'
 
 /**
  * DTA is not on npm yet (TICKET-090). Until it is, `npm create dta` does not work as written;
@@ -118,27 +119,46 @@ export const TOKEN_ROWS = [
 ]
 
 /**
- * Scene 03: how much of the differences each token explains. Illustrative until the recorded
- * `dta diff` run on this site's Orbit Burger stories replaces it (TICKET-108 outcome); the note
- * says so on the page (honesty rule).
+ * Scene 03: what each changed token explains, from a recorded `dta diff` run of the Orbit Burger
+ * change on this site's stories (TICKET-111): diff-run.json, written from the run's result.json
+ * by scripts/record-diff-run.ts. The shares are worded as the CLI prints them ("explains 4 of 6
+ * changed stories"); a story counts once per width. landing.test.ts checks them against the file.
  */
+const shareOf = (name: string) => {
+  const token = DIFF_RUN.tokens.find((t) => t.name === name)
+  if (!token) throw new Error(`${name} is not in the recorded dta diff run`)
+  return `explains ${token.stories.length} of ${DIFF_RUN.changed} changed stories`
+}
 export const DIFF_SHARES = {
   lines: [
-    { token: 'Radius.Card', change: '8 → 24', share: 'explains 94 % of the changed pixels' },
-    { token: 'Colors.Brand.Primary', change: 'Nova 500 → 600', share: 'explains the other 6 %' },
+    { token: 'Radius.Card', change: '8 → 24', share: shareOf('Radius.Card') },
+    {
+      token: 'Colors.Brand.Primary',
+      change: 'Nova 500 → 600',
+      share: shareOf('Colors.Brand.Primary'),
+    },
   ],
-  note: 'illustrative numbers until the Orbit Burger fixture is recorded',
-  real: false,
+  real: true,
 }
 
-/** Scene 02: the checks of the pull request, in the order of the strip (lint, build, diff). */
+/** The `dta diff` check as GitHub shows it for the recorded run (diff-run.json): its verdict and count. */
+const DIFF_STATUS = { pass: 'passed', review: 'changes', fail: 'failed' } as const
+/**
+ * Scene 02: the checks of the pull request, in the order of the strip (lint, build, diff). Lint
+ * and build as `dta lint` / `dta build` report them in examples/orbit-burger (0 violations, build
+ * complete); the diff check from the recorded run.
+ */
 export const CHECKS = [
   { name: 'dta lint', status: 'passed' as const, detail: '0 violations' },
   { name: 'dta build', status: 'passed' as const },
-  { name: 'dta diff', status: 'changes' as const, detail: '2 stories' },
+  {
+    name: 'dta diff',
+    status: DIFF_STATUS[DIFF_RUN.verdict as keyof typeof DIFF_STATUS],
+    detail: `${DIFF_RUN.changed} stories`,
+  },
 ]
 /** Scene 03: the check that waits for a person, and the approve action under it. */
-export const DECISION = CHECKS.filter((check) => check.status === 'changes')
+export const DECISION = CHECKS.filter((check) => check.name === 'dta diff')
 export const APPROVE = 'Add label dta-diff-approved'
 
 /**

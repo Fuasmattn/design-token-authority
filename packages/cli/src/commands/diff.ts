@@ -16,6 +16,7 @@ import {
   diffTokens,
   diffResultSchema,
   extractPublishUrl,
+  PAGE_DECLARATIONS_SCRIPT,
   planReverts,
   renderReportHtml,
   renderSummaryMarkdown,
@@ -23,8 +24,9 @@ import {
   VERDICT_TEXT,
   type Dependent,
   type DiffResult,
+  type PageDeclaration,
   type Review,
-  type RevertGroup,
+  type RevertPlan,
   readStoriesManifest,
   readStorybookIndex,
   storyImagePaths,
@@ -168,7 +170,7 @@ export async function runDiff(context: CommandContext): Promise<number> {
   } else {
     try {
       const plan = await planAttribution(context, set, before.model, head.model)
-      stories = await compareVisually(context, diff, baseInfo.sha, plan.groups, log)
+      stories = await compareVisually(context, diff, baseInfo.sha, plan, log)
       review = reviewStories(stories, plan.causes, diff.thresholds)
     } catch (error) {
       if (error instanceof BrowserUnavailableError) {
@@ -329,7 +331,7 @@ async function compareVisually(
   context: CommandContext,
   diff: DiffConfig,
   sha: string,
-  groups: RevertGroup[],
+  plan: RevertPlan,
   log: (text: string) => void,
 ): Promise<StoryResult[]> {
   const screenshotter = await launchScreenshotter()
@@ -382,16 +384,25 @@ async function compareVisually(
       // Changed stories only: revert each changed token in the head page and see what moves.
       attribute: async (story, viewport, comparison) => {
         const started = Date.now()
+        // The build's selectors, plus wherever this page itself declares the variables.
         const dependents =
-          groups.length === 0
+          plan.causes.length === 0
             ? {}
-            : (((await screenshotter.evaluate(
+            : ((await screenshotter.inspect(
                 `${headServer.url}${story.url}`,
                 viewport,
-                DEPENDENTS_SCRIPT,
-                groups,
                 story.ready,
-              )) as Record<string, Dependent[]> | null) ?? {})
+                async (run) => {
+                  const page = (await run(
+                    PAGE_DECLARATIONS_SCRIPT,
+                    plan.variables,
+                  )) as PageDeclaration[]
+                  return (await run(DEPENDENTS_SCRIPT, plan.groupsFor(page))) as Record<
+                    string,
+                    Dependent[]
+                  >
+                },
+              )) ?? {})
         const attribution = attributePixels(
           comparison.mask,
           comparison.width,
