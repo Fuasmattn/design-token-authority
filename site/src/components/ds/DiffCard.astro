@@ -28,11 +28,11 @@ interface Mark extends Box {
 }
 interface TokenRow {
   token: string
-  base: string
-  head: string
-  /** A colour value shown as a swatch next to base or head. */
-  baseSwatch?: string
-  headSwatch?: string
+  before: string
+  after: string
+  /** A colour value shown as a swatch next to the value before or with this change. */
+  beforeSwatch?: string
+  afterSwatch?: string
   outlined: string
 }
 interface Props {
@@ -40,12 +40,22 @@ interface Props {
   viewport: number
   /** Changed pixels, e.g. "0.83%". */
   ratio: string
-  /** The base in words: its ref and short sha ("main · 2ee9b31"), or only the sha. */
+  /** "Before" in words: the base ref and short sha ("main · 2ee9b31"), or only the sha. */
   base: string
-  /** The head in words: the branch, else "working tree" (what the report says). */
+  /**
+   * "With this change" in words: branch and short sha ("feature/x · 9f3c1a2"), "+ uncommitted
+   * changes" when the tree was dirty; "working tree" when the result does not say (older results).
+   */
   head?: string
   canvas: { width: number; height: number }
   marks: Mark[]
+  /**
+   * The flat surfaces of the "after" screenshot, in canvas pixels: each entry one colour, made of
+   * boxes (what the report reads from the PNG). Notes sit on the image only within one surface
+   * (or below the image); elsewhere the box gets a numbered marker and its notes are listed under
+   * the image. Without it every note is listed, as in a report without its images.
+   */
+  surfaces?: Box[][]
   tokens?: TokenRow[]
   /** Open with "Show before" pressed. */
   showBefore?: boolean
@@ -59,12 +69,42 @@ const {
   head = 'working tree',
   canvas,
   marks,
+  surfaces,
   tokens = [],
   showBefore = false,
   idPrefix = 'diff-card',
 } = Astro.props
 const unexplained = marks.some((m) => m.unexplained)
 const title = `${idPrefix}-title`
+// The report's flat map (packages/visual-diff/src/report/flat.ts) from the surfaces: cells of
+// 4 px inside one surface's box get its letter, the rest `.`; run-length encoded.
+const CELL = 4
+const flat = surfaces
+  ? (() => {
+      const cols = Math.ceil(canvas.width / CELL)
+      const rows = Math.ceil(canvas.height / CELL)
+      let rle = ''
+      let last = ''
+      let count = 0
+      for (let i = 0; i < cols * rows; i++) {
+        const x = (i % cols) * CELL
+        const y = Math.floor(i / cols) * CELL
+        const w = Math.min(CELL, canvas.width - x)
+        const h = Math.min(CELL, canvas.height - y)
+        const index = surfaces.findIndex((boxes) =>
+          boxes.some((b) => x >= b.x && y >= b.y && x + w <= b.x + b.width && y + h <= b.y + b.height),
+        )
+        const letter = index < 0 ? '.' : String.fromCharCode(65 + index)
+        if (letter !== last && count > 0) {
+          rle += `${last}${count}`
+          count = 0
+        }
+        last = letter
+        count++
+      }
+      return `${CELL};${cols};${rows};${rle}${last}${count}`
+    })()
+  : undefined
 const pct = (n: number, of: number) => `${((n / of) * 100).toFixed(3)}%`
 const markStyle = (m: Box) =>
   `left:calc(${pct(m.x, canvas.width)} - 3px);top:calc(${pct(m.y, canvas.height)} - 3px);width:calc(${pct(m.width, canvas.width)} + 6px);height:calc(${pct(m.height, canvas.height)} + 6px)`
@@ -132,6 +172,7 @@ const toggles = [
         style={`aspect-ratio:${canvas.width} / ${canvas.height};max-width:${canvas.width}px`}
         data-w={canvas.width}
         data-h={canvas.height}
+        data-flat={flat}
       >
         <div id={`${idPrefix}-after`} class="shot after" role="img" aria-label={`${story}@${viewport} with this change`}>
           <slot name="after" />
@@ -147,18 +188,26 @@ const toggles = [
           )
         }
         <div class="marks" aria-hidden="true">
-          {marks.map((m) => <span class:list={['mark', { unexplained: m.unexplained }]} style={markStyle(m)} />)}
+          {
+            marks.map((m, i) => (
+              <span class:list={['mark', { unexplained: m.unexplained }]} data-i={i} style={markStyle(m)} />
+            ))
+          }
+          {marks.map((_, i) => <span class="key" data-i={i} data-contrast-exception="redline label" />)}
         </div>
       </div>
       <div class="notes">
         {
-          marks.map((m) => (
+          marks.map((m, i) => (
             <span
               class="cluster"
+              data-i={i}
+              data-set={m.unexplained ? 'unexplained' : [...new Set((m.notes ?? []).map((n) => n.token))].sort().join('|')}
               data-box={`${m.x},${m.y},${m.width},${m.height}`}
               data-side={m.unexplained ? '' : undefined}
             >
               <span class="leader" aria-hidden="true" />
+              <span class="key" aria-hidden="true" data-contrast-exception="redline label" />
               <span class="stack">
                 {m.unexplained ? (
                   <span class="note unexplained">
@@ -191,8 +240,14 @@ const toggles = [
         <thead>
           <tr>
             <th scope="col">Explained by</th>
-            <th scope="col">Base</th>
-            <th scope="col">Head</th>
+            <th scope="col">
+              <span class="col-word">Before</span>
+              <span class="col-ref">{base}</span>
+            </th>
+            <th scope="col">
+              <span class="col-word">With this change</span>
+              <span class="col-ref">{head}</span>
+            </th>
             <th scope="col">Outlined</th>
           </tr>
         </thead>
@@ -202,16 +257,24 @@ const toggles = [
               <th scope="row">
                 <code>{t.token}</code>
               </th>
-              <td data-label="base">
-                {t.baseSwatch && <span class="swatch" style={`background:${t.baseSwatch}`} />}
-                <code>{t.base}</code>
+              <td data-label="Before">
+                <span class="value">
+                  {t.beforeSwatch && (
+                    <span class="swatch" style={`background:${t.beforeSwatch}`} />
+                  )}
+                  <code>{t.before}</code>
+                </span>
               </td>
-              <td data-label="head">
-                {t.headSwatch && <span class="swatch" style={`background:${t.headSwatch}`} />}
-                <code>{t.head}</code>
+              <td data-label="With this change">
+                <span class="value">
+                  {t.afterSwatch && <span class="swatch" style={`background:${t.afterSwatch}`} />}
+                  <code>{t.after}</code>
+                </span>
               </td>
-              <td data-label="box">
-                <code>{t.outlined}</code>
+              <td data-label="Outlined">
+                <span class="value">
+                  <code>{t.outlined}</code>
+                </span>
               </td>
             </tr>
           ))}
@@ -239,68 +302,62 @@ const toggles = [
   // aria-pressed, the word and data-*; notes go under their boxes, per band of boxes that share
   // rows, in lanes below the band. A stack moves right of its neighbour while its leader still
   // lands on its box, else it takes the next lane, its leader clear of the notes above.
-  // "unexplained" sits right of its box when it fits.
+  // "unexplained" sits right of its box when it fits. A note stays on the image only where it
+  // covers one flat surface (data-flat) or lies below the image; otherwise its box gets a numbered
+  // marker and its notes are listed under the image (TICKET-123).
   const GAP = 8
+  const KEY = 20
   interface Item {
+    el: HTMLElement
+    marker: HTMLElement | null
+    sig: string
+    n: number
+    ring: { l: number; t: number; r: number; b: number }
     leader: HTMLElement
+    key: HTMLElement
     stack: HTMLElement
     side: boolean
+    notSide: boolean
     l: number
     t: number
     r: number
     b: number
     w: number
     h: number
+  }
+  interface Spot {
+    it: Item
     x: number
+    top: number
     lx: number
+    side?: boolean
   }
   interface Lane {
     right: number
     height: number
-    items: Item[]
+    items: Spot[]
   }
-  const layout = (stage: HTMLElement) => {
-    const canvas = stage.querySelector<HTMLElement>('.canvas')
-    const notes = stage.querySelector<HTMLElement>('.notes')
-    if (!canvas || !notes) return
-    const W = canvas.clientWidth
-    const H = canvas.clientHeight
-    const kx = W / Number(canvas.dataset.w)
-    const ky = H / Number(canvas.dataset.h)
-    const items: Item[] = [...notes.querySelectorAll<HTMLElement>('.cluster')]
-      .map((el) => {
-        const [x, y, w, h] = (el.dataset.box ?? '').split(',').map(Number)
-        const stack = el.querySelector<HTMLElement>('.stack')!
-        // Measured at the left edge, so a stack placed near the right is not measured narrow.
-        stack.style.left = '0px'
-        return {
-          leader: el.querySelector<HTMLElement>('.leader')!,
-          stack,
-          side: el.hasAttribute('data-side'),
-          l: x * kx,
-          t: y * ky,
-          r: (x + w) * kx,
-          b: (y + h) * ky,
-          w: Math.min(stack.offsetWidth, W),
-          h: stack.offsetHeight,
-          x: 0,
-          lx: 0,
-        }
-      })
-      .sort((a, b) => a.t - b.t || a.l - b.l)
-    let lowest = 0
-    const place = (it: Item, x: number, top: number, lx: number) => {
-      it.stack.style.left = `${x}px`
-      it.stack.style.top = `${top}px`
-      it.leader.style.left = `${lx - 2}px`
-      it.leader.style.top = `${it.b}px`
-      it.leader.style.height = `${Math.max(0, top - it.b)}px`
-      lowest = Math.max(lowest, top + it.h)
+  interface Flat {
+    cell: number
+    cols: number
+    rows: number
+    cells: string[]
+  }
+  const decode = (map: string | undefined): Flat | null => {
+    if (!map) return null
+    const [cell, cols, rows, rle] = map.split(';')
+    const cells: string[] = []
+    for (const [, ch, n] of rle.matchAll(/([A-Za-z.])(\d+)/g)) {
+      for (let k = 0; k < Number(n); k++) cells.push(ch)
     }
+    return { cell: Number(cell), cols: Number(cols), rows: Number(rows), cells }
+  }
+  const arrange = (items: Item[], W: number): Spot[] => {
+    const spots: Spot[] = []
     const below: Item[] = []
     for (const it of items) {
-      if (it.side && it.r + GAP + it.w <= W) {
-        place(it, it.r + GAP, Math.max(0, (it.t + it.b - it.h) / 2), -9999)
+      if (it.side && !it.notSide && it.r + GAP + it.w <= W) {
+        spots.push({ it, x: it.r + GAP, top: Math.max(0, (it.t + it.b - it.h) / 2), lx: -9999, side: true })
       } else below.push(it)
     }
     const bands: Array<{ items: Item[]; bottom: number }> = []
@@ -325,7 +382,7 @@ const toggles = [
         let spot: { lane: Lane; x: number; lx: number } | null = null
         for (let k = 0; k <= lanes.length && !spot; k++) {
           const lane: Lane = lanes[k] ?? { right: -Infinity, height: 0, items: [] }
-          const blocked = lanes.slice(0, k).flatMap((l) => l.items.map((o) => [o.x, o.x + o.w]))
+          const blocked = lanes.slice(0, k).flatMap((l) => l.items.map((o) => [o.x, o.x + o.it.w]))
           const lx = free(it, lane.right + GAP + 6, blocked)
           const fresh = k === lanes.length
           if (lx === null && !fresh) continue
@@ -336,17 +393,225 @@ const toggles = [
           spot = { lane, x, lx: Math.min(Math.max(at, x + 4), x + it.w - 4) }
         }
         if (!spot) continue
-        it.x = spot.x
-        it.lx = spot.lx
-        spot.lane.right = it.x + it.w
+        const o: Spot = { it, x: spot.x, lx: spot.lx, top: 0 }
+        spot.lane.right = o.x + it.w
         spot.lane.height = Math.max(spot.lane.height, it.h)
-        spot.lane.items.push(it)
+        spot.lane.items.push(o)
+        spots.push(o)
       }
       let top = band.bottom + GAP
       for (const lane of lanes) {
-        for (const it of lane.items) place(it, it.x, top, it.lx)
+        for (const o of lane.items) o.top = top
         top += lane.height + 4
       }
+    }
+    return spots
+  }
+  // Marker placement and list grouping: as PLACEMENT_JS in packages/visual-diff/src/report/
+  // placement.ts (tested there): along the outline's outer edge, outside the box, where flat; then
+  // farther out up to 48 px; boxes with the same set of token changes share one list entry.
+  type Ring = { l: number; t: number; r: number; b: number }
+  const markerSpot = (
+    ring: Ring,
+    size: { w: number; h: number },
+    W: number,
+    H: number,
+    ok: (x: number, y: number, w: number, h: number) => boolean,
+  ) => {
+    const { w, h } = size
+    const g = 2
+    const fits = (x: number, y: number) => x >= 0 && y >= 0 && x + w <= W && y + h <= H
+    const cx = Math.round((ring.l + ring.r - w) / 2)
+    const cy = Math.round((ring.t + ring.b - h) / 2)
+    const above = ring.t - h - g
+    const below = ring.b + g
+    const left = ring.l - w - g
+    const right = ring.r + g
+    const edge = [
+      [ring.l, above], [cx, above], [ring.r - w, above],
+      [right, ring.t], [right, cy], [right, ring.b - h],
+      [ring.l, below], [cx, below], [ring.r - w, below],
+      [left, ring.t], [left, cy], [left, ring.b - h],
+      [left, above], [right, above], [right, below], [left, below],
+    ]
+    for (const [x, y] of edge) if (fits(x, y) && ok(x, y, w, h)) return { x, y, covers: false }
+    for (let d = 4; d <= 48; d += 4) {
+      const spots: number[][] = []
+      for (let x = ring.l - w - g - d; x <= ring.r + g + d; x += 4) spots.push([x, above - d])
+      for (let y = ring.t - h - g - d; y <= ring.b + g + d; y += 4) spots.push([right + d, y])
+      for (let x = ring.l - w - g - d; x <= ring.r + g + d; x += 4) spots.push([x, below + d])
+      for (let y = ring.t - h - g - d; y <= ring.b + g + d; y += 4) spots.push([left - d, y])
+      for (const [x, y] of spots) if (fits(x, y) && ok(x, y, w, h)) return { x, y, covers: false }
+    }
+    const first = edge.find(([x, y]) => fits(x, y)) ?? [
+      Math.max(0, Math.min(ring.l, W - w)),
+      Math.max(0, Math.min(ring.t, H - h)),
+    ]
+    return { x: first[0], y: first[1], covers: true }
+  }
+  const groupKeys = <T extends { n: number; sig: string }>(list: T[]) => {
+    const groups: Array<{ ns: number[]; items: T[] }> = []
+    const bySig = new Map<string, { ns: number[]; items: T[] }>()
+    for (const it of list) {
+      const group = bySig.get(it.sig)
+      if (group) {
+        group.ns.push(it.n)
+        group.items.push(it)
+      } else {
+        const fresh = { ns: [it.n], items: [it] }
+        bySig.set(it.sig, fresh)
+        groups.push(fresh)
+      }
+    }
+    return groups
+  }
+  type Rect = number[]
+  const hits = (a: Rect, list: Rect[]) =>
+    list.some((b) => a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3])
+  // An outline is a ring: something inside the box it outlines (a marker on a nested element) does
+  // not cross it, only something that overlaps the ring's band does.
+  const crosses = (a: Rect, rings: Rect[][]) =>
+    rings.some(
+      ([o, i]) =>
+        hits(a, [o]) && !(a[0] >= i[0] && a[1] >= i[1] && a[2] <= i[2] && a[3] <= i[3]),
+    )
+  const layout = (stage: HTMLElement) => {
+    const canvas = stage.querySelector<HTMLElement>('.canvas')
+    const notes = stage.querySelector<HTMLElement>('.notes')
+    if (!canvas || !notes) return
+    const W = canvas.clientWidth
+    const H = canvas.clientHeight
+    const kx = W / Number(canvas.dataset.w)
+    const ky = H / Number(canvas.dataset.h)
+    const flat = decode(canvas.dataset.flat)
+    const items: Item[] = [...notes.querySelectorAll<HTMLElement>('.cluster')]
+      .map((el) => {
+        const [x, y, w, h] = (el.dataset.box ?? '').split(',').map(Number)
+        const stack = el.querySelector<HTMLElement>('.stack')!
+        const marker = canvas.querySelector<HTMLElement>(`.marks > .key[data-i="${el.dataset.i}"]`)
+        el.classList.remove('keyed', 'merged')
+        marker?.classList.remove('keyed')
+        // Measured at the left edge, so a stack placed near the right is not measured narrow.
+        stack.style.left = '0px'
+        const l = x * kx
+        const t = y * ky
+        const r = (x + w) * kx
+        const b = (y + h) * ky
+        return {
+          el,
+          marker,
+          sig: el.dataset.set ?? '',
+          n: 0,
+          leader: el.querySelector<HTMLElement>('.leader')!,
+          key: el.querySelector<HTMLElement>('.key')!,
+          stack,
+          side: el.hasAttribute('data-side'),
+          notSide: false,
+          l,
+          t,
+          r,
+          b,
+          // The outline's outer edge: 3 px outside the box, its 2 px outline and the ink line.
+          ring: { l: l - 6, t: t - 6, r: r + 6, b: b + 6 },
+          w: Math.min(stack.offsetWidth, W),
+          h: stack.offsetHeight,
+        }
+      })
+      .sort((a, b) => a.t - b.t || a.l - b.l)
+    // Each outline as [outer edge, inner edge] (the mark's border sits 3 px outside the box).
+    const rings = items.map((it) => [
+      [it.ring.l, it.ring.t, it.ring.r, it.ring.b],
+      [it.l - 2, it.t - 2, it.r + 2, it.b + 2],
+    ])
+    // Covers one flat surface of the screenshot (below the image is the stage's paper).
+    const flatAt = (x: number, y: number, w: number, h: number) => {
+      if (!flat) return false
+      const iy1 = Math.min((y + h) / ky, flat.rows * flat.cell)
+      if (y / ky >= iy1) return true
+      const c0 = Math.max(0, Math.floor(x / kx / flat.cell))
+      const c1 = Math.min(flat.cols - 1, Math.ceil((x + w) / kx / flat.cell) - 1)
+      const r0 = Math.max(0, Math.floor(y / ky / flat.cell))
+      const r1 = Math.min(flat.rows - 1, Math.ceil(iy1 / flat.cell) - 1)
+      const first = flat.cells[r0 * flat.cols + c0]
+      if (first === '.') return false
+      for (let r = r0; r <= r1; r++) {
+        for (let c = c0; c <= c1; c++) if (flat.cells[r * flat.cols + c] !== first) return false
+      }
+      return true
+    }
+    const keyed = new Set<Item>(flat ? [] : items)
+    let spots: Spot[] = []
+    let placed: Array<{ it: Item; x: number; y: number; rect: Rect }> = []
+    for (let round = 0; round <= 2 * items.length; round++) {
+      spots = arrange(
+        items.filter((it) => !keyed.has(it)),
+        W,
+      )
+      const noteRects = spots.map((s) => [s.x, s.top, s.x + s.it.w, s.top + s.it.h])
+      // Markers in reading order, each on a flat spot clear of outlines, notes and other markers.
+      placed = []
+      let n = 0
+      for (const it of items) {
+        if (!keyed.has(it) || !it.marker) continue
+        it.n = ++n
+        it.marker.textContent = String(n)
+        const size = { w: Math.max(KEY, it.marker.offsetWidth), h: KEY }
+        const spot = markerSpot(
+          it.ring,
+          size,
+          W,
+          H,
+          (x, y, w, h) =>
+            flatAt(x, y, w, h) &&
+            !crosses([x, y, x + w, y + h], rings) &&
+            !hits([x, y, x + w, y + h], [...noteRects, ...placed.map((p) => p.rect)]),
+        )
+        placed.push({ it, x: spot.x, y: spot.y, rect: [spot.x, spot.y, spot.x + size.w, spot.y + size.h] })
+      }
+      const blocked = placed.map((p) => p.rect)
+      const bad = spots.filter((s) => {
+        const rect = [s.x, s.top, s.x + s.it.w, s.top + s.it.h]
+        return !flatAt(s.x, s.top, s.it.w, s.it.h) || hits(rect, blocked) || crosses(rect, rings)
+      })
+      if (bad.length === 0) break
+      for (const s of bad) {
+        // An "unexplained" note that does not fit beside its box tries under it first.
+        if (s.side) s.it.notSide = true
+        else keyed.add(s.it)
+      }
+    }
+    let lowest = 0
+    for (const { it, x, top, lx } of spots) {
+      it.stack.style.left = `${x}px`
+      it.stack.style.top = `${top}px`
+      it.leader.style.left = `${lx - 2}px`
+      it.leader.style.top = `${it.b}px`
+      it.leader.style.height = `${Math.max(0, top - it.b)}px`
+      lowest = Math.max(lowest, top + it.h)
+    }
+    for (const p of placed) {
+      p.it.marker!.classList.add('keyed')
+      p.it.marker!.style.left = `${p.x}px`
+      p.it.marker!.style.top = `${p.y}px`
+    }
+    // The list under the image: one entry per set of token changes ("1, 2"), its notes once.
+    let top = Math.max(lowest, H) + GAP
+    for (const group of groupKeys(items.filter((it) => keyed.has(it)))) {
+      const [it, ...rest] = group.items
+      for (const other of rest) other.el.classList.add('keyed', 'merged')
+      it.el.classList.add('keyed')
+      it.key.textContent = group.ns.join(', ')
+      const kw = Math.max(KEY, it.key.offsetWidth)
+      it.key.style.left = `${GAP}px`
+      it.key.style.top = `${top}px`
+      it.stack.style.left = `${GAP + kw + GAP}px`
+      it.stack.style.top = `${top}px`
+      top += Math.max(KEY, it.stack.offsetHeight) + GAP
+      lowest = top - GAP
+    }
+    for (const it of items) {
+      it.notSide = false
+      it.n = 0
     }
     stage.style.setProperty('--room', `${Math.max(0, Math.ceil(lowest - H + GAP))}px`)
   }
@@ -621,6 +886,34 @@ const toggles = [
     line-height: var(--type-meta-line-height);
     white-space: nowrap;
   }
+  /* Numbered marker on a box whose notes are listed under the image, and its key in the list. */
+  .key {
+    display: none;
+    position: absolute;
+    box-sizing: border-box;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border: var(--stroke-hairline) solid var(--ink-900);
+    border-radius: var(--radius-full);
+    background: var(--signal-bg);
+    color: var(--signal-fg);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    line-height: 18px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .marks > .key.keyed,
+  [data-js] .cluster.keyed:not(.merged) > .key {
+    display: block;
+  }
+  [data-js] .cluster.merged > .stack {
+    display: none;
+  }
+  [data-js] .cluster.keyed > .leader {
+    display: none;
+  }
   .note.unexplained {
     border-style: dashed;
     background: var(--paper-0);
@@ -651,6 +944,15 @@ const toggles = [
     font-family: var(--font-mono);
     font-size: calc(var(--type-meta-size) * 1px);
     color: var(--fg-subtle);
+    vertical-align: bottom;
+  }
+  /* The side in words, its ref and short hash under it (TICKET-123). */
+  .col-word,
+  .col-ref {
+    display: block;
+  }
+  .col-word {
+    color: var(--fg-default);
   }
   .swatch {
     display: inline-block;
@@ -709,11 +1011,17 @@ const toggles = [
       padding: var(--space-3) 0;
       border-bottom: var(--stroke-hairline) solid var(--border-default);
     }
+    /* Labels in one column as wide as the widest ("With this change"): a subgrid per cell. */
+    .tokens tbody tr {
+      grid-template-columns: max-content minmax(0, 1fr);
+      column-gap: var(--space-3);
+    }
     .tokens th,
     .tokens td {
       display: grid;
-      grid-template-columns: 3.5em auto minmax(0, 1fr);
-      align-items: center;
+      grid-template-columns: subgrid;
+      grid-column: 1 / -1;
+      align-items: baseline;
       padding: 2px 0;
       border: 0;
     }

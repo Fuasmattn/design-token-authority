@@ -412,7 +412,8 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
   // them. The screenshots are stand-ins (SVG, served for the PNG paths): a story page on the light
   // canvas (paper-100, where signal alone is 2.98:1, so the ink line must hold) with a
   // navy card and a button; the card's radius and the button's colour change.
-  const CARD = { x: 20, y: 20, width: 200, height: 120 }
+  // TICKET-123 item 4: a caption bar under the card, so notes under the card would cover it.
+  const CARD = { x: 20, y: 20, width: 280, height: 120 }
   const BUTTON = { x: 40, y: 92, width: 120, height: 32 }
   const TITLE = { x: 40, y: 40, width: 140, height: 24 }
   const shot = (side: string) => {
@@ -422,9 +423,33 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
     }
     const r = side === 'base' ? 8 : 24
     const button = side === 'base' ? '#2c4466' : '#3b8fd9'
-    return `${open}<rect width="400" height="200" fill="#f5f1e8"/><rect x="20" y="20" width="200" height="120" rx="${r}" fill="#1f2a44"/><rect x="40" y="92" width="120" height="32" rx="${r}" fill="${button}"/></svg>`
+    return `${open}<rect width="400" height="200" fill="#f5f1e8"/><rect x="20" y="20" width="280" height="120" rx="${r}" fill="#1f2a44"/><rect x="40" y="92" width="120" height="32" rx="${r}" fill="${button}"/><rect x="20" y="150" width="280" height="10" fill="#9a9381"/></svg>`
   }
-  const report = (verdict: 'pass' | 'review' | 'fail') => {
+  // The stand-ins as PNGs (rendered once): served for the image paths and read by the report for
+  // its flat map, so both see the same pixels.
+  const pngs = new Map<string, Promise<Buffer>>()
+  const png = (side: string) => {
+    if (!pngs.has(side)) {
+      pngs.set(
+        side,
+        (async () => {
+          const context = await browser.newContext({ viewport: { width: 400, height: 200 } })
+          const page = await context.newPage()
+          await page.setContent(`<body style="margin:0">${shot(side)}</body>`)
+          const bytes = (await page.screenshot({
+            clip: { x: 0, y: 0, width: 400, height: 200 },
+          })) as Buffer
+          await context.close()
+          return bytes
+        })(),
+      )
+    }
+    return pngs.get(side)!
+  }
+  const report = async (verdict: 'pass' | 'review' | 'fail') => {
+    const images = Object.fromEntries(
+      await Promise.all(['base', 'head', 'diff'].map(async (side) => [side, await png(side)])),
+    ) as Record<string, Buffer>
     const story = (id: string, status: 'changed' | 'unchanged', explained: boolean) => ({
       id,
       title: id,
@@ -467,6 +492,9 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
       diffResultSchema.parse({
         schema: 'dta.diff/1',
         base: 'merge base with origin/main (1a2b3c4)',
+        // TICKET-123: the head by branch and hash; the failing run had uncommitted changes, the
+        // passing one is an older result without head ("working tree").
+        ...(verdict === 'pass' ? {} : { head: { ...HEAD, uncommitted: verdict === 'fail' } }),
         verdict,
         // The review case has a token group, so its "to review" chip and the redline tags show.
         ...(verdict === 'review'
@@ -503,6 +531,7 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
           ...(verdict === 'pass' ? [] : [story('card', 'changed', verdict === 'review')]),
         ],
       }),
+      { image: (file) => images[file.split('/')[0]] },
     )
   }
 
@@ -564,6 +593,11 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
         const s = getComputedStyle(note)
         check(note, 1.5, [paint(s.backgroundColor), paint(s.borderTopColor)], 'note ' + note.textContent)
       }
+      // Numbered markers (on the box) and their keys in the list: signal with the ink line.
+      for (const key of stage.querySelectorAll('.marks > .key.keyed, .cluster.keyed > .key')) {
+        const s = getComputedStyle(key)
+        check(key, 1.5, [paint(s.backgroundColor), paint(s.borderTopColor)], 'marker ' + key.textContent)
+      }
       for (const leader of stage.querySelectorAll('.leader')) {
         if (leader.getBoundingClientRect().height <= 7) continue
         const s = getComputedStyle(leader)
@@ -573,8 +607,52 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
     return { checked, failures }
   })()`
 
+  const HEAD = { ref: 'feature/rounder-cards', sha: '9f3c1a2b4d5e6f708192a3b4c5d6e7f8091a2b3c' }
+  const headWords = (verdict: string) =>
+    `feature/rounder-cards · 9f3c1a2${verdict === 'fail' ? ' + uncommitted changes' : ''}`
+
+  /**
+   * Runs in the report (TICKET-123 items 4 and 5): no visible note and no visible numbered marker
+   * covers anything but one flat colour of the visible screenshot. Every pixel of the image under
+   * it (inside the cropped frame) is compared with the first one; below the image is the stage's
+   * paper.
+   */
+  const NOTES_CLEAR = `(() => {
+    const failures = []
+    const onImage = { notes: 0, markers: 0 }
+    for (const stage of document.querySelectorAll('.stage')) {
+      const view = stage.closest('.view')
+      const img = stage.querySelector(view.hasAttribute('data-before') ? '.shot.before' : '.shot.after')
+      const frame = stage.querySelector('.canvas').getBoundingClientRect()
+      const ir = img.getBoundingClientRect()
+      const c = document.createElement('canvas')
+      c.width = Math.round(ir.width); c.height = Math.round(ir.height)
+      const ctx = c.getContext('2d', { willReadFrequently: true })
+      ctx.drawImage(img, 0, 0, c.width, c.height)
+      const data = ctx.getImageData(0, 0, c.width, c.height).data
+      for (const note of stage.querySelectorAll('.note, .marks > .key')) {
+        const style = getComputedStyle(note)
+        if (style.visibility !== 'visible' || style.display === 'none') continue
+        const r = note.getBoundingClientRect()
+        const x0 = Math.max(Math.floor(r.left - ir.left), 0), x1 = Math.min(Math.ceil(r.right - ir.left), c.width)
+        const y0 = Math.max(Math.floor(r.top - ir.top), 0), y1 = Math.min(Math.ceil(r.bottom - ir.top), Math.floor(frame.bottom - ir.top), c.height)
+        if (x0 >= x1 || y0 >= y1) continue
+        // Counted for the first row (the one the test toggles); every row is checked.
+        if (stage.closest('.story') === document.querySelector('.story')) onImage[note.classList.contains('key') ? 'markers' : 'notes']++
+        const i0 = (y0 * c.width + x0) * 4
+        let worst = 0
+        for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+          const i = (y * c.width + x) * 4
+          worst = Math.max(worst, Math.abs(data[i] - data[i0]), Math.abs(data[i + 1] - data[i0 + 1]), Math.abs(data[i + 2] - data[i0 + 2]))
+        }
+        if (worst > 12) failures.push({ [note.classList.contains('key') ? 'marker' : 'note']: note.textContent, worst })
+      }
+    }
+    return { onImage, failures }
+  })()`
+
   /** Boxes of what lays out the row: none may move when "Show before" is pressed. */
-  const GEOMETRY = `[...document.querySelectorAll('.story, .story .bar, .story .side, .story .toggle, .story .stage, .story .canvas, .story .note, .story .tokens-explained, .story .why, .story .whole')].map((el) => { const r = el.getBoundingClientRect(); return [el.className, r.x + scrollX, r.y + scrollY, r.width, r.height].join(' ') })`
+  const GEOMETRY = `[...document.querySelectorAll('.story, .story .bar, .story .side, .story .toggle, .story .stage, .story .canvas, .story .note, .story .key, .story .tokens-explained, .story .why, .story .whole')].map((el) => { const r = el.getBoundingClientRect(); return [el.className, r.x + scrollX, r.y + scrollY, r.width, r.height].join(' ') })`
 
   it.each(
     (['pass', 'review', 'fail'] as const).flatMap((verdict) =>
@@ -588,13 +666,18 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
   )(
     'dta diff report (%s, %s) in %s at %i px',
     async (verdict, state, brand, width) => {
-      const html = report(verdict)
+      const html = await report(verdict)
       expect(html).toContain(`<span class="chip ${verdict}">`)
       const found = await audit(`${origin}/`, width, brand, async (page) => {
+        const served = {
+          base: await png('base'),
+          head: await png('head'),
+          diff: await png('diff'),
+        } as Record<string, Buffer>
         await page.route(/\/(base|head|diff)\/[^/]+\.png$/, (route: any) =>
           route.fulfill({
-            contentType: 'image/svg+xml',
-            body: shot(/\/(base|head|diff)\//.exec(route.request().url())![1]),
+            contentType: 'image/png',
+            body: served[/\/(base|head|diff)\//.exec(route.request().url())![1]],
           }),
         )
         await page.setContent(html)
@@ -630,7 +713,43 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
                 .filter((el) => getComputedStyle(el).visibility === 'visible')
                 .map((el) => el.textContent),
             )
-        expect(await label()).toEqual(['With this change working tree'])
+        const after = `With this change ${headWords(verdict)}`
+        expect(await label()).toEqual([after])
+        if (verdict === 'review') {
+          expect(
+            await row
+              .locator('.tokens-explained thead th')
+              .evaluateAll((els: Element[]) => els.map((el) => el.textContent)),
+          ).toEqual([
+            'Explained by',
+            'Beforemain · 1a2b3c4',
+            `With this change${headWords(verdict)}`,
+            'Outlined',
+          ])
+        }
+
+        // TICKET-123 item 4: notes only on flat parts of the screenshot, else numbered markers on
+        // the boxes and the notes in a list under the image. Review: notes under the card would
+        // cover its caption bar (both boxes listed). Fail: at 1280 the unexplained note does not fit
+        // beside the title (it would reach the page's paper) nor under it (the button), so it is
+        // listed; at 390 its two short lines fit on the card's navy beside the title.
+        const placement = await row.evaluate((el: Element) => ({
+          markers: [...el.querySelectorAll('.marks > .key.keyed')].map((k) => k.textContent).sort(),
+          listed: [...el.querySelectorAll('.cluster.keyed > .key')]
+            .map((k) => k.textContent)
+            .sort(),
+        }))
+        const keys = verdict === 'review' ? ['1', '2'] : width === 1280 ? ['1'] : []
+        expect(placement).toEqual({ markers: keys, listed: keys })
+        const clear = (await page.evaluate(NOTES_CLEAR)) as {
+          onImage: { notes: number; markers: number }
+          failures: unknown[]
+        }
+        expect(clear.failures).toEqual([])
+        expect(clear.onImage).toEqual({
+          notes: verdict === 'fail' && width === 390 ? 1 : 0,
+          markers: keys.length,
+        })
 
         if (state === 'after') {
           // Outlines, leaders and notes at 3:1 against the story around them.
@@ -670,13 +789,23 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
         expect(await visibility('.shot.after')).toBe('hidden')
         expect(await visibility('.marks')).toBe('hidden')
         expect(await visibility('.notes')).toBe('hidden')
+        // Markers hide with the outlines; no note shows over the "before" image either.
+        expect(
+          await row
+            .locator('.marks > .key')
+            .evaluateAll((els: Element[]) => els.map((el) => getComputedStyle(el).visibility)),
+        ).toEqual(Array(verdict === 'review' ? 2 : 1).fill('hidden'))
+        expect(
+          ((await page.evaluate(NOTES_CLEAR)) as { onImage: { notes: number; markers: number } })
+            .onImage,
+        ).toEqual({ notes: 0, markers: 0 })
         await page.waitForTimeout(200)
         expect(await page.evaluate(GEOMETRY)).toEqual(geometry)
         expect(await page.evaluate('window.__shift')).toBe(0)
         // ...and back with Enter.
         await page.keyboard.press('Enter')
         expect(await before.getAttribute('aria-pressed')).toBe('false')
-        expect(await label()).toEqual(['With this change working tree'])
+        expect(await label()).toEqual([after])
         expect(await page.evaluate(GEOMETRY)).toEqual(geometry)
         expect(await page.evaluate('window.__shift')).toBe(0)
         await page.keyboard.press('Space') // audit the "before" state

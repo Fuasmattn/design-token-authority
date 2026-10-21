@@ -1,6 +1,6 @@
 ---
 import DiffCard from '../components/ds/DiffCard.astro'
-import { CARD_CANVAS, ORBIT_MARKS, ORBIT_TOKENS, orbitCard } from './orbit-card'
+import { CARD_CANVAS, ORBIT_MARKS, ORBIT_TOKENS, orbitCard, CARD_SURFACES } from './orbit-card'
 
 interface Props {
   idPrefix?: string
@@ -13,7 +13,9 @@ const { idPrefix = 'diff-card-before' } = Astro.props
   viewport={1280}
   ratio="0.83%"
   base="main · 2ee9b31"
+  head="feature/rounder-cards · 9f3c1a2"
   canvas={CARD_CANVAS}
+  surfaces={CARD_SURFACES}
   marks={ORBIT_MARKS}
   tokens={ORBIT_TOKENS}
   showBefore

@@ -271,17 +271,18 @@ Order: 100 → 101 → 102 → 103 → 104 (the audit section of the guide follo
 
 Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17, revised 2026-10-18). One story, quietly told: a hero on the gravity-well key visual, one change in four scenes with the Orbit Burger example, facts, final call; one surface, no grid, commands as copyable chips, AAA. Accepted prototype: `docs/specs/landing-redesign/prototypes/p17-page.html`.
 
-| #                                               | Ticket                                                                                       | Priority | Effort | Blocked by | Status    |
-| ----------------------------------------------- | -------------------------------------------------------------------------------------------- | -------- | ------ | ---------- | --------- |
-| [110](./110-design-system-one-surface.md)       | Design system: one surface, the well's tokens, command chips, AAA                            | High     | M      | —          | Done      |
-| [105](./105-orbit-burger-example.md)            | Orbit Burger: example brand as a real token set and fixture                                  | High     | M      | —          | Done      |
-| [106](./106-landing-components.md)              | Design-system components for the redesigned landing page                                     | High     | M      | 110, 105   | Done      |
-| [107](./107-gravity-well.md)                    | `GravityWell` and `FloatingObjects`: the key visual                                          | High     | L      | 110, 106   | Done      |
-| [108](./108-landing-rebuild.md)                 | Rebuild the landing page                                                                     | High     | M      | 106, 107   | Done      |
-| [109](./109-diff-report-before-after.md)        | `dta diff` report: before/after with the change outlined                                     | Medium   | M      | 108        | In review |
-| [111](./111-diff-attribution-scoped-example.md) | `dta diff` attribution for the Orbit Burger example (scoped selectors)                       | Medium   | M      | 108        | Done |
-| [112](./112-landing-workflow-strip.md)          | Workflow strip below the hero; scenes in the same order                                      | Medium   | M      | —          | Done      |
-| [114](./114-site-polish-after-112-077.md)       | Site polish after 112 and 077 (strip label, nav current page, diagnostic links, scene order) | Low      | S      | 112, 077   | Done      |
+| #                                               | Ticket                                                                                       | Priority | Effort | Blocked by | Status      |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------- | -------- | ------ | ---------- | ----------- |
+| [110](./110-design-system-one-surface.md)       | Design system: one surface, the well's tokens, command chips, AAA                            | High     | M      | —          | Done        |
+| [105](./105-orbit-burger-example.md)            | Orbit Burger: example brand as a real token set and fixture                                  | High     | M      | —          | Done        |
+| [106](./106-landing-components.md)              | Design-system components for the redesigned landing page                                     | High     | M      | 110, 105   | Done        |
+| [107](./107-gravity-well.md)                    | `GravityWell` and `FloatingObjects`: the key visual                                          | High     | L      | 110, 106   | Done        |
+| [108](./108-landing-rebuild.md)                 | Rebuild the landing page                                                                     | High     | M      | 106, 107   | Done        |
+| [109](./109-diff-report-before-after.md)        | `dta diff` report: before/after with the change outlined                                     | Medium   | M      | 108        | Done        |
+| [123](./123-diff-report-refs-in-words.md)       | `dta diff` report: refs in words, commit hashes for both sides                               | Low      | S      | 109        | In review   |
+| [111](./111-diff-attribution-scoped-example.md) | `dta diff` attribution for the Orbit Burger example (scoped selectors)                       | Medium   | M      | 108        | Done        |
+| [112](./112-landing-workflow-strip.md)          | Workflow strip below the hero; scenes in the same order                                      | Medium   | M      | —          | Done        |
+| [114](./114-site-polish-after-112-077.md)       | Site polish after 112 and 077 (strip label, nav current page, diagnostic links, scene order) | Low      | S      | 112, 077   | Done        |
 
 Order: 110 → 105 → 106 → 107 → 108 → 112 (done); 114 (done); 109 and 111 later.
 

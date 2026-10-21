@@ -1,3 +1,4 @@
+import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 import { diffResultSchema, renderReportHtml, type DiffResult } from '../index.js'
 
@@ -172,22 +173,57 @@ describe('renderReportHtml', () => {
       'style="aspect-ratio:400 / 108;max-width:400px" data-w="400" data-h="108"',
     )
     expect(row).toContain(
-      '<span class="mark" style="left:calc(2.500% - 3px);top:calc(18.519% - 3px);width:calc(25.000% + 6px);height:calc(37.037% + 6px)"></span>',
+      '<span class="mark" data-i="0" style="left:calc(2.500% - 3px);top:calc(18.519% - 3px);width:calc(25.000% + 6px);height:calc(37.037% + 6px)"></span><span class="key" data-i="0" data-contrast-exception="redline label"></span>',
     )
     // The note: token and its change (colours as the alias step), joined to its box by a leader.
     expect(row).toContain(
-      '<span class="cluster" data-box="10,20,100,40"><span class="leader" aria-hidden="true"></span><span class="stack"><span class="note" data-contrast-exception="redline label"><span class="note-token">action.bg</span><span class="note-sep"> · </span><span class="note-change">blueprint 600 → 700</span></span></span></span>',
+      '<span class="cluster" data-i="0" data-set="action.bg (Theme · Light)" data-box="10,20,100,40"><span class="leader" aria-hidden="true"></span><span class="key" aria-hidden="true" data-contrast-exception="redline label"></span><span class="stack"><span class="note" data-contrast-exception="redline label"><span class="note-token">action.bg</span><span class="note-sep"> · </span><span class="note-change">blueprint 600 → 700</span></span></span></span>',
     )
-    // The table: token, base, head, what it outlines.
+    // The table: token, before, with this change (each with its ref), what it outlines.
     expect(row).toContain('<caption class="meta">Explained by 1 token</caption>')
     expect(row).toContain(
-      '<th scope="col">Explained by</th><th scope="col">Base</th><th scope="col">Head</th><th scope="col">Outlined</th>',
+      '<th scope="col">Explained by</th><th scope="col"><span class="col-word">Before</span><span class="col-ref">main · 1a2b3c4</span></th><th scope="col"><span class="col-word">With this change</span><span class="col-ref">working tree</span></th><th scope="col">Outlined</th>',
     )
-    expect(row).toContain('<td data-label="box"><span><code>button.primary</code></span></td>')
+    expect(row).toContain('<td data-label="Before"><span class="value">')
+    expect(row).toContain('<td data-label="With this change"><span class="value">')
+    expect(row).toContain('<td data-label="Outlined"><span><code>button.primary</code></span></td>')
     expect(row).toContain('style="background:#2443ac"')
     expect(row).toContain(
       '<p class="whole">Whole images: <a href="base/button@1280.png">before</a> <a href="head/button@1280.png">after</a> <a href="diff/button@1280.png">diff</a></p>',
     )
+  })
+
+  // TICKET-123 item 4: notes on the image only where it is flat, else a numbered marker and a list.
+  it('gives the script a flat map of the shown image when it can read it, else none', () => {
+    const paper = new PNG({ width: 400, height: 200 })
+    for (let i = 0; i < paper.data.length; i += 4) paper.data.set([245, 241, 232, 255], i)
+    const read: string[] = []
+    const page = renderReportHtml(result, {
+      image: (path) => {
+        read.push(path)
+        return new Uint8Array(PNG.sync.write(paper))
+      },
+    })
+    // The "after" image, cropped like the canvas (108 of 200 rows: 27 cells of 4 px).
+    expect(read).toContain('head/button@1280.png')
+    expect(rowOf(page, 'story-button-1280')).toContain('data-h="108" data-flat="4;100;27;A2700"')
+    // No image (or one that cannot be read): no map, so the script lists every note.
+    expect(html).not.toContain('data-flat=')
+    expect(renderReportHtml(result, { image: () => new Uint8Array([1, 2, 3]) })).not.toContain(
+      'data-flat=',
+    )
+    // The script: notes only where the cells under them are one flat colour, else marker + list.
+    expect(html).toContain('const keyed = new Set(flat ? [] : items)')
+    expect(html).toContain('rle.matchAll(/([A-Za-z.])(\\d+)/g)')
+    // Markers and list keys: hidden until the script keys a box; "Show before" hides the marks
+    // and notes layer (and so the markers and the list) without removing them.
+    expect(html).toContain(
+      '.marks>.key.keyed,html.js .cluster.keyed:not(.merged)>.key{display:block}',
+    )
+    // Marker placement and list grouping: the tested functions (placement.test.ts), verbatim.
+    expect(html).toContain('function markerSpot(ring, size, W, H, ok)')
+    expect(html).toContain('function groupKeys(items)')
+    expect(html).toContain('.view[data-before] .marks,.view[data-before] .notes{visibility:hidden}')
   })
 
   it('has no thumbnails and no slider any more', () => {
@@ -289,10 +325,10 @@ describe('renderReportHtml', () => {
       `<span class="note" data-contrast-exception="redline label"><span class="note-token">${name}</span><span class="note-sep"> · </span><span class="note-change">${change}</span></span>`
     // One cluster per box: the button has both notes, the card only the radius.
     expect(page).toContain(
-      `<span class="cluster" data-box="10,20,100,40"><span class="leader" aria-hidden="true"></span><span class="stack">${note('Colors.Brand.Primary', 'Nova 500 → 600')}${note('Radius.Card', '8 → 24')}</span></span>`,
+      `<span class="cluster" data-i="0" data-set="Colors.Brand.Primary (Brand · OrbitBurger)|Radius.Card (Brand · OrbitBurger)" data-box="10,20,100,40"><span class="leader" aria-hidden="true"></span><span class="key" aria-hidden="true" data-contrast-exception="redline label"></span><span class="stack">${note('Colors.Brand.Primary', 'Nova 500 → 600')}${note('Radius.Card', '8 → 24')}</span></span>`,
     )
     expect(page).toContain(
-      `<span class="cluster" data-box="0,0,200,120"><span class="leader" aria-hidden="true"></span><span class="stack">${note('Radius.Card', '8 → 24')}</span></span>`,
+      `<span class="cluster" data-i="1" data-set="Radius.Card (Brand · OrbitBurger)" data-box="0,0,200,120"><span class="leader" aria-hidden="true"></span><span class="key" aria-hidden="true" data-contrast-exception="redline label"></span><span class="stack">${note('Radius.Card', '8 → 24')}</span></span>`,
     )
     expect((page.match(/<span class="mark"/g) ?? []).length).toBe(2)
     // A palette change keeps both names: navy to sky.
@@ -366,6 +402,51 @@ describe('renderReportHtml', () => {
     expect(meta('tokens-base')).toBe('tokens-base')
     // No "After · head" / "Before · base" (git words) anywhere.
     expect(html).not.toMatch(/After · head|Before · base|After only|Before only/)
+  })
+
+  // TICKET-123: the head from result.json, the same strings in every place that names a side.
+  const head = {
+    ref: 'feature/x',
+    sha: '9f3c1a2b4d5e6f708192a3b4c5d6e7f8091a2b3c',
+    uncommitted: false,
+  }
+  it('names the head by branch and short hash in the heading, the table and the intro', () => {
+    const page = renderReportHtml({ ...result, head })
+    const row = rowOf(page, 'story-button-1280')
+    expect(row).toContain(
+      '<span class="when-after"><strong>With this change</strong> <span class="side-meta">feature/x · 9f3c1a2</span></span>',
+    )
+    expect(row).toContain(
+      '<span class="col-word">With this change</span><span class="col-ref">feature/x · 9f3c1a2</span>',
+    )
+    expect(page).toContain(
+      '<p class="meta refs"><span>Before: main · 1a2b3c4</span><span>With this change: feature/x · 9f3c1a2</span></p>',
+    )
+    const dirty = renderReportHtml({ ...result, head: { ...head, uncommitted: true } })
+    expect(rowOf(dirty, 'story-button-1280')).toContain(
+      '<span class="side-meta">feature/x · 9f3c1a2 + uncommitted changes</span>',
+    )
+    const detached = renderReportHtml({ ...result, head: { sha: head.sha, uncommitted: false } })
+    expect(rowOf(detached, 'story-button-1280')).toContain('<span class="col-ref">9f3c1a2</span>')
+    // Without head (older results, outside git) it still renders: "working tree".
+    expect(html).toContain('<span>With this change: working tree</span>')
+  })
+
+  it('shows no base/head words: text, alt texts and labels say "Before" and "With this change"', () => {
+    for (const page of [html, renderReportHtml({ ...result, head })]) {
+      // What a reader sees or hears: text outside style and script, alt and aria labels, and
+      // the phone list's labels (data-label, shown through CSS). Class names, ids and image
+      // paths (base/…, head/…) are not words on the page.
+      const body = page.slice(page.indexOf('<body>')).replace(/<script>[\s\S]*?<\/script>/g, '')
+      const attributes = [...body.matchAll(/\b(?:alt|aria-label|title|data-label)="([^"]*)"/g)].map(
+        (m) => m[1],
+      )
+      const text = body.replace(/<[^>]*>/g, ' ')
+      const title = /<title>([^<]*)<\/title>/.exec(page)?.[1] ?? ''
+      const words = [title, text, ...attributes].join(' ')
+      expect(words).not.toMatch(/\b(base|head|baseline|candidate)\b/i)
+      expect(attributes).toEqual(expect.arrayContaining(['Before', 'With this change']))
+    }
   })
 
   // TICKET-120: verdicts in the status colours, never signal for a failure.

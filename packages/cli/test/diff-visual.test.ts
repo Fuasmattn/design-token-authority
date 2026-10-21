@@ -154,6 +154,9 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
     expect(exitCode).toBe(1) // changes found, --fail-on-change
     const result = JSON.parse(stdout)
     expect(result.schema).toBe('dta.diff/1')
+    // TICKET-123: the head is recorded (dist and .dta are ignored, so the tree is clean).
+    const sha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: dir, encoding: 'utf8' }).trim()
+    expect(result.head).toEqual({ ref: 'feature', sha, uncommitted: false })
     expect(result.tokens.counts.changed).toBe(2)
     expect(
       Object.fromEntries(
@@ -233,17 +236,22 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
     expect(card).toContain('<img class="shot after" src="head/card@320.png"')
     expect(card).toContain('<img class="shot before" src="base/card@320.png"')
     expect(card).not.toContain('data-toggle="overlay"')
-    // Headings in words (no git words): the working tree, and the base as "main · <sha>".
+    // Headings in words (no git words): the branch and its sha, the base as "main · <sha>".
     expect(card).toContain(
-      '<strong>With this change</strong> <span class="side-meta">working tree</span>',
+      `<strong>With this change</strong> <span class="side-meta">feature · ${sha.slice(0, 7)}</span>`,
+    )
+    expect(card).toContain(
+      `<span class="col-word">With this change</span><span class="col-ref">feature · ${sha.slice(0, 7)}</span>`,
     )
     expect(card).toMatch(
       /<strong>Before this change<\/strong> <span class="side-meta">main · [0-9a-f]{7}<\/span>/,
     )
     expect(card).toContain('data-toggle="before" aria-pressed="false"')
+    // TICKET-123 item 4: the report read the screenshot back for the flat map of its canvas.
+    expect(card).toMatch(/ data-flat="4;\d+;\d+;[A-Za-z.\d]+"/)
     expect(card).toContain('<span class="note-token">Brand</span>')
     expect(card).toContain('<span class="note-change">#2f55d4 → #13213f</span>')
-    expect(card).toContain('<td data-label="box"><span><code>div</code></span></td>')
+    expect(card).toContain('<td data-label="Outlined"><span><code>div</code></span></td>')
     expect(card).toContain('<a href="diff/card@320.png">diff</a>')
     const button = row('button')
     expect(button).toContain('<div class="view" data-overlay')
@@ -254,7 +262,13 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
     expect(html).toContain(
       '<span class="tag big" data-contrast-exception="redline label">Brand</span>',
     )
-    expect(fs.readFileSync(path.join(report, 'summary.md'), 'utf8')).toContain(
+    const summary = fs.readFileSync(path.join(report, 'summary.md'), 'utf8')
+    expect(summary).toMatch(
+      new RegExp(
+        `Before: \`main · [0-9a-f]{7}\` · With this change: \`feature · ${sha.slice(0, 7)}\``,
+      ),
+    )
+    expect(summary).toContain(
       '**Fail: unexplained changes above the threshold** · 4 changed · 1 added · 1 unchanged · 3 explained by token changes, 1 unexplained',
     )
     // The working tree is untouched and the temporary worktree is gone.
@@ -278,5 +292,23 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
       ])
     }
     expect(await run()).toEqual(await run())
+  }, 120_000)
+
+  it('records uncommitted changes in the head (an untracked file is enough)', async () => {
+    write('notes.md', 'not committed')
+    try {
+      let stdout = ''
+      await runCli(['diff', '--format', 'json'], {
+        cwd: dir,
+        stdout: (text) => (stdout += text),
+        stderr: () => undefined,
+        input: new PassThrough(),
+      })
+      expect(JSON.parse(stdout).head).toMatchObject({ ref: 'feature', uncommitted: true })
+      const html = fs.readFileSync(path.join(dir, '.dta', 'diff', 'index.html'), 'utf8')
+      expect(html).toMatch(/feature · [0-9a-f]{7} \+ uncommitted changes/)
+    } finally {
+      fs.rmSync(path.join(dir, 'notes.md'))
+    }
   }, 120_000)
 })

@@ -10,11 +10,24 @@ Within version `dta.diff/1` fields are only added. A change that removes or rena
 | --------- | -------------------------------------------------------------------------------------------------------------------- |
 | `schema`  | Always `"dta.diff/1"`                                                                                                |
 | `base`    | How the base was chosen, e.g. `merge base with origin/main (1a2b3c4)`                                                |
+| `head`    | What was rendered "with this change" (below). Optional: absent outside git and in results written before TICKET-123  |
 | `verdict` | `pass` (nothing to look at), `review` (explained or new changes), `fail` (unexplained above the threshold)           |
 | `review`  | The changes grouped by cause (below)                                                                                 |
 | `publish` | `{ url, report }` when a publish hook ran: the folder's public URL (image paths resolve against it) and `index.html` |
 | `tokens`  | `counts` and `changes` of the token change set (as `dta diff --tokens-only --format json`)                           |
 | `stories` | One entry per story and viewport                                                                                     |
+
+## Head
+
+`dta diff` renders the checkout it runs in, including changes not yet committed. `head` records which one, so the report can name both sides ("Before: main · 2ee9b31", "With this change: feature/x · 9f3c1a2"):
+
+| Field         | Meaning                                                                                                                                                                                               |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ref`         | The branch, without `refs/heads/` (`feature/x`). Absent on a detached HEAD, as in most CI checkouts of a pull request                                                                                 |
+| `sha`         | The full commit hash HEAD pointed at                                                                                                                                                                  |
+| `uncommitted` | `true` when the repository had uncommitted changes when the run started: any edited, staged or untracked file that is not ignored, anywhere in the repository (not only in the paths the stories use) |
+
+The report shows it as `feature/x · 9f3c1a2`, `9f3c1a2` when detached, with `+ uncommitted changes` when `uncommitted` is true, and "working tree" when `head` is absent.
 
 ## Stories
 

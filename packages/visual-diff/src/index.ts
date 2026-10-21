@@ -13,6 +13,8 @@ export {
   TOKEN_CHANGES_SCHEMA,
 } from './render.js'
 export type { DiffLabels } from './render.js'
+export { baseInWords, headInWords } from './sides.js'
+export type { DiffHead } from './sides.js'
 export {
   diffConfigSchema,
   readStoriesManifest,

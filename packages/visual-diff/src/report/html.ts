@@ -1,4 +1,7 @@
 import type { DiffResult } from '../result-schema.js'
+import { baseInWords, headInWords } from '../sides.js'
+import { flatMap } from './flat.js'
+import { PLACEMENT_JS } from './placement.js'
 import { DRAFTING_TABLE_CSS } from './tokens-css.js'
 
 /**
@@ -139,6 +142,8 @@ function cause(story: Story) {
 /** A changed box and what explains it: token notes, or "unexplained · no token". */
 interface Cluster {
   region: Region
+  /** The token changes that explain the box (its set groups list entries). */
+  ids: string[]
   notes: Array<{ token: string; change: string }>
   unexplained?: boolean
 }
@@ -151,26 +156,32 @@ function clustersOf(story: Story, changes: Map<string, Change>): Cluster[] {
   for (const t of a.tokens) {
     for (const region of t.regions) {
       const key = `${region.x},${region.y},${region.width},${region.height}`
-      const cluster = byBox.get(key) ?? { region, notes: [] }
+      const cluster = byBox.get(key) ?? { region, ids: [], notes: [] }
+      cluster.ids.push(t.id)
       cluster.notes.push({ token: shortToken(t.id), change: noteChange(changes.get(t.id)) })
       byBox.set(key, cluster)
     }
   }
   const out = [...byBox.values()]
-  if (a.unexplainedRegion) out.push({ region: a.unexplainedRegion, notes: [], unexplained: true })
+  if (a.unexplainedRegion) {
+    out.push({ region: a.unexplainedRegion, ids: [], notes: [], unexplained: true })
+  }
   return out
 }
 
 const pct = (n: number, of: number) => `${((n / of) * 100).toFixed(3)}%`
 
-/** Outlines over the image, in % of the compared canvas, 2 px outside the element's box. */
+/**
+ * Outlines over the image, in % of the compared canvas, 2 px outside the element's box; then one
+ * numbered marker per box, shown and placed by the script when the box's notes are listed.
+ */
 function marks(clusters: Cluster[], canvas: { width: number; height: number }) {
-  return clusters
-    .map(
-      ({ region: r, unexplained }) =>
-        `<span class="mark${unexplained ? ' unexplained' : ''}" style="left:calc(${pct(r.x, canvas.width)} - 3px);top:calc(${pct(r.y, canvas.height)} - 3px);width:calc(${pct(r.width, canvas.width)} + 6px);height:calc(${pct(r.height, canvas.height)} + 6px)"></span>`,
-    )
-    .join('')
+  const outlines = clusters.map(
+    ({ region: r, unexplained }, i) =>
+      `<span class="mark${unexplained ? ' unexplained' : ''}" data-i="${i}" style="left:calc(${pct(r.x, canvas.width)} - 3px);top:calc(${pct(r.y, canvas.height)} - 3px);width:calc(${pct(r.width, canvas.width)} + 6px);height:calc(${pct(r.height, canvas.height)} + 6px)"></span>`,
+  )
+  const markers = clusters.map((_, i) => `<span class="key" data-i="${i}"${REDLINE_LABEL}></span>`)
+  return outlines.join('') + markers.join('')
 }
 
 /**
@@ -181,11 +192,12 @@ function notes(clusters: Cluster[]) {
   const note = (token: string, change: string) =>
     `<span class="note"${REDLINE_LABEL}><span class="note-token">${escape(token)}</span>${change ? `<span class="note-sep"> · </span><span class="note-change">${escape(change)}</span>` : ''}</span>`
   return clusters
-    .map(({ region: r, notes, unexplained }) => {
+    .map(({ region: r, ids, notes, unexplained }, i) => {
       const stack = unexplained
         ? '<span class="note unexplained"><span class="note-token">unexplained</span><span class="note-sep"> · </span><span class="note-change">no token</span></span>'
         : notes.map((n) => note(n.token, n.change)).join('')
-      return `<span class="cluster" data-box="${r.x},${r.y},${r.width},${r.height}"${unexplained ? ' data-side' : ''}><span class="leader" aria-hidden="true"></span><span class="stack">${stack}</span></span>`
+      const set = unexplained ? 'unexplained' : [...new Set(ids)].sort().join('|')
+      return `<span class="cluster" data-i="${i}" data-set="${escape(set)}" data-box="${r.x},${r.y},${r.width},${r.height}"${unexplained ? ' data-side' : ''}><span class="leader" aria-hidden="true"></span><span class="key" aria-hidden="true"${REDLINE_LABEL}></span><span class="stack">${stack}</span></span>`
     })
     .join('')
 }
@@ -195,38 +207,37 @@ function toggle(kind: 'before' | 'overlay', label: string, on: boolean, describe
   return `<button type="button" class="toggle" data-toggle="${kind}" aria-pressed="${on}" aria-label="${label}" aria-describedby="${describedBy}"><span class="box" aria-hidden="true"><svg viewBox="0 0 16 16" width="12" height="12"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><span class="word">${label}</span><span class="state">${on ? 'on' : 'off'}</span></button>`
 }
 
-/**
- * The base in words for the "Before this change" meta (TICKET-109 wording): `main · 1a2b3c4`
- * from `merge base with origin/main (1a2b3c4)`, `release · 1a2b3c4` from `release (1a2b3c4)`,
- * only the sha when the ref was a sha, and a directory base by its name.
- */
-function baseInWords(base: string): string {
-  const match = /^(?:merge base with )?(.*?)\s*\(([0-9a-f]{7,40})\)\s*$/.exec(base)
-  if (!match) return base
-  const [, ref, sha] = match
-  const name = ref.replace(/^(origin|upstream)\//, '')
-  return !name || /^[0-9a-f]{7,40}$/.test(name) ? sha : `${name} · ${sha}`
-}
-
-/**
- * The head in words. `result.json` records nothing about the head: `dta diff` renders the
- * working tree, so that is what the meta says.
- */
-const HEAD_IN_WORDS = 'working tree'
-
+/** Both sides in words (TICKET-123): "main · 1a2b3c4", "feature/x · 9f3c1a2 + uncommitted changes". */
 interface Context {
   changes: Map<string, Change>
-  base: string
+  before: string
+  after: string
+  /** Reads an image of the report folder (for the flat map); absent: notes go in the list. */
+  image?: (path: string) => Uint8Array | undefined
 }
+
+/** The flat map of the shown image's cropped canvas, or nothing (then every note is listed). */
+function flatOf(ctx: Context, path: string, height: number): string | undefined {
+  try {
+    const png = ctx.image?.(path)
+    return png ? flatMap(png, height) : undefined
+  } catch {
+    return undefined
+  }
+}
+
+/** A column head of the token table: the side in words, its ref and short hash under it. */
+const sideHead = (word: string, refs: string) =>
+  `<th scope="col"><span class="col-word">${word}</span><span class="col-ref">${escape(refs)}</span></th>`
 
 function tokenTable(story: Story, ctx: Context) {
   const tokens = story.attribution?.tokens ?? []
   if (tokens.length === 0) return ''
   const rows = tokens.map((t) => {
     const change = ctx.changes.get(t.id)
-    return `<tr><th scope="row"><code>${escape(shortToken(t.id))}</code></th><td data-label="base">${value(change?.before)}</td><td data-label="head">${value(change?.after)}</td><td data-label="box"><span>${t.elements.map((e) => `<code>${escape(e)}</code>`).join(', ')}</span></td></tr>`
+    return `<tr><th scope="row"><code>${escape(shortToken(t.id))}</code></th><td data-label="Before">${value(change?.before)}</td><td data-label="With this change">${value(change?.after)}</td><td data-label="Outlined"><span>${t.elements.map((e) => `<code>${escape(e)}</code>`).join(', ')}</span></td></tr>`
   })
-  return `<table class="tokens-explained"><caption class="meta">Explained by ${tokens.length} ${tokens.length === 1 ? 'token' : 'tokens'}</caption><thead><tr><th scope="col">Explained by</th><th scope="col">Base</th><th scope="col">Head</th><th scope="col">Outlined</th></tr></thead><tbody>${rows.join('')}</tbody></table>`
+  return `<table class="tokens-explained"><caption class="meta">Explained by ${tokens.length} ${tokens.length === 1 ? 'token' : 'tokens'}</caption><thead><tr><th scope="col">Explained by</th>${sideHead('Before', ctx.before)}${sideHead('With this change', ctx.after)}<th scope="col">Outlined</th></tr></thead><tbody>${rows.join('')}</tbody></table>`
 }
 
 /**
@@ -254,17 +265,17 @@ function row(story: Story, ctx: Context) {
         }
       : full
   const overlay = unexplained && both && Boolean(diff)
-  const meta = baseInWords(ctx.base)
+  const flat = canvas && clusters.length > 0 && head ? flatOf(ctx, head, canvas.height) : undefined
 
   // Both headings of a two-sided row (with their meta) sit in one grid cell, the other one hidden:
   // switching them moves nothing (the larger sets the box).
   const heading = (text: string, small: string) =>
     `<strong>${text}</strong> <span class="side-meta">${escape(small)}</span>`
   const side = both
-    ? `<span class="swap"><span class="when-after">${heading('With this change', HEAD_IN_WORDS)}</span><span class="when-before">${heading('Before this change', meta)}</span></span>`
+    ? `<span class="swap"><span class="when-after">${heading('With this change', ctx.after)}</span><span class="when-before">${heading('Before this change', ctx.before)}</span></span>`
     : head
       ? `<span>${heading('With this change', 'new story')}</span>`
-      : `<span>${heading('Before this change', `${meta} · removed story`)}</span>`
+      : `<span>${heading('Before this change', `${ctx.before} · removed story`)}</span>`
   const shown = head ?? base
   const toggles = both
     ? `<div class="toggles">${overlay ? toggle('overlay', 'Diff overlay', true, title) : ''}${toggle('before', 'Show before', false, title)}</div>`
@@ -276,7 +287,7 @@ function row(story: Story, ctx: Context) {
       ${toggles}
     </div>
     <div class="stage">
-      <div class="canvas"${canvas ? ` style="aspect-ratio:${canvas.width} / ${canvas.height};max-width:${canvas.width}px" data-w="${canvas.width}" data-h="${canvas.height}"` : ''}>
+      <div class="canvas"${canvas ? ` style="aspect-ratio:${canvas.width} / ${canvas.height};max-width:${canvas.width}px" data-w="${canvas.width}" data-h="${canvas.height}"${flat ? ` data-flat="${flat}"` : ''}` : ''}>
         <img class="shot after" src="${escape(shown)}" alt="${escape(`${ref(story)} ${head ? 'with this change' : 'before this change'}`)}" loading="lazy">
         ${both ? `<img class="shot before" src="${escape(base!)}" alt="${escape(`${ref(story)} before this change`)}" loading="lazy">` : ''}
         ${overlay ? `<img class="shot overlay" src="${escape(diff!)}" alt="">` : ''}
@@ -341,7 +352,7 @@ function changeTable(result: DiffResult) {
   )
   return rows.length === 0
     ? '<p class="empty">No token changes.</p>'
-    : `<div class="table"><table><thead><tr><th>Kind</th><th>Token</th><th>Collection · mode</th><th>Before</th><th>After</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`
+    : `<div class="table"><table><thead><tr><th>Kind</th><th>Token</th><th>Collection · mode</th><th>Before</th><th>With this change</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`
 }
 
 function storyTable(result: DiffResult) {
@@ -377,6 +388,7 @@ code{font-family:var(--font-mono);font-size:.86em}
 a{color:var(--action-text)}
 a:focus-visible,button:focus-visible{outline:var(--stroke-focus) solid var(--action-bg);outline-offset:2px}
 .intro{display:grid;gap:var(--space-4)}
+.refs{margin:0;display:flex;flex-wrap:wrap;gap:4px var(--space-6);text-transform:none}
 .lede{margin:0;color:var(--fg-muted);max-width:68ch}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--space-2);margin:0;padding:0;list-style:none}
 .stats li{padding:var(--space-4);border:var(--stroke-hairline) solid var(--border-default);border-radius:var(--radius-md);background:var(--bg-surface)}
@@ -453,10 +465,16 @@ html.js .leader{display:block;position:absolute;width:4px;background:var(--signa
 html.js .stack{position:absolute;max-width:100%}
 .note{display:inline-block;padding:3px 8px;border:var(--stroke-hairline) solid var(--ink-900);border-radius:4px;background:var(--signal-bg);color:var(--signal-fg);font-family:var(--font-mono);font-size:calc(var(--type-meta-size)*1px);line-height:var(--type-meta-line-height);white-space:nowrap}
 .note.unexplained{border-style:dashed;background:var(--paper-0);color:var(--ink-900)}
+.key{display:none;position:absolute;box-sizing:border-box;min-width:20px;height:20px;padding:0 5px;border:var(--stroke-hairline) solid var(--ink-900);border-radius:var(--radius-full);background:var(--signal-bg);color:var(--signal-fg);font-family:var(--font-mono);font-size:calc(var(--type-meta-size)*1px);line-height:18px;text-align:center;white-space:nowrap}
+.marks>.key.keyed,html.js .cluster.keyed:not(.merged)>.key{display:block}
+html.js .cluster.merged>.stack{display:none}
+html.js .cluster.keyed>.leader{display:none}
 .tokens-explained{width:100%;border-collapse:collapse;font-size:calc(var(--type-body-sm-size)*1px)}
 .tokens-explained caption{text-align:left;padding-bottom:var(--space-2);display:none}
 .tokens-explained th,.tokens-explained td{padding:10px 12px 10px 0;text-align:left;border-bottom:var(--stroke-hairline) solid var(--border-default);vertical-align:middle;font-weight:400}
-.tokens-explained thead th{font-family:var(--font-mono);font-size:calc(var(--type-meta-size)*1px);color:var(--fg-subtle)}
+.tokens-explained thead th{font-family:var(--font-mono);font-size:calc(var(--type-meta-size)*1px);color:var(--fg-subtle);vertical-align:bottom}
+.col-word,.col-ref{display:block}
+.col-word{color:var(--fg-default)}
 .why{margin:0;max-width:68ch}
 .whole{margin:0;display:flex;flex-wrap:wrap;gap:var(--space-2);color:var(--fg-muted);font-size:calc(var(--type-body-sm-size)*1px)}
 .sheet{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:var(--space-2)}
@@ -483,7 +501,8 @@ footer{color:var(--fg-subtle);font-size:calc(var(--type-body-sm-size)*1px)}
 .tokens-explained caption{display:block}
 .tokens-explained thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .tokens-explained tr{display:grid;grid-template-columns:minmax(0,1fr);padding:var(--space-3) 0;border-bottom:var(--stroke-hairline) solid var(--border-default)}
-.tokens-explained th,.tokens-explained td{display:grid;grid-template-columns:3.5em minmax(0,1fr);padding:2px 0;border:0}
+.tokens-explained tbody tr{grid-template-columns:max-content minmax(0,1fr);column-gap:var(--space-3)}
+.tokens-explained th,.tokens-explained td{display:grid;grid-template-columns:subgrid;grid-column:1/-1;align-items:baseline;padding:2px 0;border:0}
 .tokens-explained th{display:block}
 .tokens-explained td::before{content:attr(data-label);color:var(--fg-subtle);font-family:var(--font-mono);font-size:calc(var(--type-meta-size)*1px)}
 }
@@ -516,32 +535,25 @@ const SCRIPT = `
   // Notes under their boxes: per band of boxes that share rows, in lanes below the band. A stack
   // moves right of its neighbour while its leader still lands on its box, else it takes the next
   // lane, its leader clear of the notes above. "unexplained" sits right of its box when it fits.
+  // A note stays on the image only where it covers nothing but one flat colour (data-flat: the
+  // screenshot's flat cells) or lies below the image; otherwise its box gets a numbered marker and
+  // its notes go in a list under the image (TICKET-123). Without a flat map every note is listed.
   const GAP = 8
-  const layout = (stage) => {
-    const canvas = stage.querySelector('.canvas[data-w]')
-    const notes = stage.querySelector('.notes')
-    if (!canvas || !notes) return
-    const W = canvas.clientWidth, H = canvas.clientHeight
-    const kx = W / Number(canvas.dataset.w), ky = H / Number(canvas.dataset.h)
-    const items = [...notes.querySelectorAll('.cluster')].map((el) => {
-      const [x, y, w, h] = el.dataset.box.split(',').map(Number)
-      const stack = el.querySelector('.stack')
-      // Measured at the left edge, so a stack placed near the right before is not measured narrow.
-      stack.style.left = '0px'
-      return { leader: el.querySelector('.leader'), stack, side: el.hasAttribute('data-side'), l: x * kx, t: y * ky, r: (x + w) * kx, b: (y + h) * ky, w: Math.min(stack.offsetWidth, W), h: stack.offsetHeight }
-    }).sort((a, b) => a.t - b.t || a.l - b.l)
-    let lowest = 0
-    const place = (it, x, top, lx) => {
-      it.stack.style.left = x + 'px'
-      it.stack.style.top = top + 'px'
-      it.leader.style.left = (lx - 2) + 'px'
-      it.leader.style.top = it.b + 'px'
-      it.leader.style.height = Math.max(0, top - it.b) + 'px'
-      lowest = Math.max(lowest, top + it.h)
-    }
+  const KEY = 20
+${PLACEMENT_JS}
+  const decode = (map) => {
+    if (!map) return null
+    const [cell, cols, rows, rle] = map.split(';')
+    const cells = []
+    for (const [, ch, n] of rle.matchAll(/([A-Za-z.])(\\d+)/g)) for (let k = 0; k < Number(n); k++) cells.push(ch)
+    return { cell: Number(cell), cols: Number(cols), rows: Number(rows), cells }
+  }
+  // Arranges the notes of \`items\` (no DOM writes): { it, x, top, lx } per item.
+  const arrange = (items, W) => {
+    const spots = []
     const below = []
     for (const it of items) {
-      if (it.side && it.r + GAP + it.w <= W) place(it, it.r + GAP, Math.max(0, (it.t + it.b - it.h) / 2), -9999)
+      if (it.side && it.r + GAP + it.w <= W && !it.notSide) spots.push({ it, x: it.r + GAP, top: Math.max(0, (it.t + it.b - it.h) / 2), lx: -9999, side: true })
       else below.push(it)
     }
     const bands = []
@@ -558,11 +570,12 @@ const SCRIPT = `
     }
     for (const band of bands) {
       const lanes = []
+      const placed = []
       for (const it of band.items.sort((a, b) => a.l - b.l)) {
         let spot = null
         for (let k = 0; k <= lanes.length && !spot; k++) {
           const lane = lanes[k] || { right: -Infinity, height: 0, items: [] }
-          const blocked = lanes.slice(0, k).flatMap((l) => l.items.map((o) => [o.x, o.x + o.w]))
+          const blocked = lanes.slice(0, k).flatMap((l) => l.items.map((o) => [o.x, o.x + o.it.w]))
           const lx = free(it, lane.right + GAP + 6, blocked)
           const fresh = k === lanes.length
           if (lx === null && !fresh) continue
@@ -572,18 +585,119 @@ const SCRIPT = `
           if (fresh) lanes.push(lane)
           spot = { lane, x, lx: Math.min(Math.max(at, x + 4), x + it.w - 4) }
         }
-        it.x = spot.x
-        it.lx = spot.lx
-        spot.lane.right = it.x + it.w
+        const o = { it, x: spot.x, lx: spot.lx, top: 0 }
+        spot.lane.right = o.x + it.w
         spot.lane.height = Math.max(spot.lane.height, it.h)
-        spot.lane.items.push(it)
+        spot.lane.items.push(o)
+        placed.push(o)
       }
       let top = band.bottom + GAP
       for (const lane of lanes) {
-        for (const it of lane.items) place(it, it.x, top, it.lx)
+        for (const o of lane.items) o.top = top
         top += lane.height + 4
       }
+      spots.push(...placed)
     }
+    return spots
+  }
+  const hits = (a, list) => list.some((b) => a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3])
+  // An outline is a ring: something inside the box it outlines (a marker on a nested element) does
+  // not cross it, only something that overlaps the ring's band does.
+  const crosses = (a, rings) => rings.some(([o, i]) => hits(a, [o]) && !(a[0] >= i[0] && a[1] >= i[1] && a[2] <= i[2] && a[3] <= i[3]))
+  const layout = (stage) => {
+    const canvas = stage.querySelector('.canvas[data-w]')
+    const notes = stage.querySelector('.notes')
+    if (!canvas || !notes) return
+    const W = canvas.clientWidth, H = canvas.clientHeight
+    const kx = W / Number(canvas.dataset.w), ky = H / Number(canvas.dataset.h)
+    const flat = decode(canvas.dataset.flat)
+    const items = [...notes.querySelectorAll('.cluster')].map((el) => {
+      const [x, y, w, h] = el.dataset.box.split(',').map(Number)
+      const stack = el.querySelector('.stack')
+      el.classList.remove('keyed', 'merged')
+      const marker = canvas.querySelector('.marks>.key[data-i="' + el.dataset.i + '"]')
+      if (marker) marker.classList.remove('keyed')
+      // Measured at the left edge, so a stack placed near the right before is not measured narrow.
+      stack.style.left = '0px'
+      const l = x * kx, t = y * ky, r = (x + w) * kx, b = (y + h) * ky
+      // The outline's outer edge: 3 px outside the box, its 2 px outline and the ink line.
+      return { el, marker, sig: el.dataset.set, leader: el.querySelector('.leader'), key: el.querySelector('.key'), stack, side: el.hasAttribute('data-side'), l, t, r, b, ring: { l: l - 6, t: t - 6, r: r + 6, b: b + 6 }, w: Math.min(stack.offsetWidth, W), h: stack.offsetHeight }
+    }).sort((a, b) => a.t - b.t || a.l - b.l)
+    // Each outline as [outer edge, inner edge] (the mark's border sits 3 px outside the box).
+    const rings = items.map((it) => [[it.ring.l, it.ring.t, it.ring.r, it.ring.b], [it.l - 2, it.t - 2, it.r + 2, it.b + 2]])
+    // Covers nothing but one flat colour of the screenshot (below the image is the stage's paper).
+    const flatAt = (x, y, w, h) => {
+      if (!flat) return false
+      const iy1 = Math.min((y + h) / ky, flat.rows * flat.cell)
+      if (y / ky >= iy1) return true
+      const c0 = Math.max(0, Math.floor(x / kx / flat.cell)), c1 = Math.min(flat.cols - 1, Math.ceil((x + w) / kx / flat.cell) - 1)
+      const r0 = Math.max(0, Math.floor(y / ky / flat.cell)), r1 = Math.min(flat.rows - 1, Math.ceil(iy1 / flat.cell) - 1)
+      const first = flat.cells[r0 * flat.cols + c0]
+      if (first === '.') return false
+      for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) if (flat.cells[r * flat.cols + c] !== first) return false
+      return true
+    }
+    const keyed = new Set(flat ? [] : items)
+    let spots = [], placed = []
+    for (let round = 0; round <= 2 * items.length; round++) {
+      spots = arrange(items.filter((it) => !keyed.has(it)), W)
+      const noteRects = spots.map((s) => [s.x, s.top, s.x + s.it.w, s.top + s.it.h])
+      // Markers in reading order, each on a flat spot clear of outlines, notes and other markers.
+      placed = []
+      let n = 0
+      for (const it of items) {
+        if (!keyed.has(it) || !it.marker) continue
+        it.n = ++n
+        it.marker.textContent = String(n)
+        const size = { w: Math.max(KEY, it.marker.offsetWidth), h: KEY }
+        const spot = markerSpot(it.ring, size, W, H, (x, y, w, h) => flatAt(x, y, w, h) && !crosses([x, y, x + w, y + h], rings) && !hits([x, y, x + w, y + h], [...noteRects, ...placed.map((p) => p.rect)]))
+        placed.push({ it, x: spot.x, y: spot.y, rect: [spot.x, spot.y, spot.x + size.w, spot.y + size.h] })
+      }
+      const blocked = [...placed.map((p) => p.rect)]
+      const bad = spots.filter((s) => {
+        const rect = [s.x, s.top, s.x + s.it.w, s.top + s.it.h]
+        return !flatAt(s.x, s.top, s.it.w, s.it.h) || hits(rect, blocked) || crosses(rect, rings)
+      })
+      if (bad.length === 0) break
+      for (const s of bad) {
+        // An "unexplained" note that does not fit beside its box tries under it first.
+        if (s.side) s.it.notSide = true
+        else keyed.add(s.it)
+      }
+    }
+    let lowest = 0
+    for (const { it, x, top, lx } of spots) {
+      it.stack.style.left = x + 'px'
+      it.stack.style.top = top + 'px'
+      it.leader.style.left = (lx - 2) + 'px'
+      it.leader.style.top = it.b + 'px'
+      it.leader.style.height = Math.max(0, top - it.b) + 'px'
+      lowest = Math.max(lowest, top + it.h)
+    }
+    for (const p of placed) {
+      p.it.marker.classList.add('keyed')
+      p.it.marker.style.left = p.x + 'px'
+      p.it.marker.style.top = p.y + 'px'
+    }
+    // The list under the image: one entry per set of token changes ("1, 2"), its notes once.
+    let top = Math.max(lowest, H) + GAP
+    const listed = items.filter((it) => keyed.has(it))
+    let n = 0
+    for (const it of listed) if (!it.n) it.n = ++n; else n = it.n
+    for (const group of groupKeys(listed)) {
+      const [it, ...rest] = group.items
+      for (const other of rest) other.el.classList.add('keyed', 'merged')
+      it.el.classList.add('keyed')
+      it.key.textContent = group.ns.join(', ')
+      const kw = Math.max(KEY, it.key.offsetWidth)
+      it.key.style.left = GAP + 'px'
+      it.key.style.top = top + 'px'
+      it.stack.style.left = (GAP + kw + GAP) + 'px'
+      it.stack.style.top = top + 'px'
+      top += Math.max(KEY, it.stack.offsetHeight) + GAP
+      lowest = top - GAP
+    }
+    for (const it of items) { it.notSide = false; it.n = 0 }
     stage.style.setProperty('--room', Math.max(0, Math.ceil(lowest - H + GAP)) + 'px')
   }
   const all = () => { for (const stage of document.querySelectorAll('.stage')) layout(stage) }
@@ -598,7 +712,16 @@ const THEME_BOOT = `(() => { const root = document.documentElement; root.classLi
 
 const LOGO = `<svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect x="11" y="3" width="18" height="18" rx="4" fill="var(--action-bg)"></rect><rect x="4" y="10" width="18" height="18" rx="4" fill="none" stroke="var(--fg-default)" stroke-width="2.5"></rect></svg>`
 
-export function renderReportHtml(result: DiffResult): string {
+/**
+ * The report page. `options.image` reads an image of the report folder by its path in
+ * `result.json` (`head/…png`): with it, notes sit on a screenshot only where it is flat (see
+ * `flat.ts`); without it every changed box gets a numbered marker and its notes are listed under
+ * the image.
+ */
+export function renderReportHtml(
+  result: DiffResult,
+  options: { image?: (path: string) => Uint8Array | undefined } = {},
+): string {
   const review = result.review
   const verdict = VERDICT[result.verdict ?? review?.verdict ?? 'pass']
   const byRef = new Map(result.stories.map((s) => [ref(s), s]))
@@ -607,7 +730,12 @@ export function renderReportHtml(result: DiffResult): string {
   const addedRemoved = result.stories.filter((s) => s.status === 'added' || s.status === 'removed')
   const counts = result.tokens.counts
   const tokenTotal = counts.changed + counts.added + counts.removed
-  const ctx: Context = { changes: changesById(result), base: result.base }
+  const ctx: Context = {
+    changes: changesById(result),
+    before: baseInWords(result.base),
+    after: headInWords(result.head),
+    image: options.image,
+  }
 
   const stat = (n: number, label: string) =>
     `<li><strong>${n}</strong><span class="meta">${label}</span></li>`
@@ -672,7 +800,7 @@ ${STYLE}</style>
     <button type="button" class="theme" data-theme-toggle>Graphite</button>
   </header>
   <div class="intro">
-    <span class="meta">Base · ${escape(result.base)}</span>
+    <p class="meta refs"><span>Before: ${escape(ctx.before)}</span><span>With this change: ${escape(ctx.after)}</span></p>
     <h1>${escape(verdict.label)}</h1>
     <p>${chip(verdict.tone, verdict.label)}</p>
     <ul class="stats">

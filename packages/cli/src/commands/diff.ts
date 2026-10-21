@@ -23,6 +23,7 @@ import {
   reviewStories,
   VERDICT_TEXT,
   type Dependent,
+  type DiffLabels,
   type DiffResult,
   type PageDeclaration,
   type Review,
@@ -45,7 +46,7 @@ import {
 import pc from 'picocolors'
 import type { CommandContext } from '../commands.js'
 import { BrowserUnavailableError, launchScreenshotter } from '../io/browser.js'
-import { DiffBaseError, resolveDiffBase } from '../io/diff-base.js'
+import { DiffBaseError, resolveDiffBase, resolveDiffHead } from '../io/diff-base.js'
 import { CommandFailedError, runCommand } from '../io/run-command.js'
 import { serveStatic } from '../io/static-server.js'
 import { createBaseWorktree } from '../io/worktree.js'
@@ -147,7 +148,9 @@ export async function runDiff(context: CommandContext): Promise<number> {
 
   const set = diffTokens(before.model, head.model)
   const total = set.changes.length
-  const labels = { base: baseInfo.label }
+  // Recorded before anything is built: the temporary worktree and the report change nothing here.
+  const headInfo = resolveDiffHead(context.cwd)
+  const labels: DiffLabels = { base: baseInfo.label, ...(headInfo ? { head: headInfo } : {}) }
   const log = (text: string) => format === 'console' && ui.log.message(text)
 
   if (format === 'console') {
@@ -427,7 +430,7 @@ function writeReport(
   dir: string,
   set: ReturnType<typeof diffTokens>,
   stories: StoryResult[],
-  labels: { base: string },
+  labels: DiffLabels,
   review?: Review,
 ): DiffResult {
   fs.rmSync(dir, { recursive: true, force: true })
@@ -446,7 +449,9 @@ function writeReport(
   const result = diffResultSchema.parse(JSON.parse(json))
   fs.writeFileSync(path.join(dir, 'result.json'), json)
   fs.writeFileSync(path.join(dir, 'summary.md'), renderSummaryMarkdown(result))
-  fs.writeFileSync(path.join(dir, 'index.html'), renderReportHtml(result))
+  // The report reads the screenshots back to know where notes may sit on them.
+  const image = (file: string) => fs.readFileSync(path.join(dir, file))
+  fs.writeFileSync(path.join(dir, 'index.html'), renderReportHtml(result, { image }))
   return result
 }
 

@@ -10,6 +10,29 @@
       "type": "string",
       "description": "How the base was chosen."
     },
+    "head": {
+      "description": "What was rendered as \"with this change\": the checkout dta diff ran in. Absent outside git and in older results.",
+      "type": "object",
+      "properties": {
+        "ref": {
+          "description": "The branch, without refs/heads/ (absent when detached).",
+          "type": "string"
+        },
+        "sha": {
+          "type": "string",
+          "description": "The commit HEAD pointed at."
+        },
+        "uncommitted": {
+          "type": "boolean",
+          "description": "The repository had uncommitted changes (tracked or untracked, not ignored)."
+        }
+      },
+      "required": [
+        "sha",
+        "uncommitted"
+      ],
+      "additionalProperties": false
+    },
     "verdict": {
       "description": "pass: nothing to review; review: explained or new changes; fail: unexplained.",
       "type": "string",

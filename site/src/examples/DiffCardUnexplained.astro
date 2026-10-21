@@ -1,6 +1,6 @@
 ---
 import DiffCard from '../components/ds/DiffCard.astro'
-import { CARD_CANVAS, TITLE_BOX, orbitCard, orbitCardTitleDiff } from './orbit-card'
+import { CARD_CANVAS, TITLE_BOX, orbitCard, orbitCardTitleDiff, CARD_SURFACES } from './orbit-card'
 
 interface Props {
   idPrefix?: string
@@ -13,7 +13,9 @@ const { idPrefix = 'diff-card-unexplained' } = Astro.props
   viewport={1280}
   ratio="0.64%"
   base="main · 2ee9b31"
+  head="feature/bigger-title · 4d81e07 + uncommitted changes"
   canvas={CARD_CANVAS}
+  surfaces={CARD_SURFACES}
   marks={[{ ...TITLE_BOX, unexplained: true }]}
   idPrefix={idPrefix}
 >

@@ -6,6 +6,7 @@ type StoryRow = Pick<StoryResult, 'id' | 'viewport' | 'status' | 'ratio' | 'attr
   images?: { base?: unknown; head?: unknown; diff?: unknown }
 }
 import type { Review, Verdict } from './review.js'
+import { baseInWords, headInWords, type DiffHead } from './sides.js'
 import type { TokenChange, TokenChangeKind, TokenChangeSet, TokenState } from './token-changes.js'
 
 /** Identifies the shape of `toJson`'s output; bumped on breaking changes. */
@@ -14,6 +15,8 @@ export const TOKEN_CHANGES_SCHEMA = 'dta.diff.tokens/1'
 export interface DiffLabels {
   /** How the base was chosen, e.g. `tokens-base` or `merge base with origin/main (1a2b3c4)`. */
   base: string
+  /** The checkout that was rendered "with this change" (in git only). */
+  head?: DiffHead
   /** Where the report folder was published (absolute URLs). */
   publish?: { url: string; report: string }
 }
@@ -88,14 +91,21 @@ function rows(kind: TokenChangeKind, changes: TokenChange[]): string[] {
   }
 }
 
-/** Markdown for a pull request comment or a CI summary (`limit`: rows per table). */
+/**
+ * Markdown for a pull request comment or a CI summary (`limit`: rows per table). `inWords`
+ * names both sides as the report does ("Before" and "With this change", ref and short hash)
+ * instead of the base label.
+ */
 export function renderTokenChangesMarkdown(
   set: TokenChangeSet,
   labels: DiffLabels,
-  options: { limit?: number } = {},
+  options: { limit?: number; inWords?: boolean } = {},
 ): string {
   const lines = ['## dta diff: token changes', '']
-  lines.push(`Base: ${code(labels.base)} · **${summarizeCounts(set.counts)}**`)
+  const sides = options.inWords
+    ? `Before: ${code(baseInWords(labels.base))} · With this change: ${code(headInWords(labels.head))}`
+    : `Base: ${code(labels.base)}`
+  lines.push(`${sides} · **${summarizeCounts(set.counts)}**`)
   for (const { kind, title } of SECTIONS) {
     const changes = set.changes.filter((change) => change.kind === kind)
     if (changes.length === 0) continue
@@ -246,6 +256,7 @@ export function toDiffJson(
     {
       schema: DIFF_SCHEMA,
       base: labels.base,
+      ...(labels.head ? { head: labels.head } : {}),
       ...(review ? { verdict: review.verdict, review } : {}),
       ...(labels.publish ? { publish: labels.publish } : {}),
       tokens: { counts: set.counts, changes: set.changes },
@@ -264,15 +275,15 @@ export const SUMMARY_MAX_LENGTH = 60_000
 
 const THUMB_WIDTH = 120
 
-/** `<img>` thumbnails (baseline · candidate · diff) of a published story, for a table cell. */
+/** `<img>` thumbnails (before · with this change · diff) of a published story, for a table cell. */
 function thumbnails(story: DiffResult['stories'][number], baseUrl: string): string {
   const img = (label: string, file?: string) =>
     file
       ? `<a href="${baseUrl}/${file}"><img src="${baseUrl}/${file}" width="${THUMB_WIDTH}" alt="${label}"></a>`
       : ''
   return [
-    img('baseline', story.images.base),
-    img('candidate', story.images.head),
+    img('before', story.images.base),
+    img('with this change', story.images.head),
     img('diff', story.images.diff),
   ]
     .filter(Boolean)
@@ -291,7 +302,7 @@ function storyThumbnails(result: DiffResult, baseUrl: string, limit: number): st
     )
   return [
     '',
-    '### Baseline · candidate · diff',
+    '### Before · with this change · diff',
     '',
     '| Story | Viewport | Changed | Images |',
     '| --- | --- | --- | --- |',
@@ -303,7 +314,7 @@ function storyThumbnails(result: DiffResult, baseUrl: string, limit: number): st
 /**
  * `summary.md`, from a `result.json`: token changes and stories, short enough for a
  * pull-request comment. With `baseUrl` (where the report folder was published) it links the
- * full report and shows baseline / candidate / diff thumbnails per story and viewport; without
+ * full report and shows before / with this change / diff thumbnails per story and viewport; without
  * it there are no images. Tables are cut (with "… and N more") until it fits.
  */
 export function renderSummaryMarkdown(
@@ -313,11 +324,11 @@ export function renderSummaryMarkdown(
   const maxLength = options.maxLength ?? SUMMARY_MAX_LENGTH
   const baseUrl = options.baseUrl?.replace(/\/+$/, '')
   const set: TokenChangeSet = result.tokens
-  const labels = { base: result.base }
+  const labels = { base: result.base, head: result.head }
   const render = (limit?: number) => {
-    const head = baseUrl ? `**[Open the full report](${baseUrl}/index.html)**\n\n` : ''
+    const link = baseUrl ? `**[Open the full report](${baseUrl}/index.html)**\n\n` : ''
     const thumbs = baseUrl ? storyThumbnails(result, baseUrl, limit ?? Infinity).join('\n') : ''
-    return `${head}${renderTokenChangesMarkdown(set, labels, { limit })}\n${renderStoriesMarkdown(result.stories, { review: result.review, limit })}${thumbs ? `${thumbs}\n` : ''}`
+    return `${link}${renderTokenChangesMarkdown(set, labels, { limit, inWords: true })}\n${renderStoriesMarkdown(result.stories, { review: result.review, limit })}${thumbs ? `${thumbs}\n` : ''}`
   }
   let markdown = render()
   for (let limit = 200; markdown.length > maxLength && limit >= 1; limit = Math.floor(limit / 2)) {

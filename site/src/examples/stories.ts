@@ -166,6 +166,13 @@ export const STORIES: readonly Story[] = [
     viewports: [DESKTOP, MOBILE],
   },
   {
+    component: 'diff-card',
+    variant: 'listed',
+    title: 'Notes listed where they would cover the story; same tokens share an entry',
+    example: 'DiffCardListed',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
     component: 'nav',
     variant: 'default',
     title: 'Links, or a menu button on phones',

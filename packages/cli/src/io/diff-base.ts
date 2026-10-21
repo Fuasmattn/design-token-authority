@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import type { TokenFileInput } from '@dta/core'
+import type { DiffHead } from '@dta/visual-diff'
 import { readTokenDir } from './token-dir.js'
 
 /** The base of `dta diff` could not be found or read. */
@@ -110,4 +111,17 @@ export function resolveDiffBase(cwd: string, tokensDir: string, base?: string): 
     label: `merge base with ${branch} (${shortSha(sha)})`,
     sha,
   }
+}
+
+/**
+ * The checkout `dta diff` renders as "with this change" (TICKET-123): the branch (if any), the
+ * commit and whether the repository has uncommitted changes, tracked or untracked (not ignored),
+ * anywhere in the repository. Outside git, or before the first commit, there is none.
+ */
+export function resolveDiffHead(cwd: string): DiffHead | undefined {
+  const sha = git(cwd, ['rev-parse', '--verify', '--quiet', 'HEAD^{commit}'])?.trim()
+  if (!sha) return undefined
+  const ref = git(cwd, ['symbolic-ref', '--quiet', '--short', 'HEAD'])?.trim()
+  const status = git(cwd, ['status', '--porcelain', '--untracked-files=normal'])
+  return { ...(ref ? { ref } : {}), sha, uncommitted: Boolean(status?.trim()) }
 }

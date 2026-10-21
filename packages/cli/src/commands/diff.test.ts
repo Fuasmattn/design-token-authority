@@ -5,6 +5,7 @@ import path from 'node:path'
 import { PassThrough } from 'node:stream'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { runCli } from '../index.js'
+import { resolveDiffHead } from '../io/diff-base.js'
 
 const root = path.resolve(import.meta.dirname, '..', '..', '..', '..')
 const fixture = path.join(root, 'test', 'fixtures', 'brand-ab')
@@ -200,6 +201,58 @@ describe('dta diff with git', () => {
     const { exitCode, stderr } = await diff(['--base', 'no-such-thing'])
     expect(exitCode).toBe(1)
     expect(stderr).toContain('"no-such-thing" is neither a directory nor a git ref')
+  })
+})
+
+// TICKET-123: what result.json records as `head` (the report's "With this change").
+describe('the head of dta diff', () => {
+  beforeEach(() => {
+    git('init', '-q', '-b', 'main')
+    writeTokens('#0000ff')
+    fs.writeFileSync(path.join(dir, '.gitignore'), '.dta\n')
+    git('add', '.')
+    git('commit', '-q', '-m', 'tokens')
+    git('checkout', '-q', '-b', 'feature/x')
+  })
+
+  it('records the branch (without refs/heads) and the commit of a clean tree', () => {
+    expect(resolveDiffHead(dir)).toEqual({
+      ref: 'feature/x',
+      sha: git('rev-parse', 'HEAD').trim(),
+      uncommitted: false,
+    })
+  })
+
+  it('says when there are uncommitted changes: edited, staged or untracked, not ignored', () => {
+    fs.mkdirSync(path.join(dir, '.dta', 'diff'), { recursive: true })
+    fs.writeFileSync(path.join(dir, '.dta', 'diff', 'result.json'), '{}')
+    expect(resolveDiffHead(dir)?.uncommitted).toBe(false)
+    writeTokens('#0000cc')
+    expect(resolveDiffHead(dir)?.uncommitted).toBe(true)
+    git('add', '.')
+    expect(resolveDiffHead(dir)?.uncommitted).toBe(true)
+    git('commit', '-q', '-m', 'darker')
+    fs.writeFileSync(path.join(dir, 'notes.md'), 'new')
+    expect(resolveDiffHead(dir)?.uncommitted).toBe(true)
+  })
+
+  it('has no ref on a detached HEAD, and is the same from a sub-folder', () => {
+    const sha = git('rev-parse', 'HEAD').trim()
+    fs.mkdirSync(path.join(dir, 'design'))
+    expect(resolveDiffHead(path.join(dir, 'design'))).toEqual(resolveDiffHead(dir))
+    git('checkout', '-q', '--detach')
+    expect(resolveDiffHead(dir)).toEqual({ sha, uncommitted: false })
+  })
+
+  it('is absent outside git and before the first commit', () => {
+    const outside = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'dta-nogit-')))
+    try {
+      expect(resolveDiffHead(outside)).toBeUndefined()
+      execFileSync('git', ['init', '-q'], { cwd: outside })
+      expect(resolveDiffHead(outside)).toBeUndefined()
+    } finally {
+      fs.rmSync(outside, { recursive: true, force: true })
+    }
   })
 })
 

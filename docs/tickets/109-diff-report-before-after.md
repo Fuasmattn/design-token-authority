@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** M
 **Blocked by:** 108 (the presentation is settled there)
-**Status:** in review (built 2026-10-20; screenshots to be shown, GitHub run pending)
+**Status:** done
 **Spec:** [landing-redesign](../specs/landing-redesign.md) (decision 7); [visual-diff](./visual-diff.md)
 
 ## What to build
@@ -25,8 +25,8 @@ The report's per-story row currently shows three thumbnails (baseline, candidate
 
 - [x] Report rows show before/after with the outline and callout; unexplained differences still show the diff overlay
 - [x] `dta diff` end-to-end test and the report HTML tests updated; design-system guards pass
-- [ ] Screenshots 1280 and 390, light and dark, shown before pushing
-- [ ] All gates pass, and the GitHub run is green
+- [x] Screenshots 1280 and 390, light and dark, shown before pushing
+- [x] All gates pass, and the GitHub run is green
 
 ## Outcome
 

@@ -152,6 +152,26 @@ describe('result.json', () => {
     expect(diffResultSchema.parse(json)).toBeTruthy()
     expect(json.verdict).toBe('fail')
     expect(json.stories[0].attribution.tokens[0].id).toBe(cause.id)
+    // Outside git there is no head: the field is left out.
+    expect(json).not.toHaveProperty('head')
+  })
+
+  it('records the head when given (TICKET-123), still dta.diff/1; older results without it parse', () => {
+    const head = {
+      ref: 'feature/x',
+      sha: '9f3c1a2b4d5e6f708192a3b4c5d6e7f8091a2b3c',
+      uncommitted: true,
+    }
+    const json = JSON.parse(toDiffJson(set, results, { base: 'main', head }))
+    expect(json.schema).toBe('dta.diff/1')
+    expect(Object.keys(json).slice(0, 3)).toEqual(['schema', 'base', 'head'])
+    expect(diffResultSchema.parse(json).head).toEqual(head)
+    // Detached: no ref.
+    const detached = { sha: head.sha, uncommitted: false }
+    expect(diffResultSchema.parse({ ...json, head: detached }).head).toEqual(detached)
+    const { head: _, ...older } = json
+    expect(diffResultSchema.parse(older).head).toBeUndefined()
+    expect(() => diffResultSchema.parse({ ...json, head: { ref: 'x' } })).toThrow()
   })
 
   it('has an up-to-date JSON Schema in docs/diff (run `pnpm run schema:generate`)', () => {
@@ -190,15 +210,38 @@ describe('renderSummaryMarkdown', () => {
     expect(renderSummaryMarkdown(withImages)).not.toContain('<img')
   })
 
+  it('names both sides in words, never base/head/baseline/candidate (TICKET-123)', () => {
+    const head = {
+      ref: 'feature/x',
+      sha: '9f3c1a2b4d5e6f708192a3b4c5d6e7f8091a2b3c',
+      uncommitted: true,
+    }
+    const markdown = renderSummaryMarkdown(
+      { ...withImages, base: 'merge base with origin/main (2ee9b31)', head },
+      { baseUrl: 'https://r.example.com/pr-1' },
+    )
+    expect(markdown).toContain(
+      'Before: `main · 2ee9b31` · With this change: `feature/x · 9f3c1a2 + uncommitted changes` · **no changes**',
+    )
+    // Image paths (base/…, head/…) are URLs, not words: look at the text without them.
+    const words = markdown.replace(/(href|src)="[^"]*"/g, '')
+    expect(words).not.toMatch(/\b(base|head|baseline|candidate)\b/i)
+    // Without a head (older results, outside git): "working tree".
+    expect(renderSummaryMarkdown(parsed(results))).toContain(
+      'Before: `main` · With this change: `working tree`',
+    )
+  })
+
   it('links the published report and shows thumbnails per story and viewport', () => {
     const markdown = renderSummaryMarkdown(withImages, { baseUrl: 'https://r.example.com/pr-1/' })
     expect(
       markdown.startsWith('**[Open the full report](https://r.example.com/pr-1/index.html)**'),
     ).toBe(true)
     expect(markdown).toContain(
-      '| `card` | 1280px | 1.00% | <a href="https://r.example.com/pr-1/base/card@1280.png"><img src="https://r.example.com/pr-1/base/card@1280.png" width="120" alt="baseline"></a>',
+      '| `card` | 1280px | 1.00% | <a href="https://r.example.com/pr-1/base/card@1280.png"><img src="https://r.example.com/pr-1/base/card@1280.png" width="120" alt="before"></a>',
     )
-    expect(markdown).toContain('alt="candidate"')
+    expect(markdown).toContain('alt="with this change"')
+    expect(markdown).toContain('### Before · with this change · diff')
     expect(markdown).toContain('alt="diff"')
     expect(markdown).not.toContain('| `text` | 1280px | 0.00% | <a')
   })

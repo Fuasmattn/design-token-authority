@@ -101,6 +101,21 @@ export const diffResultSchema = z
   .object({
     schema: z.literal(DIFF_SCHEMA),
     base: z.string().describe('How the base was chosen.'),
+    head: z
+      .object({
+        ref: z
+          .string()
+          .optional()
+          .describe('The branch, without refs/heads/ (absent when detached).'),
+        sha: z.string().describe('The commit HEAD pointed at.'),
+        uncommitted: z
+          .boolean()
+          .describe('The repository had uncommitted changes (tracked or untracked, not ignored).'),
+      })
+      .optional()
+      .describe(
+        'What was rendered as "with this change": the checkout dta diff ran in. Absent outside git and in older results.',
+      ),
     verdict: z
       .enum(['pass', 'review', 'fail'])
       .optional()
