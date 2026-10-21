@@ -127,6 +127,15 @@ describe('config handling', () => {
     expect(stderr).toContain('Delete this line')
   })
 
+  it('fails with code 2 when a config still has outputs.tailwind.version', async () => {
+    writeConfig({ outputs: { tailwind: { outDir: 'output/tailwind', version: 4 } } })
+    const { exitCode, stderr } = await run(['build'])
+    expect(exitCode).toBe(2)
+    expect(stderr).toContain('outputs.tailwind.version: was removed')
+    expect(stderr).toContain('`outputs.formats` chooses the Tailwind versions')
+    expect(stderr).toContain('Delete this line')
+  })
+
   it('fails with code 2 and names each invalid field', async () => {
     writeConfig({ outputs: { css: { outDir: 1 } }, brands: 'A' })
     const { exitCode, stderr } = await run(['lint'])

@@ -127,7 +127,7 @@ describe('loadConfig: validation and defaults', () => {
     const { config } = await loadConfig({ cwd: dir })
     expect(config.outputs).toEqual({
       css: { outDir: 'out/css' },
-      tailwind: { outDir: 'out/tw', version: 4 },
+      tailwind: { outDir: 'out/tw' },
       ios: { outDir: 'out/ios', lang: 'swift' },
       android: { outDir: 'out/android', lang: 'xml' },
     })
@@ -203,16 +203,72 @@ describe('loadConfig: validation and defaults', () => {
     expect(error.message).not.toContain('Unrecognized')
   })
 
+  it('rejects outputs.tailwind.version with a message that names outputs.formats, and only that', async () => {
+    for (const version of [3, 4]) {
+      const error = await invalid({ outputs: { tailwind: { outDir: 'output/tailwind', version } } })
+      expect(error.issues).toEqual([
+        {
+          path: 'outputs.tailwind.version',
+          message:
+            "was removed: it never had an effect. `outputs.formats` chooses the Tailwind versions ('tailwind-v4', 'tailwind-v3'). Delete this line.",
+        },
+      ])
+      expect(error.message).not.toContain('Unrecognized')
+    }
+  })
+
+  describe('breakpoints (TICKET-091)', () => {
+    const breakpoints = {
+      collection: 'ScreenType',
+      default: 'Mobile',
+      modes: { Tablet: '(min-width: 768px)', Desktop: '(min-width: 1024px)' },
+    }
+
+    it('accepts a collection, a default mode and media queries, keeping their order', async () => {
+      write('dta.config.json', JSON.stringify({ breakpoints }))
+      const { config } = await loadConfig({ cwd: dir })
+      expect(config.breakpoints).toEqual(breakpoints)
+      expect(Object.keys(config.breakpoints?.modes ?? {})).toEqual(['Tablet', 'Desktop'])
+    })
+
+    it('rejects the default mode in modes, a query with @media, a selector and no modes', async () => {
+      const paths = async (value: unknown) =>
+        (await invalid({ breakpoints: value })).issues.map((i) => `${i.path}: ${i.message}`)
+      expect(
+        await paths({
+          ...breakpoints,
+          modes: { ...breakpoints.modes, Mobile: '(max-width: 1px)' },
+        }),
+      ).toEqual([
+        'breakpoints.modes.Mobile: is the default mode, which is written on :root without a media query: remove it from modes',
+      ])
+      expect(
+        await paths({ ...breakpoints, modes: { Tablet: '@media (min-width: 768px)' } }),
+      ).toEqual([
+        'breakpoints.modes.Tablet: is the media query without "@media", e.g. (min-width: 1024px)',
+      ])
+      expect(await paths({ ...breakpoints, modes: { Tablet: '[data-screen="tablet"]' } })).toEqual([
+        'breakpoints.modes.Tablet: must be a media query such as (min-width: 1024px); selectors are not supported',
+      ])
+      expect(await paths({ ...breakpoints, modes: {} })).toEqual([
+        'breakpoints.modes: needs at least one mode',
+      ])
+      expect(await paths({ collection: 'ScreenType', modes: breakpoints.modes })).toEqual([
+        expect.stringMatching(/^breakpoints.default: /),
+      ])
+    })
+  })
+
   it('rejects values outside the allowed set', async () => {
     const error = await invalid({
       figma: { source: 'cloud' },
-      outputs: { tailwind: { outDir: 'a', version: 5 } },
+      outputs: { formats: ['tailwind-v5'] },
       lint: { rules: { 'no-duplicate-values': { severity: 'fatal' } } },
     })
     expect(error.issues.map((i) => i.path).sort()).toEqual([
       'figma.source',
       'lint.rules.no-duplicate-values.severity',
-      'outputs.tailwind.version',
+      'outputs.formats[0]',
     ])
   })
 

@@ -3,6 +3,6 @@ export default {
   tokens: { dir: 'tokens', stripEmojis: true },
   outputs: {
     css: { outDir: 'output/css' },
-    tailwind: { outDir: 'output/tailwind', version: 4 },
+    tailwind: { outDir: 'output/tailwind' },
   },
 }

@@ -34,7 +34,6 @@ The examples on this page ran on the `brand-ab` fixture of the repository (`test
        },
        tailwind: {
          outDir: 'build/tailwind',
-         version: 4,
        },
      },
    ```
@@ -46,12 +45,19 @@ The examples on this page ran on the `brand-ab` fixture of the repository (`test
      figma: { source: 'file' },
      tokens: { dir: 'tokens' },
      brands: ['BrandA', 'BrandB'],
+     breakpoints: {
+       collection: 'ScreenType',
+       default: 'Mobile',
+       modes: { Tablet: '(min-width: 768px)', Desktop: '(min-width: 1024px)' },
+     },
      outputs: {
        css: { outDir: 'output/css' },
-       tailwind: { outDir: 'output/tailwind', version: 4 },
+       tailwind: { outDir: 'output/tailwind' },
      },
    }
    ```
+
+   `breakpoints` turns the `ScreenType` modes into media queries in `variables.css`; `dta init` does not write it, because the queries are yours to choose ([Breakpoint modes](/reference/outputs/#breakpoint-modes)).
 
 2. **Get your tokens.** On a Figma Enterprise plan, `dta pull` reads the variables through the REST API. On any other plan, export them with a plugin and import the file; see [Getting tokens out of Figma](/guides/figma/). The result is one JSON file per collection and mode in `tokens/`:
 

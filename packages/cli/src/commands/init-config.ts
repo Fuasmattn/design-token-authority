@@ -64,12 +64,7 @@ export function generateConfigContent(data: ConfigData): string {
     if (formats.length > 0) lines.push(`    formats: [${quoted(formats)}],`)
     if (has('css')) lines.push('    css: {', "      outDir: 'build/css',", '    },')
     if (has('tailwind3') || has('tailwind4')) {
-      lines.push(
-        '    tailwind: {',
-        "      outDir: 'build/tailwind',",
-        `      version: ${has('tailwind4') ? 4 : 3},`,
-        '    },',
-      )
+      lines.push('    tailwind: {', "      outDir: 'build/tailwind',", '    },')
     }
     if (has('ios'))
       lines.push('    ios: {', "      outDir: 'build/ios',", "      lang: 'swift',", '    },')

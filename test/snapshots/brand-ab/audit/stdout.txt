@@ -1,10 +1,10 @@
 src/Button.css
   3:15  #0057b8  background → Colors.Brand.Primary  var(--colors-brand-primary)
-  5:12  16px     padding → Dimensions.spacing.4  var(--dimensions-spacing-4)
+  5:12  16px     padding → Spacing.Gap  var(--spacing-gap)
 
 src/Card.tsx
   3:30  #f3f4f6  bg-[…] → Colors.Surface.Muted  var(--colors-surface-muted)
-  3:42  16px     p-[…] → Dimensions.spacing.4  var(--dimensions-spacing-4)
+  3:42  16px     p-[…] → Spacing.Gap  var(--spacing-gap)
   3:71  Inter    fontFamily → Typography.Body.Family  var(--typography-body-family)
 
 5 hard-coded values in 2 files could be tokens.

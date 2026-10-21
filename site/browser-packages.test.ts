@@ -62,6 +62,7 @@ async function fixtureConfig() {
   const url = pathToFileURL(path.join(fixture, 'dta.config.ts')).href
   return (await import(url)).default as {
     brands: string[]
+    breakpoints: { collection: string; default: string; modes: Record<string, string> }
     lint: unknown
     outputs: { css: { outDir: string }; tailwind: { outDir: string } }
   }
@@ -256,6 +257,12 @@ describe.skipIf(!enabled)('@dta packages running in Chromium', () => {
       const outputsInput = {
         files: input.files,
         brands: config.brands,
+        // As `dta build` passes the config's section (modes in the order written).
+        breakpoints: {
+          collection: config.breakpoints.collection,
+          default: config.breakpoints.default,
+          media: Object.entries(config.breakpoints.modes).map(([mode, query]) => ({ mode, query })),
+        },
         css: config.outputs.css,
         tailwind: config.outputs.tailwind,
       }

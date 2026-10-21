@@ -22,7 +22,7 @@ Attribute values: `branda`, `brandb`.
 | --- | --- | --- | --- |
 | Brand(Alias) | BrandA, BrandB | 11 | yes |
 | Primitives | Value | 26 | no: primitives, reached through aliases |
-| ScreenType | Desktop, Mobile, Tablet | 5 | not in the build output |
+| ScreenType | Desktop, Mobile, Tablet | 5 | yes |
 
 ## Tokens to use
 
@@ -38,7 +38,12 @@ Attribute values: `branda`, `brandb`.
 | Colors.Text.On Primary | `var(--colors-text-on-primary)` | `--color-text-on-primary` | #ffffff |
 | Effects.overlay.Opacity | `var(--effects-overlay-opacity)` | `--opacity-effects-overlay-opacity` | 50 |
 | Effects.shadow.Blur | `var(--effects-shadow-blur)` | `--blur-effects-shadow-blur` | 12 |
+| Radius.Card | `var(--radius-card)` | `--radius-radius-card` | Desktop 8, Mobile 4, Tablet 8 |
+| Spacing.Gap | `var(--spacing-gap)` | `--spacing-spacing-gap` | Desktop 16, Mobile 8, Tablet 8 |
+| Spacing.Padding | `var(--spacing-padding)` | `--spacing-spacing-padding` | Desktop 32, Mobile 8, Tablet 16 |
 | Typography.Body.Family | `var(--typography-body-family)` | `--font-typography-body-family` | BrandA Inter, BrandB Source Serif 4 |
+| Typography.Body.Size | `var(--typography-body-size)` | `--font-size-typography-body-size` | Desktop 16, Mobile 14, Tablet 16 |
+| Typography.Heading.Size | `var(--typography-heading-size)` | `--font-size-typography-heading-size` | Desktop 28, Mobile 20, Tablet 20 |
 
 ## Rules
 

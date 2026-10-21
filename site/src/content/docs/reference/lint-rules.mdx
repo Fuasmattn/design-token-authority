@@ -67,6 +67,7 @@ lint: {
       pairs: [
         ['Colors.Text.Default', 'Colors.Surface.Default'],
         ['Colors.Text.On Primary', 'Colors.Brand.Primary'],
+        ['Colors.Text.Muted', 'Colors.Surface.Muted'],
       ],
     },
     'no-duplicate-values': { severity: 'warn' },
@@ -94,7 +95,25 @@ warn Token path segment "overlay" does not match pattern /^[A-Z][A-Za-z ]*$/ for
 
 For each `[foreground, background]` pair, the WCAG contrast ratio must reach `minRatio` (default 4.5, level AA). Token names are written with dots or slashes.
 
-Limits of the current version: only tokens that hold a raw hex colour are compared (an alias is skipped), and when several modes define the same name, the last one read wins, so it does not check each brand separately.
+Each pair is checked in every mode it can differ in: both tokens are resolved through their aliases, and every multi-mode collection either alias chain passes through (each brand, light and dark, …) adds its modes. A brand text colour over a single-mode background is checked once per brand; a pair of primitives once, without a mode. The finding names the mode and sits under the file of that mode:
+
+```txt title="dta lint (test/fixtures/brand-ab)"
+|  Brand(Alias).BrandA.json
+|
+|    warn Contrast ratio 4.39:1 between "Colors.Text.Muted" (#6b7280) and "Colors.Surface.Muted" (#f3f4f6) is below 4.5:1 in BrandA [color-contrast]
+|
+|  Brand(Alias).BrandB.json
+|
+|    warn Contrast ratio 4.39:1 between "Colors.Text.Muted" (#6b7280) and "Colors.Surface.Muted" (#f3f4f6) is below 4.5:1 in BrandB [color-contrast]
+```
+
+When several multi-mode collections are involved, the finding lists one mode of each (`in BrandA · Dark`). A pair that cannot be read (a name that is not a token, an alias that breaks in one mode, a value that is not a colour) is skipped where it fails, with a warning; the other modes are still checked. With a pair whose foreground does not exist:
+
+```txt title="dta lint (brand-ab, one more pair)"
+!  warning [contrast-unresolved] color-contrast: "Colors.Text.Link" does not resolve: There is no token "Colors.Text.Link". Pair "Colors.Text.Link" / "Colors.Surface.Default" skipped. See site/src/content/docs/reference/lint-rules.mdx.
+```
+
+The playground runs the default rules only, so it shows no contrast findings.
 
 ### `no-duplicate-values`
 

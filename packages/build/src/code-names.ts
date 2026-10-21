@@ -13,13 +13,16 @@ export interface CodeNames {
 /** What a build writes: the modes of multi-mode collections it builds, and which collections. */
 export interface BuildSelection {
   brands?: readonly string[]
+  /** The breakpoint collection: all its modes are built (TICKET-091). */
+  breakpoints?: { collection: string }
   /** Only these collections; all when absent. */
   collections?: readonly string[]
 }
 
 /**
  * Whether `dta build` writes a token of a collection: single-mode collections always,
- * multi-mode collections only in the modes listed in `brands`, and only collections it builds.
+ * multi-mode collections only in the modes listed in `brands` (the breakpoint collection in all
+ * its modes), and only collections it builds.
  */
 export function isBuilt(
   model: TokenModel,
@@ -30,6 +33,7 @@ export function isBuilt(
   const collection = model.collections.find((c) => c.name === collectionName)
   if (!collection) return false
   if (collection.modes.length === 1) return true
+  if (selection?.breakpoints?.collection === collectionName) return true
   return collection.modes.some((mode) => selection?.brands?.includes(mode))
 }
 

@@ -3,9 +3,10 @@ import {
   circularAliasMessage,
   contrastRatio,
   danglingAliasMessage,
-  parseColor,
+  resolve,
+  toColor,
 } from '@dta/core'
-import type { GraphAnalysis, TokenModel } from '@dta/core'
+import type { Color, GraphAnalysis, ModeSelection, ResolveResult, TokenModel } from '@dta/core'
 import { readLintConfig } from './config.js'
 import type { LintSeverity, ValidRules } from './config.js'
 import type { LintResult, LintViolation } from './types.js'
@@ -114,42 +115,116 @@ function namingPattern(
   return violations
 }
 
+/** A pair name as written in the config (dot or slash form) → token name segments. */
+const pairName = (name: string): string[] => name.split(name.includes('/') ? '/' : '.')
+
+/**
+ * `BrandA`, `BrandA · Dark`: the modes of a context in the model's collection order, as
+ * `dta token get` labels them.
+ */
+const modeLabel = (model: TokenModel, selection: ModeSelection) =>
+  model.collections
+    .filter((collection) => collection.name in selection)
+    .map((collection) => selection[collection.name])
+    .join(' · ')
+
+interface ContrastContext {
+  selection: ModeSelection
+  fg: ResolveResult
+  bg: ResolveResult
+}
+
+/**
+ * Every mode context a pair can be read in: both sides are resolved, and for each multi-mode
+ * collection one of their alias chains reaches (and no mode is chosen for yet) the search branches
+ * into each of its modes. Collections neither chain reaches are not multiplied in, so a brand
+ * foreground over a single-mode background gives one context per brand.
+ */
+function contrastContexts(
+  model: TokenModel,
+  fg: string[],
+  bg: string[],
+  selection: ModeSelection = {},
+): ContrastContext[] {
+  const fgResult = resolve(model, fg, selection)
+  const bgResult = resolve(model, bg, selection)
+  const multi = new Map(
+    model.collections.filter((c) => c.modes.length > 1).map((c) => [c.name, c.modes]),
+  )
+  const open = [...fgResult.chain, ...bgResult.chain].find(
+    (step) => multi.has(step.collection) && !(step.collection in selection),
+  )
+  if (!open) return [{ selection, fg: fgResult, bg: bgResult }]
+  return (multi.get(open.collection) ?? []).flatMap((mode) =>
+    contrastContexts(model, fg, bg, { ...selection, [open.collection]: mode }),
+  )
+}
+
 function colorContrast(
-  graph: GraphAnalysis,
+  model: TokenModel,
   options: NonNullable<ValidRules['color-contrast']>,
   severity: 'error' | 'warn',
+  diagnostics: Diagnostic[],
 ): LintViolation[] {
   const minRatio = options.minRatio ?? 4.5
-  // v1 quirk (pinned by tests): raw hex tokens only, looked up by their in-file name in any
-  // mode; when several modes define the same name, the last one wins.
-  const lookup = new Map<string, { hex: string; file: string }>()
-  for (const node of graph.nodes) {
-    if (node.type !== 'color' || typeof node.value !== 'string' || !node.value.startsWith('#')) {
-      continue
-    }
-    const entry = { hex: node.value, file: `${node.collection}.${node.mode}.json` }
-    const name = segmentsOf(node.id).join('/')
-    lookup.set(name, entry)
-    lookup.set(name.replace(/\//g, '.'), entry)
+  const multiMode = new Set(model.collections.filter((c) => c.modes.length > 1).map((c) => c.name))
+  const skipped = new Set<string>()
+  const skip = (message: string) => {
+    if (skipped.has(message)) return
+    skipped.add(message)
+    diagnostics.push({
+      severity: 'warning',
+      code: 'contrast-unresolved',
+      message: `color-contrast: ${message}`,
+      docs: 'lint-rules',
+    })
   }
-  const find = (name: string) => lookup.get(name) ?? lookup.get(name.replace(/\./g, '/'))
 
   const violations: LintViolation[] = []
   for (const [fgName, bgName] of options.pairs ?? []) {
-    const fg = find(fgName)
-    const bg = find(bgName)
-    if (!fg || !bg) continue
-    const fgColor = parseColor(fg.hex)
-    const bgColor = parseColor(bg.hex)
-    if (!fgColor.ok || !bgColor.ok) continue
-    const ratio = contrastRatio(fgColor.color, bgColor.color)
-    if (ratio < minRatio) {
+    for (const { selection, fg, bg } of contrastContexts(
+      model,
+      pairName(fgName),
+      pairName(bgName),
+    )) {
+      const where = modeLabel(model, selection)
+      const inMode = where ? ` in ${where}` : ''
+      const colors: Array<{ hex: string; color: Color }> = []
+      for (const [name, result] of [
+        [fgName, fg],
+        [bgName, bg],
+      ] as const) {
+        if (!result.ok) {
+          const problem = result.diagnostics[0]
+          // A name that is not a token is missing in every mode: one diagnostic, no mode.
+          const unknown = problem?.code === 'unknown-token'
+          skip(
+            `"${name}" does not resolve${unknown ? '' : inMode}: ${problem?.message ?? ''} Pair "${fgName}" / "${bgName}" skipped${unknown ? '' : ' there'}.`,
+          )
+          continue
+        }
+        const color = result.type === 'color' ? toColor(String(result.value)) : null
+        if (!color) {
+          skip(
+            `"${name}" resolves to "${String(result.value)}"${inMode}, which is not a colour. Pair "${fgName}" / "${bgName}" skipped there.`,
+          )
+          continue
+        }
+        colors.push({ hex: String(result.value), color })
+      }
+      if (colors.length < 2 || !fg.ok || !bg.ok) continue
+      const ratio = contrastRatio(colors[0].color, colors[1].color)
+      if (ratio >= minRatio) continue
+      // The file that makes this context differ: the first step of either chain that is read in
+      // one of the context's modes (the brand file); without one, the foreground's own file.
+      const home =
+        [...fg.chain, ...bg.chain].find((step) => multiMode.has(step.collection)) ?? fg.chain[0]
       violations.push({
         rule: 'color-contrast',
         severity,
         tokenPath: `${fgName} / ${bgName}`,
-        file: fg.file,
-        message: `Contrast ratio ${ratio.toFixed(2)}:1 between "${fgName}" (${fg.hex}) and "${bgName}" (${bg.hex}) is below ${minRatio}:1`,
+        file: `${home.collection}.${home.mode}.json`,
+        message: `Contrast ratio ${ratio.toFixed(2)}:1 between "${fgName}" (${colors[0].hex}) and "${bgName}" (${colors[1].hex}) is below ${minRatio}:1${inMode}`,
       })
     }
   }
@@ -208,7 +283,7 @@ export function lintTokens(model: TokenModel, config?: unknown): LintResult {
   const contrast = rules['color-contrast']
   const contrastSeverity = contrast && activeSeverity(contrast.severity)
   if (contrast && contrastSeverity) {
-    violations.push(...colorContrast(graph, contrast, contrastSeverity))
+    violations.push(...colorContrast(model, contrast, contrastSeverity, diagnostics))
   }
 
   const duplicates = rules['no-duplicate-values']

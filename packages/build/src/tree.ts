@@ -99,3 +99,45 @@ export function brokenReferences(
   walk(merged.tree, [])
   return diagnostics
 }
+
+function valueAt(tree: Tree, dotPath: string): unknown {
+  let node: unknown = tree
+  for (const segment of dotPath.split('.')) {
+    if (typeof node !== 'object' || node === null) return undefined
+    node = (node as Tree)[segment]
+  }
+  return isLeaf(node) ? (node as { $value: unknown }).$value : undefined
+}
+
+/**
+ * Tokens from origins `through` whose alias chain, through tokens from `through` only, reaches a
+ * token from an origin in `to` (by dot path). A theme repeats them (TICKET-093): CSS resolves
+ * `var()` where the property is declared, so a `:root` declaration that aliases a brand token
+ * would keep the root's brand inside a nested `[data-brand]`.
+ */
+export function aliasesInto(
+  merged: MergedTokens,
+  to: (origin: string) => boolean,
+  through: (origin: string) => boolean,
+): Set<string> {
+  const memo = new Map<string, boolean>()
+  const reaches = (dotPath: string, seen: Set<string>): boolean => {
+    const known = memo.get(dotPath)
+    if (known !== undefined) return known
+    if (seen.has(dotPath)) return false
+    seen.add(dotPath)
+    const target = parseAlias(valueAt(merged.tree, dotPath))?.join('.')
+    const origin = target === undefined ? undefined : merged.origins.get(target)
+    const result =
+      target !== undefined &&
+      origin !== undefined &&
+      (to(origin) || (through(origin) && reaches(target, seen)))
+    memo.set(dotPath, result)
+    return result
+  }
+  const out = new Set<string>()
+  for (const [dotPath, origin] of merged.origins) {
+    if (through(origin) && reaches(dotPath, new Set())) out.add(dotPath)
+  }
+  return out
+}

@@ -13,7 +13,7 @@ function modelFrom(files: Record<string, unknown>): TokenModel {
 }
 
 const color = (value: string) => ({ $type: 'color', $value: value })
-const gap = (value: number) => ({
+const gap = (value: number | string) => ({
   $type: 'number',
   $value: value,
   $extensions: { 'com.figma': { scopes: ['GAP'] } },
@@ -57,6 +57,29 @@ describe('parseCssVariables', () => {
       { selector: ':root', variable: '--space-2', value: '8px' },
     ])
   })
+
+  it('reads rules nested in @media with the at-rule as context', () => {
+    const css = [
+      '/* ScreenType · Desktop */',
+      '@media (min-width: 1024px) {',
+      '  :root {',
+      '    --gap: var(--space-4);',
+      '  }',
+      '}',
+      ':root {',
+      '  --gap: var(--space-2);',
+      '}',
+    ].join('\n')
+    expect(parseCssVariables(css)).toEqual([
+      {
+        selector: ':root',
+        variable: '--gap',
+        value: 'var(--space-4)',
+        context: ['@media (min-width: 1024px)'],
+      },
+      { selector: ':root', variable: '--gap', value: 'var(--space-2)' },
+    ])
+  })
 })
 
 describe('cssBindings', () => {
@@ -81,6 +104,62 @@ describe('cssBindings', () => {
       value: 'var(--blueprint-600)',
     })
     expect(by('action.bg', 'BrandB')?.value).toBe('var(--blueprint-700)')
+  })
+
+  it('binds a single-mode token that aliases a brand token to :root only', async () => {
+    // The themes repeat it (TICKET-093); dta diff finds those rules in the page and puts the
+    // token back there too, because no other collection · mode declares the variable.
+    const tiered = modelFrom({
+      'Primitives.Value.json': { blueprint: { '600': color('#2f55d4'), '700': color('#2443ac') } },
+      'Theme.BrandA.json': { action: { bg: color('{blueprint.600}') } },
+      'Theme.BrandB.json': { action: { bg: color('{blueprint.700}') } },
+      'Component.Value.json': { button: { bg: color('{action.bg}') } },
+    })
+    const { bindings } = await cssBindings(tiered, { brands: ['BrandA', 'BrandB'] })
+    expect(bindings.filter((b) => b.name === 'button.bg')).toEqual([
+      {
+        collection: 'Component',
+        mode: 'Value',
+        name: 'button.bg',
+        variable: '--button-bg',
+        selector: ':root',
+        value: 'var(--action-bg)',
+      },
+    ])
+  })
+
+  it('binds breakpoint modes to :root, inside their media query except the default (TICKET-091)', async () => {
+    const responsive = modelFrom({
+      'Primitives.Value.json': { space: { '2': gap(8), '4': gap(16) } },
+      'Screen.Mobile.json': { gap: gap('{space.2}') },
+      'Screen.Desktop.json': { gap: gap('{space.4}') },
+    })
+    const { bindings } = await cssBindings(responsive, {
+      breakpoints: {
+        collection: 'Screen',
+        default: 'Mobile',
+        media: [{ mode: 'Desktop', query: '(min-width: 1024px)' }],
+      },
+    })
+    expect(bindings.filter((b) => b.collection === 'Screen')).toEqual([
+      {
+        collection: 'Screen',
+        mode: 'Mobile',
+        name: 'gap',
+        variable: '--gap',
+        selector: ':root',
+        value: 'var(--space-2)',
+      },
+      {
+        collection: 'Screen',
+        mode: 'Desktop',
+        name: 'gap',
+        variable: '--gap',
+        selector: ':root',
+        context: ['@media (min-width: 1024px)'],
+        value: 'var(--space-4)',
+      },
+    ])
   })
 
   it('binds no brand modes when no brands are built', async () => {

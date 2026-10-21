@@ -13,6 +13,8 @@ export interface CssBinding {
   name: string
   variable: string
   selector: string
+  /** At-rules around the rule, outermost first (a breakpoint mode's `@media …`, TICKET-091). */
+  context?: string[]
   value: string
 }
 
@@ -51,12 +53,14 @@ interface Revert {
   variable: string
   /** The rule `dta build` declares it in. */
   selector: string
+  /** The at-rules `dta build` nests that rule in (`@media …` for a breakpoint mode). */
+  context: string[]
   /** The value to put back: the base value, or `initial` for a token added in the head. */
   value: string
   /** The head value as the build writes it. */
   head?: string
-  /** The same variable for other collection · modes in the head build (e.g. other brands). */
-  siblings: Array<{ selector: string; value: string }>
+  /** The same variable for other collection · modes in the head build (other brands, breakpoints). */
+  siblings: Array<{ selector: string; context: string[]; value: string }>
 }
 
 /**
@@ -89,19 +93,30 @@ function ruleIn(context: string[], selector: string, variable: string, value: st
   )
 }
 
+/** Whether `inner` ends `outer` (the build's at-rules, possibly wrapped in more by the page). */
+const endsWith = (outer: string[], inner: string[]) =>
+  inner.length <= outer.length &&
+  inner.every((c, i) => outer[outer.length - inner.length + i] === c)
+
 /**
  * Whether a page rule declares this revert's token (and so gets the revert too):
- * - the build's own selector: yes inside an at-rule or nesting (the plain rule is already
- *   covered by the build rule);
- * - the build selector of another mode of the variable (another brand): no;
+ * - the build's own rule (selector and at-rules): yes when the page wraps it in more at-rules or
+ *   nesting (the plain rule is already covered by the build rule);
+ * - the build rule of another mode of the variable (another brand, another breakpoint): no; of
+ *   several build rules a page rule could be, the one with the most at-rules is the one it is;
  * - any other selector (re-scoped CSS): yes when the build declares the variable for one
  *   collection · mode only; otherwise only when its value is this mode's head value and no
  *   other mode's, so a re-scoped brand is not put back to another brand's base value.
  */
 function declares(revert: Revert, page: PageDeclaration): boolean {
   if (page.variable !== revert.variable) return false
-  if (page.selector === revert.selector) return page.context.length > 0
-  if (revert.siblings.some((s) => s.selector === page.selector)) return false
+  const own = [revert, ...revert.siblings].filter(
+    (rule) => rule.selector === page.selector && endsWith(page.context, rule.context),
+  )
+  if (own.length > 0) {
+    const closest = own.reduce((a, b) => (b.context.length > a.context.length ? b : a))
+    return closest === revert && page.context.length > revert.context.length
+  }
   if (revert.siblings.length === 0) return true
   if (revert.head === undefined || !sameValue(page.value, revert.head)) return false
   return !revert.siblings.some((s) => sameValue(s.value, page.value))
@@ -109,7 +124,7 @@ function declares(revert: Revert, page: PageDeclaration): boolean {
 
 function revertCss(reverts: Revert[], page: PageDeclaration[]): string {
   const rules = reverts.flatMap((r) => [
-    ruleIn([], r.selector, r.variable, r.value),
+    ruleIn(r.context, r.selector, r.variable, r.value),
     ...page
       .filter((p) => declares(r, p))
       .map((p) => ruleIn(p.context, p.selector, r.variable, r.value)),
@@ -136,7 +151,7 @@ export function planReverts(
   const siblings = (b: CssBinding) =>
     (headByVariable.get(b.variable) ?? [])
       .filter((other) => key(other) !== key(b))
-      .map(({ selector, value }) => ({ selector, value }))
+      .map(({ selector, context, value }) => ({ selector, context: context ?? [], value }))
   const revertOf = (change: TokenChange): Revert | null => {
     const before = baseByKey.get(key(change))
     const after = headByKey.get(key(change))
@@ -144,6 +159,7 @@ export function planReverts(
       return {
         variable: before.variable,
         selector: before.selector,
+        context: before.context ?? [],
         value: before.value,
         head: after?.value,
         siblings: siblings(after ?? before),
@@ -154,6 +170,7 @@ export function planReverts(
       ? {
           variable: after.variable,
           selector: after.selector,
+          context: after.context ?? [],
           value: 'initial',
           head: after.value,
           siblings: siblings(after),

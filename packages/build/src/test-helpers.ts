@@ -3,6 +3,7 @@ import path from 'node:path'
 import { parseTokenFiles } from '@dta/core'
 import type { TokenModel } from '@dta/core'
 import { buildOutputs } from './index.js'
+import type { BuildOptions } from './index.js'
 
 const repoRoot = path.resolve(import.meta.dirname, '..', '..', '..')
 
@@ -13,6 +14,25 @@ export function fixtureModel(fixture: string): TokenModel {
     content: fs.readFileSync(path.join(dir, fileName), 'utf-8'),
   }))
   return parseTokenFiles(files).model
+}
+
+/**
+ * The build options of a fixture's `dta.config.ts` that change what is built: its brands and,
+ * for brand-ab, its breakpoints (TICKET-091). Snapshot comparisons build with these.
+ */
+export function fixtureOptions(fixture: string): BuildOptions {
+  if (fixture !== 'brand-ab') return { brands: [] }
+  return {
+    brands: ['BrandA', 'BrandB'],
+    breakpoints: {
+      collection: 'ScreenType',
+      default: 'Mobile',
+      media: [
+        { mode: 'Tablet', query: '(min-width: 768px)' },
+        { mode: 'Desktop', query: '(min-width: 1024px)' },
+      ],
+    },
+  }
 }
 
 export function snapshot(fixture: string, file: string): string {

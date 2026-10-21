@@ -7,6 +7,12 @@
 * Rewrite as `@dta/*` packages behind one CLI; the v1 source tree is removed (TICKET-039). Config validation is stricter (unknown keys are rejected). See [docs/migration/v1-to-v2.md](docs/migration/v1-to-v2.md).
 * Removed the repository scripts `build`, `build:cli` and `prepare` that only served v1.
 * Removed the config key `outputs.css.prefix` (TICKET-117). It was accepted but never had an effect; a config that still sets it now fails with exit code 2 (`outputs.css.prefix: was removed …`). Delete the line; the CSS output does not change.
+* `color-contrast` checks every pair per mode, through aliases (TICKET-092); before, it compared raw hex tokens only and the last mode read won. A project can get new contrast findings (each names its mode, e.g. `… is below 4.5:1 in BrandA`); with `severity: 'error'` they fail `dta lint` and `dta push`. A pair it cannot read is now a `contrast-unresolved` warning instead of being skipped silently.
+* Removed the config key `outputs.tailwind.version` (TICKET-091). It was accepted but never had an effect (`outputs.formats` chooses `tailwind-v4`, `tailwind-v3` or both); a config that still sets it now fails with exit code 2 (`outputs.tailwind.version: was removed …`). Delete the line; the output does not change. `dta init` no longer writes it.
+
+### Features
+
+* **091:** `breakpoints` in the config writes a breakpoint collection (e.g. `ScreenType`) to `variables.css` as media blocks: the default mode on `:root`, every other mode inside its media query, aliases as `var()` references; Tailwind v4 gets an `@theme inline` block for it, and themes repeat breakpoint tokens that alias brand tokens per media query.
 
 ## 1.0.0 (2026-04-07)
 

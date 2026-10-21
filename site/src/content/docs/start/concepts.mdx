@@ -44,6 +44,7 @@ Most token sets end up with layers, whatever they call them. DTA works with any 
 
 - **Single-mode collections** (the primitives) become `:root` custom properties in `variables.css` (aliases stay `var()` references) and `base.css` (values resolved).
 - **Each brand** listed in `brands` becomes `themes/<brand>.css`, scoped to `[data-brand="<brand>"]`. Switch brands by setting the attribute on any element, `<html data-brand="branda">` for the whole page.
+- **The breakpoint collection** named in `breakpoints` is added to `variables.css`: its default mode on `:root`, the other modes inside their media queries.
 - **JavaScript and Tailwind** files are written next to them.
 
 ```css title="output/css/themes/branda.css"
@@ -56,7 +57,7 @@ Most token sets end up with layers, whatever they call them. DTA works with any 
 ```
 
 :::note[Breakpoint modes]
-Collections with modes that are not brands (such as `ScreenType` with `Desktop`, `Tablet` and `Mobile`) are read, linted, diffed and pushed, but `dta build` does not write breakpoint CSS for them yet. Their first mode only serves to resolve aliases.
+A collection whose modes are screen sizes (such as `ScreenType` with `Desktop`, `Tablet` and `Mobile`) needs its media queries from you: name it in `breakpoints` with a default mode and a query per other mode, and `dta build` writes it as media blocks ([Outputs](/reference/outputs/#breakpoint-modes)). Without that section it is read, linted, diffed and pushed, and only resolves aliases in the build (through its first mode in alphabetical order).
 :::
 
 Every file and its format: [Outputs](/reference/outputs/).
@@ -71,6 +72,11 @@ export default {
   tokens: { dir: 'tokens' },
   collections: ['Primitives', 'Brand(Alias)', 'ScreenType'], // default: all
   brands: ['BrandA', 'BrandB'],
+  breakpoints: {
+    collection: 'ScreenType',
+    default: 'Mobile', // on :root
+    modes: { Tablet: '(min-width: 768px)', Desktop: '(min-width: 1024px)' },
+  },
   outputs: {
     formats: ['css', 'tailwind-v4'], // default: all four ('tailwind-v3', 'js' too)
     css: { outDir: 'output/css' },

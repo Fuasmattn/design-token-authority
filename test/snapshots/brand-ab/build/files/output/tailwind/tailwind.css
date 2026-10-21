@@ -27,3 +27,12 @@
   --font-size-typography-fontsize-lg: 20;
   --font-size-typography-fontsize-xl: 28;
 }
+
+/* ScreenType: theme variables that switch with the media queries of variables.css */
+@theme inline {
+  --font-size-typography-body-size: var(--typography-body-size);
+  --font-size-typography-heading-size: var(--typography-heading-size);
+  --spacing-spacing-gap: var(--spacing-gap);
+  --spacing-spacing-padding: var(--spacing-padding);
+  --radius-radius-card: var(--radius-card);
+}

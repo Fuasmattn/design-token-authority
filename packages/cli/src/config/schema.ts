@@ -57,10 +57,16 @@ const outputs = z
     tailwind: z
       .strictObject({
         outDir,
+        /** Removed (TICKET-091): rejected with a message that says so instead of "unrecognized key". */
         version: z
-          .literal([3, 4])
-          .default(4)
-          .describe('Accepted, not used yet: `formats` chooses the Tailwind versions.'),
+          .never({
+            error:
+              "was removed: it never had an effect. `outputs.formats` chooses the Tailwind versions ('tailwind-v4', 'tailwind-v3'). Delete this line.",
+          })
+          .optional()
+          .describe(
+            'Removed; rejected. It never had an effect: `formats` chooses the Tailwind versions. Delete the line.',
+          ),
       })
       .optional()
       .describe('Tailwind theme files (default folder `output/tailwind`).'),
@@ -90,6 +96,46 @@ const outputs = z
   })
   .describe(
     'What `dta build` writes and where. `formats` chooses the outputs (all by default); the other keys move them.',
+  )
+
+/**
+ * The breakpoint collection (TICKET-091). The modes' order in `modes` is the order of the media
+ * blocks in the CSS, so the user's queries decide mobile-first or desktop-first.
+ */
+const breakpoints = z
+  .strictObject({
+    collection: name.describe('The collection whose modes are breakpoints, e.g. `ScreenType`.'),
+    default: name.describe(
+      'The mode written on `:root` without a media query: the smallest screen for mobile-first queries (`min-width`), the largest for desktop-first (`max-width`).',
+    ),
+    modes: z
+      .record(
+        name,
+        name
+          .refine((query) => !/^\s*@media\b/i.test(query), {
+            message: 'is the media query without "@media", e.g. (min-width: 1024px)',
+          })
+          .refine((query) => !/^\s*[[.#:&]/.test(query), {
+            message:
+              'must be a media query such as (min-width: 1024px); selectors are not supported',
+          }),
+      )
+      .refine((modes) => Object.keys(modes).length > 0, { message: 'needs at least one mode' })
+      .describe(
+        "Every other mode and its media query, without `@media`: `{ Tablet: '(min-width: 768px)', Desktop: '(min-width: 1024px)' }`. The blocks are written in this order, so a later query wins where several match.",
+      ),
+  })
+  .superRefine((value, context) => {
+    if (Object.hasOwn(value.modes, value.default)) {
+      context.addIssue({
+        code: 'custom',
+        message: `is the default mode, which is written on :root without a media query: remove it from modes`,
+        path: ['modes', value.default],
+      })
+    }
+  })
+  .describe(
+    'With this section, `dta build` writes the tokens of a breakpoint collection to `variables.css`: the default mode on `:root`, every other mode inside its media query, aliases as `var()` references. Without it, such a collection only resolves aliases.',
   )
 
 /** The lint section is the schema of `@dta/lint`; a bad regular expression is rejected early. */
@@ -132,6 +178,7 @@ export const configSchema = z.strictObject({
     .describe(
       'Modes to build into one theme file each (brands, or themes such as Light and Dark).',
     ),
+  breakpoints: breakpoints.optional(),
   tokens: z
     .strictObject({
       dir: name.default('tokens').describe('Folder of the token files.'),

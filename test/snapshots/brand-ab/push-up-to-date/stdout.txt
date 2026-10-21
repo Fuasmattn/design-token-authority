@@ -1,6 +1,6 @@
 T   ⤴  dta push 
 |
-!  8 lint warnings found.
+!  10 lint warnings found.
 |
 o  No changes detected
 |

@@ -117,9 +117,19 @@ describe('playground outputs = dta build', () => {
     const { brands, built } = await playground(tokenFiles('brand-ab'), ALL_FORMATS)
     expect(brands).toEqual(['BrandA', 'BrandB'])
     const snapshot = tree(path.join(repo, 'test', 'snapshots', 'brand-ab', 'build', 'files'))
-    expect(Object.fromEntries(built.files.map((file) => [file.path, file.content]))).toEqual(
-      snapshot,
-    )
+    const files = Object.fromEntries(built.files.map((file) => [file.path, file.content]))
+    // The fixture's config also has `breakpoints` (TICKET-091), which the playground does not
+    // write (it cannot know the media queries): the snapshot's only extra is the ScreenType
+    // blocks appended to variables.css and tailwind.css.
+    const extra = ['output/css/variables.css', 'output/tailwind/tailwind.css']
+    for (const file of extra) {
+      expect(snapshot[file].startsWith(files[file]), file).toBe(true)
+      expect(snapshot[file].slice(files[file].length), file).toMatch(/^\n\/\* ScreenType[ :·]/)
+    }
+    expect(Object.keys(files).sort()).toEqual(Object.keys(snapshot).sort())
+    for (const [file, content] of Object.entries(files)) {
+      if (!extra.includes(file)) expect(content, file).toBe(snapshot[file])
+    }
   })
 
   it('shows for the example with problems the errors `dta build` prints, and the CLI writes nothing', async () => {
@@ -169,6 +179,11 @@ describe('generateConfig', () => {
     expect(loaded.outputs?.formats).toEqual(['css', 'js'])
     expect(loaded.figma.source).toBe('file')
     expect(loaded.tokens.dir).toBe('tokens')
+  })
+
+  it('writes no removed keys and no breakpoints (the playground cannot know the media queries)', () => {
+    const config = generateConfig({ brands: ['BrandA'], formats: [...ALL_FORMATS] })
+    for (const key of ['version', 'prefix', 'breakpoints']) expect(config).not.toContain(key)
   })
 
   it('leaves out brands when none were found', () => {

@@ -58,9 +58,52 @@ Load all of them and switch with the attribute. It works on any element, so a pa
 
 Because brand values stay `var()` references to the primitives, a change to `Colors.Foundation.Blue.500` reaches every brand that uses it without a rebuild of the themes.
 
-:::caution[Single-mode tokens that alias brand tokens]
-A token in a single-mode collection (a component tier, say) that aliases a brand token is declared on `:root`, so it takes the brand set on `<html>` and keeps it inside a nested `data-brand` section. Set the brand on `<html>`, or give that collection the brand modes too ([Token patterns](/learn/patterns/)). Fixing this in the build is TICKET-093.
-:::
+### Tokens that alias brand tokens
+
+A collection with one mode (a component tier, say) is written to `variables.css` on `:root`. When one of its tokens aliases a brand token, directly or through other single-mode tokens, each theme file declares it again with the same reference. CSS resolves `var()` where a property is declared, so the copy in the theme is what lets a nested `data-brand` section resolve it to its own brand. A build of the Learn `multi-brand` example with a single-mode `Component` collection added (`button.background` → `{action.background}`, `button.radius` → `{shape.control}`, `card.accent` → `{button.background}`, `button.border` → `{color.blue.600}`):
+
+{/* prettier-ignore */}
+```css title="output/css/themes/brandb.css"
+[data-brand="brandb"] {
+  --action-background: var(--color-green-600);
+  --action-foreground: var(--color-neutral-0);
+  --shape-control: var(--radius-999);
+  --type-heading: var(--font-serif);
+  --button-background: var(--action-background);
+  --button-radius: var(--shape-control);
+  --card-accent: var(--button-background);
+}
+```
+
+All four are in `variables.css` on `:root` as before; `--button-border` aliases a primitive only, so it is not repeated in the themes. What `base.css` writes for them: [Outputs](/reference/outputs/#single-mode-tokens-that-alias-brand-tokens).
+
+### Breakpoint tokens and brands
+
+The same holds for a [breakpoint collection](/reference/outputs/#breakpoint-modes): a breakpoint token that aliases a brand token in any of its modes is repeated in every theme, once per mode, inside the same media queries. The Learn `multi-brand` example with a `Screen` collection added (`card.radius` → `{radius.4}` on Mobile, `{radius.999}` on Desktop; `card.accent` → `{color.blue.600}` on Mobile, `{action.background}` on Desktop) and `breakpoints: { collection: 'Screen', default: 'Mobile', modes: { Desktop: '(min-width: 1024px)' } }`:
+
+{/* prettier-ignore */}
+```css title="output/css/themes/brandb.css"
+[data-brand="brandb"] {
+  --action-background: var(--color-green-600);
+  --action-foreground: var(--color-neutral-0);
+  --shape-control: var(--radius-999);
+  --type-heading: var(--font-serif);
+}
+
+/* Screen · Mobile (default) */
+[data-brand="brandb"] {
+  --card-accent: var(--color-blue-600);
+}
+
+/* Screen · Desktop */
+@media (min-width: 1024px) {
+  [data-brand="brandb"] {
+    --card-accent: var(--action-background);
+  }
+}
+```
+
+So a `<section data-brand="brandb">` inside a BrandA page gets BrandB's green accent from 1024 px and the blue one below. `card.radius` reaches primitives only and stays in `variables.css`.
 
 ## Light and dark
 
@@ -78,4 +121,4 @@ The `semantic-must-alias` rule fails when a token in the brand layer holds a raw
 lint: { rules: { 'semantic-must-alias': { severity: 'error', collections: ['Brand(Alias)'] } } }
 ```
 
-`color-contrast` checks text and background pairs, with limits worth knowing for brands (it reads raw colour values only): [Lint rules](/reference/lint-rules/).
+`color-contrast` checks text and background pairs through their aliases, once per brand (and per light or dark mode, if you have them); a finding names the brand it fails in: [Lint rules](/reference/lint-rules/).

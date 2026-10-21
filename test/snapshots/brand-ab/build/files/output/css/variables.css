@@ -30,3 +30,34 @@
   --typography-fontsize-lg: 20;
   --typography-fontsize-xl: 28;
 }
+
+/* ScreenType · Mobile (default) */
+:root {
+  --typography-body-size: var(--typography-fontsize-sm);
+  --typography-heading-size: var(--typography-fontsize-lg);
+  --spacing-gap: var(--dimensions-spacing-2);
+  --spacing-padding: var(--dimensions-spacing-2);
+  --radius-card: var(--dimensions-radius-sm);
+}
+
+/* ScreenType · Tablet */
+@media (min-width: 768px) {
+  :root {
+    --typography-body-size: var(--typography-fontsize-md);
+    --typography-heading-size: var(--typography-fontsize-lg);
+    --spacing-gap: var(--dimensions-spacing-2);
+    --spacing-padding: var(--dimensions-spacing-4);
+    --radius-card: var(--dimensions-radius-md);
+  }
+}
+
+/* ScreenType · Desktop */
+@media (min-width: 1024px) {
+  :root {
+    --typography-body-size: var(--typography-fontsize-md);
+    --typography-heading-size: var(--typography-fontsize-xl);
+    --spacing-gap: var(--dimensions-spacing-4);
+    --spacing-padding: var(--dimensions-spacing-8);
+    --radius-card: var(--dimensions-radius-md);
+  }
+}

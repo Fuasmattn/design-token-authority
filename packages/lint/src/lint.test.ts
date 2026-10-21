@@ -201,56 +201,139 @@ describe('naming-pattern', () => {
 
 describe('color-contrast', () => {
   const model = modelFrom({
-    'Base.Value.json': { Dark: color('#000000'), Light: color('#ffffff'), Grey: color('#777777') },
+    'Base.Value.json': {
+      Dark: color('#000000'),
+      Light: color('#ffffff'),
+      Grey: color('#777777'),
+      Pale: color('#999999'),
+    },
     'Brand.A.json': {
-      Text: { Main: color('#777777') },
+      Text: { Main: color('{Dark}') },
       Bg: color('#888888'),
       Via: color('{Dark}'),
     },
-    'Brand.B.json': { Text: { Main: color('#999999') } },
+    'Brand.B.json': {
+      Text: { Main: color('{Pale}') },
+      Bg: color('#888888'),
+      Via: color('{Grey}'),
+    },
   })
   const rules = (options: object) => ({ rules: { 'color-contrast': options } })
 
-  it('flags pairs below the default 4.5 ratio, in dot or slash form', () => {
-    const result = lintTokens(model, rules({ pairs: [['Text.Main', 'Bg']] }))
-    expect(result.violations).toHaveLength(1)
-    expect(result.violations[0]).toMatchObject({
-      rule: 'color-contrast',
-      severity: 'warn',
-      tokenPath: 'Text.Main / Bg',
-      file: 'Brand.B.json',
-    })
-    expect(result.violations[0].message).toMatch(
-      /^Contrast ratio \d\.\d\d:1 between "Text\.Main" \(#999999\) and "Bg" \(#888888\) is below 4\.5:1$/,
-    )
-    expect(lintTokens(model, rules({ pairs: [['Text/Main', 'Bg']] })).violations).toHaveLength(1)
-  })
-
-  it('honours minRatio and passes sufficient contrast', () => {
-    expect(lintTokens(model, rules({ pairs: [['Dark', 'Light']] })).violations).toEqual([])
-    expect(
-      lintTokens(model, rules({ pairs: [['Dark', 'Light']], minRatio: 30 })).violations,
-    ).toHaveLength(1)
-  })
-
-  it('skips aliased and missing tokens (v1 quirk)', () => {
-    const pairs = [
-      ['Via', 'Light'],
-      ['Nope', 'Light'],
-    ]
-    expect(lintTokens(model, rules({ pairs })).violations).toEqual([])
-  })
-
-  it('looks tokens up by in-file name in any mode, the last one winning (v1 quirk)', () => {
-    // Text.Main exists in Brand.A (#000000, passes) and Brand.B (#999999, fails); Brand.B is last.
+  it('checks each mode through aliases and names the mode, in dot or slash form', () => {
+    // Text.Main is {Dark} in A (passes on Light) and {Pale} in B (fails on Light).
     const result = lintTokens(model, rules({ pairs: [['Text.Main', 'Light']] }))
-    expect(result.violations).toHaveLength(1)
-    expect(result.violations[0].message).toContain('(#999999)')
+    expect(result.violations).toEqual([
+      {
+        rule: 'color-contrast',
+        severity: 'warn',
+        tokenPath: 'Text.Main / Light',
+        file: 'Brand.B.json',
+        message:
+          'Contrast ratio 2.85:1 between "Text.Main" (#999999) and "Light" (#ffffff) is below 4.5:1 in B',
+      },
+    ])
+    expect(result.diagnostics).toEqual([])
+    const slash = lintTokens(model, rules({ pairs: [['Text/Main', 'Light']] })).violations
+    expect(slash.map((v) => [v.file, v.tokenPath])).toEqual([['Brand.B.json', 'Text/Main / Light']])
   })
 
-  it('skips unparseable colours without throwing', () => {
-    const odd = modelFrom({ 'Base.Value.json': { A: color('#zzz'), B: color('#fff') } })
-    expect(lintTokens(odd, rules({ pairs: [['A', 'B']] })).violations).toEqual([])
+  it('reports a pair once per mode it fails in, in mode order', () => {
+    const result = lintTokens(model, rules({ pairs: [['Via', 'Bg']], minRatio: 7 }))
+    expect(result.violations.map((v) => [v.file, v.message])).toEqual([
+      [
+        'Brand.A.json',
+        'Contrast ratio 5.92:1 between "Via" (#000000) and "Bg" (#888888) is below 7:1 in A',
+      ],
+      [
+        'Brand.B.json',
+        'Contrast ratio 1.26:1 between "Via" (#777777) and "Bg" (#888888) is below 7:1 in B',
+      ],
+    ])
+  })
+
+  it('reads single-mode pairs once, without a mode', () => {
+    expect(lintTokens(model, rules({ pairs: [['Dark', 'Light']] })).violations).toEqual([])
+    const strict = lintTokens(model, rules({ pairs: [['Dark', 'Light']], minRatio: 30 }))
+    expect(strict.violations).toEqual([
+      expect.objectContaining({
+        file: 'Base.Value.json',
+        message:
+          'Contrast ratio 21.00:1 between "Dark" (#000000) and "Light" (#ffffff) is below 30:1',
+      }),
+    ])
+  })
+
+  it('reads each side in the modes that apply to it, across collections with different modes', () => {
+    const layered = modelFrom({
+      'Base.Value.json': { White: color('#ffffff'), Ink: color('#111111'), Mist: color('#eeeeee') },
+      'Brand.A.json': { Surface: color('{White}') },
+      'Brand.B.json': { Surface: color('{Mist}') },
+      'Theme.Light.json': { Text: color('{Ink}') },
+      'Theme.Dark.json': { Text: color('{Mist}') },
+      'Component.Value.json': { Label: color('{Text}') },
+    })
+    const result = lintTokens(layered, rules({ pairs: [['Label', 'Surface']] }))
+    // Brand × Theme: Dark text fails on both surfaces. The component file is single-mode, so the
+    // finding sits in the first file along the chains that is read in one of the modes.
+    expect(result.violations.map((v) => [v.file, v.message.replace(/^.* is below /, '')])).toEqual([
+      ['Theme.Dark.json', '4.5:1 in A · Dark'],
+      ['Theme.Dark.json', '4.5:1 in B · Dark'],
+    ])
+    // A collection neither side reaches does not multiply the pair.
+    expect(
+      lintTokens(layered, rules({ pairs: [['Ink', 'Surface']], minRatio: 30 })).violations.map(
+        (v) => v.message.slice(-4),
+      ),
+    ).toEqual(['in A', 'in B'])
+  })
+
+  it('records a side that does not resolve in a mode as a diagnostic and checks the other modes', () => {
+    const partial = modelFrom({
+      'Base.Value.json': { Light: color('#ffffff'), Pale: color('#eeeeee') },
+      'Brand.A.json': { Text: color('{Pale}') },
+      'Brand.B.json': { Text: color('{Gone}') },
+    })
+    const result = lintTokens(partial, rules({ pairs: [['Text', 'Light']] }))
+    const contrast = result.violations.filter((v) => v.rule === 'color-contrast')
+    expect(contrast.map((v) => v.file)).toEqual(['Brand.A.json'])
+    expect(result.diagnostics).toEqual([
+      {
+        severity: 'warning',
+        code: 'contrast-unresolved',
+        message:
+          'color-contrast: "Text" does not resolve in B: "Text" aliases "Gone", which does not exist. Pair "Text" / "Light" skipped there.',
+        docs: 'lint-rules',
+      },
+    ])
+  })
+
+  it('reports an unknown token once, without a mode, and does not throw', () => {
+    const result = lintTokens(model, rules({ pairs: [['Nope', 'Bg']] }))
+    expect(result.violations).toEqual([])
+    expect(result.diagnostics.map((d) => d.message)).toEqual([
+      'color-contrast: "Nope" does not resolve: There is no token "Nope". Pair "Nope" / "Bg" skipped.',
+    ])
+  })
+
+  it('skips values that are not colours with a diagnostic', () => {
+    const odd = modelFrom({
+      'Base.Value.json': { A: color('#zzz'), B: color('#fff'), N: num(4) },
+    })
+    const result = lintTokens(
+      odd,
+      rules({
+        pairs: [
+          ['A', 'B'],
+          ['N', 'B'],
+        ],
+      }),
+    )
+    expect(result.violations).toEqual([])
+    expect(result.diagnostics.map((d) => d.message)).toEqual([
+      'color-contrast: "A" resolves to "#zzz", which is not a colour. Pair "A" / "B" skipped there.',
+      'color-contrast: "N" resolves to "4", which is not a colour. Pair "N" / "B" skipped there.',
+    ])
   })
 
   it('rejects invalid options in the config', () => {

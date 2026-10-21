@@ -21,10 +21,10 @@
       "value": "16px",
       "kind": "spacing",
       "context": "p-[…]",
-      "token": "Dimensions.spacing.4",
+      "token": "Spacing.Gap",
       "code": {
-        "css": "--dimensions-spacing-4",
-        "tailwind": "--spacing-4"
+        "css": "--spacing-gap",
+        "tailwind": "--spacing-spacing-gap"
       }
     },
     {

@@ -39,7 +39,7 @@ const ruleSchemas = {
         .optional()
         .describe('`[foreground, background]` token names.'),
     })
-    .describe('Checks the contrast of text and background pairs.'),
+    .describe('Checks the contrast of text and background pairs, per mode, through aliases.'),
   'no-duplicate-values': z
     .strictObject({ severity: Severity.optional() })
     .describe('Reports raw values that appear more than once, across all collections and modes.'),

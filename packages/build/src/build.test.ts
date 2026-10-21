@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { parseTokenFiles } from '@dta/core'
 import type { TokenModel } from '@dta/core'
 import { buildOutputs, OUTPUT_FORMATS } from './index.js'
+import { fixtureOptions } from './test-helpers.js'
 
 const repoRoot = path.resolve(import.meta.dirname, '..', '..', '..')
 
@@ -142,8 +143,11 @@ describe('buildOutputs: base layer', () => {
 
 describe('buildOutputs: shared outputs', () => {
   for (const fixture of ['brand-ab', 'daisyui']) {
-    it(`writes variables.css and the JS palette for ${fixture} exactly as the v1 build did`, async () => {
-      const { files } = await buildOutputs(fixtureModel(fixture), { brands: [] })
+    it(`writes variables.css and the JS palette for ${fixture} as the snapshot`, async () => {
+      const { files } = await buildOutputs(fixtureModel(fixture), {
+        ...fixtureOptions(fixture),
+        brands: [],
+      })
       for (const file of ['output/css/variables.css', 'output/js/colorpalette.js']) {
         expect(find(files, file), file).toBe(snapshot(fixture, file))
       }
@@ -267,6 +271,308 @@ describe('buildOutputs: brand themes', () => {
       '/**\n * Do not edit directly, this file was auto-generated.\n */\n\n[data-brand="a"] {\n  --fine: var(--color-red);\n}\n',
     )
     for (const file of files) expect(file.content, file.path).not.toMatch(/ping|pong|echo/i)
+  })
+
+  describe('single-mode tokens that alias brand tokens (TICKET-093)', () => {
+    const tiered = modelFrom({
+      'Primitives.Value.json': {
+        Blue: { $type: 'color', $value: '#1f5fd1' },
+        Green: { $type: 'color', $value: '#1d7a4c' },
+      },
+      'Brand.BrandA.json': { Action: { $type: 'color', $value: '{Blue}' } },
+      'Brand.BrandB.json': { Action: { $type: 'color', $value: '{Green}' } },
+      'Component.Value.json': {
+        Button: { $type: 'color', $value: '{Action}' },
+        Card: { $type: 'color', $value: '{Button}' },
+        Border: { $type: 'color', $value: '{Blue}' },
+        Outline: { $type: 'color', $value: '{Border}' },
+      },
+    })
+    const brands = ['BrandA', 'BrandB']
+
+    it('repeats them, and the tokens that alias them, in every theme with the same reference', async () => {
+      const { files, diagnostics } = await buildOutputs(tiered, { brands })
+      expect(diagnostics).toEqual([])
+      for (const brand of ['branda', 'brandb']) {
+        expect(find(files, `output/css/themes/${brand}.css`)).toContain(
+          `[data-brand="${brand}"] {\n  --action: var(--${brand === 'branda' ? 'blue' : 'green'});\n` +
+            '  --button: var(--action);\n  --card: var(--button);\n}',
+        )
+      }
+    })
+
+    it('leaves tokens that only alias single-mode tokens on :root', async () => {
+      const { files } = await buildOutputs(tiered, { brands })
+      for (const file of files.filter((f) => f.path.includes('themes/'))) {
+        expect(file.content, file.path).not.toMatch(/--border|--outline/)
+      }
+    })
+
+    it('keeps variables.css, base.css and the brand Tailwind files as without a dependent tier', async () => {
+      const without = modelFrom({
+        'Primitives.Value.json': {
+          Blue: { $type: 'color', $value: '#1f5fd1' },
+          Green: { $type: 'color', $value: '#1d7a4c' },
+        },
+        'Brand.BrandA.json': { Action: { $type: 'color', $value: '{Blue}' } },
+        'Brand.BrandB.json': { Action: { $type: 'color', $value: '{Green}' } },
+      })
+      const [withTier, withoutTier] = await Promise.all([
+        buildOutputs(tiered, { brands }),
+        buildOutputs(without, { brands }),
+      ])
+      const variables = find(withTier.files, 'output/css/variables.css') ?? ''
+      for (const declaration of [
+        '--button: var(--action);',
+        '--card: var(--button);',
+        '--border: var(--blue);',
+        '--outline: var(--border);',
+      ]) {
+        expect(variables).toContain(`  ${declaration}\n`)
+      }
+      expect(variables).not.toContain('--action:')
+      expect(find(withTier.files, 'output/css/base.css')).toContain('--button: #1f5fd1;')
+      for (const file of withoutTier.files.filter((f) => f.path.startsWith('output/tailwind/b'))) {
+        expect(find(withTier.files, file.path), file.path).toBe(file.content)
+      }
+    })
+
+    it('repeats nothing when the build leaves the brand collection out', async () => {
+      const { files } = await buildOutputs(tiered, {
+        brands,
+        collections: ['Primitives', 'Component'],
+      })
+      expect(files.some((f) => f.path.includes('themes/'))).toBe(false)
+    })
+  })
+
+  describe('breakpoint modes (TICKET-091)', () => {
+    const px = (value: number | string) => ({
+      $type: 'number',
+      $value: value,
+      $extensions: figma(['GAP']),
+    })
+    const responsive = modelFrom({
+      'Primitives.Value.json': {
+        Blue: { $type: 'color', $value: '#1f5fd1' },
+        Green: { $type: 'color', $value: '#1d7a4c' },
+        Space: { S: px(8), M: px(16), L: px(32) },
+      },
+      'Brand.BrandA.json': { Action: { $type: 'color', $value: '{Blue}' } },
+      'Brand.BrandB.json': { Action: { $type: 'color', $value: '{Green}' } },
+      'Screen.Mobile.json': {
+        Gap: px('{Space.S}'),
+        Accent: { $type: 'color', $value: '{Blue}' },
+      },
+      'Screen.Desktop.json': {
+        Gap: px('{Space.L}'),
+        Accent: { $type: 'color', $value: '{Action}' },
+      },
+      'Screen.Tablet.json': {
+        Gap: px('{Space.M}'),
+        Accent: { $type: 'color', $value: '{Blue}' },
+      },
+      'Component.Value.json': { Card: { Gap: px('{Gap}') } },
+    })
+    const brands = ['BrandA', 'BrandB']
+    const mobileFirst = {
+      collection: 'Screen',
+      default: 'Mobile',
+      media: [
+        { mode: 'Tablet', query: '(min-width: 768px)' },
+        { mode: 'Desktop', query: '(min-width: 1024px)' },
+      ],
+    }
+
+    it('writes the default mode on :root and every other mode in its media query, in order', async () => {
+      const { files, diagnostics } = await buildOutputs(responsive, {
+        brands,
+        breakpoints: mobileFirst,
+      })
+      expect(diagnostics).toEqual([])
+      const css = find(files, 'output/css/variables.css') ?? ''
+      expect(css.slice(css.indexOf('/* Screen'))).toBe(
+        [
+          '/* Screen · Mobile (default) */',
+          ':root {',
+          '  --gap: var(--space-s);',
+          '  --accent: var(--blue);',
+          '}',
+          '',
+          '/* Screen · Tablet */',
+          '@media (min-width: 768px) {',
+          '  :root {',
+          '    --gap: var(--space-m);',
+          '    --accent: var(--blue);',
+          '  }',
+          '}',
+          '',
+          '/* Screen · Desktop */',
+          '@media (min-width: 1024px) {',
+          '  :root {',
+          '    --gap: var(--space-l);',
+          '    --accent: var(--action);',
+          '  }',
+          '}',
+          '',
+        ].join('\n'),
+      )
+      // The single-mode tokens come first, unchanged; a component token aliases the breakpoint
+      // token and stays a reference, so it switches with it.
+      expect(css.indexOf('--card-gap: var(--gap);')).toBeLessThan(css.indexOf('/* Screen'))
+    })
+
+    it('takes the order and the default from the options (desktop-first)', async () => {
+      const { files } = await buildOutputs(responsive, {
+        breakpoints: {
+          collection: 'Screen',
+          default: 'Desktop',
+          media: [
+            { mode: 'Tablet', query: '(max-width: 1023px)' },
+            { mode: 'Mobile', query: '(max-width: 767px)' },
+          ],
+        },
+      })
+      const css = find(files, 'output/css/variables.css') ?? ''
+      const order = [...css.matchAll(/\/\* Screen · (\w+)/g)].map((m) => m[1])
+      expect(order).toEqual(['Desktop', 'Tablet', 'Mobile'])
+      expect(css).toContain('/* Screen · Desktop (default) */\n:root {\n  --gap: var(--space-l);')
+      expect(css).toContain('@media (max-width: 767px) {\n  :root {\n    --gap: var(--space-s);')
+    })
+
+    it('repeats a breakpoint token that reaches a brand token in each theme, per breakpoint', async () => {
+      const { files } = await buildOutputs(responsive, { brands, breakpoints: mobileFirst })
+      for (const brand of ['branda', 'brandb']) {
+        const theme = find(files, `output/css/themes/${brand}.css`) ?? ''
+        const body = theme.slice(theme.indexOf('/* Screen'))
+        // Every mode of the token, so a nested [data-brand] holds the right value at every
+        // width; the gap only reaches primitives and is not repeated.
+        expect(body).toBe(
+          [
+            '/* Screen · Mobile (default) */',
+            `[data-brand="${brand}"] {`,
+            '  --accent: var(--blue);',
+            '}',
+            '',
+            '/* Screen · Tablet */',
+            '@media (min-width: 768px) {',
+            `  [data-brand="${brand}"] {`,
+            '    --accent: var(--blue);',
+            '  }',
+            '}',
+            '',
+            '/* Screen · Desktop */',
+            '@media (min-width: 1024px) {',
+            `  [data-brand="${brand}"] {`,
+            '    --accent: var(--action);',
+            '  }',
+            '}',
+            '',
+          ].join('\n'),
+        )
+        expect(theme).not.toContain('--gap')
+      }
+    })
+
+    it('adds an @theme inline block with the default mode names to the Tailwind v4 file only', async () => {
+      const [withBreakpoints, without] = await Promise.all([
+        buildOutputs(responsive, { brands, breakpoints: mobileFirst }),
+        buildOutputs(responsive, { brands }),
+      ])
+      const tailwind = find(withBreakpoints.files, 'output/tailwind/tailwind.css') ?? ''
+      // The component token that aliases a breakpoint token moves to the inline block as a
+      // reference: in @theme it would be one resolved size at every width.
+      expect(tailwind).toBe(
+        `${find(without.files, 'output/tailwind/tailwind.css')?.replace('  --spacing-card-gap: 32px;\n', '')}\n` +
+          '/* Screen: theme variables that switch with the media queries of variables.css */\n' +
+          '@theme inline {\n  --spacing-card-gap: var(--card-gap);\n  --spacing-gap: var(--gap);\n' +
+          '  --color-accent: var(--accent);\n}\n',
+      )
+      // The brand Tailwind files are as before (base.css, the JS palette and Tailwind v3
+      // resolve through the default mode: see below).
+      for (const file of without.files) {
+        if (!/^output\/tailwind\/brand/.test(file.path)) continue
+        expect(find(withBreakpoints.files, file.path), file.path).toBe(file.content)
+      }
+    })
+
+    it('resolves base.css and Tailwind v3 through the default mode, not the first alphabetically', async () => {
+      const [withBreakpoints, without] = await Promise.all([
+        buildOutputs(responsive, { breakpoints: mobileFirst }),
+        buildOutputs(responsive, {}),
+      ])
+      expect(find(without.files, 'output/css/base.css')).toContain('--card-gap: 32px;') // Desktop
+      expect(find(withBreakpoints.files, 'output/css/base.css')).toContain('--card-gap: 8px;')
+      // The JS palette and Tailwind v3 hold resolved values too: the default mode's.
+      expect(find(withBreakpoints.files, 'output/tailwind/tailwind.tokens.ts')).toContain(
+        "'card-gap': '8px'",
+      )
+    })
+
+    it('writes nothing for breakpoints with the css format left out, and no theme blocks', async () => {
+      const { files } = await buildOutputs(responsive, {
+        brands,
+        breakpoints: mobileFirst,
+        formats: ['tailwind-v4'],
+      })
+      expect(files.map((f) => f.path)).toEqual([
+        'output/tailwind/branda/tailwind.css',
+        'output/tailwind/brandb/tailwind.css',
+        'output/tailwind/tailwind.css',
+      ])
+    })
+
+    it('does not build a theme for a breakpoint mode named in brands', async () => {
+      const { files, diagnostics } = await buildOutputs(responsive, {
+        brands: ['Desktop'],
+        breakpoints: mobileFirst,
+      })
+      expect(files.some((f) => f.path.includes('themes/'))).toBe(false)
+      expect(diagnostics.map((d) => d.code)).toEqual(['unknown-brand'])
+    })
+
+    it('warns and builds no breakpoint CSS when the configuration does not fit the tokens', async () => {
+      const codes = async (breakpoints: Parameters<typeof buildOutputs>[1]['breakpoints']) => {
+        const { files, diagnostics } = await buildOutputs(responsive, { breakpoints })
+        return {
+          blocks: (find(files, 'output/css/variables.css') ?? '').includes('/* Screen'),
+          diagnostics: diagnostics.map((d) => `${d.code}: ${d.message}`),
+        }
+      }
+      expect(await codes({ ...mobileFirst, collection: 'Nope' })).toEqual({
+        blocks: false,
+        diagnostics: [
+          'unknown-breakpoint-collection: The breakpoint collection "Nope" is not in the built tokens, so no breakpoint CSS was built.',
+        ],
+      })
+      expect(await codes({ ...mobileFirst, collection: 'Component' })).toEqual({
+        blocks: false,
+        diagnostics: [
+          'unknown-breakpoint-collection: The breakpoint collection "Component" has one mode only, so no breakpoint CSS was built.',
+        ],
+      })
+      expect(await codes({ ...mobileFirst, default: 'Watch' })).toEqual({
+        blocks: false,
+        diagnostics: [
+          'unknown-breakpoint-mode: "Watch" (breakpoints.default) is not a mode of "Screen", so no breakpoint CSS was built.',
+        ],
+      })
+      expect(
+        await codes({
+          ...mobileFirst,
+          media: [
+            { mode: 'Desktop', query: '(min-width: 1024px)' },
+            { mode: 'Watch', query: '(max-width: 200px)' },
+          ],
+        }),
+      ).toEqual({
+        blocks: true,
+        diagnostics: [
+          'unknown-breakpoint-mode: "Watch" (breakpoints.modes) is not a mode of "Screen"; its media query is not used.',
+          'breakpoint-mode-without-query: The mode "Tablet" of "Screen" has no media query in breakpoints.modes, so its tokens are not written.',
+        ],
+      })
+    })
   })
 
   it('handles a brand token that shadows a primitive by aliasing its own path', async () => {
@@ -406,6 +712,7 @@ describe('buildOutputs: parity with the v1 build', () => {
         .sort()
 
       const { files, diagnostics } = await buildOutputs(fixtureModel(fixture), {
+        ...fixtureOptions(fixture),
         brands: [...brands],
       })
 

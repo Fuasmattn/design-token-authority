@@ -2,9 +2,14 @@ export default {
   figma: { source: 'file' },
   tokens: { dir: 'tokens' },
   brands: ['BrandA', 'BrandB'],
+  breakpoints: {
+    collection: 'ScreenType',
+    default: 'Mobile',
+    modes: { Tablet: '(min-width: 768px)', Desktop: '(min-width: 1024px)' },
+  },
   outputs: {
     css: { outDir: 'output/css' },
-    tailwind: { outDir: 'output/tailwind', version: 4 },
+    tailwind: { outDir: 'output/tailwind' },
   },
   lint: {
     rules: {

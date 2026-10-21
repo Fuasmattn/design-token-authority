@@ -17,8 +17,8 @@ Each pattern below links to a small example project in the repository. A test ru
 
 Brands and themes together (brand × theme) need one mode per combination for now; see [Brands and themes](/guides/brands-and-themes/).
 
-:::caution[A component tier with several brands]
-If the component tier has one mode, set the brand on `<html>`: a nested `data-brand` section changes the semantic tokens but not the component tokens. Giving the component tier the brand modes avoids this, as in the `component-overrides` example. A fix is tracked in TICKET-093.
+:::note[A component tier with several brands]
+A component tier with one mode works with brands: its tokens that alias brand tokens are repeated in each theme file, so a nested `data-brand` section changes them too ([Brands and themes](/guides/brands-and-themes/#tokens-that-alias-brand-tokens)). Give the component tier the brand modes when a brand should point a component token somewhere else, as in the `component-overrides` example.
 :::
 
 ## How large design systems do it

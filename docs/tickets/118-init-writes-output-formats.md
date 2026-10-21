@@ -4,7 +4,7 @@
 **Priority:** Low
 **Effort:** S
 **Blocked by:** —
-**Status:** in review
+**Status:** done
 
 ## Problem
 
@@ -14,7 +14,7 @@
 
 - [x] `dta init` writes `outputs.formats` from the wizard's answer; snapshots of `init` re-recorded by name (there are no `init` snapshot scenarios: the wizard is covered by `init.test.ts`; nothing re-recorded, see Outcome)
 - [x] Docs (Start, Configuration reference) show the key
-- [ ] All gates pass, and the GitHub run is green (gates pass locally; GitHub run pending, nothing pushed)
+- [x] All gates pass, and the GitHub run is green
 
 ## Outcome
 
@@ -30,3 +30,5 @@
 - **Files touched:** `packages/cli/src/commands/init-config.ts`, `init-config.test.ts`, `init.test.ts`, `packages/cli/src/config/schema.ts`, `site/src/content/docs/start/quick-start.mdx`, `start/concepts.mdx`, `reference/outputs.mdx`.
 - **Gates** (Node 24.14.1): prettier, typecheck, boundaries pass; `TERM=xterm-256color CI=true pnpm test` 1183 passed (148 skipped); `snapshot:check` 41 passed, none changed or re-recorded; `pnpm site:build` 137 pages, links valid; `test:contrast` 151 passed. Diff e2e not run: nothing it renders changed. Nothing committed or pushed.
 - **Left open:** TICKET-117 now records the decision to remove `outputs.css.prefix`, including "`dta init` stops writing it"; that line in `generateConfigContent` was left for 117 (done there, the Quick start excerpt updated with it).
+
+**Closed 2026-10-21.** GitHub run 39637189200 (CI, 587a356) green.

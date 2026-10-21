@@ -25,7 +25,10 @@ const brandAbConfig = {
 
 type Line = { file: string; severity: string; text: string }
 
-/** Reads the violations out of a v1 `dta lint` snapshot, with the file each belongs to. */
+/**
+ * Reads the violations out of a recorded `dta lint` snapshot, with the file each belongs to.
+ * Recorded from v1; brand-ab's re-recorded with per-mode contrast (TICKET-092).
+ */
 function readSnapshot(fixture: string): { lines: Line[]; summary: string } {
   const text = fs.readFileSync(
     path.join(repoRoot, 'test', 'snapshots', fixture, 'lint', 'stdout.txt'),
@@ -57,7 +60,7 @@ const byFile = (lines: Line[]) => [...lines].sort((a, b) => a.file.localeCompare
 describe.each([
   ['brand-ab', brandAbConfig],
   ['daisyui', undefined],
-])('parity with the v1 lint snapshot: %s', (fixture, config) => {
+])('parity with the recorded lint snapshot: %s', (fixture, config) => {
   const snapshot = readSnapshot(fixture)
   const result = lintTokens(fixtureModel(fixture), config)
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { parseTokenFiles } from '@dta/core'
 import { buildOutputs } from './index.js'
-import { fixtureModel, sharedFile, snapshot } from './test-helpers.js'
+import { fixtureModel, fixtureOptions, sharedFile, snapshot } from './test-helpers.js'
 import type { Spec } from './test-helpers.js'
 
 const tailwind = (tokens: Record<string, Spec>) =>
@@ -10,9 +10,7 @@ const tailwind = (tokens: Record<string, Spec>) =>
 describe('Tailwind v3 output', () => {
   for (const fixture of ['brand-ab', 'daisyui']) {
     it(`matches the v1 snapshots for ${fixture}`, async () => {
-      const { files } = await buildOutputs(fixtureModel(fixture), {
-        brands: fixture === 'brand-ab' ? ['BrandA', 'BrandB'] : [],
-      })
+      const { files } = await buildOutputs(fixtureModel(fixture), fixtureOptions(fixture))
       const expected = [
         'output/tailwind/tailwind.tokens.ts',
         ...(fixture === 'brand-ab'

@@ -7,6 +7,7 @@
  * a bundler splits it into its own chunk, which the first load does not fetch.
  */
 import { analyzeGraph, analyzeStructure, parseTokenFiles, resolve } from '@dta/core'
+import type { Breakpoints } from '@dta/build'
 import type { TokenFileInput } from '@dta/core'
 import { detectFormat, importPluginExport } from '@dta/figma'
 import { lintTokens } from '@dta/lint'
@@ -42,6 +43,7 @@ export function runAnalysis(input: AnalysisInput) {
 export interface OutputsInput {
   files: TokenFileInput[]
   brands?: string[]
+  breakpoints?: Breakpoints
   collections?: string[]
   css?: { outDir?: string }
   tailwind?: { outDir?: string }
@@ -53,6 +55,7 @@ export async function runOutputs(input: OutputsInput) {
   const { model } = parseTokenFiles(input.files)
   return buildOutputs(model, {
     brands: input.brands,
+    breakpoints: input.breakpoints,
     collections: input.collections,
     css: input.css,
     tailwind: input.tailwind,

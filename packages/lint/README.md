@@ -33,8 +33,11 @@ Configurable rules default to `warn`, run only when present in the config, and c
 | `color-contrast`      | `pairs`: `[foreground, background]` token names (dot or slash form); `minRatio` (default 4.5)                                                                                                  |
 | `no-duplicate-values` | none                                                                                                                                                                                           |
 
+## `color-contrast` per mode (TICKET-092)
+
+Both sides of a pair are resolved through their aliases with `resolve` from `@dta/core`. Every multi-mode collection either alias chain passes through adds its modes (a brand foreground over a single-mode background: one check per brand; Brand × Theme: one per combination); collections neither chain reaches are not multiplied in. A violation ends with the context (`… is below 4.5:1 in BrandA`, `in BrandA · Dark`, nothing for single-mode pairs) and its `file` is the first file along the chains that is read in one of those modes. A side that does not resolve, or is not a colour, gives a `contrast-unresolved` warning diagnostic (once for an unknown name, per mode for an alias that breaks in one mode) and the other modes are still checked.
+
 ## Behaviour kept from the v1 linter (for parity)
 
-- `color-contrast` only compares raw hex tokens; aliased or missing tokens are skipped. Tokens are found by their name inside the file, in any mode; if several modes define the same name, the last one wins.
 - `no-duplicate-values` groups non-alias tokens by `type:value` across all collections and modes, and reports every member except the first.
 - The dangling-alias message names the target in dot form (`Colors.Missing`); this is the only wording change.

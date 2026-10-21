@@ -207,6 +207,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [113](./113-playground-example-with-findings.md) | Playground: an example that shows findings                                  | Medium   | S      | 077        | Done   |
 | [122](./122-example-colours-off-system.md)       | Example content never uses the system colours                               | Medium   | L      | 121        | Done   |
 | [121](./121-playground-status-polish.md)         | Polish: path breaks, selected finding marker, CopyButton, review colour     | Low      | S      | 120        | Done   |
+| [124](./124-playground-first-load-budget.md)     | Playground first load: analysis engine lazy, budgets split                  | Medium   | S      | —          | Open   |
 
 **Epic 8 — `dta diff`, token-aware visual regression ([spec](../specs/visual-diff.md))**
 
@@ -228,18 +229,18 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | #                                             | Ticket                                                                 | Priority | Effort | Blocked by | Status    |
 | --------------------------------------------- | ---------------------------------------------------------------------- | -------- | ------ | ---------- | --------- |
 | [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | —          | Open      |
-| [091](./091-build-breakpoint-modes.md)        | Breakpoint modes in the build output                                   | Medium   | M      | —          | Open      |
-| [092](./092-lint-contrast-per-mode.md)        | `color-contrast` per mode, through aliases                             | Medium   | S      | —          | Open      |
-| [117](./117-css-prefix.md)                    | Make `outputs.css.prefix` work (or remove it)                          | Low      | M      | —          | In review |
-| [118](./118-init-writes-output-formats.md)    | `dta init` writes `outputs.formats`                                    | Low      | S      | —          | In review |
+| [091](./091-build-breakpoint-modes.md)        | Breakpoint modes in the build output                                   | Medium   | M      | —          | In review |
+| [092](./092-lint-contrast-per-mode.md)        | `color-contrast` per mode, through aliases                             | Medium   | S      | —          | In review |
+| [117](./117-css-prefix.md)                    | Make `outputs.css.prefix` work (or remove it)                          | Low      | M      | —          | Done      |
+| [118](./118-init-writes-output-formats.md)    | `dta init` writes `outputs.formats`                                    | Low      | S      | —          | Done      |
 | [119](./119-build-fails-on-broken-aliases.md) | `dta build` must not write broken CSS for dangling or circular aliases | High     | S      | —          | Done      |
 
 **Follow-ups found while writing Learn (073)**
 
-| #                                                      | Ticket                                                         | Priority | Effort | Blocked by | Status |
-| ------------------------------------------------------ | -------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| [093](./093-build-nested-brand-single-mode-aliases.md) | Nested brands reach single-mode tokens that alias brand tokens | Medium   | S      | —          | Open   |
-| [094](./094-dtcg-2025-10-conformance.md)               | Read DTCG 2025.10 token files and resolver documents           | Medium   | L      | —          | Open   |
+| #                                                      | Ticket                                                         | Priority | Effort | Blocked by | Status    |
+| ------------------------------------------------------ | -------------------------------------------------------------- | -------- | ------ | ---------- | --------- |
+| [093](./093-build-nested-brand-single-mode-aliases.md) | Nested brands reach single-mode tokens that alias brand tokens | Medium   | S      | —          | In review |
+| [094](./094-dtcg-2025-10-conformance.md)               | Read DTCG 2025.10 token files and resolver documents           | Medium   | L      | —          | Open      |
 
 **Found on the first deploy (075)**
 

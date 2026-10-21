@@ -11,7 +11,11 @@
         "ScreenType": "Desktop"
       },
       "value": 16,
-      "depth": 1
+      "depth": 1,
+      "code": {
+        "css": "--spacing-gap",
+        "tailwind": "--spacing-spacing-gap"
+      }
     },
     {
       "name": "Spacing.Padding",
@@ -21,7 +25,11 @@
         "ScreenType": "Tablet"
       },
       "value": 16,
-      "depth": 1
+      "depth": 1,
+      "code": {
+        "css": "--spacing-padding",
+        "tailwind": "--spacing-spacing-padding"
+      }
     },
     {
       "name": "Typography.Body.Size",
@@ -31,7 +39,11 @@
         "ScreenType": "Desktop"
       },
       "value": 16,
-      "depth": 1
+      "depth": 1,
+      "code": {
+        "css": "--typography-body-size",
+        "tailwind": "--font-size-typography-body-size"
+      }
     },
     {
       "name": "Typography.Body.Size",
@@ -41,7 +53,11 @@
         "ScreenType": "Tablet"
       },
       "value": 16,
-      "depth": 1
+      "depth": 1,
+      "code": {
+        "css": "--typography-body-size",
+        "tailwind": "--font-size-typography-body-size"
+      }
     },
     {
       "name": "Dimensions.spacing.4",

@@ -22,6 +22,8 @@ Your `dta.config.ts` keeps working. What is new or stricter:
 - **`layers` is still accepted** but deprecated; use `collections`.
 - **`outputs.docs` is rejected**: the token docs page is gone (see below).
 - **`outputs.css.prefix` is rejected**: the build does not use it (CSS variable names always start with `--`), so it was removed. Delete the line.
+- **`outputs.tailwind.version` is rejected**: the build does not use it, so it was removed. `outputs.formats` chooses the Tailwind versions (`'tailwind-v4'`, `'tailwind-v3'`); without it both are written. Delete the line.
+- **New: `breakpoints`.** A collection of screen sizes (the v1 `layers.dimension`) can now be written as media queries; see [Breakpoint modes](/reference/outputs/#breakpoint-modes). `layers.dimension` does not do this: name the collection in `breakpoints`.
 
 `defineConfig` is still imported from `design-token-authority`.
 

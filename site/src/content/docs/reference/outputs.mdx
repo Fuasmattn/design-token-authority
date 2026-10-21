@@ -18,6 +18,76 @@ sidebar:
 | `output/tailwind/tailwind.tokens.ts`         | Tailwind v3 `theme.extend` object (`export const tokens`)                                   |
 | `output/tailwind/<brand>/tailwind.tokens.ts` | The same for one brand, resolved                                                            |
 
+With `breakpoints` configured, `variables.css` and `tailwind.css` also hold the breakpoint collection: see [Breakpoint modes](#breakpoint-modes).
+
+## Breakpoint modes
+
+A collection whose modes are screen sizes (`ScreenType` with `Mobile`, `Tablet` and `Desktop`) is written to `variables.css` when the config names it in `breakpoints`: the `default` mode on `:root`, every other mode inside its media query, in the order of `modes`. Aliases stay `var()` references. Without the section such a collection is only read to resolve aliases.
+
+```ts title="dta.config.ts (brand-ab fixture)"
+export default {
+  brands: ['BrandA', 'BrandB'],
+  breakpoints: {
+    collection: 'ScreenType',
+    default: 'Mobile',
+    modes: { Tablet: '(min-width: 768px)', Desktop: '(min-width: 1024px)' },
+  },
+}
+```
+
+```css title="output/css/variables.css (after the :root block of the primitives)"
+/* ScreenType · Mobile (default) */
+:root {
+  --typography-body-size: var(--typography-fontsize-sm);
+  --typography-heading-size: var(--typography-fontsize-lg);
+  --spacing-gap: var(--dimensions-spacing-2);
+  --spacing-padding: var(--dimensions-spacing-2);
+  --radius-card: var(--dimensions-radius-sm);
+}
+
+/* ScreenType · Tablet */
+@media (min-width: 768px) {
+  :root {
+    --typography-body-size: var(--typography-fontsize-md);
+    --typography-heading-size: var(--typography-fontsize-lg);
+    --spacing-gap: var(--dimensions-spacing-2);
+    --spacing-padding: var(--dimensions-spacing-4);
+    --radius-card: var(--dimensions-radius-md);
+  }
+}
+
+/* ScreenType · Desktop */
+@media (min-width: 1024px) {
+  :root {
+    …
+  }
+}
+```
+
+- **Mobile-first or desktop-first is yours.** DTA writes the queries as you give them and does not sort them. With `min-width` queries the default is the smallest screen and the queries go from small to large; with `max-width` queries the default is the largest screen and the queries go from large to small. Where several queries match, the later block wins, as anywhere in CSS.
+- **Media queries only.** A value in `modes` is what follows `@media`; a selector (`[data-screen="tablet"]`) is rejected. Every mode of the collection except the default needs a query: a mode without one is left out with a warning.
+- **Tokens that alias brand tokens** in some breakpoint are written again in every `themes/<brand>.css`, once per breakpoint and inside the same media queries, so a nested `data-brand` element gets its own brand at every width ([Brands and themes](/guides/brands-and-themes/#breakpoint-tokens-and-brands)).
+- **Tailwind v4:** `tailwind.css` gets an `@theme inline` block whose theme variables read the switching custom properties, so `p-spacing-gap` follows the media queries. A single-mode token that aliases a breakpoint token moves to that block too.
+
+  ```css title="output/tailwind/tailwind.css (end)"
+  /* ScreenType: theme variables that switch with the media queries of variables.css */
+  @theme inline {
+    --font-size-typography-body-size: var(--typography-body-size);
+    --font-size-typography-heading-size: var(--typography-heading-size);
+    --spacing-spacing-gap: var(--spacing-gap);
+    --spacing-spacing-padding: var(--spacing-padding);
+    --radius-radius-card: var(--radius-card);
+  }
+  ```
+
+- **Resolved files hold no breakpoints.** `base.css`, the JS palette and the Tailwind v3 object have no media queries: breakpoint tokens are not in them, and a single-mode token that aliases one is resolved through the `default` mode (without `breakpoints`, through the first mode in alphabetical order, as before). The `<brand>/tailwind.*` files are unchanged.
+
+## Single-mode tokens that alias brand tokens
+
+A token of a single-mode collection whose alias chain reaches a brand token is written to `variables.css` on `:root` and again, with the same `var()` reference, to every `themes/<brand>.css`, so a nested `data-brand` element resolves it to its own brand ([Brands and themes](/guides/brands-and-themes/#tokens-that-alias-brand-tokens)). The `<brand>/tailwind.*` files hold the brand collections' tokens only.
+
+`base.css` has no brands: it resolves such a token through the first mode, in alphabetical order, of each multi-mode collection (`BrandA` of `BrandA` and `BrandB`). For the `multi-brand` example with a `Component` tier, `--button-background: var(--action-background)` becomes `--button-background: #1f5fd1;`, BrandA's blue.
+
 ## When the build fails
 
 An alias that points at a token that does not exist, or aliases that point at each other in a circle, have no value to write: in CSS they would become `var()` references to themselves or a literal `{Colors.…}`, which the files would show and the browser would drop. So `dta build` treats them as errors, the same ones `dta lint` reports (`no-dangling-aliases`, `no-circular-aliases`): it prints them, writes **no file** and exits with 1. A folder from an earlier build is left as it was, never partly rebuilt. See [Lint rules](/reference/lint-rules/#broken-aliases-fail-the-build) for the output.
@@ -60,6 +130,7 @@ export default {
 
 ## Not built yet
 
-- Collections whose modes are not brands, such as breakpoints (`ScreenType`), are not written as separate CSS; their first mode only resolves aliases. See [Core concepts](/start/concepts/).
-- `outputs.ios` and `outputs.android` are accepted in the config and cleaned by `dta clean`, but `dta build` writes no Swift, XML or Compose files yet. `outputs.tailwind.version` is accepted and not used yet; `outputs.formats` chooses the Tailwind versions.
+- Breakpoint modes switch by media query only; a mode cannot be mapped to a selector, and container queries are not written.
+- `outputs.ios` and `outputs.android` are accepted in the config and cleaned by `dta clean`, but `dta build` writes no Swift, XML or Compose files yet.
+- There is no Tailwind version option: `outputs.formats` chooses `tailwind-v4`, `tailwind-v3` or both. `outputs.tailwind.version` was removed because it never had an effect; a config that still sets it fails with a message to delete the line.
 - There is no prefix option: CSS variable names always start with `--` followed by the token path. `outputs.css.prefix` was removed because it never had an effect; a config that still sets it fails with a message to delete the line.

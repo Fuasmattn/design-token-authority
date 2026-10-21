@@ -13,7 +13,7 @@
       "value": "16px",
       "kind": "spacing",
       "context": "padding",
-      "token": "Dimensions.spacing.4"
+      "token": "Spacing.Gap"
     },
     {
       "file": "src/Card.tsx",
@@ -27,7 +27,7 @@
       "value": "16px",
       "kind": "spacing",
       "context": "p-[…]",
-      "token": "Dimensions.spacing.4"
+      "token": "Spacing.Gap"
     },
     {
       "file": "src/Card.tsx",

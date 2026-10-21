@@ -32,14 +32,17 @@ const snapshot = path.join(
   'build',
   'files',
 )
+/**
+ * The snapshot's files without the ScreenType blocks: the fixture's config has `breakpoints`
+ * (TICKET-091), the playground's generated config does not (it cannot know the media queries).
+ */
 const snapshotFiles = (dir = snapshot): Record<string, string> =>
   Object.fromEntries(
     fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
       const full = path.join(dir, entry.name)
       if (entry.isDirectory()) return Object.entries(snapshotFiles(full))
-      return [
-        [path.relative(snapshot, full).split(path.sep).join('/'), fs.readFileSync(full, 'utf8')],
-      ]
+      const content = fs.readFileSync(full, 'utf8').split(/\n(?=\/\* ScreenType[ :·])/)[0]
+      return [[path.relative(snapshot, full).split(path.sep).join('/'), content]]
     }),
   )
 const TYPES: Record<string, string> = {

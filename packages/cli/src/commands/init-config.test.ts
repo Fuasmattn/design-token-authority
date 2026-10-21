@@ -172,7 +172,7 @@ describe('generateConfigContent', () => {
     const result = generateConfigContent(data)
     expect(result).toContain("formats: ['tailwind-v4'],")
     expect(result).toContain('tailwind: {')
-    expect(result).toContain('version: 4')
+    expect(result).not.toContain('version')
   })
 
   it('includes Tailwind v3 output', () => {
@@ -186,7 +186,7 @@ describe('generateConfigContent', () => {
     const result = generateConfigContent(data)
     expect(result).toContain("formats: ['tailwind-v3'],")
     expect(result).toContain('tailwind: {')
-    expect(result).toContain('version: 3')
+    expect(result).not.toContain('version')
   })
 
   it('includes iOS output', () => {

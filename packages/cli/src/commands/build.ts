@@ -1,5 +1,5 @@
 import { buildOutputs, OUTPUT_FORMATS } from '@dta/build'
-import type { OutputFile } from '@dta/build'
+import type { Breakpoints, OutputFile } from '@dta/build'
 import { formatDiagnostic, hasErrors, parseTokenFiles } from '@dta/core'
 import pc from 'picocolors'
 import type { CommandContext } from '../commands.js'
@@ -40,6 +40,17 @@ function reportOrder(files: readonly OutputFile[], brands: string[], config: Con
   return { base, perBrand, shared }
 }
 
+/** The config's `breakpoints` section as `@dta/build` takes it (modes in the order written). */
+export function breakpointOptions(config: Config | null): Breakpoints | undefined {
+  const breakpoints = config?.breakpoints
+  if (!breakpoints) return undefined
+  return {
+    collection: breakpoints.collection,
+    default: breakpoints.default,
+    media: Object.entries(breakpoints.modes).map(([mode, query]) => ({ mode, query })),
+  }
+}
+
 export async function runBuild(context: CommandContext): Promise<number> {
   const ui = createUi(context.stdout)
   const config = context.config
@@ -78,6 +89,7 @@ export async function runBuild(context: CommandContext): Promise<number> {
   const { files, diagnostics } = await buildOutputs(model, {
     formats: config?.outputs?.formats,
     brands,
+    breakpoints: breakpointOptions(config),
     collections: config?.collections,
     css: { outDir: config?.outputs?.css?.outDir },
     tailwind: { outDir: config?.outputs?.tailwind?.outDir },

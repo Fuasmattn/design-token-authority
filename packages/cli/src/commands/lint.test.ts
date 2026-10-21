@@ -56,6 +56,37 @@ describe('dta lint', () => {
     expect(stdout).toContain('Lint passed with warnings.')
   })
 
+  it('checks contrast per mode and warns about a pair it cannot read (TICKET-092)', async () => {
+    project(
+      {
+        'Base.Value.json': { White: color('#ffffff'), Pale: color('#eeeeee'), Ink: color('#111') },
+        'Brand.BrandA.json': { Text: color('{Pale}') },
+        'Brand.BrandB.json': { Text: color('{Ink}') },
+      },
+      {
+        lint: {
+          rules: {
+            'color-contrast': {
+              pairs: [
+                ['Text', 'White'],
+                ['Nope', 'White'],
+              ],
+            },
+          },
+        },
+      },
+    )
+    const { exitCode, stdout } = await lint()
+    expect(exitCode).toBe(0)
+    expect(stdout).toContain(
+      'warning [contrast-unresolved] color-contrast: "Nope" does not resolve: There is no token "Nope". Pair "Nope" / "White" skipped. See site/src/content/docs/reference/lint-rules.mdx.',
+    )
+    expect(stdout).toContain('Brand.BrandA.json')
+    expect(stdout).toContain('is below 4.5:1 in BrandA [color-contrast]')
+    expect(stdout).not.toContain('in BrandB')
+    expect(stdout).toContain('1 warning found.')
+  })
+
   it('fails with exit code 2 when there are errors', async () => {
     project({ 'Base.Mode 1.json': { A: color('#fff') } })
     const { exitCode, stdout } = await lint()

@@ -125,7 +125,7 @@ describe('dta init', () => {
       expect(content).toContain("brands: ['BrandA', 'BrandB']")
       expect(content).toContain("formats: ['css', 'tailwind-v4'],")
       expect(content).toContain('css: {')
-      expect(content).toContain('version: 4')
+      expect(content).not.toContain('version')
       expect(content).not.toContain('prefix')
 
       expect(read('.env')).toBe(`FIGMA_FILE_KEY=${KEY}\nFIGMA_PERSONAL_ACCESS_TOKEN=secret\n`)
@@ -142,7 +142,7 @@ describe('dta init', () => {
       expect(config.collections).toEqual(['Primitives', 'Brand(Alias)', 'ScreenType'])
       expect(config.outputs?.formats).toEqual(['css', 'tailwind-v4'])
       expect(config.outputs?.css?.outDir).toBe('build/css')
-      expect(config.outputs?.tailwind?.version).toBe(4)
+      expect(config.outputs?.tailwind).toEqual({ outDir: 'build/tailwind' })
     })
 
     it('updates an existing .env instead of replacing it', async () => {

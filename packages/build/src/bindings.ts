@@ -13,6 +13,11 @@ export interface CssBinding {
   variable: string
   /** The rule it is declared in: `:root` or `[data-brand="…"]`. */
   selector: string
+  /**
+   * The at-rules the rule is nested in, outermost first (`['@media (min-width: 1024px)']` for a
+   * breakpoint mode, TICKET-091); absent for a rule at the top level.
+   */
+  context?: string[]
   /** The value as written, references included (e.g. `var(--blueprint-600)`). */
   value: string
 }
@@ -20,24 +25,34 @@ export interface CssBinding {
 const RULE = /^\s*([^{}]+?)\s*\{\s*$/
 const DECLARATION = /^\s*(--[A-Za-z0-9_-]+)\s*:\s*(.*?)\s*;\s*(?:\/\*.*\*\/\s*)?$/
 
-/** Declarations of a CSS file written by `css/variables`, with the rule they are in. */
+/**
+ * Declarations of a CSS file written by `css/variables`, with the rule they are in and, for a
+ * rule inside `@media`, the at-rules around it (`context`).
+ */
 export function parseCssVariables(
   css: string,
-): Array<{ selector: string; variable: string; value: string }> {
-  const out: Array<{ selector: string; variable: string; value: string }> = []
-  let selector: string | null = null
+): Array<{ selector: string; variable: string; value: string; context?: string[] }> {
+  const out: Array<{ selector: string; variable: string; value: string; context?: string[] }> = []
+  const open: string[] = []
   for (const line of css.split('\n')) {
-    if (selector === null) {
-      const rule = RULE.exec(line)
-      if (rule) selector = rule[1]
+    const rule = RULE.exec(line)
+    if (rule) {
+      open.push(rule[1])
       continue
     }
     if (line.trim() === '}') {
-      selector = null
+      open.pop()
       continue
     }
     const declaration = DECLARATION.exec(line)
-    if (declaration) out.push({ selector, variable: declaration[1], value: declaration[2] })
+    if (!declaration || open.length === 0) continue
+    const context = open.slice(0, -1)
+    out.push({
+      selector: open[open.length - 1],
+      variable: declaration[1],
+      value: declaration[2],
+      ...(context.length > 0 ? { context } : {}),
+    })
   }
   return out
 }
@@ -45,7 +60,9 @@ export function parseCssVariables(
 /**
  * Which CSS custom property each token becomes, under which selector and with which value,
  * for the same options as `buildOutputs`. Single-mode collections are declared on `:root`
- * (from `variables.css`, so aliases stay references); brand modes on `[data-brand="…"]`.
+ * (from `variables.css`, so aliases stay references); brand modes on `[data-brand="…"]`; the
+ * modes of the breakpoint collection on `:root`, inside their media query (`context`) except
+ * the default mode. Tokens a theme file repeats (TICKET-091/093) are bound to `:root` only.
  * `dta diff` uses this to put a changed token back to its base value in a rendered page.
  */
 export async function cssBindings(
@@ -60,6 +77,10 @@ export async function cssBindings(
 
   // Variable name → the tokens that would be written under it, per scope.
   const candidates = new Map<string, Array<{ collection: string; mode: string; name: string }>>()
+  const media = new Map<string, string | undefined>([
+    ...(options.breakpoints ? [[options.breakpoints.default, undefined] as const] : []),
+    ...(options.breakpoints?.media.map(({ mode, query }) => [mode, query] as const) ?? []),
+  ])
   const add = (scope: string, collection: string, mode: string, path: string[]) => {
     const key = `${scope}|${cssVariableName(path)}`
     const list = candidates.get(key) ?? []
@@ -70,6 +91,18 @@ export async function cssBindings(
     for (const token of collection.tokens) {
       if (collection.modes.length === 1) {
         add(':root', collection.name, collection.modes[0], token.name)
+        continue
+      }
+      if (collection.name === options.breakpoints?.collection) {
+        for (const [mode, query] of media) {
+          if (!collection.modes.includes(mode) || token.values[mode] === undefined) continue
+          add(
+            query === undefined ? ':root' : `@media ${query}\u0000:root`,
+            collection.name,
+            mode,
+            token.name,
+          )
+        }
         continue
       }
       for (const brand of options.brands ?? []) {
@@ -85,10 +118,12 @@ export async function cssBindings(
     const isRoot = file.path === `${cssDir}variables.css`
     const isTheme = file.path.startsWith(`${cssDir}themes/`) && file.path.endsWith('.css')
     if (!isRoot && !isTheme) continue
-    for (const { selector, variable, value } of parseCssVariables(file.content)) {
+    for (const { selector, variable, value, context } of parseCssVariables(file.content)) {
       // The last token written under a name wins, as in the merged tree the CSS came from.
-      const owner = candidates.get(`${selector}|${variable.slice(2)}`)?.at(-1)
-      if (owner) bindings.push({ ...owner, variable, selector, value })
+      const scope = [...(context ?? []), selector].join('\u0000')
+      const owner = candidates.get(`${scope}|${variable.slice(2)}`)?.at(-1)
+      if (owner)
+        bindings.push({ ...owner, variable, selector, ...(context ? { context } : {}), value })
     }
   }
   return { bindings, diagnostics }

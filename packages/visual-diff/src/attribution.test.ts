@@ -128,6 +128,54 @@ describe('planReverts', () => {
   })
 })
 
+describe('planReverts for breakpoint modes (TICKET-091)', () => {
+  // `dta build` declares a breakpoint token on :root for the default mode and inside @media
+  // for the others; a revert goes back into the same at-rule.
+  const screen = (mode: string, value: string, context?: string[]) =>
+    binding({
+      name: 'Spacing.Gap',
+      collection: 'ScreenType',
+      mode,
+      variable: '--spacing-gap',
+      value,
+      ...(context ? { context } : {}),
+    })
+  const desktop = ['@media (min-width: 1024px)']
+  const base = [screen('Mobile', 'var(--s2)'), screen('Desktop', 'var(--s8)', desktop)]
+  const head = [screen('Mobile', 'var(--s2)'), screen('Desktop', 'var(--s4)', desktop)]
+  const set = setOf([
+    change({ kind: 'changed', name: 'Spacing.Gap', collection: 'ScreenType', mode: 'Desktop' }),
+  ])
+  const page = (value: string, context: string[], selector = ':root') => ({
+    variable: '--spacing-gap',
+    value,
+    selector,
+    context,
+  })
+
+  it('puts a non-default mode back inside its media query', () => {
+    expect(planReverts(set, base, head).groups).toEqual([
+      {
+        id: 'Spacing.Gap (ScreenType · Desktop)',
+        css: '@media (min-width: 1024px) { :root { --spacing-gap: var(--s8) !important; } }',
+      },
+    ])
+  })
+
+  it("leaves the page's own copies of the build rules alone, and the other modes' rules", () => {
+    const [group] = planReverts(set, base, head).groupsFor([
+      page('var(--s2)', []), // the default mode's rule
+      page('var(--s4)', desktop), // the build rule itself
+      page('var(--s4)', ['@layer tokens', ...desktop]), // the build rule inside a layer
+      page('var(--s2)', ['@layer tokens']), // the default mode inside a layer
+    ])
+    expect(group.css.split('\n')).toEqual([
+      '@media (min-width: 1024px) { :root { --spacing-gap: var(--s8) !important; } }',
+      '@layer tokens { @media (min-width: 1024px) { :root { --spacing-gap: var(--s8) !important; } } }',
+    ])
+  })
+})
+
 describe('planReverts on re-scoped CSS (groupsFor the page)', () => {
   // One brand, one mode: `dta build` declares it on :root; the page re-scopes it per state.
   const set = setOf([

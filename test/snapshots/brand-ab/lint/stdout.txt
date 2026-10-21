@@ -8,11 +8,15 @@ o  Linting complete.
 |
 |    warn Token path segment "shadow" does not match pattern /^[A-Z][A-Za-z ]*$/ for collection "Brand(Alias)" [naming-pattern]
 |
+|    warn Contrast ratio 4.39:1 between "Colors.Text.Muted" (#6b7280) and "Colors.Surface.Muted" (#f3f4f6) is below 4.5:1 in BrandA [color-contrast]
+|
 |  Brand(Alias).BrandB.json
 |
 |    warn Token path segment "overlay" does not match pattern /^[A-Z][A-Za-z ]*$/ for collection "Brand(Alias)" [naming-pattern]
 |
 |    warn Token path segment "shadow" does not match pattern /^[A-Z][A-Za-z ]*$/ for collection "Brand(Alias)" [naming-pattern]
+|
+|    warn Contrast ratio 4.39:1 between "Colors.Text.Muted" (#6b7280) and "Colors.Surface.Muted" (#f3f4f6) is below 4.5:1 in BrandB [color-contrast]
 |
 |  Primitives.Value.json
 |
@@ -25,7 +29,7 @@ o  Linting complete.
 |    warn Duplicate value "16" — also defined in: Primitives.Value/Dimensions/spacing/4 [no-duplicate-values]
 |
 |
-|  8 warnings found.
+|  10 warnings found.
 |
 —  Lint passed with warnings.
 

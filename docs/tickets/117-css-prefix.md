@@ -4,7 +4,7 @@
 **Priority:** Low
 **Effort:** M
 **Blocked by:** —
-**Status:** in review
+**Status:** done
 
 ## Problem
 
@@ -22,7 +22,7 @@ Either implement the prefix end to end (CSS and Tailwind v4 variable names, and 
 
 - [x] Prefix implemented across build and the commands that read variable names, or removed with a migration note (removed; CHANGELOG and the migration guide say so)
 - [x] Playground option added if implemented; generated config carries it (not applicable, removed; the playground's generated config never wrote `prefix`)
-- [ ] All gates pass, and the GitHub run is green (gates pass locally; GitHub run pending, nothing pushed)
+- [x] All gates pass, and the GitHub run is green
 
 ## Outcome
 
@@ -43,3 +43,5 @@ Either implement the prefix end to end (CSS and Tailwind v4 variable names, and 
 - **Docs:** Quick start (the `dta init` excerpt from 118 without `prefix`), Outputs reference ("Not built yet": no prefix option, the key was removed and a config with it fails), migration guide. Core concepts never showed it.
 - **Files touched:** `packages/cli/src/config/schema.ts`, `config.test.ts`, `cli.test.ts`, `commands/init-config.ts`, `commands/init-config.test.ts`, `commands/init.test.ts`, `site/src/content/docs/start/quick-start.mdx`, `reference/outputs.mdx`, `guides/migrate-from-v1.mdx`, `CHANGELOG.md`.
 - **Gates** (Node 24.14.1): prettier, typecheck, boundaries pass; `TERM=xterm-256color CI=true pnpm test` 1185 passed (148 skipped); `snapshot:check` 41 passed, none changed or re-recorded; `pnpm site:build` 137 pages, links valid; `test:contrast` 151 passed. Diff e2e not run: nothing it renders changed. Nothing committed or pushed.
+
+**Closed 2026-10-21.** GitHub run 39637189200 (CI, 587a356) green.

@@ -52,6 +52,7 @@ import { serveStatic } from '../io/static-server.js'
 import { createBaseWorktree } from '../io/worktree.js'
 import { readTokenDir, TokenDirError } from '../io/token-dir.js'
 import { banner, createUi } from '../ui.js'
+import { breakpointOptions } from './build.js'
 
 const FORMATS = ['console', 'markdown', 'json'] as const
 type Format = (typeof FORMATS)[number]
@@ -263,6 +264,7 @@ function buildOptions(context: CommandContext): BuildOptions {
   const config = context.config
   return {
     brands: config?.brands ?? [],
+    breakpoints: breakpointOptions(config),
     collections: config?.collections,
     css: { outDir: config?.outputs?.css?.outDir },
   }

@@ -1,5 +1,5 @@
 export { buildOutputs, OUTPUT_FORMATS } from './build.js'
-export type { BuildOptions, BuildResult, OutputFile, OutputFormat } from './build.js'
+export type { BuildOptions, BuildResult, Breakpoints, OutputFile, OutputFormat } from './build.js'
 export { cssBindings, parseCssVariables } from './bindings.js'
 export type { CssBinding } from './bindings.js'
 export { cssVariableName } from './transforms.js'
