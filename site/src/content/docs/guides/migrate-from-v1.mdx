@@ -21,6 +21,7 @@ Your `dta.config.ts` keeps working. What is new or stricter:
 - **`lint.rules.naming-pattern.patterns` must be valid regular expressions.** An invalid pattern is a config error at load time instead of a failure during `dta lint`.
 - **`layers` is still accepted** but deprecated; use `collections`.
 - **`outputs.docs` is rejected**: the token docs page is gone (see below).
+- **`outputs.css.prefix` is rejected**: the build does not use it (CSS variable names always start with `--`), so it was removed. Delete the line.
 
 `defineConfig` is still imported from `design-token-authority`.
 

@@ -126,7 +126,7 @@ describe('loadConfig: validation and defaults', () => {
     )
     const { config } = await loadConfig({ cwd: dir })
     expect(config.outputs).toEqual({
-      css: { outDir: 'out/css', prefix: '--' },
+      css: { outDir: 'out/css' },
       tailwind: { outDir: 'out/tw', version: 4 },
       ios: { outDir: 'out/ios', lang: 'swift' },
       android: { outDir: 'out/android', lang: 'xml' },
@@ -189,6 +189,18 @@ describe('loadConfig: validation and defaults', () => {
       { path: 'outputs.docs', message: expect.stringContaining('removed in v2') },
     ])
     expect(error.message).toContain('Delete this key')
+  })
+
+  it('rejects outputs.css.prefix with a message that it was removed, and only that', async () => {
+    const error = await invalid({ outputs: { css: { outDir: 'output/css', prefix: '--' } } })
+    expect(error.issues).toEqual([
+      {
+        path: 'outputs.css.prefix',
+        message:
+          'was removed: it never had an effect (CSS variable names always start with --). Delete this line.',
+      },
+    ])
+    expect(error.message).not.toContain('Unrecognized')
   })
 
   it('rejects values outside the allowed set', async () => {

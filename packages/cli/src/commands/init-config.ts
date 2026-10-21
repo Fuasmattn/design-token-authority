@@ -1,5 +1,7 @@
 /** Pure helpers of `dta init`: reading a Figma file key and writing the starter files. */
 
+import { OUTPUT_FORMATS, type OutputFormat } from '@dta/build'
+
 /** The file key from a Figma URL (`/file/<key>` or `/design/<key>`) or a bare key. */
 export function extractFileKey(input: string): string | null {
   if (/^[a-zA-Z0-9]{22,}$/.test(input)) return input
@@ -14,6 +16,20 @@ export interface ConfigData {
   brands: string[]
   stripEmojis: boolean
   outputs: string[]
+}
+
+/** The build format of each wizard answer; iOS and Android are not built yet, so they have none. */
+const FORMAT_OF: Record<string, OutputFormat> = {
+  css: 'css',
+  tailwind4: 'tailwind-v4',
+  tailwind3: 'tailwind-v3',
+  js: 'js',
+}
+
+/** The `outputs.formats` for the wizard's answer, in the order of `OUTPUT_FORMATS`. */
+export function outputFormats(outputs: readonly string[]): OutputFormat[] {
+  const chosen = new Set(outputs.map((output) => FORMAT_OF[output]))
+  return OUTPUT_FORMATS.filter((format) => chosen.has(format))
 }
 
 /** The `dta.config.ts` the wizard writes. */
@@ -43,8 +59,10 @@ export function generateConfigContent(data: ConfigData): string {
   if (data.outputs.length > 0) {
     const has = (name: string) => data.outputs.includes(name)
     lines.push('', '  outputs: {')
-    if (has('css'))
-      lines.push('    css: {', "      outDir: 'build/css',", "      prefix: '--',", '    },')
+    // Without a buildable answer (only iOS or Android) the key is left out: it needs one format.
+    const formats = outputFormats(data.outputs)
+    if (formats.length > 0) lines.push(`    formats: [${quoted(formats)}],`)
+    if (has('css')) lines.push('    css: {', "      outDir: 'build/css',", '    },')
     if (has('tailwind3') || has('tailwind4')) {
       lines.push(
         '    tailwind: {',
@@ -81,11 +99,12 @@ FIGMA_FILE_KEY=
 FIGMA_PERSONAL_ACCESS_TOKEN=
 `
 
-export const OUTPUT_OPTIONS: Array<{ value: string; label: string }> = [
+export const OUTPUT_OPTIONS: Array<{ value: string; label: string; hint?: string }> = [
   { value: 'css', label: 'CSS variables' },
   { value: 'tailwind3', label: 'Tailwind v3 theme' },
   { value: 'tailwind4', label: 'Tailwind v4 @theme CSS' },
-  { value: 'ios', label: 'iOS Swift' },
-  { value: 'android-xml', label: 'Android XML resources' },
-  { value: 'android-compose', label: 'Android Jetpack Compose' },
+  { value: 'js', label: 'JavaScript colour palette' },
+  { value: 'ios', label: 'iOS Swift', hint: 'not built yet' },
+  { value: 'android-xml', label: 'Android XML resources', hint: 'not built yet' },
+  { value: 'android-compose', label: 'Android Jetpack Compose', hint: 'not built yet' },
 ]

@@ -225,14 +225,14 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 **Follow-ups found while writing the docs (072)**
 
-| #                                             | Ticket                                                                 | Priority | Effort | Blocked by | Status |
-| --------------------------------------------- | ---------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | —          | Open   |
-| [091](./091-build-breakpoint-modes.md)        | Breakpoint modes in the build output                                   | Medium   | M      | —          | Open   |
-| [092](./092-lint-contrast-per-mode.md)        | `color-contrast` per mode, through aliases                             | Medium   | S      | —          | Open   |
-| [117](./117-css-prefix.md)                    | Make `outputs.css.prefix` work (or remove it)                          | Low      | M      | —          | Open   |
-| [118](./118-init-writes-output-formats.md)    | `dta init` writes `outputs.formats`                                    | Low      | S      | —          | Open   |
-| [119](./119-build-fails-on-broken-aliases.md) | `dta build` must not write broken CSS for dangling or circular aliases | High     | S      | —          | Done   |
+| #                                             | Ticket                                                                 | Priority | Effort | Blocked by | Status    |
+| --------------------------------------------- | ---------------------------------------------------------------------- | -------- | ------ | ---------- | --------- |
+| [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | —          | Open      |
+| [091](./091-build-breakpoint-modes.md)        | Breakpoint modes in the build output                                   | Medium   | M      | —          | Open      |
+| [092](./092-lint-contrast-per-mode.md)        | `color-contrast` per mode, through aliases                             | Medium   | S      | —          | Open      |
+| [117](./117-css-prefix.md)                    | Make `outputs.css.prefix` work (or remove it)                          | Low      | M      | —          | In review |
+| [118](./118-init-writes-output-formats.md)    | `dta init` writes `outputs.formats`                                    | Low      | S      | —          | In review |
+| [119](./119-build-fails-on-broken-aliases.md) | `dta build` must not write broken CSS for dangling or circular aliases | High     | S      | —          | Done      |
 
 **Follow-ups found while writing Learn (073)**
 
@@ -279,7 +279,7 @@ Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17, rev
 | [107](./107-gravity-well.md)                    | `GravityWell` and `FloatingObjects`: the key visual                                          | High     | L      | 110, 106   | Done        |
 | [108](./108-landing-rebuild.md)                 | Rebuild the landing page                                                                     | High     | M      | 106, 107   | Done        |
 | [109](./109-diff-report-before-after.md)        | `dta diff` report: before/after with the change outlined                                     | Medium   | M      | 108        | Done        |
-| [123](./123-diff-report-refs-in-words.md)       | `dta diff` report: refs in words, commit hashes for both sides                               | Low      | S      | 109        | In review   |
+| [123](./123-diff-report-refs-in-words.md)       | `dta diff` report: refs in words, commit hashes for both sides                               | Low      | S      | 109        | Done        |
 | [111](./111-diff-attribution-scoped-example.md) | `dta diff` attribution for the Orbit Burger example (scoped selectors)                       | Medium   | M      | 108        | Done        |
 | [112](./112-landing-workflow-strip.md)          | Workflow strip below the hero; scenes in the same order                                      | Medium   | M      | —          | Done        |
 | [114](./114-site-polish-after-112-077.md)       | Site polish after 112 and 077 (strip label, nav current page, diagnostic links, scene order) | Low      | S      | 112, 077   | Done        |

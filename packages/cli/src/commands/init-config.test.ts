@@ -1,7 +1,14 @@
 /** Pure helpers of the init wizard; the prompts are tested in init.test.ts. */
 
 import { describe, it, expect } from 'vitest'
-import { extractFileKey, generateConfigContent, type ConfigData } from './init-config.js'
+import { OUTPUT_FORMATS } from '@dta/build'
+import {
+  OUTPUT_OPTIONS,
+  extractFileKey,
+  generateConfigContent,
+  outputFormats,
+  type ConfigData,
+} from './init-config.js'
 
 // ---------------------------------------------------------------------------
 // extractFileKey
@@ -38,6 +45,32 @@ describe('extractFileKey', () => {
 
   it('returns null for too-short key', () => {
     expect(extractFileKey('abc123')).toBeNull()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// outputFormats
+// ---------------------------------------------------------------------------
+
+describe('outputFormats', () => {
+  it('maps each buildable answer to its build format', () => {
+    expect(outputFormats(['css'])).toEqual(['css'])
+    expect(outputFormats(['tailwind4'])).toEqual(['tailwind-v4'])
+    expect(outputFormats(['tailwind3'])).toEqual(['tailwind-v3'])
+    expect(outputFormats(['js'])).toEqual(['js'])
+  })
+
+  it('keeps the order of OUTPUT_FORMATS, whatever the order of the answer', () => {
+    expect(outputFormats(['js', 'tailwind3', 'css', 'tailwind4'])).toEqual([...OUTPUT_FORMATS])
+  })
+
+  it('leaves out the targets dta build does not write yet', () => {
+    expect(outputFormats(['css', 'ios', 'android-xml', 'android-compose'])).toEqual(['css'])
+    expect(outputFormats(['ios'])).toEqual([])
+  })
+
+  it('offers every build format in the wizard', () => {
+    expect(outputFormats(OUTPUT_OPTIONS.map((option) => option.value))).toEqual([...OUTPUT_FORMATS])
   })
 })
 
@@ -97,8 +130,35 @@ describe('generateConfigContent', () => {
       outputs: ['css'],
     }
     const result = generateConfigContent(data)
+    expect(result).toContain("formats: ['css'],")
     expect(result).toContain('css: {')
     expect(result).toContain("outDir: 'build/css'")
+    expect(result).not.toContain('prefix')
+  })
+
+  it('writes formats for JS alone, without a folder block', () => {
+    const data: ConfigData = {
+      fileKey: 'testkey123',
+      collections: [],
+      brands: [],
+      stripEmojis: false,
+      outputs: ['js'],
+    }
+    const result = generateConfigContent(data)
+    expect(result).toContain("outputs: {\n    formats: ['js'],\n  },")
+  })
+
+  it('omits formats when only targets that are not built yet are chosen', () => {
+    const data: ConfigData = {
+      fileKey: 'testkey123',
+      collections: [],
+      brands: [],
+      stripEmojis: false,
+      outputs: ['ios'],
+    }
+    const result = generateConfigContent(data)
+    expect(result).toContain('ios: {')
+    expect(result).not.toContain('formats:')
   })
 
   it('includes Tailwind v4 output', () => {
@@ -110,6 +170,7 @@ describe('generateConfigContent', () => {
       outputs: ['tailwind4'],
     }
     const result = generateConfigContent(data)
+    expect(result).toContain("formats: ['tailwind-v4'],")
     expect(result).toContain('tailwind: {')
     expect(result).toContain('version: 4')
   })
@@ -123,6 +184,7 @@ describe('generateConfigContent', () => {
       outputs: ['tailwind3'],
     }
     const result = generateConfigContent(data)
+    expect(result).toContain("formats: ['tailwind-v3'],")
     expect(result).toContain('tailwind: {')
     expect(result).toContain('version: 3')
   })
@@ -201,6 +263,7 @@ describe('generateConfigContent', () => {
     const result = generateConfigContent(data)
     expect(result).toContain("collections: ['Primitives (Global)', 'Brand (Alias)', 'Screen Type']")
     expect(result).toContain("brands: ['BrandA', 'BrandB']")
+    expect(result).toContain("formats: ['css', 'tailwind-v4'],")
     expect(result).toContain('css: {')
     expect(result).toContain('tailwind: {')
   })

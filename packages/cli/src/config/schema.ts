@@ -36,12 +36,19 @@ const outputs = z
       .min(1)
       .optional()
       .describe(
-        'Which outputs `dta build` writes: `css`, `tailwind-v4`, `tailwind-v3`, `js` (default: all four).',
+        'Which outputs `dta build` writes: `css`, `tailwind-v4`, `tailwind-v3`, `js` (default: all four). `dta init` writes it from your answer to "Which formats should dta generate?".',
       ),
     css: z
       .strictObject({
         outDir,
-        prefix: z.string().default('--').describe('Accepted, not used yet.'),
+        /** Removed (TICKET-117): rejected with a message that says so instead of "unrecognized key". */
+        prefix: z
+          .never({
+            error:
+              'was removed: it never had an effect (CSS variable names always start with --). Delete this line.',
+          })
+          .optional()
+          .describe('Removed; rejected. It never had an effect: delete the line.'),
       })
       .optional()
       .describe(

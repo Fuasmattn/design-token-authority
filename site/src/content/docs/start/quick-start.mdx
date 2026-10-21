@@ -24,7 +24,22 @@ The examples on this page ran on the `brand-ab` fixture of the repository (`test
 
 <Steps>
 
-1. **Create a config.** In your project folder, `dta init` asks which Figma plan you have, which collections and brands to build and which outputs you want, and writes a `dta.config.ts`. The fixture's config looks like this:
+1. **Create a config.** In your project folder, `dta init` asks which Figma plan you have, which collections and brands to build and which outputs you want, and writes a `dta.config.ts`. Your outputs become `outputs.formats`, so `dta build` writes only those; picking CSS and Tailwind v4 gives:
+
+   ```ts title="dta.config.ts (excerpt, as dta init writes it)"
+     outputs: {
+       formats: ['css', 'tailwind-v4'],
+       css: {
+         outDir: 'build/css',
+       },
+       tailwind: {
+         outDir: 'build/tailwind',
+         version: 4,
+       },
+     },
+   ```
+
+   iOS and Android can be picked too, but `dta build` writes no files for them yet. The fixture's config builds all four outputs (no `formats`) and looks like this:
 
    ```ts title="dta.config.ts"
    export default {

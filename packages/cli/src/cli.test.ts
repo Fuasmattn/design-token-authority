@@ -119,6 +119,14 @@ describe('config handling', () => {
     expect(stderr).toContain('removed in v2')
   })
 
+  it('fails with code 2 when a config still has outputs.css.prefix', async () => {
+    writeConfig({ outputs: { css: { outDir: 'output/css', prefix: '--' } } })
+    const { exitCode, stderr } = await run(['build'])
+    expect(exitCode).toBe(2)
+    expect(stderr).toContain('outputs.css.prefix: was removed')
+    expect(stderr).toContain('Delete this line')
+  })
+
   it('fails with code 2 and names each invalid field', async () => {
     writeConfig({ outputs: { css: { outDir: 1 } }, brands: 'A' })
     const { exitCode, stderr } = await run(['lint'])

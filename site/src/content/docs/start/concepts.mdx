@@ -71,7 +71,11 @@ export default {
   tokens: { dir: 'tokens' },
   collections: ['Primitives', 'Brand(Alias)', 'ScreenType'], // default: all
   brands: ['BrandA', 'BrandB'],
-  outputs: { css: { outDir: 'output/css' }, tailwind: { outDir: 'output/tailwind' } },
+  outputs: {
+    formats: ['css', 'tailwind-v4'], // default: all four ('tailwind-v3', 'js' too)
+    css: { outDir: 'output/css' },
+    tailwind: { outDir: 'output/tailwind' },
+  },
   lint: { rules: { 'semantic-must-alias': { severity: 'error', collections: ['Brand(Alias)'] } } },
 }
 ```

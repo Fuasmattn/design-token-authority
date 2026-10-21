@@ -42,7 +42,7 @@ export default {
 | `tailwind-v3` | `tailwind.tokens.ts` and `<brand>/tailwind.tokens.ts` in the Tailwind folder |
 | `js`          | `output/js/colorpalette.js`                                                  |
 
-The playground's output checkboxes write the same key into the `dta.config.ts` it generates.
+`dta init` writes this key from your answer to "Which formats should dta generate?", and the playground's output checkboxes write it into the `dta.config.ts` it generates.
 
 ## Names and values
 
@@ -61,4 +61,5 @@ The playground's output checkboxes write the same key into the `dta.config.ts` i
 ## Not built yet
 
 - Collections whose modes are not brands, such as breakpoints (`ScreenType`), are not written as separate CSS; their first mode only resolves aliases. See [Core concepts](/start/concepts/).
-- `outputs.ios` and `outputs.android` are accepted in the config and cleaned by `dta clean`, but `dta build` writes no Swift, XML or Compose files yet. `outputs.css.prefix` and `outputs.tailwind.version` are accepted and not used yet; `outputs.formats` chooses the Tailwind versions.
+- `outputs.ios` and `outputs.android` are accepted in the config and cleaned by `dta clean`, but `dta build` writes no Swift, XML or Compose files yet. `outputs.tailwind.version` is accepted and not used yet; `outputs.formats` chooses the Tailwind versions.
+- There is no prefix option: CSS variable names always start with `--` followed by the token path. `outputs.css.prefix` was removed because it never had an effect; a config that still sets it fails with a message to delete the line.

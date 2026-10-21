@@ -6,6 +6,7 @@
 
 * Rewrite as `@dta/*` packages behind one CLI; the v1 source tree is removed (TICKET-039). Config validation is stricter (unknown keys are rejected). See [docs/migration/v1-to-v2.md](docs/migration/v1-to-v2.md).
 * Removed the repository scripts `build`, `build:cli` and `prepare` that only served v1.
+* Removed the config key `outputs.css.prefix` (TICKET-117). It was accepted but never had an effect; a config that still sets it now fails with exit code 2 (`outputs.css.prefix: was removed …`). Delete the line; the CSS output does not change.
 
 ## 1.0.0 (2026-04-07)
 

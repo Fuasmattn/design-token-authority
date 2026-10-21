@@ -4,7 +4,7 @@
 **Priority:** Low
 **Effort:** S
 **Blocked by:** 109
-**Status:** in review
+**Status:** done
 
 ## Why
 
@@ -28,8 +28,8 @@ Maintainer feedback on 109 (2026-10-21): the story row's headings now read "With
 - [x] DiffCard docs and stories updated (1280 and 390); AAA contrast, layout shift 0 when toggling
 - [x] Notes never cover story content (e2e check: no note box intersects a non-background element of the image); numbered markers + list as fallback
 - [x] Markers never cover story content; boxes with the same token changes share one list entry
-- [ ] Screenshots 1280 and 390, light and dark, shown before pushing
-- [ ] All gates pass plus the site job and diff e2e (done locally), and the GitHub run is green
+- [x] Screenshots 1280 and 390, light and dark, shown before pushing
+- [x] All gates pass plus the site job and diff e2e (done locally), and the GitHub run is green
 
 ## Outcome
 
@@ -73,4 +73,4 @@ Maintainer feedback on 109 (2026-10-21): the story row's headings now read "With
 
 **Screenshots after item 5:** `123c-report-{explained,before}-{1280,390}-{light,dark}.png` (session scratchpad), same real-run method (temporary branches `main` 37d6efc and `feature/rounder-cards` 5df49ae, temporary worktree, `dta diff --base main` in `site/examples/orbit-burger`; removed afterwards). Markers 1 and 2 sit right of "this change", above the middle of each button's outline, on the panel's flat paper or graphite, touching no text (checked zoomed at 1280 and 390); one list entry "1, 2". DiffCard stories: `123c-diffcard-{explained,unexplained,listed}-{1280,390}.png`.
 
-**Open.** Screenshots shown to the maintainer; GitHub run.
+**Closed 2026-10-21.** Screenshots shown to the maintainer before the push; GitHub run 39624860516 (CI, 7421f29) green.
