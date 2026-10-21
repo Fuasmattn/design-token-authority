@@ -221,7 +221,36 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
     }
     expect(fs.existsSync(path.join(report, 'diff/text@320.png'))).toBe(false)
     const html = fs.readFileSync(path.join(report, 'index.html'), 'utf8')
-    expect(html).toContain('src="diff/card@320.png"')
+    // TICKET-109: rows show "after" with the change outlined and named; "Show before" swaps in
+    // place; the unexplained button change has the diff overlay on and its dashed box.
+    expect(html).not.toContain('type="range"')
+    const row = (id: string) => {
+      const from = html.indexOf(`<article class="story" id="story-${id}-320">`)
+      expect(from, id).toBeGreaterThan(-1)
+      return html.slice(from, html.indexOf('</article>', from))
+    }
+    const card = row('card')
+    expect(card).toContain('<img class="shot after" src="head/card@320.png"')
+    expect(card).toContain('<img class="shot before" src="base/card@320.png"')
+    expect(card).not.toContain('data-toggle="overlay"')
+    // Headings in words (no git words): the working tree, and the base as "main · <sha>".
+    expect(card).toContain(
+      '<strong>With this change</strong> <span class="side-meta">working tree</span>',
+    )
+    expect(card).toMatch(
+      /<strong>Before this change<\/strong> <span class="side-meta">main · [0-9a-f]{7}<\/span>/,
+    )
+    expect(card).toContain('data-toggle="before" aria-pressed="false"')
+    expect(card).toContain('<span class="note-token">Brand</span>')
+    expect(card).toContain('<span class="note-change">#2f55d4 → #13213f</span>')
+    expect(card).toContain('<td data-label="box"><span><code>div</code></span></td>')
+    expect(card).toContain('<a href="diff/card@320.png">diff</a>')
+    const button = row('button')
+    expect(button).toContain('<div class="view" data-overlay')
+    expect(button).toContain('<img class="shot overlay" src="diff/button@320.png" alt="">')
+    expect(button).toContain('data-toggle="overlay" aria-pressed="true"')
+    expect(button).toContain('<span class="mark unexplained"')
+    expect(button).toContain('<span class="note-token">unexplained</span>')
     expect(html).toContain(
       '<span class="tag big" data-contrast-exception="redline label">Brand</span>',
     )

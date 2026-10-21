@@ -4,15 +4,23 @@ import { DRAFTING_TABLE_CSS } from './tokens-css.js'
 /**
  * The review report (`index.html` in the report folder): one static page with relative links
  * only, styled with the DTA Drafting Table tokens. Explained changes are grouped by token
- * change (samples and a contact sheet), unexplained ones are listed one by one, and every
- * changed story has baseline, candidate, diff and a drag-to-compare slider.
+ * change (samples and a contact sheet), unexplained ones are listed one by one.
+ *
+ * A story row (TICKET-109, the design-system `DiffCard`) shows only "after", with each changed
+ * element outlined and the tokens that explain it in notes under it, a table of those tokens
+ * and links to the whole images. "Show before" swaps the image in place; unexplained rows have
+ * the diff overlay on. Works without JavaScript: "after", the outlines and the links stay, the
+ * notes line up under the image and the toggles are left out.
  */
 
 type Story = DiffResult['stories'][number]
 type Group = NonNullable<DiffResult['review']>['tokens'][number]
 type State = Group['before']
+type Region = { x: number; y: number; width: number; height: number }
 
 const SAMPLES = 2
+/** Image pixels shown below the lowest changed box. */
+const CROP_MARGIN = 48
 
 const escape = (value: unknown) =>
   String(value)
@@ -59,6 +67,58 @@ function value(state: State) {
   return `<span class="value">${swatch}${alias}</span>`
 }
 
+/** What a token change was and is, by `name (Collection · Mode)`. */
+interface Change {
+  before?: State
+  after?: State
+  type?: string
+}
+
+function changesById(result: DiffResult): Map<string, Change> {
+  const byId = new Map<string, Change>()
+  for (const c of result.tokens.changes) {
+    byId.set(`${c.name} (${c.collection} · ${c.mode})`, {
+      before: c.before,
+      after: c.after,
+      type: c.type,
+    })
+  }
+  for (const g of result.review?.tokens ?? []) {
+    const known = byId.get(g.id)
+    byId.set(g.id, { ...known, before: g.before ?? known?.before, after: g.after ?? known?.after })
+  }
+  return byId
+}
+
+const aliasPath = (state: State) => {
+  const match = state ? /^\{(.+)\}$/.exec(String(state.raw).trim()) : null
+  return match ? match[1].split('.') : null
+}
+
+/**
+ * The change in a note (board decision 5): a colour shows its alias step, the last two segments
+ * of the alias path and only the step when the palette stays (`Nova 500 → 600`); everything else
+ * shows the resolved values (`8 → 24`).
+ */
+function noteChange(change: Change | undefined): string {
+  if (!change || (!change.before && !change.after)) return ''
+  const { before, after } = change
+  const color =
+    change.type === 'color' ||
+    isColor(before?.resolved ?? before?.raw) ||
+    isColor(after?.resolved ?? after?.raw)
+  const from = aliasPath(before)
+  const to = aliasPath(after)
+  if (color && from && to) {
+    const a = from.slice(-2)
+    const b = to.slice(-2)
+    const samePalette = a.length === 2 && b.length === 2 && a[0] === b[0]
+    return `${a.join(' ')} → ${samePalette ? b[1] : b.join(' ')}`
+  }
+  const show = (state: State) => (state ? String(state.resolved ?? state.raw) : '—')
+  return `${show(before)} → ${show(after)}`
+}
+
 /**
  * Redline labels (signal-fg on signal-bg) are the design system's one AA exception (4.5:1, see
  * the Redline component): marked so the rendered contrast audit knows, like Redline and Badge.
@@ -76,80 +136,177 @@ function cause(story: Story) {
   return a.explained ? tokens : `${chip('fail', 'unexplained')}${tokens}`
 }
 
-/** Absolutely placed marks over the image, in % of the compared canvas. */
-function marks(story: Story) {
+/** A changed box and what explains it: token notes, or "unexplained · no token". */
+interface Cluster {
+  region: Region
+  notes: Array<{ token: string; change: string }>
+  unexplained?: boolean
+}
+
+/** One cluster per distinct box: tokens that change the same box share its notes (stacked). */
+function clustersOf(story: Story, changes: Map<string, Change>): Cluster[] {
   const a = story.attribution
-  if (!a || a.canvas.width === 0 || a.canvas.height === 0) return ''
-  const box = (r: { x: number; y: number; width: number; height: number }) =>
-    `left:${((r.x / a.canvas.width) * 100).toFixed(3)}%;top:${((r.y / a.canvas.height) * 100).toFixed(3)}%;width:${((r.width / a.canvas.width) * 100).toFixed(3)}%;height:${((r.height / a.canvas.height) * 100).toFixed(3)}%`
-  // Tokens that explain the same box (e.g. a colour and a radius on one button) share one mark
-  // whose labels stack, so they never overlap.
-  const byBox = new Map<
-    string,
-    { region: (typeof a.tokens)[number]['regions'][number]; ids: string[] }
-  >()
+  if (!a) return []
+  const byBox = new Map<string, Cluster>()
   for (const t of a.tokens) {
-    const region = t.regions[0]
-    if (!region) continue
-    const key = box(region)
-    const entry = byBox.get(key) ?? { region, ids: [] }
-    entry.ids.push(t.id)
-    byBox.set(key, entry)
+    for (const region of t.regions) {
+      const key = `${region.x},${region.y},${region.width},${region.height}`
+      const cluster = byBox.get(key) ?? { region, notes: [] }
+      cluster.notes.push({ token: shortToken(t.id), change: noteChange(changes.get(t.id)) })
+      byBox.set(key, cluster)
+    }
   }
-  const tags = (labels: string[]) =>
-    `<span class="tags">${labels.map((l) => `<span class="tag"${REDLINE_LABEL}>${escape(l)}</span>`).join('')}</span>`
-  const tokenMarks = [...byBox.values()].map(
-    ({ region, ids }) =>
-      `<span class="mark" style="${box(region)}">${tags(ids.map(shortToken))}</span>`,
-  )
-  const unexplained = a.unexplainedRegion
-    ? [
-        `<span class="mark unexplained" style="${box(a.unexplainedRegion)}">${tags(['unexplained'])}</span>`,
-      ]
-    : []
-  return tokenMarks.concat(unexplained).join('')
+  const out = [...byBox.values()]
+  if (a.unexplainedRegion) out.push({ region: a.unexplainedRegion, notes: [], unexplained: true })
+  return out
 }
 
-function thumbs(story: Story) {
-  const cell = (label: string, src: string | undefined) =>
-    src
-      ? `<figure><a href="${escape(src)}"><img src="${escape(src)}" alt="${escape(`${label} of ${ref(story)}`)}" loading="lazy"></a><figcaption>${label}</figcaption></figure>`
-      : `<figure class="missing"><div>not rendered</div><figcaption>${label}</figcaption></figure>`
-  return `<div class="thumbs">${cell('baseline', story.images.base)}${cell('candidate', story.images.head)}${cell(`diff ${percent(story.ratio)}`, story.images.diff)}</div>`
+const pct = (n: number, of: number) => `${((n / of) * 100).toFixed(3)}%`
+
+/** Outlines over the image, in % of the compared canvas, 2 px outside the element's box. */
+function marks(clusters: Cluster[], canvas: { width: number; height: number }) {
+  return clusters
+    .map(
+      ({ region: r, unexplained }) =>
+        `<span class="mark${unexplained ? ' unexplained' : ''}" style="left:calc(${pct(r.x, canvas.width)} - 3px);top:calc(${pct(r.y, canvas.height)} - 3px);width:calc(${pct(r.width, canvas.width)} + 6px);height:calc(${pct(r.height, canvas.height)} + 6px)"></span>`,
+    )
+    .join('')
 }
 
-/** Baseline, candidate, diff and the drag-to-compare slider for one story × viewport. */
-function compare(story: Story) {
+/**
+ * The notes: one stack per box with a leader to it. The inline script places them under the
+ * boxes (never over another outlined box); without it they line up under the image.
+ */
+function notes(clusters: Cluster[]) {
+  const note = (token: string, change: string) =>
+    `<span class="note"${REDLINE_LABEL}><span class="note-token">${escape(token)}</span>${change ? `<span class="note-sep"> · </span><span class="note-change">${escape(change)}</span>` : ''}</span>`
+  return clusters
+    .map(({ region: r, notes, unexplained }) => {
+      const stack = unexplained
+        ? '<span class="note unexplained"><span class="note-token">unexplained</span><span class="note-sep"> · </span><span class="note-change">no token</span></span>'
+        : notes.map((n) => note(n.token, n.change)).join('')
+      return `<span class="cluster" data-box="${r.x},${r.y},${r.width},${r.height}"${unexplained ? ' data-side' : ''}><span class="leader" aria-hidden="true"></span><span class="stack">${stack}</span></span>`
+    })
+    .join('')
+}
+
+/** The box, the tick and the on/off word: one toggle button (aria-pressed). */
+function toggle(kind: 'before' | 'overlay', label: string, on: boolean, describedBy: string) {
+  return `<button type="button" class="toggle" data-toggle="${kind}" aria-pressed="${on}" aria-label="${label}" aria-describedby="${describedBy}"><span class="box" aria-hidden="true"><svg viewBox="0 0 16 16" width="12" height="12"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><span class="word">${label}</span><span class="state">${on ? 'on' : 'off'}</span></button>`
+}
+
+/**
+ * The base in words for the "Before this change" meta (TICKET-109 wording): `main · 1a2b3c4`
+ * from `merge base with origin/main (1a2b3c4)`, `release · 1a2b3c4` from `release (1a2b3c4)`,
+ * only the sha when the ref was a sha, and a directory base by its name.
+ */
+function baseInWords(base: string): string {
+  const match = /^(?:merge base with )?(.*?)\s*\(([0-9a-f]{7,40})\)\s*$/.exec(base)
+  if (!match) return base
+  const [, ref, sha] = match
+  const name = ref.replace(/^(origin|upstream)\//, '')
+  return !name || /^[0-9a-f]{7,40}$/.test(name) ? sha : `${name} · ${sha}`
+}
+
+/**
+ * The head in words. `result.json` records nothing about the head: `dta diff` renders the
+ * working tree, so that is what the meta says.
+ */
+const HEAD_IN_WORDS = 'working tree'
+
+interface Context {
+  changes: Map<string, Change>
+  base: string
+}
+
+function tokenTable(story: Story, ctx: Context) {
+  const tokens = story.attribution?.tokens ?? []
+  if (tokens.length === 0) return ''
+  const rows = tokens.map((t) => {
+    const change = ctx.changes.get(t.id)
+    return `<tr><th scope="row"><code>${escape(shortToken(t.id))}</code></th><td data-label="base">${value(change?.before)}</td><td data-label="head">${value(change?.after)}</td><td data-label="box"><span>${t.elements.map((e) => `<code>${escape(e)}</code>`).join(', ')}</span></td></tr>`
+  })
+  return `<table class="tokens-explained"><caption class="meta">Explained by ${tokens.length} ${tokens.length === 1 ? 'token' : 'tokens'}</caption><thead><tr><th scope="col">Explained by</th><th scope="col">Base</th><th scope="col">Head</th><th scope="col">Outlined</th></tr></thead><tbody>${rows.join('')}</tbody></table>`
+}
+
+/**
+ * One story × viewport: "after" with outlines and notes ("Show before" swaps the image in
+ * place), the token table and the whole images. Added and removed stories show their one side.
+ */
+function row(story: Story, ctx: Context) {
   const { base, head, diff } = story.images
-  const slider =
-    base && head
-      ? `<div class="slider" data-slider>
-  <div class="stage">
-    <img class="under" src="${escape(base)}" alt="">
-    <div class="over"><img src="${escape(head)}" alt=""></div>
-    ${diff ? `<img class="diff-layer" src="${escape(diff)}" alt="">` : ''}
-    <div class="marks">${marks(story)}</div>
-    <span class="handle" aria-hidden="true"></span>
-  </div>
-  <div class="controls">
-    <span class="meta">baseline</span>
-    <input type="range" min="0" max="100" value="50" aria-label="${escape(`Divider between baseline (left) and candidate (right) of ${ref(story)}, in percent`)}">
-    <span class="meta">candidate</span>
-    ${diff ? '<label class="toggle"><input type="checkbox" data-diff> diff overlay</label>' : ''}
-  </div>
-</div>`
-      : ''
-  return `<article class="story" id="${storyAnchor(story)}">
+  const id = storyAnchor(story)
+  const title = `${id}-title`
+  const a = story.attribution
+  const full = a && a.canvas.width > 0 && a.canvas.height > 0 ? a.canvas : undefined
+  const unexplained = story.status === 'changed' && !a?.explained
+  const both = Boolean(base && head)
+  const clusters = full ? clustersOf(story, ctx.changes) : []
+  // Cropped a little below the lowest changed box: the rest of the page did not change.
+  const canvas =
+    full && clusters.length > 0
+      ? {
+          width: full.width,
+          height: Math.min(
+            full.height,
+            Math.max(...clusters.map((c) => c.region.y + c.region.height)) + CROP_MARGIN,
+          ),
+        }
+      : full
+  const overlay = unexplained && both && Boolean(diff)
+  const meta = baseInWords(ctx.base)
+
+  // Both headings of a two-sided row (with their meta) sit in one grid cell, the other one hidden:
+  // switching them moves nothing (the larger sets the box).
+  const heading = (text: string, small: string) =>
+    `<strong>${text}</strong> <span class="side-meta">${escape(small)}</span>`
+  const side = both
+    ? `<span class="swap"><span class="when-after">${heading('With this change', HEAD_IN_WORDS)}</span><span class="when-before">${heading('Before this change', meta)}</span></span>`
+    : head
+      ? `<span>${heading('With this change', 'new story')}</span>`
+      : `<span>${heading('Before this change', `${meta} · removed story`)}</span>`
+  const shown = head ?? base
+  const toggles = both
+    ? `<div class="toggles">${overlay ? toggle('overlay', 'Diff overlay', true, title) : ''}${toggle('before', 'Show before', false, title)}</div>`
+    : ''
+  const view = shown
+    ? `<div class="view"${overlay ? ' data-overlay' : ''}>
+    <div class="bar">
+      <p class="side" aria-live="polite">${side}</p>
+      ${toggles}
+    </div>
+    <div class="stage">
+      <div class="canvas"${canvas ? ` style="aspect-ratio:${canvas.width} / ${canvas.height};max-width:${canvas.width}px" data-w="${canvas.width}" data-h="${canvas.height}"` : ''}>
+        <img class="shot after" src="${escape(shown)}" alt="${escape(`${ref(story)} ${head ? 'with this change' : 'before this change'}`)}" loading="lazy">
+        ${both ? `<img class="shot before" src="${escape(base!)}" alt="${escape(`${ref(story)} before this change`)}" loading="lazy">` : ''}
+        ${overlay ? `<img class="shot overlay" src="${escape(diff!)}" alt="">` : ''}
+        ${canvas && clusters.length > 0 ? `<div class="marks" aria-hidden="true">${marks(clusters, canvas)}</div>` : ''}
+      </div>
+      ${canvas && clusters.length > 0 ? `<div class="notes">${notes(clusters)}</div>` : ''}
+    </div>
+  </div>`
+    : '<p class="empty">Not rendered.</p>'
+  const why = unexplained
+    ? `<p class="why">No changed token accounts for ${a?.tokens.length ? 'some of ' : ''}these pixels: a component, content or layout change. The dashed box marks where; the overlay shows which pixels.</p>`
+    : ''
+  const links = [
+    base ? `<a href="${escape(base)}">before</a>` : '',
+    head ? `<a href="${escape(head)}">after</a>` : '',
+    diff ? `<a href="${escape(diff)}">diff</a>` : '',
+  ].filter(Boolean)
+  return `<article class="story" id="${id}">
   <header>
-    <h4><code>${escape(story.id)}</code> <span class="dim">${story.viewport}px</span></h4>
-    <div class="causes">${chip(story.status, story.status)}${cause(story)}</div>
+    <h4 id="${title}"><code>${escape(story.id)}</code> <span class="dim">${story.viewport} px${story.status === 'changed' ? ` · ${percent(story.ratio)} changed` : ''}</span></h4>
+    <div class="causes">${chip(story.status, story.status)}${story.status === 'changed' ? (unexplained ? chip('fail', 'unexplained') : chip('explained', 'explained')) : ''}</div>
   </header>
-  ${thumbs(story)}
-  ${slider}
+  ${view}
+  ${tokenTable(story, ctx)}
+  ${why}
+  ${links.length > 0 ? `<p class="whole">Whole images: ${links.join(' ')}</p>` : ''}
 </article>`
 }
 
-function group(g: Group, stories: Map<string, Story>) {
+function group(g: Group, stories: Map<string, Story>, ctx: Context) {
   const members = g.stories.map((s) => stories.get(s)).filter((s): s is Story => Boolean(s))
   const samples = members.slice(0, SAMPLES)
   const sheet = members.length > SAMPLES ? members : []
@@ -162,7 +319,7 @@ function group(g: Group, stories: Map<string, Story>) {
     <p class="change">${value(g.before)} <span class="arrow" data-contrast-exception="redline arrow (non-text, 3:1)">→</span> ${value(g.after)}</p>
     <p class="explains">Explains <strong>${members.length}</strong> ${members.length === 1 ? 'story' : 'stories'} ${g.needsReview ? chip('review', 'to review') : chip('pass', 'below threshold')}</p>
   </header>
-  <div class="samples">${samples.map(compare).join('\n')}</div>
+  <div class="samples">${samples.map((s) => row(s, ctx)).join('\n')}</div>
   ${
     sheet.length > 0
       ? `<h4 class="meta">Contact sheet · ${sheet.length} stories</h4>
@@ -177,7 +334,7 @@ function group(g: Group, stories: Map<string, Story>) {
 </article>`
 }
 
-function tokenTable(result: DiffResult) {
+function changeTable(result: DiffResult) {
   const rows = result.tokens.changes.map(
     (c) =>
       `<tr><td>${chip(c.kind, c.kind)}</td><td><code>${escape(c.name)}</code></td><td class="dim">${escape(`${c.collection} · ${c.mode}`)}</td><td>${value(c.before)}</td><td>${value(c.after)}</td></tr>`,
@@ -195,6 +352,12 @@ function storyTable(result: DiffResult) {
   return `<div class="table"><table><thead><tr><th>Story</th><th>Viewport</th><th>Status</th><th>Changed</th><th>Cause</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`
 }
 
+/*
+ * Outlines, leaders and notes are signal with a 1 px ink line (board decision 4): signal alone is
+ * under 3:1 on a light story page, the ink line holds there and signal holds on dark surfaces.
+ * The screenshots do not follow the report's theme, so the ink is the fixed `ink-900`, and the
+ * stage is the story page's own paper.
+ */
 const STYLE = `
 *,*::before,*::after{box-sizing:border-box}
 html{color-scheme:light}
@@ -212,7 +375,7 @@ h3,h4{margin:0}
 .dim{color:var(--fg-subtle)}
 code{font-family:var(--font-mono);font-size:.86em}
 a{color:var(--action-text)}
-a:focus-visible,button:focus-visible,input:focus-visible{outline:var(--stroke-focus) solid var(--action-bg);outline-offset:2px}
+a:focus-visible,button:focus-visible{outline:var(--stroke-focus) solid var(--action-bg);outline-offset:2px}
 .intro{display:grid;gap:var(--space-4)}
 .lede{margin:0;color:var(--fg-muted);max-width:68ch}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--space-2);margin:0;padding:0;list-style:none}
@@ -234,7 +397,6 @@ nav.toc a{padding:6px 12px;border:var(--stroke-hairline) solid var(--border-defa
 .theme{min-height:44px;padding:0 16px;border:var(--stroke-ink) solid var(--border-strong);border-radius:var(--radius-md);background:transparent;color:var(--fg-default);font:inherit;font-weight:var(--type-label-weight);cursor:pointer}
 .group,.story,.panel{border:var(--stroke-hairline) solid var(--border-default);border-radius:var(--radius-lg);background:var(--bg-surface);min-width:0}
 .group{padding:var(--space-6);display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-6)}
-@media (max-width:640px){.group{padding:var(--space-4)}.story{padding:var(--space-3)}}
 .group>header{display:grid;gap:var(--space-2)}
 .token-title{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3)}
 .tag{display:inline-block;padding:2px 6px;border-radius:4px;background:var(--signal-bg);color:var(--signal-fg);font-family:var(--font-mono);font-size:calc(var(--type-redline-size)*1px);line-height:var(--type-redline-line-height);white-space:nowrap}
@@ -243,44 +405,88 @@ nav.toc a{padding:6px 12px;border:var(--stroke-hairline) solid var(--border-defa
 .arrow{color:var(--signal-bg);font-weight:700}
 .value{display:inline-flex;align-items:center;gap:6px}
 .swatch{width:18px;height:18px;border-radius:4px;border:var(--stroke-hairline) solid var(--border-default);flex:none}
-.samples,.list,.slider{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-4)}
+.samples,.list{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-4)}
 .page>*,.group>*,.story>*,.samples>*,.list>*{min-width:0}
-.story{padding:var(--space-4);display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-4);background:var(--bg-canvas)}
-.group .story{background:var(--bg-canvas)}
+.story{padding:var(--space-6);display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-4)}
 .story>header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:var(--space-2)}
+.story h4{font-weight:400}
 .causes{display:flex;flex-wrap:wrap;gap:6px}
-.thumbs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-2)}
-.thumbs figure{margin:0;min-width:0}
-.thumbs img{display:block;width:100%;height:120px;object-fit:cover;object-position:top left;border-radius:var(--radius-sm);border:var(--stroke-hairline) solid var(--border-default);background:var(--bg-surface)}
-.thumbs .missing div{height:120px;display:grid;place-items:center;border-radius:var(--radius-sm);border:var(--stroke-hairline) dashed var(--border-default);color:var(--fg-subtle);font-size:calc(var(--type-body-sm-size)*1px)}
-figcaption{margin-top:6px;font-family:var(--font-mono);font-size:calc(var(--type-redline-size)*1px);color:var(--fg-subtle)}
-.slider{gap:var(--space-2)}
-.stage{position:relative;overflow:hidden;border-radius:var(--radius-md);border:var(--stroke-hairline) solid var(--border-default);background:var(--bg-surface);--pos:50%}
-.stage img{display:block;width:100%;height:auto}
-.stage .over{position:absolute;inset:0;clip-path:inset(0 0 0 var(--pos))}
-.stage .diff-layer{position:absolute;inset:0;opacity:0;pointer-events:none}
-.slider.show-diff .diff-layer{opacity:1}
-.stage .handle{position:absolute;top:0;bottom:0;left:var(--pos);width:0;border-left:var(--stroke-redline) solid var(--signal-bg)}
+.view{display:grid;gap:var(--space-3);min-width:0}
+.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-3);min-height:44px}
+.side{margin:0;min-width:12em}
+.side>span>span,.side>span:not(.swap){display:flex;flex-wrap:wrap;align-items:baseline;column-gap:var(--space-3);row-gap:2px}
+.side strong{font-size:calc(var(--type-title-size)*1px);font-weight:var(--type-title-weight)}
+.side-meta{font-family:var(--font-mono);font-size:calc(var(--type-meta-size)*1px);color:var(--fg-subtle)}
+.swap{display:inline-grid}
+.swap>*{grid-area:1/1}
+.when-before,.view[data-before] .when-after{visibility:hidden}
+.view[data-before] .when-before{visibility:visible}
+.toggles{display:flex;flex-wrap:wrap;gap:var(--space-2)}
+html:not(.js) .toggles{display:none}
+.toggle{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:0 14px;border:var(--stroke-ink) solid var(--border-strong);border-radius:var(--radius-md);background:var(--bg-surface);color:var(--fg-default);font:inherit;font-weight:var(--type-label-weight);cursor:pointer}
+.toggle[aria-pressed="true"]{background:var(--bg-subtle)}
+.toggle .box{display:inline-grid;place-items:center;width:18px;height:18px;border:var(--stroke-ink) solid var(--fg-default);border-radius:4px}
+.toggle .box svg{visibility:hidden}
+.toggle[aria-pressed="true"] .box{background:var(--fg-default);color:var(--bg-surface)}
+.toggle[aria-pressed="true"] .box svg{visibility:visible}
+.toggle .state{display:inline-block;width:3ch;text-align:left;font-family:var(--font-mono);font-weight:400;font-size:calc(var(--type-meta-size)*1px);color:var(--fg-muted)}
+.stage{position:relative;overflow:hidden;border:var(--stroke-hairline) solid var(--border-default);border-radius:var(--radius-md);background:var(--paper-100);padding-bottom:var(--room,0px)}
+.canvas{position:relative;display:grid}
+.shot{grid-area:1/1;display:block;max-width:100%;height:auto}
+.canvas[data-w]{display:block;overflow:hidden}
+.canvas[data-w] .shot{position:absolute;top:0;left:0;width:100%;max-width:none}
+.shot.before,.shot.overlay{visibility:hidden}
+.shot.overlay{mix-blend-mode:multiply;pointer-events:none}
+.view[data-overlay] .shot.overlay{visibility:visible}
+.view[data-before] .shot.before{visibility:visible}
+.view[data-before] .shot.after,.view[data-before] .shot.overlay,.view[data-before] .marks,.view[data-before] .notes{visibility:hidden}
 .marks{position:absolute;inset:0;pointer-events:none}
-.mark{position:absolute;outline:var(--stroke-redline) solid var(--signal-bg);outline-offset:2px;border-radius:2px}
-.mark.unexplained{outline-style:dashed}
-.mark .tags{position:absolute;left:-2px;bottom:calc(100% + 4px);display:flex;flex-direction:column;align-items:flex-start;gap:2px}
-.controls{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3)}
-.controls input[type=range]{flex:1 1 200px;accent-color:var(--signal-bg);min-height:44px}
-.toggle{display:inline-flex;align-items:center;gap:6px;font-size:calc(var(--type-body-sm-size)*1px)}
+.mark{position:absolute;border:var(--stroke-hairline) solid var(--ink-900);outline:var(--stroke-ink) solid var(--signal-bg);border-radius:2px}
+.mark:not(.unexplained){box-shadow:0 0 0 3px var(--ink-900)}
+.mark.unexplained{border-style:dashed;outline-style:dashed}
+.notes{display:flex;flex-wrap:wrap;gap:var(--space-2);padding:var(--space-2)}
+.cluster{display:contents}
+.leader{display:none}
+.stack{display:inline-flex;flex-direction:column;align-items:flex-start;gap:4px}
+html.js .notes{position:absolute;left:0;top:0;width:100%;height:0;padding:0}
+html.js .leader{display:block;position:absolute;width:4px;background:var(--signal-bg);border-left:var(--stroke-hairline) solid var(--ink-900);border-right:var(--stroke-hairline) solid var(--ink-900)}
+html.js .stack{position:absolute;max-width:100%}
+.note{display:inline-block;padding:3px 8px;border:var(--stroke-hairline) solid var(--ink-900);border-radius:4px;background:var(--signal-bg);color:var(--signal-fg);font-family:var(--font-mono);font-size:calc(var(--type-meta-size)*1px);line-height:var(--type-meta-line-height);white-space:nowrap}
+.note.unexplained{border-style:dashed;background:var(--paper-0);color:var(--ink-900)}
+.tokens-explained{width:100%;border-collapse:collapse;font-size:calc(var(--type-body-sm-size)*1px)}
+.tokens-explained caption{text-align:left;padding-bottom:var(--space-2);display:none}
+.tokens-explained th,.tokens-explained td{padding:10px 12px 10px 0;text-align:left;border-bottom:var(--stroke-hairline) solid var(--border-default);vertical-align:middle;font-weight:400}
+.tokens-explained thead th{font-family:var(--font-mono);font-size:calc(var(--type-meta-size)*1px);color:var(--fg-subtle)}
+.why{margin:0;max-width:68ch}
+.whole{margin:0;display:flex;flex-wrap:wrap;gap:var(--space-2);color:var(--fg-muted);font-size:calc(var(--type-body-sm-size)*1px)}
 .sheet{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:var(--space-2)}
 .sheet a{display:grid;gap:4px;text-decoration:none;color:var(--fg-default);font-size:calc(var(--type-body-sm-size)*1px)}
 .sheet img{width:100%;height:100px;object-fit:cover;object-position:top left;border-radius:var(--radius-sm);border:var(--stroke-hairline) solid var(--border-default);background:var(--bg-surface)}
-
 details.all>summary{cursor:pointer;font-weight:var(--type-label-weight);min-height:44px;display:flex;align-items:center}
 .table{overflow-x:auto;border:var(--stroke-hairline) solid var(--border-default);border-radius:var(--radius-md);background:var(--bg-surface)}
-table{border-collapse:collapse;width:100%;font-size:calc(var(--type-body-sm-size)*1px)}
-th,td{padding:10px 12px;text-align:left;border-bottom:var(--stroke-hairline) solid var(--border-default);vertical-align:middle}
-th{font-family:var(--font-mono);font-weight:400;font-size:calc(var(--type-meta-size)*1px);color:var(--fg-subtle);text-transform:uppercase;letter-spacing:var(--type-meta-letter-spacing)}
-tr:last-child td{border-bottom:0}
+.table table{border-collapse:collapse;width:100%;font-size:calc(var(--type-body-sm-size)*1px)}
+.table th,.table td{padding:10px 12px;text-align:left;border-bottom:var(--stroke-hairline) solid var(--border-default);vertical-align:middle}
+.table th{font-family:var(--font-mono);font-weight:400;font-size:calc(var(--type-meta-size)*1px);color:var(--fg-subtle);text-transform:uppercase;letter-spacing:var(--type-meta-letter-spacing)}
+.table tr:last-child td{border-bottom:0}
 .empty{margin:0;color:var(--fg-subtle)}
 footer{color:var(--fg-subtle);font-size:calc(var(--type-body-sm-size)*1px)}
-@media (max-width:640px){.thumbs img,.thumbs .missing div{height:72px}}
+@media (max-width:640px){
+.group{padding:var(--space-4)}
+.story{padding:var(--space-3)}
+.bar{display:grid;grid-template-columns:minmax(0,1fr)}
+.toggles{display:grid;grid-template-columns:minmax(0,1fr)}
+.toggle{width:100%}
+.stage{margin-inline:calc(-1*(var(--space-4) + var(--space-3) + var(--stroke-hairline)));border-radius:0;border-left:0;border-right:0}
+.group .stage{margin-inline:calc(-1*(var(--space-4) + var(--space-4) + var(--space-3) + 2*var(--stroke-hairline)))}
+.note-sep{display:none}
+.note-change{display:block}
+.tokens-explained caption{display:block}
+.tokens-explained thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.tokens-explained tr{display:grid;grid-template-columns:minmax(0,1fr);padding:var(--space-3) 0;border-bottom:var(--stroke-hairline) solid var(--border-default)}
+.tokens-explained th,.tokens-explained td{display:grid;grid-template-columns:3.5em minmax(0,1fr);padding:2px 0;border:0}
+.tokens-explained th{display:block}
+.tokens-explained td::before{content:attr(data-label);color:var(--fg-subtle);font-family:var(--font-mono);font-size:calc(var(--type-meta-size)*1px)}
+}
 `
 
 const SCRIPT = `
@@ -294,18 +500,101 @@ const SCRIPT = `
     try { localStorage.setItem('dta-diff-theme', root.dataset.brand) } catch {}
     label()
   })
-  for (const slider of document.querySelectorAll('[data-slider]')) {
-    const stage = slider.querySelector('.stage')
-    const range = slider.querySelector('input[type=range]')
-    range.addEventListener('input', () => stage.style.setProperty('--pos', range.value + '%'))
-    const diff = slider.querySelector('[data-diff]')
-    diff && diff.addEventListener('change', () => slider.classList.toggle('show-diff', diff.checked))
+  // "Show before" and "Diff overlay": aria-pressed buttons; the image swaps in place, outlines
+  // and notes hide but keep their space, the label switches (CSS, on data-before).
+  for (const view of document.querySelectorAll('.view')) {
+    for (const toggle of view.querySelectorAll('[data-toggle]')) {
+      toggle.addEventListener('click', () => {
+        const on = toggle.getAttribute('aria-pressed') !== 'true'
+        toggle.setAttribute('aria-pressed', String(on))
+        toggle.querySelector('.state').textContent = on ? 'on' : 'off'
+        if (toggle.dataset.toggle === 'overlay') { view.toggleAttribute('data-overlay', on); return }
+        view.toggleAttribute('data-before', on)
+      })
+    }
   }
+  // Notes under their boxes: per band of boxes that share rows, in lanes below the band. A stack
+  // moves right of its neighbour while its leader still lands on its box, else it takes the next
+  // lane, its leader clear of the notes above. "unexplained" sits right of its box when it fits.
+  const GAP = 8
+  const layout = (stage) => {
+    const canvas = stage.querySelector('.canvas[data-w]')
+    const notes = stage.querySelector('.notes')
+    if (!canvas || !notes) return
+    const W = canvas.clientWidth, H = canvas.clientHeight
+    const kx = W / Number(canvas.dataset.w), ky = H / Number(canvas.dataset.h)
+    const items = [...notes.querySelectorAll('.cluster')].map((el) => {
+      const [x, y, w, h] = el.dataset.box.split(',').map(Number)
+      const stack = el.querySelector('.stack')
+      // Measured at the left edge, so a stack placed near the right before is not measured narrow.
+      stack.style.left = '0px'
+      return { leader: el.querySelector('.leader'), stack, side: el.hasAttribute('data-side'), l: x * kx, t: y * ky, r: (x + w) * kx, b: (y + h) * ky, w: Math.min(stack.offsetWidth, W), h: stack.offsetHeight }
+    }).sort((a, b) => a.t - b.t || a.l - b.l)
+    let lowest = 0
+    const place = (it, x, top, lx) => {
+      it.stack.style.left = x + 'px'
+      it.stack.style.top = top + 'px'
+      it.leader.style.left = (lx - 2) + 'px'
+      it.leader.style.top = it.b + 'px'
+      it.leader.style.height = Math.max(0, top - it.b) + 'px'
+      lowest = Math.max(lowest, top + it.h)
+    }
+    const below = []
+    for (const it of items) {
+      if (it.side && it.r + GAP + it.w <= W) place(it, it.r + GAP, Math.max(0, (it.t + it.b - it.h) / 2), -9999)
+      else below.push(it)
+    }
+    const bands = []
+    for (const it of below) {
+      const band = bands[bands.length - 1]
+      if (band && it.t < band.bottom) { band.items.push(it); band.bottom = Math.max(band.bottom, it.b) }
+      else bands.push({ items: [it], bottom: it.b })
+    }
+    // The leftmost point under the box, at least \`from\`, outside the notes of earlier lanes.
+    const free = (it, from, blocked) => {
+      let lx = Math.max(from, it.l + 6)
+      for (const [a, b] of blocked.slice().sort((p, q) => p[0] - q[0])) if (lx >= a - 3 && lx <= b + 3) lx = b + 4
+      return lx <= it.r - 4 ? lx : null
+    }
+    for (const band of bands) {
+      const lanes = []
+      for (const it of band.items.sort((a, b) => a.l - b.l)) {
+        let spot = null
+        for (let k = 0; k <= lanes.length && !spot; k++) {
+          const lane = lanes[k] || { right: -Infinity, height: 0, items: [] }
+          const blocked = lanes.slice(0, k).flatMap((l) => l.items.map((o) => [o.x, o.x + o.w]))
+          const lx = free(it, lane.right + GAP + 6, blocked)
+          const fresh = k === lanes.length
+          if (lx === null && !fresh) continue
+          const at = lx === null ? it.l + 6 : lx
+          const x = Math.max(0, Math.min(at - 6, W - it.w))
+          if (!fresh && x < lane.right + GAP) continue
+          if (fresh) lanes.push(lane)
+          spot = { lane, x, lx: Math.min(Math.max(at, x + 4), x + it.w - 4) }
+        }
+        it.x = spot.x
+        it.lx = spot.lx
+        spot.lane.right = it.x + it.w
+        spot.lane.height = Math.max(spot.lane.height, it.h)
+        spot.lane.items.push(it)
+      }
+      let top = band.bottom + GAP
+      for (const lane of lanes) {
+        for (const it of lane.items) place(it, it.x, top, it.lx)
+        top += lane.height + 4
+      }
+    }
+    stage.style.setProperty('--room', Math.max(0, Math.ceil(lowest - H + GAP)) + 'px')
+  }
+  const all = () => { for (const stage of document.querySelectorAll('.stage')) layout(stage) }
+  all()
+  addEventListener('resize', all)
+  document.fonts && document.fonts.ready.then(all)
 })()
 `
 
-/** Sets the theme before first paint: the stored choice, else the system preference. */
-const THEME_BOOT = `(() => { let t = null; try { t = localStorage.getItem('dta-diff-theme') } catch {} if (!t && matchMedia('(prefers-color-scheme: dark)').matches) t = 'graphite'; if (t) document.documentElement.dataset.brand = t })()`
+/** Before first paint: the theme (the stored choice, else the system preference) and `.js`. */
+const THEME_BOOT = `(() => { const root = document.documentElement; root.classList.add('js'); let t = null; try { t = localStorage.getItem('dta-diff-theme') } catch {} if (!t && matchMedia('(prefers-color-scheme: dark)').matches) t = 'graphite'; if (t) root.dataset.brand = t })()`
 
 const LOGO = `<svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect x="11" y="3" width="18" height="18" rx="4" fill="var(--action-bg)"></rect><rect x="4" y="10" width="18" height="18" rx="4" fill="none" stroke="var(--fg-default)" stroke-width="2.5"></rect></svg>`
 
@@ -318,6 +607,7 @@ export function renderReportHtml(result: DiffResult): string {
   const addedRemoved = result.stories.filter((s) => s.status === 'added' || s.status === 'removed')
   const counts = result.tokens.counts
   const tokenTotal = counts.changed + counts.added + counts.removed
+  const ctx: Context = { changes: changesById(result), base: result.base }
 
   const stat = (n: number, label: string) =>
     `<li><strong>${n}</strong><span class="meta">${label}</span></li>`
@@ -334,21 +624,21 @@ export function renderReportHtml(result: DiffResult): string {
     section(
       'by-token',
       'By token change',
-      `<div class="list">${review.tokens.map((g) => group(g, byRef)).join('\n')}</div>`,
+      `<div class="list">${review.tokens.map((g) => group(g, byRef, ctx)).join('\n')}</div>`,
     )
   }
   if (unexplained.length > 0) {
     section(
       'unexplained',
       'Unexplained',
-      `<p class="lede">No changed token accounts for these pixels: a component, content or layout change. The dashed box marks where.</p><div class="list">${unexplained.map(compare).join('\n')}</div>`,
+      `<div class="list">${unexplained.map((s) => row(s, ctx)).join('\n')}</div>`,
     )
   }
   if (addedRemoved.length > 0) {
     section(
       'added',
       'Added and removed',
-      `<div class="list">${addedRemoved.map(compare).join('\n')}</div>`,
+      `<div class="list">${addedRemoved.map((s) => row(s, ctx)).join('\n')}</div>`,
     )
   }
   const explained = changed.filter((s) => s.attribution?.explained)
@@ -359,10 +649,10 @@ export function renderReportHtml(result: DiffResult): string {
     'All stories',
     storyTable(result) +
       (rest.length > 0
-        ? `<details class="all"><summary>Every explained story (${rest.length} more)</summary><div class="list">${rest.map(compare).join('\n')}</div></details>`
+        ? `<details class="all"><summary>Every explained story (${rest.length} more)</summary><div class="list">${rest.map((s) => row(s, ctx)).join('\n')}</div></details>`
         : ''),
   )
-  section('tokens', 'Token changes', tokenTable(result))
+  section('tokens', 'Token changes', changeTable(result))
 
   return `<!doctype html>
 <html lang="en" data-brand="light">

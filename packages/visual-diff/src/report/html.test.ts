@@ -107,7 +107,6 @@ const result: DiffResult = diffResultSchema.parse({
 })
 
 const html = renderReportHtml(result)
-const count = (pattern: RegExp) => (html.match(pattern) ?? []).length
 
 describe('renderReportHtml', () => {
   it('is one static page styled with the Drafting Table tokens, light and Graphite', () => {
@@ -140,19 +139,105 @@ describe('renderReportHtml', () => {
     expect(group).toContain('href="#story-rail-1280"')
   })
 
-  it('shows each changed story with baseline, candidate, diff and a keyboard slider', () => {
-    expect(html).toContain('src="base/button@1280.png"')
-    expect(html).toContain('src="head/button@1280.png"')
-    expect(html).toContain('src="diff/button@1280.png"')
-    expect(count(/<input type="range"/g)).toBe(4) // 2 samples, 1 more explained, 1 unexplained
-    expect(html).toContain('aria-label="Divider between baseline (left) and candidate (right)')
-    // Redline label on the token's dependent, in % of the canvas.
-    expect(html).toContain(
-      '<span class="mark" style="left:2.500%;top:10.000%;width:25.000%;height:20.000%"><span class="tags"><span class="tag" data-contrast-exception="redline label">action.bg</span></span></span>',
+  /** One story row (`<article class="story" id="…">…</article>`) of a page. */
+  const rowOf = (page: string, id: string) => {
+    const from = page.indexOf(`<article class="story" id="${id}">`)
+    expect(from, id).toBeGreaterThan(-1)
+    return page.slice(from, page.indexOf('</article>', from))
+  }
+
+  // TICKET-109: only "after" with the change outlined and named, "Show before" swaps in place.
+  it('shows a changed story as "after" with outlines, notes, a token table and the whole images', () => {
+    const row = rowOf(html, 'story-button-1280')
+    expect(row).toContain(
+      '<h4 id="story-button-1280-title"><code>button</code> <span class="dim">1280 px · 2.00% changed</span></h4>',
+    )
+    expect(row).toContain(
+      '<span class="chip changed">changed</span><span class="chip explained">explained</span>',
+    )
+    // "With this change" shown; "Before this change" with the base ref and sha in the same cell.
+    expect(row).toContain(
+      '<p class="side" aria-live="polite"><span class="swap"><span class="when-after"><strong>With this change</strong> <span class="side-meta">working tree</span></span><span class="when-before"><strong>Before this change</strong> <span class="side-meta">main · 1a2b3c4</span></span></span></p>',
+    )
+    // Both images in one place: after shown, before hidden until asked for; no diff overlay.
+    expect(row).toContain(
+      '<img class="shot after" src="head/button@1280.png" alt="button@1280 with this change" loading="lazy">',
+    )
+    expect(row).toContain(
+      '<img class="shot before" src="base/button@1280.png" alt="button@1280 before this change" loading="lazy">',
+    )
+    expect(row).not.toContain('class="shot overlay"')
+    // Cropped 48 px below the lowest changed box (20 + 40 + 48 = 108 of 200), marks in % of it.
+    expect(row).toContain(
+      'style="aspect-ratio:400 / 108;max-width:400px" data-w="400" data-h="108"',
+    )
+    expect(row).toContain(
+      '<span class="mark" style="left:calc(2.500% - 3px);top:calc(18.519% - 3px);width:calc(25.000% + 6px);height:calc(37.037% + 6px)"></span>',
+    )
+    // The note: token and its change (colours as the alias step), joined to its box by a leader.
+    expect(row).toContain(
+      '<span class="cluster" data-box="10,20,100,40"><span class="leader" aria-hidden="true"></span><span class="stack"><span class="note" data-contrast-exception="redline label"><span class="note-token">action.bg</span><span class="note-sep"> · </span><span class="note-change">blueprint 600 → 700</span></span></span></span>',
+    )
+    // The table: token, base, head, what it outlines.
+    expect(row).toContain('<caption class="meta">Explained by 1 token</caption>')
+    expect(row).toContain(
+      '<th scope="col">Explained by</th><th scope="col">Base</th><th scope="col">Head</th><th scope="col">Outlined</th>',
+    )
+    expect(row).toContain('<td data-label="box"><span><code>button.primary</code></span></td>')
+    expect(row).toContain('style="background:#2443ac"')
+    expect(row).toContain(
+      '<p class="whole">Whole images: <a href="base/button@1280.png">before</a> <a href="head/button@1280.png">after</a> <a href="diff/button@1280.png">diff</a></p>',
     )
   })
 
-  it('stacks the labels of tokens that explain the same box in one mark', () => {
+  it('has no thumbnails and no slider any more', () => {
+    expect(html).not.toContain('type="range"')
+    expect(html).not.toMatch(/class="(thumbs|slider|stage-handle|handle)"/)
+    expect(html).not.toMatch(/data-slider|\.thumbs|\.slider|--pos/)
+    expect(html).not.toContain('<figure')
+  })
+
+  it('"Show before" is a real toggle button: box, tick and on/off word, aria-pressed', () => {
+    const row = rowOf(html, 'story-button-1280')
+    expect(row.match(/<button /g)).toHaveLength(1) // explained: no overlay toggle
+    expect(row).toContain(
+      '<button type="button" class="toggle" data-toggle="before" aria-pressed="false" aria-label="Show before" aria-describedby="story-button-1280-title"><span class="box" aria-hidden="true"><svg',
+    )
+    expect(row).toContain(
+      '<span class="word">Show before</span><span class="state">off</span></button>',
+    )
+    // Hidden but in place (visibility, not display): no layout shift when toggling.
+    expect(html).toContain('.view[data-before] .shot.before{visibility:visible}')
+    expect(html).toContain(
+      '.view[data-before] .shot.after,.view[data-before] .shot.overlay,.view[data-before] .marks,.view[data-before] .notes{visibility:hidden}',
+    )
+    expect(html).not.toMatch(/\[data-before\][^{]*\{[^}]*display:none/)
+    // The script flips aria-pressed, the word and data-before; the label follows in CSS.
+    expect(html).toContain("toggle.setAttribute('aria-pressed', String(on))")
+    expect(html).toContain("view.toggleAttribute('data-before', on)")
+    expect(html).toContain('.when-before,.view[data-before] .when-after{visibility:hidden}')
+  })
+
+  it('works without JavaScript: "after" and the links stay, the toggles are left out', () => {
+    expect(html).toContain("root.classList.add('js')")
+    expect(html).toContain('html:not(.js) .toggles{display:none}')
+    // Notes line up under the image without the script; with it they sit under their boxes.
+    expect(html).toContain('.notes{display:flex;flex-wrap:wrap;')
+    expect(html).toContain('html.js .notes{position:absolute;')
+    expect(html).not.toMatch(/https?:\/\//)
+  })
+
+  it('marks outlines, leaders and notes with a 1 px ink line around the signal', () => {
+    expect(html).toContain(
+      '.mark{position:absolute;border:var(--stroke-hairline) solid var(--ink-900);outline:var(--stroke-ink) solid var(--signal-bg);border-radius:2px}\n.mark:not(.unexplained){box-shadow:0 0 0 3px var(--ink-900)}',
+    )
+    expect(html).toMatch(
+      /html\.js \.leader\{[^}]*background:var\(--signal-bg\);border-left:var\(--stroke-hairline\) solid var\(--ink-900\)/,
+    )
+    expect(html).toMatch(/\n\.note\{[^}]*border:var\(--stroke-hairline\) solid var\(--ink-900\)/)
+  })
+
+  it('stacks the notes of tokens that change the same box; sizes show the resolved numbers', () => {
     const story = result.stories[0]
     const token = (id: string, regions = [region]) => ({
       id,
@@ -163,6 +248,25 @@ describe('renderReportHtml', () => {
     })
     const page = renderReportHtml({
       ...result,
+      review: {
+        ...result.review!,
+        tokens: [
+          {
+            id: 'Colors.Brand.Primary (Brand · OrbitBurger)',
+            before: { raw: '{Nova.500}', resolved: '#5aa2ff' },
+            after: { raw: '{Nova.600}', resolved: '#3d87e8' },
+            stories: [],
+            needsReview: true,
+          },
+          {
+            id: 'Radius.Card (Brand · OrbitBurger)',
+            before: { raw: '{Orbit.radius-sm}', resolved: 8 },
+            after: { raw: '{Orbit.radius-lg}', resolved: 24 },
+            stories: [],
+            needsReview: true,
+          },
+        ],
+      },
       stories: [
         {
           ...story,
@@ -170,9 +274,9 @@ describe('renderReportHtml', () => {
             explained: true,
             tokens: [
               token('Colors.Brand.Primary (Brand · OrbitBurger)'),
-              token('Radius.Card (Brand · OrbitBurger)'),
-              token('Colors.Text.Muted (Brand · OrbitBurger)', [
-                { x: 200, y: 100, width: 40, height: 20 },
+              token('Radius.Card (Brand · OrbitBurger)', [
+                { x: 0, y: 0, width: 200, height: 120 },
+                region,
               ]),
             ],
             unexplainedPixels: 0,
@@ -181,36 +285,87 @@ describe('renderReportHtml', () => {
         },
       ],
     })
-    const tag = (text: string) =>
-      `<span class="tag" data-contrast-exception="redline label">${text}</span>`
+    const note = (name: string, change: string) =>
+      `<span class="note" data-contrast-exception="redline label"><span class="note-token">${name}</span><span class="note-sep"> · </span><span class="note-change">${change}</span></span>`
+    // One cluster per box: the button has both notes, the card only the radius.
     expect(page).toContain(
-      `<span class="mark" style="left:2.500%;top:10.000%;width:25.000%;height:20.000%"><span class="tags">${tag('Colors.Brand.Primary')}${tag('Radius.Card')}</span></span>`,
+      `<span class="cluster" data-box="10,20,100,40"><span class="leader" aria-hidden="true"></span><span class="stack">${note('Colors.Brand.Primary', 'Nova 500 → 600')}${note('Radius.Card', '8 → 24')}</span></span>`,
     )
     expect(page).toContain(
-      `<span class="mark" style="left:50.000%;top:50.000%;width:10.000%;height:10.000%"><span class="tags">${tag('Colors.Text.Muted')}</span></span>`,
+      `<span class="cluster" data-box="0,0,200,120"><span class="leader" aria-hidden="true"></span><span class="stack">${note('Radius.Card', '8 → 24')}</span></span>`,
     )
     expect((page.match(/<span class="mark"/g) ?? []).length).toBe(2)
-    // Stacked above the box, one label per line, so they cannot overlap.
-    expect(page).toContain(
-      '.mark .tags{position:absolute;left:-2px;bottom:calc(100% + 4px);display:flex;flex-direction:column;align-items:flex-start;gap:2px}',
-    )
+    // A palette change keeps both names: navy to sky.
+    const other = renderReportHtml({
+      ...result,
+      review: {
+        ...result.review!,
+        tokens: [
+          {
+            ...result.review!.tokens[0],
+            before: { raw: '{Colors.Foundation.Navy.700}', resolved: '#2c4466' },
+            after: { raw: '{Colors.Foundation.Sky.500}', resolved: '#3b8fd9' },
+          },
+        ],
+      },
+    })
+    expect(other).toContain('<span class="note-change">Navy 700 → Sky 500</span>')
   })
 
-  it('lists unexplained stories one by one with the region, and escapes text', () => {
+  it('unexplained rows: diff overlay on, dashed outline, "unexplained · no token", "Show before" beside', () => {
     const section = html.slice(html.indexOf('id="unexplained"'), html.indexOf('id="added"'))
     expect(section).toContain('<code>chip&lt;x&gt;</code>')
-    expect(section).toContain('class="mark unexplained"')
     expect(html).not.toContain('chip<x>')
+    const row = rowOf(html, 'story-chip-x-1280')
+    expect(row).toContain('<div class="view" data-overlay>')
+    expect(row).toContain('<img class="shot overlay" src="diff/chip.png" alt="">')
+    expect(row).toContain(
+      '<span class="chip changed">changed</span><span class="chip fail">unexplained</span>',
+    )
+    const buttons = [...row.matchAll(/<button [^>]*data-toggle="(\w+)" aria-pressed="(\w+)"/g)]
+    expect(buttons.map(([, kind, pressed]) => [kind, pressed])).toEqual([
+      ['overlay', 'true'],
+      ['before', 'false'],
+    ])
+    expect(row).toContain('<span class="word">Diff overlay</span><span class="state">on</span>')
+    expect(row).toContain('<span class="mark unexplained"')
+    expect(row).toContain(
+      '<span class="note unexplained"><span class="note-token">unexplained</span><span class="note-sep"> · </span><span class="note-change">no token</span></span>',
+    )
+    expect(html).toContain('.mark.unexplained{border-style:dashed;outline-style:dashed}')
+    expect(html).toContain('.view[data-overlay] .shot.overlay{visibility:visible}')
+    expect(row).toContain('<p class="why">No changed token accounts for these pixels')
+    expect(row).not.toContain('class="tokens-explained"')
   })
 
-  it('shows added stories without a slider and lists every story with its cause', () => {
-    const added = html.slice(html.indexOf('id="added"'), html.indexOf('id="stories"'))
+  it('shows added stories on their one side without toggles, and lists every story with its cause', () => {
+    const added = rowOf(html, 'story-new-1280')
+    expect(added).toContain(
+      '<span><strong>With this change</strong> <span class="side-meta">new story</span></span>',
+    )
     expect(added).toContain('src="head/new@1280.png"')
-    expect(added).toContain('not rendered')
-    expect(added).not.toContain('type="range"')
+    expect(added).not.toContain('<button')
+    expect(added).toContain(
+      '<p class="whole">Whole images: <a href="head/new@1280.png">after</a></p>',
+    )
     const table = html.slice(html.indexOf('id="stories"'), html.indexOf('id="tokens"'))
     expect(table).toContain('<code>text</code>')
     expect(table).toContain('Every explained story (1 more)')
+  })
+
+  it('names the base in words: ref and short sha, only the sha, or the directory', () => {
+    const meta = (base: string) => {
+      const page = renderReportHtml({ ...result, base })
+      return /<span class="when-before"><strong>Before this change<\/strong> <span class="side-meta">([^<]*)<\/span>/.exec(
+        page,
+      )?.[1]
+    }
+    expect(meta('merge base with origin/main (1a2b3c4)')).toBe('main · 1a2b3c4')
+    expect(meta('release/2.0 (9f8e7d6)')).toBe('release/2.0 · 9f8e7d6')
+    expect(meta('617cea0b23ea7f17a023113c641dd16ab7e231f6 (617cea0)')).toBe('617cea0')
+    expect(meta('tokens-base')).toBe('tokens-base')
+    // No "After · head" / "Before · base" (git words) anywhere.
+    expect(html).not.toMatch(/After · head|Before · base|After only|Before only/)
   })
 
   // TICKET-120: verdicts in the status colours, never signal for a failure.

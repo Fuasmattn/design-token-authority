@@ -2,16 +2,17 @@
 /**
  * A small mono label for state and context. State chips carry a marker, so the state is never
  * colour alone: the dot for changed and pass, the open ring for a warning, the filled square for
- * an error (the status colours, TICKET-120; changed stays signal).
+ * an error (the status colours, TICKET-120; changed stays signal). Info and neutral are context,
+ * not state: no marker (neutral: a settled fact beside a state, such as the diff row's "explained").
  */
 interface Props {
-  tone?: 'info' | 'changed' | 'pass' | 'warning' | 'error'
+  tone?: 'info' | 'neutral' | 'changed' | 'pass' | 'warning' | 'error'
 }
 const { tone = 'info' } = Astro.props
 ---
 
 <span class:list={['dta-chip', tone]}>
-  {tone !== 'info' && <span class="dot" aria-hidden="true" />}
+  {tone !== 'info' && tone !== 'neutral' && <span class="dot" aria-hidden="true" />}
   <slot />
 </span>
 
@@ -30,6 +31,10 @@ const { tone = 'info' } = Astro.props
   .info {
     background: var(--action-subtle);
     color: var(--action-text);
+  }
+  .neutral {
+    background: var(--bg-subtle);
+    color: var(--fg-muted);
   }
   .changed {
     background: var(--signal-subtle);

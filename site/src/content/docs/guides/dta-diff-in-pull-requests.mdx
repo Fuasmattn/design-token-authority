@@ -17,7 +17,7 @@ import template from '../../../../../actions/recipes/template.sh?raw'
 `dta diff` renders your stories at the base and at the head of a pull request, compares them and explains each change by the token that caused it. In GitHub it shows up in two places:
 
 - **A status check, "dta diff"**: green when nothing needs a look, pending with _changes to review_, red with _unexplained changes_ above your threshold.
-- **One comment** that updates on every push: the changes grouped by token, a table per story and viewport, and a link to the full report (baseline, candidate, diff, drag-to-compare slider).
+- **One comment** that updates on every push: the changes grouped by token, a table per story and viewport, and a link to the full report (each changed story with the change outlined and named; see [Reading the report](#reading-the-report)).
 
 A change is explained when putting the token back to its base value in the rendered page makes it go away, wherever your CSS declares the variable (see [How changes are explained](/guides/dta-diff-with-storybook/#how-changes-are-explained)).
 
@@ -31,6 +31,19 @@ Everything is rendered in your CI. Nothing is stored between runs: the baseline 
 npx dta diff --list   # the stories it would render
 npx dta diff          # report in .dta/diff/index.html
 ```
+
+## Reading the report
+
+`index.html` in the report folder is one static page (relative links only, no network, works from disk). It opens with the verdict and the counts, then the changes **by token change** (what the token was and is, a sample or two of the stories it explains and a contact sheet of the rest), the **unexplained** stories one by one, **added and removed** stories, every story in a table, and the token changes.
+
+Each changed story is one row:
+
+- **"With this change", the change marked.** The screenshot with your change, cropped a little below the lowest change. Every element a changed token affects is outlined in orange with a dark line, and under it a note names the token and its change: `Colors.Brand.Primary · Nova 500 → 600` (colours as the alias step) or `Radius.Card · 8 → 24` (sizes as numbers). Two tokens on one element stack their notes. Below the image, a table lists each token with its base and head value and the elements it outlines.
+- **Show before.** Swaps the image for the base screenshot in the same place, so a small step is visible by flicking back and forth. Outlines and notes hide while "before" shows; the heading says which side you see: "With this change" (the working tree `dta diff` rendered) or "Before this change" (with the base, for example `main · 2ee9b31`).
+- **Unexplained changes.** When no token accounts for some pixels (a component, content or layout change), the row opens with the **diff overlay** on: the changed pixels in orange over "after", a dashed box around them and the note "unexplained · no token". Turn the overlay off to see the page itself; "Show before" sits next to it. Explained rows have no overlay; their outline already says where.
+- **Whole images.** Every row links the full before, after and diff PNGs.
+
+Added and removed stories show their one side ("With this change" for a new story, "Before this change" for a removed one). The row is the design system's [Diff card](/design-system/components/diff-card/).
 
 ## Three workflows
 

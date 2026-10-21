@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** M
 **Blocked by:** 108
-**Status:** in review (GitHub run pending)
+**Status:** done
 **Spec:** [landing-redesign](../specs/landing-redesign.md) (decision 2: "the numbers on the page come from a real `dta diff` run")
 
 ## Problem
@@ -35,7 +35,7 @@ Then record the run (`dta diff --base <sha>` in `site/examples/orbit-burger`, wi
 - [x] Attribution explains the Orbit Burger stories' changes by `Radius.Card` and `Colors.Brand.Primary`
 - [x] `DIFF_SHARES` on the landing page comes from a recorded run, `real: true`, no illustrative note
 - [x] Before-pushing items 1–3 done; run re-recorded
-- [ ] All gates pass plus the site job, and the GitHub run is green
+- [x] All gates pass plus the site job, and the GitHub run is green
 
 ## Outcome
 

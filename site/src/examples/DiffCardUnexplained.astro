@@ -1,0 +1,23 @@
+---
+import DiffCard from '../components/ds/DiffCard.astro'
+import { CARD_CANVAS, TITLE_BOX, orbitCard, orbitCardTitleDiff } from './orbit-card'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'diff-card-unexplained' } = Astro.props
+---
+
+<DiffCard
+  story="orbit-card--default"
+  viewport={1280}
+  ratio="0.64%"
+  base="main · 2ee9b31"
+  canvas={CARD_CANVAS}
+  marks={[{ ...TITLE_BOX, unexplained: true }]}
+  idPrefix={idPrefix}
+>
+  <Fragment slot="after" set:html={orbitCard({ radius: 8, button: '#5aa2ff', title: 25 })} />
+  <Fragment slot="before" set:html={orbitCard({ radius: 8, button: '#5aa2ff' })} />
+  <Fragment slot="diff" set:html={orbitCardTitleDiff()} />
+</DiffCard>

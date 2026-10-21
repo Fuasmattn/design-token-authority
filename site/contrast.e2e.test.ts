@@ -8,7 +8,9 @@
  * with a token selected and with BrandB's dangling alias (TICKET-078); both themes) and of
  * every story (each renders Light and Graphite side by side) reaches 7:1 against its effective
  * background, 4.5:1 when large (24 px, or 18.66 px bold). So does the `dta diff` report for each
- * verdict (pass, review, fail; TICKET-120 status colours, review in signal since TICKET-121).
+ * verdict (pass, review, fail; TICKET-120 status colours, review in signal since TICKET-121), its
+ * story rows with "Show before" off and on (TICKET-109: outlines, leaders and notes at 3:1 by signal
+ * or ink line, notes never overlapping, no layout shift when toggling).
  * Findings markers and the report's chip dots (non-text) reach 3:1 on what they are painted on, a
  * selected line's tint included; so do the graph's markers, row outlines and arrows. The token test checks the pairs
  * the system names; this checks what the browser paints, nesting and opacity included.
@@ -404,8 +406,24 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
   // brand-ab's headline (BrandB's accent, navy to sky): example content stays blue or grey, never a
   // system colour (TICKET-122).
   const TOKEN = 'Colors.Brand.Accent (Brand(Alias) · BrandB)'
-  // A second token on the same box (TICKET-111): its label stacks with the first one.
+  // A second token on the same box (TICKET-111): its note stacks with the first one.
   const RADIUS = 'Radius.Card (Brand(Alias) · BrandB)'
+  // TICKET-109: a story row shows "after" with the changed boxes outlined and their notes under
+  // them. The screenshots are stand-ins (SVG, served for the PNG paths): a story page on the light
+  // canvas (paper-100, where signal alone is 2.98:1, so the ink line must hold) with a
+  // navy card and a button; the card's radius and the button's colour change.
+  const CARD = { x: 20, y: 20, width: 200, height: 120 }
+  const BUTTON = { x: 40, y: 92, width: 120, height: 32 }
+  const TITLE = { x: 40, y: 40, width: 140, height: 24 }
+  const shot = (side: string) => {
+    const open = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200">'
+    if (side === 'diff') {
+      return `${open}<rect width="400" height="200" fill="#eceef2"/><rect x="40" y="40" width="140" height="24" fill="#7d8ea3"/></svg>`
+    }
+    const r = side === 'base' ? 8 : 24
+    const button = side === 'base' ? '#2c4466' : '#3b8fd9'
+    return `${open}<rect width="400" height="200" fill="#f5f1e8"/><rect x="20" y="20" width="200" height="120" rx="${r}" fill="#1f2a44"/><rect x="40" y="92" width="120" height="32" rx="${r}" fill="${button}"/></svg>`
+  }
   const report = (verdict: 'pass' | 'review' | 'fail') => {
     const story = (id: string, status: 'changed' | 'unchanged', explained: boolean) => ({
       id,
@@ -421,15 +439,25 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
             attribution: {
               explained,
               tokens: explained
-                ? [TOKEN, RADIUS].map((id) => ({
-                    id,
-                    dependents: 1,
-                    pixels: 200,
-                    elements: ['.card'],
-                    regions: [{ x: 10, y: 20, width: 100, height: 40 }],
-                  }))
+                ? [
+                    {
+                      id: TOKEN,
+                      dependents: 1,
+                      pixels: 200,
+                      elements: ['span.button'],
+                      regions: [BUTTON],
+                    },
+                    {
+                      id: RADIUS,
+                      dependents: 2,
+                      pixels: 400,
+                      elements: ['div.card', 'span.button'],
+                      regions: [CARD, BUTTON],
+                    },
+                  ]
                 : [],
               unexplainedPixels: explained ? 0 : 200,
+              ...(explained ? {} : { unexplainedRegion: TITLE }),
               canvas: { width: 400, height: 200 },
             },
           }
@@ -477,35 +505,181 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
       }),
     )
   }
+
+  /**
+   * Runs in the report: outlines, leaders and notes are told apart from what is around them at
+   * 3:1 (WCAG 1.4.11) by their signal or their ink line, whichever holds. Sampled just outside
+   * what each paints, on the "after" image (or the stage's paper below it).
+   */
+  const EDGES = `(() => {
+    const parse = (s) => (s.match(/[\\d.]+/g) || []).map(Number).slice(0, 3)
+    const paint = (s) => { const m = (s.match(/[\\d.]+/g) || []).map(Number); return m.length === 4 && m[3] === 0 ? null : m.slice(0, 3) }
+    const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4 }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]) }
+    const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05) }
+    const failures = []
+    let checked = 0
+    for (const stage of document.querySelectorAll('.stage')) {
+      const img = stage.querySelector('.shot.after')
+      const frame = stage.querySelector('.canvas').getBoundingClientRect()
+      const ir = img.getBoundingClientRect()
+      const c = document.createElement('canvas')
+      c.width = Math.round(ir.width); c.height = Math.round(ir.height)
+      const ctx = c.getContext('2d', { willReadFrequently: true })
+      ctx.drawImage(img, 0, 0, c.width, c.height)
+      const paper = parse(getComputedStyle(stage).backgroundColor)
+      const sample = (x, y) => {
+        if (x >= ir.left && x < ir.right && y >= ir.top && y < Math.min(ir.bottom, frame.bottom)) {
+          const d = ctx.getImageData(Math.floor(x - ir.left), Math.floor(y - ir.top), 1, 1).data
+          return [d[0], d[1], d[2]]
+        }
+        return paper
+      }
+      // A leader's ends join its box's outline and its note: only its sides are checked, from
+      // below the outline's ring (7 px: border, outline and ink shadow).
+      const check = (el, out, colours, label, sidesFrom = -1) => {
+        if (getComputedStyle(el).visibility === 'hidden') return
+        const r = el.getBoundingClientRect()
+        const points = []
+        for (let i = 0; i <= 8; i++) {
+          const x = r.left + (r.width * i) / 8
+          if (sidesFrom < 0) points.push([x, r.top - out], [x, r.bottom + out])
+          const top = sidesFrom < 0 ? r.top : r.top + sidesFrom
+          const y = top + ((r.bottom - top) * i) / 8
+          if (y <= r.bottom) points.push([r.left - out, y], [r.right + out, y])
+        }
+        checked++
+        for (const [x, y] of points) {
+          const around = sample(x, y)
+          const best = Math.max(...colours.filter(Boolean).map((colour) => ratio(colour, around)))
+          if (best < 3) { failures.push({ label, around: around.map(Math.round).join(','), ratio: Math.round(best * 100) / 100 }); return }
+        }
+      }
+      for (const mark of stage.querySelectorAll('.mark')) {
+        const s = getComputedStyle(mark)
+        const solid = !mark.classList.contains('unexplained')
+        // Outline 2 px (and the 3 px ink shadow of a solid mark) outside the border box.
+        check(mark, solid ? 4.5 : 3, [paint(s.outlineColor), paint(s.borderTopColor)], solid ? 'outline' : 'dashed outline')
+      }
+      for (const note of stage.querySelectorAll('.note')) {
+        const s = getComputedStyle(note)
+        check(note, 1.5, [paint(s.backgroundColor), paint(s.borderTopColor)], 'note ' + note.textContent)
+      }
+      for (const leader of stage.querySelectorAll('.leader')) {
+        if (leader.getBoundingClientRect().height <= 7) continue
+        const s = getComputedStyle(leader)
+        check(leader, 1.5, [paint(s.backgroundColor), paint(s.borderLeftColor)], 'leader', 7)
+      }
+    }
+    return { checked, failures }
+  })()`
+
+  /** Boxes of what lays out the row: none may move when "Show before" is pressed. */
+  const GEOMETRY = `[...document.querySelectorAll('.story, .story .bar, .story .side, .story .toggle, .story .stage, .story .canvas, .story .note, .story .tokens-explained, .story .why, .story .whole')].map((el) => { const r = el.getBoundingClientRect(); return [el.className, r.x + scrollX, r.y + scrollY, r.width, r.height].join(' ') })`
+
   it.each(
     (['pass', 'review', 'fail'] as const).flatMap((verdict) =>
-      (['light', 'graphite'] as const).flatMap((brand) =>
-        [1280, 390].map((width) => [verdict, brand, width] as const),
+      (verdict === 'pass' ? (['after'] as const) : (['after', 'before'] as const)).flatMap(
+        (state) =>
+          (['light', 'graphite'] as const).flatMap((brand) =>
+            [1280, 390].map((width) => [verdict, state, brand, width] as const),
+          ),
       ),
     ),
   )(
-    'dta diff report (%s) in %s at %i px',
-    async (verdict, brand, width) => {
+    'dta diff report (%s, %s) in %s at %i px',
+    async (verdict, state, brand, width) => {
       const html = report(verdict)
       expect(html).toContain(`<span class="chip ${verdict}">`)
       const found = await audit(`${origin}/`, width, brand, async (page) => {
+        await page.route(/\/(base|head|diff)\/[^/]+\.png$/, (route: any) =>
+          route.fulfill({
+            contentType: 'image/svg+xml',
+            body: shot(/\/(base|head|diff)\//.exec(route.request().url())![1]),
+          }),
+        )
         await page.setContent(html)
         expect(await page.evaluate('document.documentElement.dataset.brand')).toBe(brand)
-        if (verdict !== 'review') return
-        // Labels of tokens on the same box stack: none overlaps another.
-        const boxes =
-          (await page.evaluate(`[...document.querySelectorAll('.mark .tags')].map((tags) =>
-          [...tags.querySelectorAll('.tag')].map((t) => { const r = t.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom] }))`)) as number[][][]
-        expect(boxes.some((tags) => tags.length === 2)).toBe(true)
-        for (const tags of boxes) {
-          for (let i = 0; i < tags.length; i++) {
-            for (let j = i + 1; j < tags.length; j++) {
-              const [a, b] = [tags[i], tags[j]]
-              const overlap = a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3]
-              expect(overlap, `labels ${i} and ${j} overlap`).toBe(false)
-            }
-          }
+        await page.evaluate(
+          `Promise.all([...document.images].map((i) => { i.loading = 'eager'; return i.decode() }))`,
+        )
+        await page.evaluate('document.fonts.ready.then(() => true)')
+        if (verdict === 'pass') return
+        const row = page.locator('.story').first()
+        const before = row.locator('[data-toggle="before"]')
+        const overlay = row.locator('[data-toggle="overlay"]')
+        // Unexplained: the overlay is on by default and "Show before" sits beside it; explained
+        // rows have no overlay toggle.
+        if (verdict === 'fail') {
+          expect(await overlay.getAttribute('aria-pressed')).toBe('true')
+          expect(
+            await row
+              .locator('.shot.overlay')
+              .evaluate((el: Element) => getComputedStyle(el).visibility),
+          ).toBe('visible')
+          expect(await row.locator('.mark.unexplained').count()).toBe(1)
+        } else {
+          expect(await overlay.count()).toBe(0)
+          expect(await row.locator('.mark').count()).toBe(2)
         }
+        expect(await before.getAttribute('aria-pressed')).toBe('false')
+        const label = () =>
+          row
+            .locator('.side .when-after, .side .when-before')
+            .evaluateAll((els: Element[]) =>
+              els
+                .filter((el) => getComputedStyle(el).visibility === 'visible')
+                .map((el) => el.textContent),
+            )
+        expect(await label()).toEqual(['With this change working tree'])
+
+        if (state === 'after') {
+          // Outlines, leaders and notes at 3:1 against the story around them.
+          const edges = (await page.evaluate(EDGES)) as { checked: number; failures: unknown[] }
+          expect(edges.checked).toBeGreaterThan(verdict === 'review' ? 4 : 1)
+          expect(edges.failures).toEqual([])
+          // Notes never overlap each other nor sit over an outlined box.
+          const rects = (await page.evaluate(`({
+            notes: [...document.querySelector('.stage').querySelectorAll('.note')].map((n) => { const r = n.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom] }),
+            marks: [...document.querySelector('.stage').querySelectorAll('.mark')].map((n) => { const r = n.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom] }),
+          })`)) as { notes: number[][]; marks: number[][] }
+          const meet = (a: number[], b: number[]) =>
+            a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3]
+          expect(rects.notes.length).toBe(verdict === 'review' ? 3 : 1)
+          rects.notes.forEach((a, i) => {
+            rects.notes.slice(i + 1).forEach((b, j) => {
+              expect(meet(a, b), `notes ${i} and ${i + j + 1} overlap`).toBe(false)
+            })
+            rects.marks.forEach((m, j) => expect(meet(a, m), `note ${i} over box ${j}`).toBe(false))
+          })
+          return
+        }
+
+        // "Show before" by keyboard: the image swaps in place, nothing moves.
+        await before.focus()
+        const geometry = await page.evaluate(GEOMETRY)
+        await page.evaluate(`window.__shift = 0; new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) window.__shift += entry.value
+        }).observe({ type: 'layout-shift' })`)
+        await page.keyboard.press('Space')
+        expect(await before.getAttribute('aria-pressed')).toBe('true')
+        expect(await before.locator('.state').textContent()).toBe('on')
+        expect(await label()).toEqual(['Before this change main · 1a2b3c4'])
+        const visibility = (selector: string) =>
+          row.locator(selector).evaluate((el: Element) => getComputedStyle(el).visibility)
+        expect(await visibility('.shot.before')).toBe('visible')
+        expect(await visibility('.shot.after')).toBe('hidden')
+        expect(await visibility('.marks')).toBe('hidden')
+        expect(await visibility('.notes')).toBe('hidden')
+        await page.waitForTimeout(200)
+        expect(await page.evaluate(GEOMETRY)).toEqual(geometry)
+        expect(await page.evaluate('window.__shift')).toBe(0)
+        // ...and back with Enter.
+        await page.keyboard.press('Enter')
+        expect(await before.getAttribute('aria-pressed')).toBe('false')
+        expect(await label()).toEqual(['With this change working tree'])
+        expect(await page.evaluate(GEOMETRY)).toEqual(geometry)
+        expect(await page.evaluate('window.__shift')).toBe(0)
+        await page.keyboard.press('Space') // audit the "before" state
       })
       expect(found).toEqual([])
     },

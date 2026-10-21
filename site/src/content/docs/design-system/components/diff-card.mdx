@@ -1,6 +1,6 @@
 ---
 title: Diff card
-description: Summarises one dta diff result
+description: One story row of the dta diff report, the change outlined on "after"
 sidebar:
   order: 7
 ---
@@ -8,16 +8,22 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-Summarises one `dta diff` result: story and viewport, baseline / candidate / diff thumbnails, the change ratio against the threshold, and the action.
+One story × viewport of a `dta diff` report: only "after", with each changed element outlined and the tokens that explain it named under it, a table of those tokens, and links to the whole images. "Show before" swaps the image in place, so a subtle step (Nova 500 → 600) shows by flicking. The [`dta diff` report](/guides/dta-diff-in-pull-requests/#reading-the-report) writes the same row; this component is its reference.
 
 <Examples component="diff-card" />
 
 ## Guidelines
 
-- The diff thumbnail uses `signal-bg` hatching over `signal-subtle`; the change bar fills with `signal-bg` relative to the threshold.
-- The state chip says "review", "pass" or "blocked", as a [Chip](/design-system/components/chip/): review is a change to look at (`changed`, signal), pass a success (`pass`), blocked an error (`error`, the filled square in the [status colours](/design-system/status-colours/); never signal). A blocked card says why in text.
-- Thumbnails are placeholders until `dta diff` renders real screenshots.
-- One primary action, "Approve change", only when there is something to review.
+- **Only "after", the change marked.** Every changed box gets an outline in `signal-bg` (`stroke-ink`) with a 1 px `ink-900` line inside and outside it. The tokens that change a box sit in notes under it, stacked when several change the same box, joined to it by a short leader; notes never cover another outlined box. A box changed by two tokens (a button's colour and radius) carries both notes.
+- **Note wording:** the token, then its change. Colours show the alias step (`Nova 500 → 600`, both names when the palette changes: `Navy 700 → Sky 500`), sizes and other values the resolved numbers (`8 → 24`).
+- **The ink line is not decoration.** Signal alone is 2.98:1 on a light story page (`paper-100`) and 2.14:1 in Graphite's `signal-bg`, under the 3:1 a boundary needs; the ink line holds there (14.15:1) and signal holds on dark surfaces such as a navy card (4.91:1 and up). Screenshots do not follow the theme, so the ink is the fixed `ink-900`, not `fg-default`, and the stage behind the image is the story page's `paper-100` in both themes.
+- **Notes are redline labels:** `signal-fg` on `signal-bg` (5.74:1), the design system's one AA exception, marked `data-contrast-exception`. The "unexplained · no token" note is `ink-900` on `paper-0` with a dashed ink border (15.95:1).
+- **"Show before" is a toggle button:** a box, a tick when pressed and the word on or off, `aria-pressed`, operable with Enter and Space (no keyboard shortcut). It swaps the image in the same place; outlines, leaders, notes and the overlay hide but keep their space, and the heading switches from "With this change" to "Before this change". Both headings, each with its small meta, share one grid cell, so the larger sets the box and switching moves nothing: no layout shift at any width.
+- **Headings in words, not git words:** "With this change" with the head in small meta (the branch when known; the report says "working tree", which is what `dta diff` renders), and "Before this change" with the base ref and short sha ("main · 2ee9b31"; only the sha when the base was given as a sha, a directory base by its name). Never "head" or "base" as a heading.
+- **Unexplained rows** (no token accounts for some pixels): the diff overlay is on by default (a toggle of the same kind, beside "Show before"; the diff image blends with `multiply`, so changed pixels show in signal and the rest stays clear), the box is dashed, and a sentence says what that means. Explained rows have no overlay toggle: the outline says where, the diff image is one link away.
+- **Status chips:** "changed" in the `info` tone like the report's story status, then "explained" (`neutral`) or "unexplained" (`error`, the square).
+- **Phone width:** the toggles take the full width, one under the other; notes take two lines (token, then change); the token table becomes a list (base, head, box). In the report the image runs edge to edge.
+- **Without JavaScript** the image, outlines and links stay, the notes line up under the image and the toggles are left out.
 
 ## Tokens used
 
