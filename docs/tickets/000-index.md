@@ -288,6 +288,21 @@ Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17, rev
 
 Order: 110 → 105 → 106 → 107 → 108 → 112 (done); 114 (done); 109 and 111 later.
 
+## Phase 11 — `dta diff` with near-zero setup
+
+Spec: [diff-zero-setup](../specs/diff-zero-setup.md) (approved 2026-10-21). From nine manual steps to two: `npm create dta`, then open a pull request. No new diff features; setup and robustness only.
+
+| #                                             | Ticket                                                   | Priority | Effort | Blocked by    | Status |
+| --------------------------------------------- | -------------------------------------------------------- | -------- | ------ | ------------- | ------ |
+| [126](./126-diff-detect-project.md)           | Detect the project for `dta diff` setup                  | High     | M      | —             | Open   |
+| [127](./127-diff-base-build-without-setup.md) | Base build without `diff.setup`                          | High     | M      | —             | Open   |
+| [128](./128-diff-stories-page-list.md)        | Stories as a page list                                   | Medium   | S      | —             | Open   |
+| [129](./129-diff-one-workflow.md)             | One workflow file for private and team repositories      | High     | M      | 090           | Open   |
+| [130](./130-diff-check-loud-failures.md)      | `dta diff --check` and loud failures                     | High     | S      | —             | Open   |
+| [131](./131-init-diff-step.md)                | Init step for `dta diff`, re-runnable                    | High     | M      | 126, 128, 129 | Open   |
+
+Order: 126, 127, 128 and 130 in parallel → 129 (after 090) → 131.
+
 ---
 
 ## Dependency Map
