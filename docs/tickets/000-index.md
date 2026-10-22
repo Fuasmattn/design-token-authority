@@ -315,7 +315,7 @@ Spec: [dtcg-2025-10](../specs/dtcg-2025-10.md) (approved 2026-10-21). A valid DT
 | [135](./135-dtcg-tokens-files.md)      | Read `.tokens` and `.tokens.json` files                         | High     | S      | 132        | In review |
 | [136](./136-dtcg-resolver.md)          | Resolver documents                                              | High     | L      | 133, 135   | In review |
 | [137](./137-dtcg-modifier-axes.md)     | Several modifiers at once (axes)                                | High     | L      | 134, 136   | Open   |
-| [138](./138-dtcg-figma-push.md)        | Figma push for the new types                                    | Medium   | M      | 134        | Open   |
+| [138](./138-dtcg-figma-push.md)        | Figma push for the new types                                    | Medium   | M      | 134        | In review |
 
 Order: 132 → 133 → 134 → 137; 135 after 132; 136 after 133 and 135; 138 after 134.
 

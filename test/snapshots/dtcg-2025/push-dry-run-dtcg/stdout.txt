@@ -1,0 +1,77 @@
+T   ⤴  dta push 
+|
+o  Diff computed
+|
+!  warning [clipped-to-srgb] "Base/color.vivid" (color(display-p3 1 0.2 0)) is outside sRGB; Figma gets #ff0000.
+|
+!  warning [not-pushable] "Base/spacing.m" is 1rem; Figma holds lengths as px numbers; it was not pushed.
+|
+!  warning [not-pushable] "Base/motion.fast" is duration, which Figma variables cannot hold; it was not pushed.
+|
+!  warning [not-pushable] "Base/motion.slow" is duration, which Figma variables cannot hold; it was not pushed.
+|
+!  warning [not-pushable] "Base/motion.ease" is cubicBezier, which Figma variables cannot hold; it was not pushed.
+|
+!  warning [not-pushable] "Base/font.body" is a list of font families; a Figma variable holds one; it was not pushed.
+|
+!  warning [not-pushable] "Base/font.regular" is fontWeight, which Figma variables cannot hold; it was not pushed.
+|
+!  warning [not-pushable] "Base/font.strong" is fontWeight, which Figma variables cannot hold; it was not pushed.
+|
+!  warning [not-pushable] "Base/shadow.card" is shadow, which Figma variables cannot hold; it was not pushed.
+|
+!  warning [not-pushable] "Base/shadow.stack" is shadow, which Figma variables cannot hold; it was not pushed.
+|
+!  warning [not-pushable] "Base/border.focus" is border, which Figma variables cannot hold; it was not pushed.
+|
+!  warning [not-pushable] "Base/border.dashed" is border, which Figma variables cannot hold; it was not pushed.
+|
+!  warning [not-pushable] "Base/transition.enter" is transition, which Figma variables cannot hold; it was not pushed.
+|
+!  warning [not-pushable] "Base/gradient.brand" is gradient, which Figma variables cannot hold; it was not pushed.
+|
+!  warning [not-pushable] "Base/typography.body" is typography, which Figma variables cannot hold; it was not pushed.
+|
+!  warning [not-pushable] "Base/legacy.gap" aliases "spacing.m", which is not pushed; it was not pushed.
+|
+!  warning [not-pushable] "Brand/elevation.raised" is shadow, which Figma variables cannot hold; it was not pushed.
+|
+!  warning [not-pushable] "motion/instant" is duration, which Figma variables cannot hold; it was not pushed.
+|
+!  warning [not-pushable] "motion/modal" is duration, which Figma variables cannot hold; it was not pushed.
+|
+|  Summary: +20 added
+|
+|  New collections:
+|    + Base
+|    + Brand
+|    + motion
+|
+|  New modes:
+|    + B (Brand)
+|
+|  Added (20):
+|    + color/black [Base]
+|    + color/white [Base]
+|    + color/ink [Base]
+|    + color/sky [Base]
+|    + color/grass [Base]
+|    + color/vivid [Base]
+|    + color/accent/$root [Base]
+|    + color/accent/soft [Base]
+|    + spacing/s [Base]
+|    + spacing/l [Base]
+|    + radius/card [Base]
+|    + font/line [Base]
+|    + sky-lightness [Base]
+|    + button/background [Base]
+|    + button/text [Base]
+|    + button-danger/background [Base]
+|    + button-danger/text [Base]
+|    + brand/primary [Brand]
+|    + brand/on-primary [Brand]
+|    + brand/surface [Brand]
+|
+|
+—  Dry run — no changes were applied to Figma.
+

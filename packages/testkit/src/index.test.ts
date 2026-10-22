@@ -60,6 +60,7 @@ describe('SCENARIOS', () => {
       'pull-from-file',
       'push-up-to-date',
       'push-dry-run',
+      'push-dry-run-dtcg',
       'push-dry-run-markdown',
       'push-dry-run-json',
       'token-get',

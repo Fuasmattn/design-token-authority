@@ -111,3 +111,14 @@ o  Diff computed
 ```
 
 `--yes` (or `push: { skipConfirmation: true }` in the config) skips the typed confirmation for CI. `--format markdown` or `json` prints the plan for a pull-request comment.
+
+### What Figma variables can hold
+
+Figma variables hold colours, numbers, text and booleans. Of the DTCG 2025.10 types, `dta push` sends:
+
+- **colours** in any colour space, converted to sRGB; one outside sRGB is clipped, with a `clipped-to-srgb` warning naming the colour Figma gets;
+- **dimensions in `px`** as numbers;
+- **a font family** that names one font, as text;
+- **a `$ref`** to a token as an alias, and one into a value as that value.
+
+Everything else is skipped with a `not-pushable` warning that says why: `rem` dimensions, lists of font families, font weights, durations, cubic Béziers and the composite types (shadow, border, transition, typography, gradient, stroke style). An alias to a skipped token is skipped too, so Figma never gets an alias to a variable it does not have. `dta pull` writes what Figma holds, so those tokens stay in your files only.

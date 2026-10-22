@@ -5,13 +5,19 @@ import {
   nameToSlash,
   parseAlias,
   parseColor,
+  formatValue,
+  referenceOf,
+  resolve,
   toHex,
+  toSrgb,
   type Collection,
+  type ColorValue,
   type Diagnostic,
   type Token,
   type TokenModel,
   type TokenName,
   type TokenType,
+  type TokenValue,
 } from '@dta/core'
 import type {
   PostVariablesRequestBody,
@@ -71,6 +77,9 @@ const RESOLVED_TYPE = {
   number: 'FLOAT',
   string: 'STRING',
   boolean: 'BOOLEAN',
+  // DTCG 2025.10 types Figma variables can hold: a px length, one font family.
+  dimension: 'FLOAT',
+  fontFamily: 'STRING',
 } as const
 
 const isPushable = (type: string): type is keyof typeof RESOLVED_TYPE => type in RESOLVED_TYPE
@@ -121,6 +130,8 @@ function sameValue(existing: FigmaValue | undefined, next: NewValue): boolean {
 export function planPush(model: TokenModel, figma: LocalVariablesResponse): PushPlan {
   const diagnostics: Diagnostic[] = [...checkUniqueNames(model)]
   const notPushable = new Set<string>()
+  /** While the first pass looks for tokens to skip: no warnings yet. */
+  let quiet = false
   const error = (code: string, message: string, path?: TokenName) =>
     diagnostics.push({ severity: 'error', code, message, ...(path ? { path } : {}) })
 
@@ -201,9 +212,8 @@ export function planPush(model: TokenModel, figma: LocalVariablesResponse): Push
       }
       return parsed.color
     }
-    if (
-      typeof raw !== typeof (token.type === 'number' ? 0 : token.type === 'boolean' ? true : '')
-    ) {
+    const numeric = token.type === 'number' || token.type === 'dimension'
+    if (typeof raw !== typeof (numeric ? 0 : token.type === 'boolean' ? true : '')) {
       error(
         'invalid-value',
         `"${nameToDot(token.name)}" is ${token.type} but has the value ${JSON.stringify(raw)}.`,
@@ -212,6 +222,39 @@ export function planPush(model: TokenModel, figma: LocalVariablesResponse): Push
       return undefined
     }
     return raw
+  }
+
+  // Tokens that are not pushed, then (until nothing changes) the aliases that point at one, so
+  // Figma never gets an alias to a variable it does not have.
+  const skipped = new Map<string, { skip: string }>()
+  const skippedNames = new Set<string>()
+  quiet = true
+  for (const collection of model.collections)
+    for (const mode of collection.modes)
+      for (const token of collection.tokens) {
+        const raw = token.values[mode]
+        if (raw === undefined) continue
+        const result = pushValueOf(token, raw, collection, mode)
+        if ('skip' in result) {
+          skipped.set(`${nameToDot(token.name)}|${mode}`, result)
+          skippedNames.add(nameToDot(token.name))
+        }
+      }
+  quiet = false
+  for (let changed = true; changed; ) {
+    changed = false
+    for (const collection of model.collections)
+      for (const mode of collection.modes)
+        for (const token of collection.tokens) {
+          const key = `${nameToDot(token.name)}|${mode}`
+          const reference = referenceOf(token.values[mode])
+          if (skipped.has(key) || !reference || reference.part.length > 0) continue
+          const target = reference.target.join('.')
+          if (!skippedNames.has(target)) continue
+          skipped.set(key, { skip: `aliases "${target}", which is not pushed` })
+          skippedNames.add(nameToDot(token.name))
+          changed = true
+        }
   }
 
   for (const collection of model.collections) {
@@ -255,20 +298,22 @@ export function planPush(model: TokenModel, figma: LocalVariablesResponse): Push
       for (const token of collection.tokens) {
         const raw = token.values[mode]
         if (raw === undefined) continue
-        if (!isPushable(token.type)) {
+        const pushed =
+          skipped.get(`${nameToDot(token.name)}|${mode}`) ??
+          pushValueOf(token, raw, collection, mode)
+        if ('skip' in pushed) {
           const key = `${collection.name}/${nameToDot(token.name)}`
           if (!notPushable.has(key)) {
             notPushable.add(key)
             diagnostics.push({
               severity: 'warning',
               code: 'not-pushable',
-              message: `"${key}" is ${token.type}, which Figma variables cannot hold; it was not pushed.`,
+              message: `"${key}" ${pushed.skip}; it was not pushed.`,
               path: token.name,
             })
           }
           continue
         }
-        if (typeof raw === 'object') continue
         planToken(
           collection,
           figmaCollection,
@@ -277,10 +322,70 @@ export function planPush(model: TokenModel, figma: LocalVariablesResponse): Push
           figmaMode?.modeId,
           modeId,
           token,
-          raw,
+          pushed.value,
         )
       }
     })
+  }
+
+  function pushValueOf(token: Token, raw: TokenValue, collection: Collection, mode: string) {
+    return isPushable(token.type)
+      ? pushValue(token, raw, collection, mode)
+      : { skip: `is ${token.type}, which Figma variables cannot hold` }
+  }
+
+  /**
+   * The value Figma gets for a DTCG 2025.10 value: colour objects as sRGB hex (with a warning
+   * when clipped), px dimensions as numbers, one font family as text, a `$ref` to a token as an
+   * alias, a `$ref` into a value as that part. Anything else is skipped, with the reason.
+   */
+  function pushValue(
+    token: Token,
+    raw: TokenValue,
+    collection: Collection,
+    mode: string,
+  ): { value: ChangeValue } | { skip: string } {
+    const reference = referenceOf(raw)
+    if (reference?.kind === 'ref') {
+      if (reference.part.length === 0) return { value: `{${reference.target.join('.')}}` }
+      const resolved = resolve(model, token.name, { [collection.name]: mode })
+      if (!resolved.ok)
+        return { skip: `points with ${reference.text} at something that does not resolve` }
+      return pushValue(token, resolved.value, collection, mode)
+    }
+    if (typeof raw !== 'object') {
+      if (token.type === 'dimension' && typeof raw === 'string' && !parseAlias(raw)) {
+        const px = /^(-?\d*\.?\d+)px$/.exec(raw.trim())
+        return px
+          ? { value: Number(px[1]) }
+          : { skip: `is ${raw}; Figma holds lengths as px numbers` }
+      }
+      return { value: raw }
+    }
+    if (token.type === 'color' && 'colorSpace' in raw) {
+      const { color, clipped } = toSrgb(raw as ColorValue)
+      if (clipped && !quiet) {
+        diagnostics.push({
+          severity: 'warning',
+          code: 'clipped-to-srgb',
+          message: `"${collection.name}/${nameToDot(token.name)}" (${formatValue(raw)}) is outside sRGB; Figma gets ${toHex(color)}.`,
+          path: token.name,
+        })
+      }
+      return { value: toHex(color) }
+    }
+    if (token.type === 'dimension' && 'unit' in raw && 'value' in raw) {
+      const { value, unit } = raw as { value: number; unit: string }
+      return unit === 'px'
+        ? { value }
+        : { skip: `is ${value}${unit}; Figma holds lengths as px numbers` }
+    }
+    if (token.type === 'fontFamily' && Array.isArray(raw)) {
+      return raw.length === 1 && typeof raw[0] === 'string'
+        ? { value: raw[0] }
+        : { skip: 'is a list of font families; a Figma variable holds one' }
+    }
+    return { skip: `has a value Figma variables cannot hold (${formatValue(raw)})` }
   }
 
   function planToken(

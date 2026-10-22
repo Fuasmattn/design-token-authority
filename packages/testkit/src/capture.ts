@@ -56,6 +56,16 @@ export const SCENARIOS: readonly Scenario[] = [
     },
   },
   {
+    name: 'push-dry-run-dtcg',
+    args: ['push', '--dry-run'],
+    fixtures: ['dtcg-2025'],
+    figma: {
+      fileKey: 'FAKEFILEKEY',
+      token: 'fake-token',
+      recording: 'variables-empty.json',
+    },
+  },
+  {
     name: 'push-dry-run-markdown',
     args: ['push', '--dry-run', '--format', 'markdown'],
     fixtures: ['brand-ab'],

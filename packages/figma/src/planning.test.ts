@@ -114,24 +114,61 @@ describe('planPush: the BrandA/BrandB recording', () => {
     }
   })
 
-  it('skips the DTCG types Figma variables cannot hold, with one warning per token', () => {
+  it('pushes the DTCG 2025.10 values Figma variables can hold and skips the rest, saying why', () => {
     const model = modelFrom({
       'Extra.Value.json': {
-        Space: { $type: 'dimension', S: { $value: { value: 4, unit: 'px' } } },
-        Plain: { $type: 'number', $value: 7 },
+        Sky: { $type: 'color', $value: { colorSpace: 'oklch', components: [0.7, 0.15, 250] } },
+        Vivid: { $type: 'color', $value: { colorSpace: 'display-p3', components: [1, 0, 0] } },
+        Gap: { $type: 'dimension', $value: { value: 8, unit: 'px' } },
+        Lead: { $type: 'dimension', $value: '1rem' },
+        Body: { $type: 'fontFamily', $value: ['Inter'] },
+        Stack: { $type: 'fontFamily', $value: ['Inter', 'sans-serif'] },
+        Ease: { $type: 'cubicBezier', $value: [0.5, 0, 1, 1] },
+        Link: { $type: 'color', $value: { $ref: '#/Sky' } },
+        Half: { $type: 'number', $value: { $ref: '#/Gap/$value/value' } },
       },
     })
     const plan = planPush(model, emptyFigma())
-    expect(plan.diagnostics).toEqual([
-      expect.objectContaining({
-        severity: 'warning',
-        code: 'not-pushable',
-        message:
-          '"Extra/Space.S" is dimension, which Figma variables cannot hold; it was not pushed.',
-      }),
+    expect(plan.diagnostics.map((d) => [d.code, d.message])).toEqual([
+      [
+        'clipped-to-srgb',
+        '"Extra/Vivid" (color(display-p3 1 0 0)) is outside sRGB; Figma gets #ff0000.',
+      ],
+      [
+        'not-pushable',
+        '"Extra/Lead" is 1rem; Figma holds lengths as px numbers; it was not pushed.',
+      ],
+      [
+        'not-pushable',
+        '"Extra/Stack" is a list of font families; a Figma variable holds one; it was not pushed.',
+      ],
+      [
+        'not-pushable',
+        '"Extra/Ease" is cubicBezier, which Figma variables cannot hold; it was not pushed.',
+      ],
     ])
-    const names = plan.payload?.variables?.map((v) => ('name' in v ? v.name : v.id))
-    expect(names).toEqual(['Plain'])
+    const created = Object.fromEntries(
+      (plan.payload?.variables ?? []).map((v) => [
+        'name' in v ? v.name : v.id,
+        'resolvedType' in v ? v.resolvedType : undefined,
+      ]),
+    )
+    expect(created).toEqual({
+      Sky: 'COLOR',
+      Vivid: 'COLOR',
+      Gap: 'FLOAT',
+      Body: 'STRING',
+      Link: 'COLOR',
+      Half: 'FLOAT',
+    })
+    const values = Object.fromEntries(
+      (plan.payload?.variableModeValues ?? []).map((v) => [v.variableId, v.value]),
+    )
+    expect(values.Gap).toBe(8)
+    expect(values.Body).toBe('Inter')
+    expect(values.Half).toBe(8)
+    expect(values.Link).toEqual({ type: 'VARIABLE_ALIAS', id: 'Sky' })
+    expect(values.Sky).toMatchObject({ r: expect.any(Number), g: expect.any(Number) })
   })
 
   it('ignores floating point noise in colors', () => {

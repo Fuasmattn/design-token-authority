@@ -117,6 +117,12 @@ export async function runPush(context: CommandContext): Promise<number> {
   }
   spinner.stop('Diff computed')
 
+  // Warnings (values Figma cannot hold, colours clipped to sRGB): on stderr for json and
+  // markdown, so their output stays clean.
+  for (const diagnostic of plan.diagnostics) {
+    if (format === 'console') ui.log.warn(formatDiagnostic(diagnostic))
+    else context.stderr(`${formatDiagnostic(diagnostic)}\n`)
+  }
   const report = buildDiffReport(payload)
   if (format === 'json') context.stdout(formatJson(report) + '\n')
   else if (format === 'markdown') context.stdout(formatMarkdown(report) + '\n')
