@@ -1,6 +1,6 @@
-import { parseAlias } from './alias.js'
 import { indexTokens } from './lookup.js'
 import { nameToDot, nameToSlash } from './names.js'
+import { nestedReferences, referenceOf } from './references.js'
 import type { TokenModel, TokenName, TokenType, TokenValue } from './types.js'
 
 /** One token in one mode. */
@@ -12,8 +12,10 @@ export interface GraphNode {
   name: TokenName
   type: TokenType
   value: TokenValue
-  /** The aliased token's name, or null for raw values. */
+  /** The aliased token's name (a curly alias or a `$ref`), or null for raw values. */
   aliasTarget: TokenName | null
+  /** Tokens that references inside the value point at (a shadow's colour, …), in order. */
+  references: TokenName[]
 }
 
 export interface GraphEdge {
@@ -89,7 +91,8 @@ export function analyzeGraph(model: TokenModel): GraphAnalysis {
           name: token.name,
           type: token.type,
           value,
-          aliasTarget: parseAlias(value),
+          aliasTarget: referenceOf(value)?.target ?? null,
+          references: nestedReferences(value).map((reference) => reference.target),
         }
         nodes.push(node)
         nodeById.set(node.id, node)
@@ -102,24 +105,40 @@ export function analyzeGraph(model: TokenModel): GraphAnalysis {
   const target = new Map<string, string>()
   const referenced = new Set<string>()
 
-  for (const node of nodes) {
-    if (!node.aliasTarget) continue
-    const targetName = nameToDot(node.aliasTarget)
+  /** The node a reference of `node` points at, or a dangling entry for it. */
+  const link = (node: GraphNode, targetName: string, text: string, primary: boolean) => {
     const found = byName.get(targetName)?.[0]
     const mode =
       found && (found.collection.name === node.collection ? node.mode : found.collection.modes[0])
     const to = found && `${found.collection.name}.${mode}/${nameToSlash(found.token.name)}`
     if (to !== undefined && nodeById.has(to)) {
-      edges.push({ from: node.id, to })
-      target.set(node.id, to)
+      if (!edgeKeys.has(`${node.id}\n${to}`)) {
+        edgeKeys.add(`${node.id}\n${to}`)
+        edges.push({ from: node.id, to })
+      }
+      if (primary) target.set(node.id, to)
+      else (partTargets.get(node.id) ?? partTargets.set(node.id, []).get(node.id))?.push(to)
       referenced.add(to)
     } else {
       danglingAliases.push({
         sourceId: node.id,
         file: `${node.collection}.${node.mode}`,
-        rawAlias: `{${targetName}}`,
+        rawAlias: text,
         targetName,
       })
+    }
+  }
+  const partTargets = new Map<string, string[]>()
+  const edgeKeys = new Set<string>()
+  for (const node of nodes) {
+    const top = referenceOf(node.value)
+    if (top) {
+      const targetName = nameToDot(top.target)
+      link(node, targetName, top.kind === 'alias' ? `{${targetName}}` : top.text, true)
+    }
+    for (const part of nestedReferences(node.value)) {
+      const targetName = nameToDot(part.target)
+      link(node, targetName, part.kind === 'alias' ? `{${targetName}}` : part.text, false)
     }
   }
 
@@ -154,6 +173,35 @@ export function analyzeGraph(model: TokenModel): GraphAnalysis {
     for (let i = walk.length - 1, depth = tail; i >= 0; i--, depth++) {
       chainDepths[walk[i]] = depth
       state.set(walk[i], 2)
+    }
+  }
+  // References inside values add edges beyond the alias pointers: find the cycles through them.
+  const next = (id: string) => [
+    ...(target.has(id) ? [target.get(id) as string] : []),
+    ...(partTargets.get(id) ?? []),
+  ]
+  const known = new Set(cycles.map((cycle) => [...new Set(cycle.path)].sort().join('|')))
+  for (const [from, tos] of partTargets) {
+    for (const to of tos) {
+      // A path from `to` back to `from` closes a cycle through this part reference.
+      const previous = new Map<string, string>([[to, '']])
+      const queue = [to]
+      while (queue.length > 0 && !previous.has(from)) {
+        const id = queue.shift() as string
+        for (const n of next(id))
+          if (!previous.has(n)) {
+            previous.set(n, id)
+            queue.push(n)
+          }
+      }
+      if (!previous.has(from)) continue
+      const back: string[] = []
+      for (let id = from; id !== ''; id = previous.get(id) as string) back.unshift(id)
+      const path = [from, ...back]
+      const key = [...new Set(path)].sort().join('|')
+      if (known.has(key)) continue
+      known.add(key)
+      cycles.push({ path })
     }
   }
   const maxChainDepth = Math.max(0, ...Object.values(chainDepths))

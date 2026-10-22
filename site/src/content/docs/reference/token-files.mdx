@@ -15,6 +15,10 @@ DTA reads and writes one JSON file per collection and mode. This page describes 
 - A token has a `$value` and a type: its own `$type`, or, if it has none, the type of the token its alias points to, or the `$type` of the closest group above it. Optionally `$description`, `$deprecated` (`true` or an explanation; groups pass it on, `false` on a token overrides that) and `$extensions`.
 - Names must not contain `{` or `}` (an error). A `.` in a name is a warning: DTA reads it, but DTCG 2025.10 does not allow it, so other tools may not.
 - A value that starts with `{` is an alias to another token: `{Colors.Foundation.Blue.500}`. Variable names are unique across all collections, so the alias carries no collection name.
+- A `$ref` (JSON Pointer) does the same as `{ "$ref": "#/Colors/Foundation/Blue/500/$value" }`, and can also point at a part of a value: `#/Colors/Blue/$value/components/0`. Only pointers into the token files (`#/…`) are read.
+- Aliases and `$ref` work for a whole value and for each part of a composite (a shadow's `color`, a typography's `fontSize`); `dta token get` lists them as the token's parts.
+- `$root` is a group's own token: `{color.accent.$root}`.
+- `$extends: "{button}"` on a group gives it the tokens of another group in the same file; a token of its own at the same path replaces the inherited one. Inherited tokens stay implicit when DTA writes the file back.
 - `$extensions["com.figma"]` holds Figma-only metadata that is kept when you push: `hiddenFromPublishing`, `scopes` and `codeSyntax` (`WEB`, `ANDROID`, `iOS`).
 
 ```json

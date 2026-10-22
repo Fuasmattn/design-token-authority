@@ -1,4 +1,5 @@
-import { parseAlias } from './alias.js'
+import { expandExtends } from './extends.js'
+import { referenceOf } from './references.js'
 import type { Diagnostic, TokenType, TokenValue } from './types.js'
 import { isTokenType, TOKEN_TYPES, valueProblem } from './values.js'
 
@@ -22,6 +23,8 @@ export interface Entry {
   description?: string
   extensions?: Json
   deprecated?: true | string
+  /** Whether the token came from a group's `$extends` (it is not written at this path). */
+  inherited?: boolean
 }
 
 export interface ReadResult {
@@ -48,11 +51,14 @@ function nameProblem(key: string): { severity: 'error' | 'warning'; text: string
 
 /**
  * Find the tokens (objects with `$value`) in a file tree, and the problems with the others.
- * Group `$type` and `$deprecated` apply to the tokens below them (DTCG 2025.10).
+ * DTCG 2025.10: group `$type` and `$deprecated` apply to the tokens below them, `$extends`
+ * groups get the tokens of the group they extend, and `$root` is a token named `$root`.
  */
-export function readEntries(tree: Json): ReadResult {
+export function readEntries(file: Json): ReadResult {
   const entries: Entry[] = []
-  const problems: ReadResult['problems'] = []
+  const expanded = expandExtends(file)
+  const problems: ReadResult['problems'] = [...expanded.problems]
+  const tree = expanded.tree
 
   const visit = (group: Json, path: string[], inherited: Inherited) => {
     const here: Inherited = {
@@ -68,9 +74,18 @@ export function readEntries(tree: Json): ReadResult {
       })
     }
     for (const [key, child] of Object.entries(group)) {
-      if (key.startsWith('$')) continue
+      if (key.startsWith('$') && key !== '$root') continue
       const childPath = [...path, key]
-      const badName = nameProblem(key)
+      if (key === '$root' && !(isObject(child) && '$value' in child)) {
+        problems.push({
+          severity: 'error',
+          code: 'invalid-root',
+          message: `"${childPath.join('.')}": $root is the group's own token and needs a $value.`,
+          path: childPath,
+        })
+        continue
+      }
+      const badName = key === '$root' ? null : nameProblem(key)
       if (badName?.severity === 'error') {
         problems.push({
           severity: 'error',
@@ -107,7 +122,8 @@ export function readEntries(tree: Json): ReadResult {
           continue
         }
         const entry = toEntry(child, childPath, here, problems)
-        if (entry) entries.push(entry)
+        if (entry)
+          entries.push(expanded.inherited.has(child) ? { ...entry, inherited: true } : entry)
       } else {
         visit(child, childPath, here)
       }
@@ -134,7 +150,7 @@ function toEntry(
   // Type: the token's own, else (for an alias) the target's, resolved later, else the group's.
   let type = ownType ? node.$type : inherited.type
   const value = node.$value
-  if (type === undefined && parseAlias(value)) type = 'alias'
+  if (type === undefined && referenceOf(value)?.part.length === 0) type = 'alias'
   if (type === undefined) {
     problems.push({
       severity: 'error',

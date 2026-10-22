@@ -1,4 +1,5 @@
 import { parseAlias } from './alias.js'
+import { isRefObject, refProblem } from './references.js'
 import { parseColor, toHex } from './color.js'
 import type {
   ColorSpace,
@@ -91,12 +92,14 @@ const isObject = (value: unknown): value is Json =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 const isNumber = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value)
-const isAlias = (value: unknown) => parseAlias(value) !== null
+/** An alias or a `$ref`: allowed for a whole value and for each part of it. */
+const isAlias = (value: unknown) => parseAlias(value) !== null || isRefObject(value)
 
 /** Checks a value against its type. Returns what is wrong, or `null` for a valid value. */
 export function valueProblem(type: TokenType, value: unknown): string | null {
+  if (isRefObject(value)) return refProblem(value)
   if (isAlias(value)) return null
-  if (isObject(value) && '$ref' in value) return 'references with $ref are not supported yet'
+  if (isObject(value) && '$ref' in value) return '$ref must be the only property of its object'
   switch (type) {
     case 'string':
     case 'boolean':
@@ -183,7 +186,7 @@ function colorProblem(value: unknown): string | null {
   if (!Array.isArray(components) || components.length !== ranges.length)
     return `needs ${ranges.length} components for ${colorSpace}`
   for (const [i, component] of components.entries()) {
-    if (component === 'none') continue
+    if (component === 'none' || isRefObject(component)) continue
     if (!isNumber(component)) return `component ${i + 1} must be a number or "none"`
     const [min, max, exclusive] = ranges[i]
     const tooLow = min !== undefined && component < min
@@ -195,7 +198,7 @@ function colorProblem(value: unknown): string | null {
       return `component ${i + 1} of ${colorSpace} must be ${bound}`
     }
   }
-  if (alpha !== undefined && (!isNumber(alpha) || alpha < 0 || alpha > 1))
+  if (alpha !== undefined && !isRefObject(alpha) && (!isNumber(alpha) || alpha < 0 || alpha > 1))
     return 'alpha must be between 0 and 1'
   if (hex !== undefined && (typeof hex !== 'string' || !/^#[0-9A-Fa-f]{6}$/.test(hex)))
     return 'hex must be a 6-digit hex colour like #3366ff'
@@ -212,8 +215,8 @@ function unitProblem(value: unknown, units: string[], text: RegExp): string | nu
       : `must be an object { value, unit } with unit ${units.join(' or ')}`
   }
   if (!isObject(value)) return `must be an object { value, unit } with unit ${units.join(' or ')}`
-  if (!isNumber(value.value)) return 'value must be a number'
-  if (typeof value.unit !== 'string' || !units.includes(value.unit))
+  if (!isNumber(value.value) && !isRefObject(value.value)) return 'value must be a number'
+  if (!isRefObject(value.unit) && (typeof value.unit !== 'string' || !units.includes(value.unit)))
     return `unit must be ${units.map((u) => `"${u}"`).join(' or ')}`
   for (const key of Object.keys(value))
     if (key !== 'value' && key !== 'unit') return `has an unknown property "${key}"`
@@ -314,6 +317,7 @@ export function formatValue(value: TokenValue): string {
     return list.map((v) => formatValue(v as TokenValue)).join(', ')
   }
   const v = value as unknown as Json
+  if (isRefObject(v)) return `$ref "${v.$ref}"`
   const sub = (key: string) => formatValue(v[key] as TokenValue)
   if ('colorSpace' in v) return formatColor(v as unknown as ColorValue)
   if ('unit' in v && 'value' in v) return formatUnit(v as unknown as DimensionValue)

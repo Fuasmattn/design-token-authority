@@ -133,7 +133,11 @@ const INVALID: [TokenType, unknown, string][] = [
     },
     'has an unknown property "size"',
   ],
-  ['color', { $ref: '#/colors/blue/$value' }, 'references with $ref are not supported yet'],
+  [
+    'color',
+    { $ref: 'brand.json#/colors/blue/$value' },
+    '$ref "brand.json#/colors/blue/$value" must point into the token files',
+  ],
 ]
 
 describe('valueProblem: the types of DTCG 2025.10', () => {

@@ -33,7 +33,9 @@ const enabled = process.env.DTA_E2E === '1' || Boolean(process.env.DTA_BROWSER_P
  * import pulls in every locale and would put @dta/figma and @dta/lint at about 460 KB each.
  */
 const BUDGET: Record<string, number> = {
-  '@dta/core': 32_000,
+  // DTCG 2025.10 (types, values, references; TICKET-132/133) took core from below 32 KB to
+  // about 32.1 KB; resolver documents and axes (TICKET-136/137) will add more.
+  '@dta/core': 40_000,
   '@dta/figma': 160_000,
   '@dta/lint': 150_000,
   '@dta/build': 2_600_000,

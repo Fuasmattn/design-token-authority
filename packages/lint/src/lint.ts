@@ -71,13 +71,19 @@ function semanticMustAlias(
 ): LintViolation[] {
   const collections = options.collections ?? []
   return graph.nodes
-    .filter((node) => collections.includes(node.collection) && node.aliasTarget === null)
+    .filter(
+      // A composite made of references (a shadow from colour and size tokens) counts as an alias.
+      (node) =>
+        collections.includes(node.collection) &&
+        node.aliasTarget === null &&
+        node.references.length === 0,
+    )
     .map((node) => ({
       rule: 'semantic-must-alias',
       severity,
       tokenPath: node.id,
       file: `${node.collection}.${node.mode}.json`,
-      message: `Token has a raw value "${node.value}" but should be an alias in collection "${node.collection}"`,
+      message: `Token has a raw value "${formatValue(node.value)}" but should be an alias in collection "${node.collection}"`,
     }))
 }
 
@@ -253,7 +259,7 @@ function noDuplicateValues(graph: GraphAnalysis, severity: 'error' | 'warn'): Li
   // v1 quirk (pinned by tests): groups across all collections and modes.
   const groups = new Map<string, GraphAnalysis['nodes']>()
   for (const node of graph.nodes) {
-    if (node.aliasTarget !== null) continue
+    if (node.aliasTarget !== null || node.references.length > 0) continue
     const key = `${node.type}:${formatValue(node.value)}`
     groups.set(key, [...(groups.get(key) ?? []), node])
   }
@@ -266,7 +272,7 @@ function noDuplicateValues(graph: GraphAnalysis, severity: 'error' | 'warn'): Li
         severity,
         tokenPath: node.id,
         file: `${node.collection}.${node.mode}.json`,
-        message: `Duplicate value "${node.value}" — also defined in: ${others.join(', ')}`,
+        message: `Duplicate value "${formatValue(node.value)}" — also defined in: ${others.join(', ')}`,
       })
     })
   }

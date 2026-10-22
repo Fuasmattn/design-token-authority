@@ -63,19 +63,25 @@ export function aliasProblems(
     })
   }
 
-  // Every node has at most one outgoing edge: follow it until a value or a broken node.
-  const target = new Map(graph.edges.map((edge) => [edge.from, edge.to]))
-  const known = new Map<string, boolean>([...broken].map((id) => [id, true]))
-  for (const node of graph.nodes) {
-    const walk: string[] = []
-    let id: string | undefined = node.id
-    while (id !== undefined && !known.has(id)) {
-      walk.push(id)
-      id = target.get(id)
-    }
-    const result = id !== undefined && known.get(id) === true
-    for (const step of walk) known.set(step, result)
+  // A node is unresolvable when it is broken or any reference leads to an unresolvable node.
+  const targets = new Map<string, string[]>()
+  for (const edge of graph.edges) {
+    const list = targets.get(edge.from)
+    if (list) list.push(edge.to)
+    else targets.set(edge.from, [edge.to])
   }
+  const known = new Map<string, boolean>([...broken].map((id) => [id, true]))
+  const bad = (id: string, visiting: Set<string>): boolean => {
+    const result = known.get(id)
+    if (result !== undefined) return result
+    if (visiting.has(id)) return false // a cycle is already in `broken`
+    visiting.add(id)
+    const value = (targets.get(id) ?? []).some((to) => bad(to, visiting))
+    visiting.delete(id)
+    known.set(id, value)
+    return value
+  }
+  for (const node of graph.nodes) bad(node.id, new Set())
   const unresolvable = new Set([...known].filter(([, bad]) => bad).map(([id]) => id))
   return { diagnostics, unresolvable }
 }

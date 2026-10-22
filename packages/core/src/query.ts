@@ -6,6 +6,7 @@ import { parseAlias } from './alias.js'
 import { parseColor, type Color } from './color.js'
 import { indexTokens } from './lookup.js'
 import { nameToDot } from './names.js'
+import { nestedReferences } from './references.js'
 import { resolve, type ModeSelection } from './resolve.js'
 import type { Collection, Token, TokenModel, TokenType, TokenValue } from './types.js'
 
@@ -22,6 +23,8 @@ export interface TokenReading {
   value?: TokenValue
   /** Token names along the alias chain, starting with the token itself. */
   chain: string[]
+  /** References inside the raw value (a shadow from colour and size tokens), in order. */
+  parts?: { at: string; reference: string }[]
   /** Why it did not resolve. */
   error?: string
 }
@@ -89,9 +92,13 @@ function read(model: TokenModel, token: Token, selection: ModeSelection): TokenR
   }
   const first = result.chain[0]
   const raw = first ? token.values[first.mode] : undefined
+  const parts = raw === undefined ? [] : nestedReferences(raw)
   return {
     modes,
     ...(raw !== undefined ? { raw } : {}),
+    ...(parts.length > 0
+      ? { parts: parts.map((part) => ({ at: part.at.join('.'), reference: part.text })) }
+      : {}),
     ...(result.ok ? { value: result.value } : { error: result.diagnostics[0]?.message }),
     chain: result.chain.map((step) => nameToDot(step.name)),
   }

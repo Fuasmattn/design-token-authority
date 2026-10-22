@@ -37,6 +37,8 @@ export type {
 } from './query.js'
 export type { ModeSelection, ResolveResult, ResolveStep } from './resolve.js'
 export { serializeTokenFiles } from './serialize.js'
+export { isRefObject, nestedReferences, partOf, referenceOf } from './references.js'
+export type { NestedReference, Reference } from './references.js'
 export {
   colorHex,
   FONT_WEIGHT_KEYWORDS,

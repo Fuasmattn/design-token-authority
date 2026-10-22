@@ -2,8 +2,14 @@
  * JSON Schema of what `dta token get|find|list --format json` prints (`dta.token/1`). Published
  * on the website at /schemas/dta.token.schema.json; the tests validate real output against it.
  */
-const value = { type: ['string', 'number', 'boolean'] }
-const type = { enum: ['color', 'number', 'string', 'boolean'] }
+import { TOKEN_TYPES } from '@dta/core'
+
+const value = {
+  type: ['string', 'number', 'boolean', 'array', 'object'],
+  description:
+    'A scalar, or a DTCG 2025.10 object or list (a colour object, { value, unit }, a shadow …)',
+}
+const type = { enum: [...TOKEN_TYPES] }
 const modes = {
   type: 'object',
   description:
@@ -56,7 +62,31 @@ export function tokenJsonSchema(): Record<string, unknown> {
               properties: {
                 modes,
                 raw: { ...value, description: 'The value as written, a value or an {alias}' },
-                value: { ...value, description: 'The resolved value' },
+                value: {
+                  ...value,
+                  description:
+                    'The resolved value; references inside composite values resolved too',
+                },
+                parts: {
+                  type: 'array',
+                  description:
+                    'References inside the raw value (a shadow from colour and size tokens), in order',
+                  items: {
+                    type: 'object',
+                    required: ['at', 'reference'],
+                    additionalProperties: false,
+                    properties: {
+                      at: {
+                        type: 'string',
+                        description: 'Where in the value, e.g. "offsetY" or "0.color"',
+                      },
+                      reference: {
+                        type: 'string',
+                        description: 'As written: {alias} or $ref "#/…"',
+                      },
+                    },
+                  },
+                },
                 chain: {
                   type: 'array',
                   items: { type: 'string' },

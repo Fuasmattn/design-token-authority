@@ -156,3 +156,48 @@ describe('--format json', () => {
     expect(ok).toBe(true)
   })
 })
+
+describe('dta token get on DTCG 2025.10 values', () => {
+  beforeEach(() => {
+    fs.writeFileSync(
+      path.join(dir, 'tokens', 'Effects.Value.json'),
+      JSON.stringify({
+        Effects: {
+          Size: { $type: 'dimension', S: { $value: { value: 2, unit: 'px' } } },
+          Shadow: {
+            $type: 'shadow',
+            $value: {
+              color: '{Colors.Foundation.Blue.500}',
+              offsetX: { value: 0, unit: 'px' },
+              offsetY: '{Effects.Size.S}',
+              blur: { $ref: '#/Effects/Size/S/$value' },
+              spread: { value: 0, unit: 'px' },
+            },
+          },
+          Green: { $type: 'number', $value: { $ref: '#/Effects/Size/S/$value/value' } },
+        },
+      }),
+    )
+  })
+
+  it('shows a composite resolved, with the references inside it', async () => {
+    const { exitCode, stdout } = await token('get', 'Effects.Shadow')
+    expect(exitCode).toBe(0)
+    expect(stdout).toContain('0px 2px 2px 0px #0057b8')
+    expect(stdout).toContain(
+      '  Parts\n  color  {Colors.Foundation.Blue.500}\n  offsetY  {Effects.Size.S}\n  blur  $ref "#/Effects/Size/S/$value"',
+    )
+  })
+
+  it('follows a $ref into a value', async () => {
+    const { stdout } = await token('get', 'Effects.Green')
+    expect(stdout).toMatch(/2\s+Effects\.Green → Effects\.Size\.S/)
+  })
+
+  it('matches the published schema', async () => {
+    const validate = new Ajv2020({ strict: false }).compile(tokenJsonSchema())
+    const { stdout } = await token('get', 'Effects.Shadow', '--format', 'json')
+    expect(validate(JSON.parse(stdout))).toBe(true)
+    expect(JSON.parse(stdout).readings[0].parts).toHaveLength(3)
+  })
+})

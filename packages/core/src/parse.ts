@@ -1,4 +1,4 @@
-import { parseAlias } from './alias.js'
+import { referenceOf } from './references.js'
 import { isObject, nameKey, readEntries } from './entries.js'
 import type {
   Collection,
@@ -161,8 +161,9 @@ function settleAliasTypes(collections: Collection[], diagnostics: Diagnostic[]) 
     if (seen.has(token)) return null
     seen.add(token)
     for (const value of Object.values(token.values)) {
-      const target = parseAlias(value)
-      const next = target ? byDot.get(target.join('.')) : undefined
+      const reference = referenceOf(value)
+      const next =
+        reference && reference.part.length === 0 ? byDot.get(reference.target.join('.')) : undefined
       const type = next ? typeOf(next, seen) : null
       if (type) return type
     }

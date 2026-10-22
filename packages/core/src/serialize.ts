@@ -25,6 +25,13 @@ export function serializeTokenFiles(model: { collections: Collection[] }): Token
       for (const entry of readEntries(tree).entries) {
         const key = nameKey(entry.path)
         const token = tokens.get(key)
+        if (entry.inherited) {
+          // Inherited through $extends: stays implicit unless the model changed it, which then
+          // becomes a local token in the extending group. It cannot be removed here.
+          if (token && mode in token.values && same(token.values[mode], entry.value))
+            present.add(key)
+          continue
+        }
         if (!token || !(mode in token.values)) {
           removeEntry(tree, entry.path)
           continue

@@ -137,6 +137,11 @@ function printDescription(
       `  ${pad(modeLabel(reading.modes), width)}  ${pad(value, valueWidth)}  ${chain}`.trimEnd(),
     )
   }
+  const parts = token.readings[0]?.parts ?? []
+  if (parts.length > 0) {
+    lines.push('', '  Parts')
+    for (const part of parts) lines.push(`  ${part.at}  ${part.reference}`)
+  }
   lines.push('')
   if (names) {
     lines.push(`  CSS       var(${names.css})`)
