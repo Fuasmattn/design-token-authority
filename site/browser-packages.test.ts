@@ -185,6 +185,73 @@ describe('@dta packages in a browser bundle', () => {
   })
 })
 
+/**
+ * The playground island's first load (TICKET-124): the entry chunk of Playground.tsx and the
+ * chunks it imports statically. The analysis (`@dta/core`, `@dta/figma`, `@dta/lint`, zod), the
+ * graph, the Outputs tab and `@dta/build` are reached only through `import()`.
+ */
+const HEAVY_FOR_FIRST_LOAD = /packages\/(core|figma|lint|build)\/|node_modules\/.*\/zod\//
+
+describe('the playground island', () => {
+  it('loads none of the @dta packages or zod on first load: they are lazy chunks', async () => {
+    const outdir = fs.mkdtempSync(path.join(os.tmpdir(), 'dta-island-'))
+    try {
+      const result = await build({
+        entryPoints: { island: path.join(site, 'src', 'playground', 'Playground.tsx') },
+        bundle: true,
+        splitting: true,
+        format: 'esm',
+        platform: 'browser',
+        minify: true,
+        metafile: true,
+        absWorkingDir: repo,
+        outdir,
+        logLevel: 'silent',
+        // Styles are not what this measures; the example's `import.meta.glob` stays unevaluated.
+        loader: { '.css': 'empty' },
+        external: ['preact', 'preact/*'],
+      })
+      const outputs = result.metafile.outputs
+      const entry = Object.keys(outputs).find((file) => outputs[file].entryPoint)
+      if (!entry) throw new Error('no entry chunk')
+      // The first load: the entry and everything it imports statically, transitively.
+      const first = new Set<string>()
+      const visit = (file: string) => {
+        if (first.has(file)) return
+        first.add(file)
+        for (const i of outputs[file].imports)
+          if (i.kind === 'import-statement' && !i.external) visit(i.path)
+      }
+      visit(entry)
+      const kept = (file: string) =>
+        Object.entries(outputs[file].inputs)
+          .filter(([, input]) => input.bytesInOutput > 0)
+          .map(([input]) => input)
+      expect([...first].flatMap(kept).filter((input) => HEAVY_FOR_FIRST_LOAD.test(input))).toEqual(
+        [],
+      )
+      // ...and each heavy package is in a chunk the entry reaches only dynamically.
+      const lazy = Object.keys(outputs).filter((file) => !first.has(file))
+      for (const pkg of ['core', 'figma', 'lint', 'build']) {
+        expect(
+          lazy.some((file) => kept(file).some((input) => input.includes(`packages/${pkg}/`))),
+          `@dta/${pkg} in a lazy chunk`,
+        ).toBe(true)
+      }
+      expect(lazy.some((file) => kept(file).some((input) => /\/zod\//.test(input)))).toBe(true)
+      const dynamic = outputs[entry].imports.filter(
+        (i) => i.kind === 'dynamic-import' && !i.external,
+      )
+      expect(dynamic.length).toBe(4) // analyse, outputs-ui, outputs-engine, graph-engine
+      const bytes = [...first].map((file) => fs.readFileSync(path.join(repo, file)))
+      const total = bytes.reduce((sum, b) => sum + gzip(b), 0)
+      console.info(`playground island first load (esbuild, without Preact): ${total} B gzip`)
+    } finally {
+      fs.rmSync(outdir, { recursive: true, force: true })
+    }
+  })
+})
+
 describe.skipIf(!enabled)('@dta packages running in Chromium', () => {
   let dir: string
   let server: http.Server

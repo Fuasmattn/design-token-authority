@@ -6,7 +6,9 @@
  * panel's "Next finding" (TICKET-113), the dependency graph (TICKET-078: a token selected, its
  * chain and readings, "Show in graph" and "Show in lint" both ways with the hash, the brand switch,
  * the keyboard, the phone's list and sheet, the graph's chunk loaded lazily), no horizontal scroll
- * at 390 and 1280 px and no layout shift in both themes, and the JavaScript the page transfers.
+ * at 390 and 1280 px and no layout shift in both themes, and the JavaScript the page transfers:
+ * a first load without `@dta/*` and a budget per lazy chunk (TICKET-124: the analysis loads when
+ * the browser is idle or on the first input; input before it is read once it is there).
  * AAA contrast is checked in contrast.e2e.test.ts.
  *
  * Same conditions as contrast.e2e.test.ts: needs the built site (`pnpm build` → dist/) and a
@@ -53,8 +55,31 @@ const TYPES: Record<string, string> = {
   '.woff2': 'font/woff2',
   '.svg': 'image/svg+xml',
 }
-/** gzip bytes of the JavaScript the playground page loads (measured 2026-10-19: see TICKET-077). */
-const JS_BUDGET_GZIP = 60_000
+/**
+ * gzip bytes of the playground's JavaScript, per part (TICKET-124: measured 2026-10-21 and rounded
+ * up to the next 5 KB; the numbers are in the ticket's outcome). Growth shows up in the part that
+ * grew: the first load, or the lazy chunks of the analysis, the Graph tab or the Outputs tab.
+ */
+const BUDGET = {
+  /** The page's module scripts and the island with what they import statically. */
+  firstLoad: 25_000,
+  /** `@dta/core`, `@dta/figma`, `@dta/lint`, zod: idle after the first render, or on input. */
+  analysis: 40_000,
+  /** The Graph tab (graph-engine). */
+  graph: 10_000,
+  /** The Outputs tab: its UI and `@dta/build` with Style Dictionary and the zip code. */
+  outputs: 610_000,
+}
+/** A string each heavy package's code contains, to find it in a chunk (TICKET-124). */
+const MARKERS: Record<string, string> = {
+  '@dta/core': 'Invalid color format',
+  '@dta/figma': 'Could not recognise the export format',
+  '@dta/lint': 'is a Figma default',
+  zod: 'ZodError',
+  'style-dictionary': 'style-dictionary',
+}
+/** The analysis chunk has arrived (its request is complete). */
+const ANALYSIS_LOADED = `performance.getEntriesByType('resource').some((e) => /\\/_astro\\/analyse\\.[\\w-]+\\.js$/.test(e.name))`
 
 let server: http.Server
 let origin: string
@@ -69,6 +94,43 @@ function htmlPages(dir = dist): string[] {
   })
 }
 
+/**
+ * The playground's first load, from the built page: its module scripts and the island's
+ * component and renderer, with every chunk they import statically (not `import()`).
+ */
+function firstLoad(): string[] {
+  const html = fs.readFileSync(path.join(dist, 'playground', 'index.html'), 'utf8')
+  const roots = [
+    ...[...html.matchAll(/<script[^>]*type="module"[^>]*src="([^"]+)"/g)].map((m) => m[1]),
+    ...[...html.matchAll(/(?:component|renderer)-url="([^"]+)"/g)].map((m) => m[1]),
+  ]
+  const seen = new Set<string>()
+  const visit = (url: string) => {
+    if (seen.has(url)) return
+    seen.add(url)
+    const code = fs.readFileSync(path.join(dist, url), 'utf8')
+    for (const m of code.matchAll(/(?:from|import)\s*"(\.\/[^"]+\.js)"/g))
+      visit(path.posix.join(path.posix.dirname(url), m[1]))
+  }
+  roots.forEach(visit)
+  return [...seen]
+}
+
+const gzipOf = (urls: readonly string[]) =>
+  urls.reduce(
+    (sum, url) =>
+      sum + zlib.gzipSync(fs.readFileSync(path.join(dist, new URL(url, origin).pathname))).length,
+    0,
+  )
+const contains = (urls: readonly string[], text: string) =>
+  urls.some((url) =>
+    fs.readFileSync(path.join(dist, new URL(url, origin).pathname), 'utf8').includes(text),
+  )
+
+/**
+ * The playground, loaded and with its analysis chunk fetched (the browser was idle), so a test's
+ * own requests start after it. `loaded`: every request after the page's HTML, kept up to date.
+ */
 async function open(width: number, theme: 'light' | 'dark') {
   const context = await browser.newContext({
     viewport: { width, height: 900 },
@@ -77,11 +139,52 @@ async function open(width: number, theme: 'light' | 'dark') {
   })
   const page = await context.newPage()
   const errors: string[] = []
+  const loaded: string[] = []
   page.on('pageerror', (error: Error) => errors.push(error.message))
+  page.on('request', (request: { url(): string; resourceType(): string }) => {
+    // The page itself and the tab icon (see the first flow test) are not what is counted.
+    if (request.resourceType() === 'document') return
+    if (new URL(request.url()).pathname !== '/favicon.svg') loaded.push(request.url())
+  })
   const response = await page.goto(`${origin}/playground/`, { waitUntil: 'networkidle' })
   expect(response?.ok()).toBe(true)
+  await page.waitForFunction(ANALYSIS_LOADED)
   await page.evaluate('document.fonts.ready.then(() => true)')
-  return { context, page, errors }
+  return { context, page, errors, loaded }
+}
+
+/**
+ * The playground with its analysis chunks (the module and its facade) held back until
+ * `release()` (TICKET-124: input that arrives before them). `requests()`: how often each was
+ * requested, the most.
+ */
+async function openHeld(width: number, theme: 'light' | 'dark', hash = '') {
+  const context = await browser.newContext({
+    viewport: { width, height: 900 },
+    colorScheme: theme,
+    reducedMotion: 'reduce',
+  })
+  const page = await context.newPage()
+  const errors: string[] = []
+  page.on('pageerror', (error: Error) => errors.push(error.message))
+  let release = () => {}
+  const released = new Promise<void>((resolve) => (release = resolve))
+  const analysisRequests = new Map<string, number>()
+  await page.route(
+    /\/_astro\/analyse\.[\w-]+\.js$/,
+    async (route: { continue(): Promise<void>; request(): { url(): string } }) => {
+      const url = route.request().url()
+      analysisRequests.set(url, (analysisRequests.get(url) ?? 0) + 1)
+      await released
+      await route.continue()
+    },
+  )
+  const response = await page.goto(`${origin}/playground/${hash}`, { waitUntil: 'load' })
+  expect(response?.ok()).toBe(true)
+  await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' })
+  await page.evaluate('document.fonts.ready.then(() => true)')
+  const requests = () => Math.max(0, ...analysisRequests.values())
+  return { context, page, errors, release, requests }
 }
 
 /**
@@ -194,8 +297,29 @@ describe.skipIf(!enabled)('playground on the built site', () => {
   })
 
   it('reads the example, files from the picker, a plugin export and invalid JSON, with no request after load', async () => {
-    const { context, page, errors } = await open(1280, 'light')
+    const { context, page, errors, loaded } = await open(1280, 'light')
     try {
+      // After the first load only the analysis's lazy chunks, fetched while the browser was idle
+      // (TICKET-124): same origin, built JS, carrying @dta/core, @dta/figma, @dta/lint and zod.
+      const first = new Set(firstLoad())
+      const lazy = loaded.filter((url) => url.endsWith('.js') && !first.has(new URL(url).pathname))
+      expect(lazy.length).toBeGreaterThan(0)
+      for (const url of lazy) {
+        expect(url.startsWith(`${origin}/_astro/`) && url.endsWith('.js'), url).toBe(true)
+      }
+      for (const name of ['@dta/core', '@dta/figma', '@dta/lint', 'zod'])
+        expect(contains(lazy, MARKERS[name]), name).toBe(true)
+      expect(contains(lazy, MARKERS['style-dictionary'])).toBe(false)
+      // The rest of what loaded is the page's own: its first-load scripts, styles and fonts.
+      for (const url of loaded.filter((u) => !lazy.includes(u))) {
+        const { pathname } = new URL(url)
+        expect(url.startsWith(origin), url).toBe(true)
+        if (pathname.endsWith('.js')) expect(first.has(pathname), pathname).toBe(true)
+      }
+      const lazyCount = lazy.length
+      const loadedCount = loaded.length
+
+      // From here on nothing more is fetched: everything below runs on what is loaded.
       const requests: string[] = []
       page.on('request', (request: { url(): string }) => {
         // Chromium looks at the tab icon again when the URL hash changes (the selected tab); that
@@ -319,7 +443,8 @@ describe.skipIf(!enabled)('playground on the built site', () => {
       expect(await docs.getAttribute('href')).toBe('/reference/token-files/')
       expect(await input.textContent()).not.toContain('docs/token-files')
 
-      expect(requests).toEqual([])
+      expect(requests, 'no request after load').toEqual([])
+      expect(loaded.length, `only the ${lazyCount} lazy chunks of the analysis`).toBe(loadedCount)
       expect(errors).toEqual([])
     } finally {
       await context.close()
@@ -722,6 +847,10 @@ describe.skipIf(!enabled)('playground on the built site', () => {
       }
       const lazy = requests.map((url) => fs.readFileSync(path.join(dist, new URL(url).pathname)))
       expect(lazy.some((bytes) => bytes.includes('style-dictionary'))).toBe(true)
+      // The Outputs tab's own budget: its UI and the build engine (TICKET-124).
+      const outputsGzip = gzipOf(requests)
+      console.log(`lazy outputs: ${requests.length} files, ${outputsGzip} B gzip`)
+      expect(outputsGzip).toBeLessThanOrEqual(BUDGET.outputs)
       const lazyCount = requests.length
 
       // The files, grouped, equal the CLI's reference snapshot of `dta build`
@@ -914,9 +1043,10 @@ describe.skipIf(!enabled)('playground on the built site', () => {
       expect(requests.length).toBeGreaterThan(0)
       for (const url of requests) expect(url.startsWith(`${origin}/_astro/`), url).toBe(true)
       expect(requests.some((url) => url.includes('outputs-engine'))).toBe(false)
-      const lazy = requests.map((url) => fs.readFileSync(path.join(dist, new URL(url).pathname)))
-      const lazyGzip = lazy.reduce((sum, bytes) => sum + zlib.gzipSync(bytes).length, 0)
-      expect(lazyGzip).toBeLessThan(20_000)
+      // The Graph tab's own budget (TICKET-124).
+      const graphGzip = gzipOf(requests)
+      console.log(`lazy graph: ${requests.length} files, ${graphGzip} B gzip`)
+      expect(graphGzip).toBeLessThanOrEqual(BUDGET.graph)
       expect(hashOf(page)).toBe('#graph')
 
       // Three layer columns in the modes shown; the switcher says what is in view
@@ -1222,37 +1352,212 @@ describe.skipIf(!enabled)('playground on the built site', () => {
     60_000,
   )
 
-  it('keeps the JavaScript the page transfers within its budget', async () => {
-    const { context, page } = await open(1280, 'light')
+  it('keeps the first load free of @dta/* and zod, and each part of the JavaScript within its budget', async () => {
+    // The first load, from the built page (TICKET-124): no @dta/core, @dta/figma, @dta/lint, zod
+    // or Style Dictionary; none of the lazy chunks.
+    const first = firstLoad()
+    expect(first.length).toBeGreaterThan(0)
+    for (const [name, marker] of Object.entries(MARKERS))
+      expect(contains(first, marker), `${name} in the first load`).toBe(false)
+    for (const chunk of ['analyse', 'graph-engine', 'outputs-ui', 'outputs-engine'])
+      expect(
+        first.some((url) => path.basename(url).startsWith(`${chunk}.`)),
+        chunk,
+      ).toBe(false)
+    const firstGzip = gzipOf(first)
+    console.log(`playground first load: ${first.length} files, ${firstGzip} B gzip`)
+    expect(firstGzip).toBeLessThanOrEqual(BUDGET.firstLoad)
+
+    // What the browser fetches: the first load, then (idle) the analysis's chunks, nothing else.
+    const { context, loaded } = await open(1280, 'light')
     try {
-      const scripts = (await page.evaluate(
-        `performance.getEntriesByType('resource').filter((e) => e.name.endsWith('.js')).map((e) => new URL(e.name).pathname)`,
-      )) as string[]
-      expect(scripts.length).toBeGreaterThan(0)
-      const bytes = scripts.map((script) => fs.readFileSync(path.join(dist, script)))
-      const raw = bytes.reduce((sum, b) => sum + b.length, 0)
-      const gzip = bytes.reduce((sum, b) => sum + zlib.gzipSync(b).length, 0)
-      console.log(`playground JS: ${scripts.length} files, ${raw} B minified, ${gzip} B gzip`)
-      for (const chunk of fs.readdirSync(path.join(dist, '_astro'))) {
-        // The graph (TICKET-078) loads with its tab, like the outputs.
-        if (chunk.startsWith('graph-engine')) {
-          const lazy = fs.readFileSync(path.join(dist, '_astro', chunk))
-          console.log(
-            `lazy ${chunk}: ${lazy.length} B minified, ${zlib.gzipSync(lazy).length} B gzip`,
-          )
-          expect(scripts.some((script) => script.includes('graph-engine'))).toBe(false)
-          continue
-        }
-        if (!chunk.startsWith('outputs-engine')) continue
-        const lazy = fs.readFileSync(path.join(dist, '_astro', chunk))
-        console.log(
-          `lazy ${chunk}: ${lazy.length} B minified, ${zlib.gzipSync(lazy).length} B gzip`,
+      const scripts = loaded.filter((url) => url.endsWith('.js'))
+      for (const url of first) expect(scripts.map((u) => new URL(u).pathname)).toContain(url)
+      const analysis = scripts.filter((url) => !first.includes(new URL(url).pathname))
+      expect(analysis.some((url) => /\/analyse\.[\w-]+\.js$/.test(url))).toBe(true)
+      for (const name of ['@dta/core', '@dta/figma', '@dta/lint', 'zod'])
+        expect(contains(analysis, MARKERS[name]), name).toBe(true)
+      expect(contains(analysis, MARKERS['style-dictionary'])).toBe(false)
+      const analysisGzip = gzipOf(analysis)
+      console.log(`lazy analysis: ${analysis.length} files, ${analysisGzip} B gzip`)
+      expect(analysisGzip).toBeLessThanOrEqual(BUDGET.analysis)
+    } finally {
+      await context.close()
+    }
+  }, 60_000)
+
+  // TICKET-124: the analysis loads when the browser is idle, or at once on input or a hash.
+  it('loads the analysis when the browser is idle, and without idle time at once on input or a view in the hash', async () => {
+    const analysisRequested = async (hash: string, act?: (page: any) => Promise<void>) => {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 900 } })
+      try {
+        const page = await context.newPage()
+        // A browser that is never idle: only input or the hash can ask for the analysis.
+        await page.addInitScript(
+          'window.requestIdleCallback = () => 0; window.cancelIdleCallback = () => {}',
         )
-        expect(scripts.some((script) => script.includes('outputs-engine'))).toBe(false)
+        let requested = 0
+        page.on('request', (request: { url(): string }) => {
+          if (/\/_astro\/analyse\.[\w-]+\.js$/.test(request.url())) requested++
+        })
+        await page.goto(`${origin}/playground/${hash}`, { waitUntil: 'networkidle' })
+        await act?.(page)
+        await page.waitForTimeout(500)
+        return requested
+      } finally {
+        await context.close()
       }
-      expect(gzip).toBeLessThanOrEqual(JS_BUDGET_GZIP)
-      // Outputs (Style Dictionary) are not part of the first load (spec decision 9).
-      expect(bytes.some((b) => b.includes('style-dictionary'))).toBe(false)
+    }
+    expect(await analysisRequested(''), 'never idle, no input').toBe(0)
+    expect(await analysisRequested('#lint'), 'a view in the hash').toBeGreaterThan(0)
+    expect(
+      await analysisRequested('', async (page) => {
+        await page.getByRole('button', { name: 'Load example' }).click()
+        await page.getByRole('table', { name: 'Structure' }).waitFor()
+      }),
+      'input',
+    ).toBeGreaterThan(0)
+  }, 60_000)
+
+  it.each([
+    [390, 'light'],
+    [390, 'dark'],
+    [1280, 'light'],
+    [1280, 'dark'],
+  ] as const)(
+    'at %i px in %s input before the analysis shows "Reading…", shifts nothing, and is read once it arrives',
+    async (width, theme) => {
+      const { context, page, errors, release, requests } = await openHeld(width, theme)
+      try {
+        await page.evaluate(`window.__shift = 0; new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) if (!entry.hadRecentInput) window.__shift += entry.value
+        }).observe({ type: 'layout-shift' })`)
+        await page.getByRole('button', { name: 'Load example' }).click()
+        // What was given, at once; the summary reads it, as a status, in words
+        const summary = page.getByRole('list', { name: 'Summary' })
+        await summary.waitFor()
+        expect(await summary.getAttribute('aria-busy')).toBe('true')
+        expect(await summary.getByRole('status').textContent()).toBe('Reading 6 files…')
+        expect(await page.getByRole('status').first().textContent()).toMatch(
+          /^Loaded brand-ab example 6 files: Brand\(Alias\)\.BrandA\.json/,
+        )
+        expect(await page.getByRole('tablist').count()).toBe(0)
+        expect(await page.evaluate(OVERFLOW), 'reading').toEqual([])
+        // The footer waits out of sight, so it does not jump when the views arrive
+        expect(
+          await page.locator('.foot').evaluate((el: Element) => getComputedStyle(el).visibility),
+        ).toBe('hidden')
+        const box = async () =>
+          (await summary.evaluate((el: Element) => {
+            const r = el.getBoundingClientRect()
+            return [Math.round(r.top), Math.round(r.left)]
+          })) as number[]
+        const before = await box()
+        // Outside the input window (500 ms), so the arrival is not excused as caused by input
+        await page.waitForTimeout(700)
+        release()
+        await page.getByRole('table', { name: 'Structure' }).waitFor()
+        await page.waitForTimeout(400)
+        expect(await summary.getByRole('listitem').allTextContents()).toEqual([
+          '3 collections',
+          '2 brands',
+          '3 breakpoints',
+          '42 tokens',
+          '0 lint findings',
+          'build outputs',
+        ])
+        expect(await summary.getAttribute('aria-busy')).toBe(null)
+        expect(await box()).toEqual(before)
+        expect(await page.evaluate('window.__shift')).toBe(0)
+        expect(await page.evaluate(OVERFLOW), 'read').toEqual([])
+        expect(
+          await page.locator('.foot').evaluate((el: Element) => getComputedStyle(el).visibility),
+        ).toBe('visible')
+        expect(requests()).toBe(1)
+        expect(errors).toEqual([])
+      } finally {
+        release()
+        await context.close()
+      }
+    },
+    60_000,
+  )
+
+  it('reads only the last input given before the analysis, once, and follows a deep link', async () => {
+    // A view in the hash: the analysis is asked for at once; the input that follows waits for it
+    const held = await openHeld(1280, 'light', '#lint')
+    try {
+      const { page, errors, release, requests } = held
+      await expect.poll(requests).toBe(1)
+      await page.getByRole('button', { name: 'Load example' }).click()
+      await page.getByRole('list', { name: 'Summary' }).getByRole('status').waitFor()
+      // Replaced before the analysis arrived: the example with problems is what gets read
+      await page.getByRole('button', { name: 'Paste JSON instead' }).click()
+      await page.getByLabel('Paste JSON').fill('{"Colors": ')
+      await page.getByLabel('File name').fill('Brand.BrandA.json')
+      await page.getByRole('button', { name: 'Check pasted JSON' }).click()
+      expect(await page.getByRole('status').first().textContent()).toMatch(
+        /^Loaded Brand\.BrandA\.json 1 file/,
+      )
+      expect(
+        await page.getByRole('list', { name: 'Summary' }).getByRole('status').textContent(),
+      ).toBe('Reading 1 file…')
+      release()
+      await page.getByRole('heading', { name: 'Input' }).waitFor()
+      expect(await page.locator('.dta-findings__line').textContent()).toMatch(
+        /^error \[invalid-json\]/,
+      )
+      expect(await page.getByRole('list', { name: 'Summary' }).count()).toBe(0)
+      expect(requests()).toBe(1)
+      expect(errors).toEqual([])
+    } finally {
+      held.release()
+      await held.context.close()
+    }
+
+    // A shared link to a token on the graph: the example chosen before the analysis opens it
+    const id = 'Brand(Alias).BrandB/Colors/Brand/Accent'
+    const graph = await openHeld(1280, 'light', `#graph/${encodeURI(id)}`)
+    try {
+      const { page, errors, release } = graph
+      await page.getByRole('button', { name: 'Example with problems' }).click()
+      await page.getByRole('list', { name: 'Summary' }).getByRole('status').waitFor()
+      release()
+      await page.getByRole('dialog', { name: 'Colors.Brand.Accent' }).waitFor()
+      expect(await page.getByRole('tab', { selected: true }).textContent()).toBe('Graph')
+      await page.getByRole('group', { name: 'Dependency graph, BrandB · Desktop' }).waitFor()
+      expect(decodeURI(new URL(page.url()).hash)).toBe(`#graph/${id}`)
+      // "Show in lint" and "Show in graph" lead both ways, as without the wait
+      await page.getByRole('dialog').getByRole('button', { name: 'Show in lint' }).click()
+      await expect
+        .poll(() => page.getByRole('tab', { selected: true }).textContent())
+        .toBe('Lint · 3')
+      await page.getByRole('dialog').getByRole('button', { name: 'Show in graph' }).click()
+      await page.getByRole('group', { name: 'Dependency graph, BrandB · Desktop' }).waitFor()
+      expect(errors).toEqual([])
+    } finally {
+      graph.release()
+      await graph.context.close()
+    }
+  }, 60_000)
+
+  it('says so when the analysis cannot load', async () => {
+    const context = await browser.newContext({
+      viewport: { width: 390, height: 900 },
+      reducedMotion: 'reduce',
+    })
+    try {
+      const page = await context.newPage()
+      await page.route(/\/_astro\/analyse\.[\w-]+\.js$/, (route: { abort(): Promise<void> }) =>
+        route.abort(),
+      )
+      await page.goto(`${origin}/playground/`, { waitUntil: 'networkidle' })
+      await page.getByRole('button', { name: 'Load example' }).click()
+      const summary = page.getByRole('list', { name: 'Summary' })
+      await summary.getByText('The analysis did not load. Reload the page to try again.').waitFor()
+      // The error tone: its marker shape before the words, never colour alone
+      expect(await summary.locator('[data-tone="error"] .dta-summary__marker').count()).toBe(1)
+      expect(await page.evaluate(OVERFLOW)).toEqual([])
     } finally {
       await context.close()
     }

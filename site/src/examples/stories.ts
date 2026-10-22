@@ -348,6 +348,13 @@ export const STORIES: readonly Story[] = [
     viewports: [DESKTOP, MOBILE],
   },
   {
+    component: 'summary-line',
+    variant: 'reading',
+    title: 'Reading the input, before the counts',
+    example: 'SummaryLineReading',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
     component: 'tabs',
     variant: 'structure',
     title: 'Four views, Structure selected',

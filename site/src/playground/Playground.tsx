@@ -20,19 +20,17 @@
  * into the source bar, the results fade in one after another), a tab change crossfades the view,
  * new output files move into place, the detail panel slides in, and changed counts light up.
  * Nothing is uploaded: the example is bundled and the analysis runs here (analyse.ts). The only
- * requests after load are the page's own lazy chunks: `@dta/build` (Style Dictionary) and the
- * zip code (outputs-engine.ts) load when the Outputs tab first opens (spec decision 9), the graph
- * (graph-engine.ts) when the Graph tab first opens.
+ * requests after load are the page's own lazy chunks (spec decision 9, TICKET-124): the analysis
+ * (analyse.ts with `@dta/core`, `@dta/figma`, `@dta/lint` and zod) loads once the browser is idle
+ * after the first render, or at once on the first input or a view in the URL hash, whichever
+ * comes first; input that arrives before it waits for it ("Reading…" in the summary) and is read
+ * once it is there. `@dta/build` (Style Dictionary) and the zip code (outputs-engine.ts) load
+ * when the Outputs tab first opens, the graph (graph-engine.ts) when the Graph tab first opens.
  */
 import type { BuildResult, OutputFormat } from '@dta/build'
-import { hasErrors } from '@dta/core'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks'
-import CliHandoff from '../components/ds/CliHandoff'
-import CopyButton from '../components/ds/CopyButton'
 import DetailPanel, { type DetailPanelProps } from '../components/ds/DetailPanel'
 import Findings, { findingId } from '../components/ds/Findings'
-import OutputFiles from '../components/ds/OutputFiles'
-import OutputOptions from '../components/ds/OutputOptions'
 import SourceBar from '../components/ds/SourceBar'
 import StructureTable from '../components/ds/StructureTable'
 import SummaryLine, { type SummaryPart, type SummaryTone } from '../components/ds/SummaryLine'
@@ -43,33 +41,16 @@ import TokenInput, {
   type TokenInputFile,
 } from '../components/ds/TokenInput'
 import { transition } from '../components/ds/motion'
-import { NPM_RELEASED } from '../landing/content'
-import {
-  analyse,
-  collectionDetail,
-  diagnosticGroups,
-  findingChain,
-  parseTokenId,
-  type Outcome,
-  type PlaygroundResult,
-  type RuleFindings,
-} from './analyse'
+import type { Outcome, PlaygroundResult, RuleFindings } from './analyse'
 import { EXAMPLES, inputExamples, type Example } from './example'
-import {
-  ALL_FORMATS,
-  byteLength,
-  cliSteps,
-  CONFIG_FILE,
-  formatSize,
-  generateConfig,
-  groupOutputs,
-  OUTPUT_CHOICES,
-  outputFileGroups,
-  outputLabel,
-  plural,
-  type OutputGroup,
-} from './outputs'
+import { ALL_FORMATS, OUTPUT_CHOICES, plural } from './shared'
 
+// The lazy chunks (TICKET-124, spec decision 9): only their types are imported statically.
+/** Reading and linting: `@dta/core`, `@dta/figma`, `@dta/lint`, zod. */
+type Analysis = typeof import('./analyse')
+/** The Outputs tab's components, grouping, config and CLI steps. */
+type OutputsUi = typeof import('./outputs-ui')
+/** `@dta/build` (Style Dictionary) and the zip code. */
 type Engine = typeof import('./outputs-engine')
 type Graph = typeof import('./graph-engine')
 type Modes = Record<string, string>
@@ -115,26 +96,29 @@ interface Source {
   pluginExport?: string
 }
 
-/** What the source bar says was read: in the words of `dta pull` for an import. */
+/**
+ * What the source bar says was read: in the words of `dta pull` for an import. Without a result
+ * (the analysis is still loading) what was given: the example, the file or the files.
+ */
 function sourceOf(
-  result: PlaygroundResult,
+  result: PlaygroundResult | undefined,
   input: readonly TokenInputFile[],
   example: Example | undefined,
 ): Source {
-  const count = result.files.length
+  const files = result?.files ?? input.map((file) => file.fileName)
   if (example)
-    return { label: `${example.name} example`, detail: plural(count, 'file'), files: result.files }
-  if (result.format !== 'dtcg-per-mode' && result.format !== 'unknown') {
+    return { label: `${example.name} example`, detail: plural(files.length, 'file'), files }
+  if (result && result.format !== 'dtcg-per-mode' && result.format !== 'unknown') {
     const name = input[0]?.fileName
     return {
       label: `${result.format} export`,
-      detail: `converted into ${plural(count, 'token file')}`,
+      detail: `converted into ${plural(files.length, 'token file')}`,
       files: result.files,
       pluginExport: !name || name === PASTE_FILE_NAME ? 'export.json' : name,
     }
   }
   if (input.length === 1) return { label: input[0].fileName, detail: '1 file', files: [] }
-  return { label: 'Your files', detail: plural(input.length, 'file'), files: result.files }
+  return { label: 'Your files', detail: plural(input.length, 'file'), files }
 }
 
 type Selection =
@@ -208,19 +192,23 @@ const baseName = (path: string) => path.slice(path.lastIndexOf('/') + 1)
 const typeOf = (path: string) =>
   path.endsWith('.css') ? 'text/css' : path.endsWith('.js') ? 'text/javascript' : 'text/plain' // .ts: browsers would label video/mp2t
 
-/** The panel's content for what is selected, from the model (`resolve` in @dta/core). */
+/**
+ * The panel's content for what is selected, from the model (`resolve` in @dta/core); a file's
+ * only once the Outputs tab's code is there (it is, wherever a file can be selected).
+ */
 function panelOf(
+  { collectionDetail, findingChain }: Analysis,
   result: PlaygroundResult,
   selection: Selection,
-  files: FilePreviews,
+  files: FilePreviews | undefined,
 ): Omit<DetailPanelProps, 'open'> | undefined {
   const { model, structure, lint } = result
   if (!model || !structure || !lint) return undefined
   if (selection.kind === 'token') return undefined
   if (selection.kind === 'file') {
-    const file = files.find(selection.path)
-    if (!file) return undefined
-    const size = formatSize(byteLength(file.content))
+    const file = files?.find(selection.path)
+    if (!files || !file) return undefined
+    const size = files.size(file.content)
     return {
       kicker: file.group ? `Output · ${file.group} · ${size}` : `Config · ${size}`,
       title: selection.path,
@@ -267,7 +255,15 @@ function panelOf(
 
 interface FilePreviews {
   find: (path: string) => { content: string; group?: string } | undefined
+  /** `746 B`, `1.2 KB`. */
+  size: (content: string) => string
   actions: (path: string, content: string) => DetailPanelProps['actions']
+}
+
+/** Input given before the analysis arrived: read once it is there (TICKET-124). */
+interface Waiting {
+  input: readonly TokenInputFile[]
+  example?: Example
 }
 
 export default function Playground() {
@@ -298,10 +294,29 @@ export default function Playground() {
   const [reveal, setReveal] = useState(0)
   const runNow = useRef(run)
   runNow.current = run
+  // The analysis (TICKET-124): its chunk loads once the browser is idle after the first render,
+  // or at once when something asks for it (input, a view in the hash): `asked` counts the asks.
+  // Input that comes first waits for it (`waiting`) and is read once, when it is here.
+  const [analysis, setAnalysis] = useState<Analysis | null>(null)
+  const analysisLoading = useRef<Promise<Analysis> | null>(null)
+  const [asked, setAsked] = useState(0)
+  const [analysisFailed, setAnalysisFailed] = useState(false)
+  const [waiting, setWaiting] = useState<Waiting | null>(null)
+  const taken = useRef<Waiting | null>(null)
+  const analysisNow = useRef(analysis)
+  analysisNow.current = analysis
+  const want = () => setAsked((count) => count + 1)
+  // The Outputs tab's UI (TICKET-124): its chunk loads with the tab, beside the build's engine.
+  const [outputsUi, setOutputsUi] = useState<OutputsUi | null>(null)
+  const outputsUiLoading = useRef<Promise<OutputsUi> | null>(null)
 
   /** Selects a token from its id (a hash, "Show in graph"): its mode is shown, it is revealed. */
-  const showToken = (id: string, result = runNow.current?.result): boolean => {
-    const token = result?.model && parseTokenId(result.model, id)
+  const showToken = (
+    id: string,
+    result = runNow.current?.result,
+    module = analysisNow.current,
+  ): boolean => {
+    const token = result?.model && module?.parseTokenId(result.model, id)
     if (!token) return false
     setModes((current) => ({ ...current, [token.collection]: token.mode }))
     setSelection({ kind: 'token', id })
@@ -317,12 +332,57 @@ export default function Playground() {
       const { view: fromHash, token } = hashState()
       if (!fromHash) return
       setView(fromHash)
+      // A shared link to a view: the tokens to show it with are coming, so read them at once.
+      want()
       if (token && runNow.current) showToken(token)
     }
     sync()
     window.addEventListener('hashchange', sync)
     return () => window.removeEventListener('hashchange', sync)
   }, [])
+
+  // Once the first render is painted and the browser is idle, the analysis loads in the
+  // background, so it is usually here before anyone has picked a file (Safari: a timeout).
+  useEffect(() => {
+    if ('requestIdleCallback' in window) {
+      const idle = window.requestIdleCallback(want, { timeout: 2000 })
+      return () => window.cancelIdleCallback(idle)
+    }
+    const timer = setTimeout(want, 200)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // The analysis's chunk: requested once, on the first ask; a failed request can be asked again.
+  useEffect(() => {
+    if (!asked || analysis) return
+    analysisLoading.current ??= import('./analyse')
+    let current = true
+    analysisLoading.current.then(
+      (module) => {
+        if (current) setAnalysis(module)
+      },
+      () => {
+        analysisLoading.current = null
+        if (current) setAnalysisFailed(true)
+      },
+    )
+    return () => {
+      current = false
+    }
+  }, [asked, analysis])
+
+  // The Outputs tab's UI loads the first time the Outputs view opens.
+  useEffect(() => {
+    if (view !== 'outputs' || outputsUi) return
+    outputsUiLoading.current ??= import('./outputs-ui')
+    let current = true
+    void outputsUiLoading.current.then((module) => {
+      if (current) setOutputsUi(module)
+    })
+    return () => {
+      current = false
+    }
+  }, [view, outputsUi])
 
   // The graph's chunk loads the first time the Graph view opens.
   useEffect(() => {
@@ -417,18 +477,40 @@ export default function Playground() {
     history.replaceState(null, '', hashOf(next as View))
   }
 
-  const read = (input: readonly TokenInputFile[], example?: Example) => {
-    const result = analyse(input)
+  const readWith = (module: Analysis, input: readonly TokenInputFile[], example?: Example) => {
+    const result = module.analyse(input)
     const { view: fromHash, token } = hashState()
+    const key = (runNow.current?.key ?? 0) + 1
     transition(() => {
-      setRun({ result, source: sourceOf(result, input, example), key: (run?.key ?? 0) + 1 })
+      setRun({ result, source: sourceOf(result, input, example), key })
+      setWaiting(null)
       setSelection(null)
       setPasting(false)
       setModes({})
       // A shared link to a token on the graph opens it once the tokens are read.
-      if (fromHash === 'graph' && token) showToken(token, result)
+      if (fromHash === 'graph' && token) showToken(token, result, module)
     }, 'dta-read')
   }
+
+  /** Reads the input now, or once the analysis is here (the summary says "Reading…" until then). */
+  const read = (input: readonly TokenInputFile[], example?: Example) => {
+    const module = analysisNow.current
+    if (module) return readWith(module, input, example)
+    transition(() => {
+      setWaiting({ input, example })
+      setSelection(null)
+      setPasting(false)
+    }, 'dta-read')
+    setAnalysisFailed(false)
+    want()
+  }
+
+  // Input that came before the analysis: read once it is here, exactly once.
+  useEffect(() => {
+    if (!analysis || !waiting || taken.current === waiting) return
+    taken.current = waiting
+    readWith(analysis, waiting.input, waiting.example)
+  }, [analysis, waiting])
 
   const open = (next: Selection, element: HTMLElement) => {
     opener.current = element
@@ -467,7 +549,7 @@ export default function Playground() {
     transition(() => {
       setModes((current) => ({ ...current, [collection]: mode }))
       if (selection?.kind !== 'token' || !model) return
-      const token = parseTokenId(model, selection.id)
+      const token = analysis?.parseTokenId(model, selection.id)
       if (token?.collection !== collection) return
       const id = `${collection}.${mode}/${token.path}`
       opener.current = null
@@ -477,18 +559,62 @@ export default function Playground() {
     }, 'dta-tabs')
   }
 
-  if (!run) {
+  const sourceBar = (source: Source, focusKey: number) => (
+    <SourceBar
+      label={source.label}
+      detail={source.detail}
+      files={source.files}
+      pasting={pasting}
+      focusKey={focusKey}
+      onFiles={(input) => read(input)}
+      onPaste={() => transition(() => setPasting(!pasting), 'dta-read')}
+    />
+  )
+  const pasteForm = pasting && (
+    <PasteForm
+      idPrefix={ID}
+      autoFocus
+      onFiles={(input) => read(input)}
+      onCancel={() => transition(() => setPasting(false), 'dta-read')}
+    />
+  )
+
+  if (!run || !analysis) {
+    if (!waiting) {
+      return (
+        <div class="pg">
+          <TokenInput
+            idPrefix={ID}
+            examples={inputExamples()}
+            onFiles={(input) => read(input)}
+            onExample={(id) => {
+              const example = EXAMPLES.find((item) => item.name === id)
+              if (example) read(example.files, example)
+            }}
+          />
+        </div>
+      )
+    }
+    // Input before the analysis: what was given, and the summary reading it (TICKET-124). The
+    // children sit where the loaded page has them, so the bar and the summary stay the same
+    // elements when the counts arrive (nothing remounts, fades in again or moves).
+    const count = plural(waiting.input.length, 'file')
     return (
-      <div class="pg">
-        <TokenInput
-          idPrefix={ID}
-          examples={inputExamples()}
-          onFiles={(input) => read(input)}
-          onExample={(id) => {
-            const example = EXAMPLES.find((item) => item.name === id)
-            if (example) read(example.files, example)
-          }}
-        />
+      <div class="pg" data-loaded="" data-reading="">
+        {sourceBar(sourceOf(undefined, waiting.input, waiting.example), 1)}
+        {pasteForm}
+        {null}
+        <>
+          {analysisFailed ? (
+            <SummaryLine
+              parts={[
+                { text: 'The analysis did not load. Reload the page to try again.', tone: 'error' },
+              ]}
+            />
+          ) : (
+            <SummaryLine parts={[]} reading={`Reading ${count}…`} />
+          )}
+        </>
       </div>
     )
   }
@@ -499,10 +625,9 @@ export default function Playground() {
   const fresh = built && built.run === run.key && built.formats === formatsKey ? built : null
   // While other formats build, the files of this read stay until the new ones replace them.
   const shown = fresh ?? (built && built.run === run.key ? built : null)
-  const failed = shown ? hasErrors(shown.diagnostics) : false
+  const failed = shown ? analysis.hasErrors(shown.diagnostics) : false
   // `dta build` writes nothing when the build has errors; the playground shows nothing either.
   const outputFiles = shown && !failed ? shown.files : []
-  const groups: OutputGroup[] = groupOutputs(outputFiles)
   const outputCount = formats.length === 0 ? 0 : shown ? outputFiles.length : undefined
   const tabs: Tab[] = [
     { id: 'structure', label: 'Structure' },
@@ -514,11 +639,16 @@ export default function Playground() {
       count: outputCount === undefined ? undefined : String(outputCount),
     },
   ]
-  const config = generateConfig({
-    brands: structure?.brands ?? [],
-    formats,
-    defineConfig: NPM_RELEASED,
-  })
+  // The Outputs tab's parts, once its code is here (only the tab and its files need them).
+  const ui = outputsUi
+  const groups = ui ? ui.groupOutputs(outputFiles) : []
+  const config = ui
+    ? ui.generateConfig({
+        brands: structure?.brands ?? [],
+        formats,
+        defineConfig: ui.NPM_RELEASED,
+      })
+    : ''
 
   /** The files of the current build, or of the next one when it is still running. */
   const current = async () => {
@@ -529,41 +659,48 @@ export default function Playground() {
   const download = (path: string, content: string) => save(baseName(path), content, typeOf(path))
   const downloadZip = async (name: string, pick: (files: Built['files']) => Built['files']) => {
     const [module, build] = await Promise.all([loadEngine(), current()])
-    if (!build || hasErrors(build.diagnostics)) return
+    if (!build || analysis.hasErrors(build.diagnostics)) return
     const files = pick(build.files)
     save(name, module.zipFiles(files), 'application/zip')
   }
+  // Both are offered only in the Outputs view, so its code is there.
   const downloadAll = () =>
-    downloadZip('dta-outputs.zip', (files) => [...files, { path: CONFIG_FILE, content: config }])
+    ui &&
+    downloadZip('dta-outputs.zip', (files) => [...files, { path: ui.CONFIG_FILE, content: config }])
   const downloadGroup = (id: string) =>
+    ui &&
     downloadZip(`dta-${id}.zip`, (files) =>
-      groupOutputs(files).flatMap((group) => (group.id === id ? group.files : [])),
+      ui.groupOutputs(files).flatMap((group) => (group.id === id ? group.files : [])),
     )
 
-  const previews: FilePreviews = {
-    find: (path) => {
-      if (path === CONFIG_FILE) return { content: config }
-      for (const group of groups) {
-        const file = group.files.find((f) => f.path === path)
-        // The kicker names the output where the group mixes them: `Output · Tailwind v4 · …`.
-        if (file) return { content: file.content, group: outputLabel(group, file) ?? group.name }
+  const previews: FilePreviews | undefined = ui
+    ? {
+        find: (path) => {
+          if (path === ui.CONFIG_FILE) return { content: config }
+          for (const group of groups) {
+            const file = group.files.find((f) => f.path === path)
+            // The kicker names the output where the group mixes them: `Output · Tailwind v4 · …`.
+            if (file)
+              return { content: file.content, group: ui.outputLabel(group, file) ?? group.name }
+          }
+          return undefined
+        },
+        size: (content) => ui.formatSize(ui.byteLength(content)),
+        actions: (path, content) => (
+          <>
+            <ui.CopyButton text={content} accessibleLabel={`Copy ${path}`} variant="outline" />
+            <button
+              type="button"
+              class="dta-button outline"
+              aria-label={`Download ${path}`}
+              onClick={() => download(path, content)}
+            >
+              Download
+            </button>
+          </>
+        ),
       }
-      return undefined
-    },
-    actions: (path, content) => (
-      <>
-        <CopyButton text={content} accessibleLabel={`Copy ${path}`} variant="outline" />
-        <button
-          type="button"
-          class="dta-button outline"
-          aria-label={`Download ${path}`}
-          onClick={() => download(path, content)}
-        >
-          Download
-        </button>
-      </>
-    ),
-  }
+    : undefined
   /** A token's panel: every reading as `dta token get` gives it, its names and its findings. */
   function tokenPanel(): Omit<DetailPanelProps, 'open'> | undefined {
     if (selection?.kind !== 'token' || !graph || !graphView) return undefined
@@ -588,8 +725,10 @@ export default function Playground() {
       ? lint?.rules[selection.group]?.findings[selection.line]
       : undefined
   // A finding about a token leads to it on the graph.
-  const inGraph = finding && result.model && parseTokenId(result.model, finding.tokenPath)
-  const found = selection ? (panelOf(result, selection, previews) ?? tokenPanel()) : undefined
+  const inGraph = finding && result.model && analysis.parseTokenId(result.model, finding.tokenPath)
+  const found = selection
+    ? (panelOf(analysis, result, selection, previews) ?? tokenPanel())
+    : undefined
   const panel: Omit<DetailPanelProps, 'open'> | undefined =
     found && at >= 0
       ? {
@@ -629,23 +768,8 @@ export default function Playground() {
 
   return (
     <div class="pg" data-loaded="">
-      <SourceBar
-        label={source.label}
-        detail={source.detail}
-        files={source.files}
-        pasting={pasting}
-        focusKey={run.key}
-        onFiles={(input) => read(input)}
-        onPaste={() => transition(() => setPasting(!pasting), 'dta-read')}
-      />
-      {pasting && (
-        <PasteForm
-          idPrefix={ID}
-          autoFocus
-          onFiles={(input) => read(input)}
-          onCancel={() => transition(() => setPasting(false), 'dta-read')}
-        />
-      )}
+      {sourceBar(source, run.key)}
+      {pasteForm}
 
       {result.input.groups.length > 0 && (
         <Findings
@@ -746,9 +870,14 @@ export default function Playground() {
                       Drawing the graph with <code>@dta/core</code>, in your browser…
                     </p>
                   ))}
-                {view === 'outputs' && (
+                {view === 'outputs' && !ui && (
+                  <p class="pg-hint" role="status">
+                    Building the outputs with <code>@dta/build</code>, in your browser…
+                  </p>
+                )}
+                {view === 'outputs' && ui && (
                   <div class="pg-outputs">
-                    <OutputOptions
+                    <ui.OutputOptions
                       idPrefix={`${ID}-outputs`}
                       options={OUTPUT_CHOICES.map((c) => ({ value: c.format, label: c.label }))}
                       selected={formats}
@@ -763,7 +892,7 @@ export default function Playground() {
                           Download all (.zip)
                         </button>
                       )}
-                    </OutputOptions>
+                    </ui.OutputOptions>
                     {formats.length === 0 ? (
                       <p class="pg-hint">Choose at least one output to build.</p>
                     ) : buildError ? (
@@ -777,15 +906,15 @@ export default function Playground() {
                     ) : failed ? null : (
                       <p class="pg-hint" role="status">
                         {plural(outputFiles.length, 'file')} as <code>dta build</code> writes them.
-                        Select one to see it in full; “Download all” adds <code>{CONFIG_FILE}</code>{' '}
-                        to the folders.
+                        Select one to see it in full; “Download all” adds{' '}
+                        <code>{ui.CONFIG_FILE}</code> to the folders.
                       </p>
                     )}
                     {shown && shown.diagnostics.length > 0 && (
                       <Findings
                         title="Build"
                         level={3}
-                        groups={diagnosticGroups(shown.diagnostics)}
+                        groups={analysis.diagnosticGroups(shown.diagnostics)}
                         summary={
                           failed
                             ? 'The build has errors: dta build writes no files until they are fixed.'
@@ -796,9 +925,9 @@ export default function Playground() {
                       />
                     )}
                     {groups.length > 0 && (
-                      <OutputFiles
+                      <ui.OutputFiles
                         idPrefix={`${ID}-files`}
-                        groups={outputFileGroups(groups)}
+                        groups={ui.outputFileGroups(groups)}
                         selected={openFile}
                         onOpen={(path, button) => open({ kind: 'file', path }, button)}
                         onDownload={(path) => {
@@ -809,7 +938,7 @@ export default function Playground() {
                       />
                     )}
                     {formats.length > 0 && (
-                      <CliHandoff
+                      <ui.CliHandoff
                         idPrefix={`${ID}-cli`}
                         intro={
                           failed
@@ -817,14 +946,14 @@ export default function Playground() {
                             : 'The same files on your machine: the generated config carries the choices above.'
                         }
                         config={{
-                          name: CONFIG_FILE,
-                          size: formatSize(byteLength(config)),
+                          name: ui.CONFIG_FILE,
+                          size: ui.formatSize(ui.byteLength(config)),
                           content: config,
                         }}
-                        configOpen={openFile === CONFIG_FILE}
-                        steps={cliSteps({ pluginExport: source.pluginExport })}
+                        configOpen={openFile === ui.CONFIG_FILE}
+                        steps={ui.cliSteps({ pluginExport: source.pluginExport })}
                         note={
-                          NPM_RELEASED ? undefined : (
+                          ui.NPM_RELEASED ? undefined : (
                             <>
                               DTA is not on npm yet (TICKET-090), so <code>npx</code> cannot find it
                               until the first release. Until then, run it from a clone of the
@@ -833,8 +962,10 @@ export default function Playground() {
                             </>
                           )
                         }
-                        onOpenConfig={(button) => open({ kind: 'file', path: CONFIG_FILE }, button)}
-                        onDownload={() => download(CONFIG_FILE, config)}
+                        onOpenConfig={(button) =>
+                          open({ kind: 'file', path: ui.CONFIG_FILE }, button)
+                        }
+                        onDownload={() => download(ui.CONFIG_FILE, config)}
                       />
                     )}
                   </div>

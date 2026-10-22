@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** S
 **Blocked by:** —
-**Status:** in review
+**Status:** done
 
 ## What to build
 
@@ -14,7 +14,7 @@
 
 - [x] Pairs resolve through aliases in each mode of the collection that defines them; a violation names the mode
 - [x] The v1 quirk test is replaced by the new behaviour; the `lint` snapshot of `brand-ab` re-recorded if its output changes, reviewed
-- [ ] Lint rules page updated; all gates pass, and the GitHub run is green
+- [x] Lint rules page updated; all gates pass, and the GitHub run is green
 
 ## Outcome
 
@@ -37,3 +37,5 @@
 - **Playground:** runs `lintTokens(model)` without a config (a visitor has no `dta.config.ts`), so `color-contrast` never runs there and its finding detail needs no mode; no UI change, no screenshots. First-load JS grows from 59,536 to 59,865 B gzip (`resolve` from core is now reachable from `@dta/lint`), within the 60,000 B budget.
 - **Docs:** Lint rules page: the "Limits of the current version" paragraph replaced by how pairs are checked per mode, the `brand-ab` finding and a `contrast-unresolved` line from real runs (the fixture, and a scratch copy with one unknown pair); the config example lists the fixture's third pair. Brands and themes guide: the sentence on contrast limits updated. `packages/lint/README.md`: new section, quirk removed; spec decision 8 notes it is done for contrast; 039 quirk table row set to fixed; CHANGELOG entry under Unreleased.
 - **Gates** (Node 24): prettier, typecheck, boundaries pass; `TERM=xterm-256color CI=true pnpm test` 1193 passed (149 skipped); `snapshot:check` 41 passed; `pnpm site:build` 137 pages, links valid; `test:contrast` 152 passed; diff e2e (`DTA_E2E=1`) 3 passed. Nothing committed or pushed.
+
+**Closed 2026-10-21.** GitHub run 39688510420 (CI, ee0a71e) green.

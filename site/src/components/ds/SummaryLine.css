@@ -3,7 +3,8 @@
  * Parts that open a view are text buttons, underlined with a hairline-coloured rule that turns
  * ink on hover. A view-transition part (`dta-summary`), so it moves instead of jumping when
  * something opens above it. Changed parts light up (Changed). Status parts (`data-tone`) carry
- * their marker shape before the words and read in the status text colour.
+ * their marker shape before the words and read in the status text colour. The reading state is
+ * one muted part in the box of a button part (same height), so the counts replace it in place.
  */
 .dta-summary {
   view-transition-name: dta-summary;
@@ -80,4 +81,11 @@
   outline: var(--stroke-focus) solid var(--action-bg);
   outline-offset: var(--stroke-ink);
   border-radius: 2px;
+}
+/* Reading: the words alone, muted, as tall as a part that is a button. */
+.dta-summary__reading {
+  display: inline-block;
+  min-height: 24px;
+  padding: var(--space-1) 0;
+  color: var(--fg-muted);
 }

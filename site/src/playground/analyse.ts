@@ -11,6 +11,9 @@
  * - everything else is a set of per-mode files, read like the tokens directory of `dta lint`
  *   (`parseTokenFiles`).
  * Lint runs with the default rules: a visitor has no `dta.config.ts`.
+ *
+ * The island loads this module lazily (TICKET-124): once the browser is idle after the first
+ * render, or at once on the first input. Everything else on the first load imports only its types.
  */
 import {
   analyzeGraph,
@@ -39,6 +42,9 @@ import type { DetailLine } from '../components/ds/DetailPanel'
 import { DOC_LINKS } from '../lib/doc-links'
 import type { FindingGroup, FindingLine } from '../components/ds/Findings'
 import type { StructureRow } from '../components/ds/StructureTable'
+
+/** For the build's diagnostics in the Outputs tab (TICKET-124: the island imports no `@dta/*`). */
+export { hasErrors }
 
 export type Outcome = 'clean' | 'warnings' | 'failed'
 

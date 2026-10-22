@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** M
 **Blocked by:** —
-**Status:** in review
+**Status:** done
 
 ## What to build
 
@@ -17,7 +17,7 @@ Collections whose modes are not brands (the dimension layer, e.g. `ScreenType` w
 - [x] Tailwind v4 output covers them; snapshot of `build` on `brand-ab` re-recorded and reviewed
 - [x] `outputs.css.prefix` and `outputs.tailwind.version` either take effect or are removed from the schema with a clear message (accepted but unused today)
 - [x] Docs pages updated; all gates pass
-- [ ] The GitHub run is green
+- [x] The GitHub run is green
 
 ## Outcome
 
@@ -49,10 +49,12 @@ Collections whose modes are not brands (the dimension layer, e.g. `ScreenType` w
 - **Tests:** `build.test.ts` "breakpoint modes (TICKET-091)": exact blocks and order; desktop-first order; per-breakpoint theme blocks for a brand-aliasing token and none for a primitive one; Tailwind v4 inline block incl. the moved component token; `base.css`/v3 through the default; `formats` without `css`; a breakpoint mode in `brands`; four warning cases. Snapshot comparisons use `fixtureOptions()` (`test-helpers.ts`), the fixture's config as build options. `bindings.test.ts`: nested `@media` parsing, breakpoint bindings. `attribution.test.ts`: revert inside the media query; page copies of build rules (also inside `@layer`). `config.test.ts`, `cli.test.ts`, `init*.test.ts`: removal message, valid and invalid `breakpoints`. Site: `outputs.test.ts` and `playground.e2e.test.ts` compare with the snapshot minus the ScreenType blocks (the playground cannot know the queries); `browser-packages.test.ts` passes the fixture's breakpoints like the CLI. New `site/breakpoints.e2e.test.ts` (in `test:contrast`): the Learn `multi-brand` example plus a `Screen` collection, built with `bin/dta.js`, in Chromium at 390, 800 and 1280 px and resized 390 → 1024 → 1023 on one page: tokens follow the viewport; a nested `data-brand="brandb"` gets BrandB's green accent at desktop width while the root keeps BrandA's blue. Fails without the theme blocks (checked by disabling them).
 - **Docs:** Outputs reference (new "Breakpoint modes": config, CSS from the fixture build, ordering, media-only, themes, Tailwind v4, resolved files; "Not built yet" updated), Core concepts (build list, the note, config example), Brands and themes ("Breakpoint tokens and brands", theme file from a real run), Tailwind guide (bullet), Quick start (fixture config, `dta init` excerpt), Migrating from v1 (removed key, `breakpoints` vs `layers.dimension`). Configuration reference generated from the schema descriptions.
 - **Playground:** unchanged. Its generated config has no `breakpoints` (no queries to offer), so its outputs are the same as before; first load 59,863 B gzip (budget 60,000), outputs chunk 599,829 B gzip. No visible UI change, so no screenshots. Site tokens have no breakpoint collection: `pnpm report:tokens` rewrote `tokens-css.ts` unchanged, no diff re-record needed.
-- **Decisions to confirm:**
+- **Decisions (confirmed by the maintainer, 2026-10-21: the first three as below; the fourth goes to TICKET-125):**
   - Top-level `breakpoints` (not `outputs.css.breakpoints`) and the extra required `default` key (above).
   - Media queries only; a mode mapped to a selector is rejected. The ticket says "(or a selector)" as an option; a selector would need a different revert/binding model in `dta diff` and a different theme nesting, and can be added later without breaking this shape (e.g. a value object).
   - No auto-detection: without `breakpoints`, nothing changes (the structure analysis's `dimension` role is not used). `dta init` does not ask for queries.
-  - `dta audit`/`dta token find` now prefer a breakpoint token (`Spacing.Gap`) over a primitive (`Dimensions.spacing.4`) for `16px`, because the ranking prefers built tokens with deeper alias chains and the breakpoint token's Desktop value matches. Arguably right for semantic use, but `Spacing.Gap` is 16px only from 1024 px. Left as the existing ranking decides; a follow-up could rank values of a non-default breakpoint mode lower.
+  - `dta audit`/`dta token find` now prefer a breakpoint token (`Spacing.Gap`) over a primitive (`Dimensions.spacing.4`) for `16px`, because the ranking prefers built tokens with deeper alias chains and the breakpoint token's Desktop value matches. Arguably right for semantic use, but `Spacing.Gap` is 16px only from 1024 px. Left as the existing ranking decides; follow-up: [TICKET-125](./125-audit-rank-breakpoint-values.md).
 - **Files touched:** `packages/build/src/build.ts`, `formatters/tailwind-v4.ts`, `bindings.ts`, `code-names.ts`, `index.ts`, `test-helpers.ts`, `build.test.ts`, `bindings.test.ts`, `tailwind-v3.test.ts`, `tailwind-v4.test.ts`; `packages/cli/src/config/schema.ts`, `commands/build.ts`, `commands/diff.ts`, `code-names.ts`, `commands/init-config.ts`, `config.test.ts`, `cli.test.ts`, `commands/init-config.test.ts`, `commands/init.test.ts`; `packages/visual-diff/src/attribution.ts`, `attribution.test.ts`; `test/fixtures/brand-ab/dta.config.ts`, `daisyui/dta.config.ts`, `README.md`; six snapshot scenarios above; `site/breakpoints.e2e.test.ts`, `site/package.json`, `browser-packages.test.ts`, `browser-packages/engine.ts`, `playground.e2e.test.ts`, `src/playground/outputs.test.ts`, six docs pages; `CHANGELOG.md`.
 - **Gates** (Node 24.14.1): prettier, typecheck, boundaries pass; `TERM=xterm-256color CI=true pnpm test` 1210 passed (154 skipped); `snapshot:check` 41 passed; `pnpm site:build` 137 pages, links valid; `test:contrast` 157 passed (7 files, incl. the new one); diff e2e (`DTA_E2E=1`) 3 passed. Nothing committed or pushed.
+
+**Closed 2026-10-21.** GitHub run 39688510420 (CI, ee0a71e) green.

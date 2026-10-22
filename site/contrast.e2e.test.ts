@@ -386,6 +386,24 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
       await page.getByRole('button', { name: 'Check pasted JSON' }).click()
       await page.getByRole('heading', { name: 'Input' }).waitFor()
     },
+    // TICKET-124: input before the analysis arrived (its chunk held back): "Reading 6 files…"
+    reading: async (page) => {
+      await page.route(/\/_astro\/analyse\.[\w-]+\.js$/, () => new Promise(() => {}))
+      await page.reload({ waitUntil: 'load' })
+      await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' })
+      await page.evaluate('document.fonts.ready.then(() => true)')
+      await page.getByRole('button', { name: 'Load example' }).click()
+      await page.getByText('Reading 6 files…').waitFor()
+    },
+    // ...and when it cannot load: the summary says so in the error tone
+    'analysis did not load': async (page) => {
+      await page.route(/\/_astro\/analyse\.[\w-]+\.js$/, (route: any) => route.abort())
+      await page.reload({ waitUntil: 'load' })
+      await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' })
+      await page.evaluate('document.fonts.ready.then(() => true)')
+      await page.getByRole('button', { name: 'Load example' }).click()
+      await page.getByText('The analysis did not load. Reload the page to try again.').waitFor()
+    },
   }
   it.each(
     Object.keys(PLAYGROUND).flatMap((state) =>

@@ -43,6 +43,15 @@
   white-space: nowrap;
 }
 
+/*
+ * Input given before the analysis arrived (TICKET-124): the source bar and the summary reading
+ * it. The footer waits out of sight until the views are there, so it does not jump down when
+ * they arrive (a layout shift the visitor did not cause).
+ */
+body:has(.pg[data-reading]) .foot {
+  visibility: hidden;
+}
+
 /* The island: source bar, summary, then the tabs; one column. */
 .pg {
   display: grid;

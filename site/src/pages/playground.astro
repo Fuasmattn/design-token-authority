@@ -5,7 +5,8 @@
  * brand-ab example, and see the structure, the lint findings and the dependency graph
  * (TICKET-078) in a workspace (decision 15, TICKET-115), then preview and download the outputs
  * with the matching dta.config.ts (TICKET-079). The app is a Preact island, the only one on the site; this file and
- * playground.css only place it.
+ * playground.css only place it. Its first load is the empty state alone; the analysis loads when the browser is idle
+ * or on the first input, the views' heavier parts with their tabs (TICKET-124, spec decision 9).
  */
 import SiteLayout from '../layouts/SiteLayout.astro'
 import Playground from '../playground/Playground'

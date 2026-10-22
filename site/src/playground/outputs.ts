@@ -2,20 +2,15 @@
  * The playground's outputs and the hand-off to the CLI (spec: docs/specs/playground.md decisions
  * 3 and 9, TICKET-079): which outputs to build, how the files are grouped, the `dta.config.ts`
  * that gives the same files with `dta build`, and the commands to run. Pure and small: it imports
- * only types from `@dta/build`, so the page's first load stays without Style Dictionary. The
- * build itself and the zip code are in outputs-engine.ts, loaded when the Outputs tab opens.
+ * only types from `@dta/build`, so the page's first load stays without Style Dictionary. It loads
+ * with the Outputs tab's UI (outputs-view.tsx, TICKET-124); the build itself and the zip code are
+ * in outputs-engine.ts, loaded when the Outputs tab opens.
  */
 import type { OutputFile, OutputFormat } from '@dta/build'
+import { OUTPUT_CHOICES } from './shared'
 
-/** The outputs a visitor can choose, in the order of the config reference (`OUTPUT_FORMATS`). */
-export const OUTPUT_CHOICES: ReadonlyArray<{ format: OutputFormat; label: string }> = [
-  { format: 'css', label: 'CSS' },
-  { format: 'tailwind-v4', label: 'Tailwind v4' },
-  { format: 'tailwind-v3', label: 'Tailwind v3' },
-  { format: 'js', label: 'JS' },
-]
-
-export const ALL_FORMATS: readonly OutputFormat[] = OUTPUT_CHOICES.map((choice) => choice.format)
+// The choices and the plurals are needed before the Outputs tab opens (TICKET-124: shared.ts).
+export { ALL_FORMATS, OUTPUT_CHOICES, plural } from './shared'
 
 /** The command that runs DTA without an install (the npm name `dta` is another package). */
 export const CLI = 'npx design-token-authority'
@@ -78,8 +73,6 @@ export const byteLength = (content: string) => new TextEncoder().encode(content)
 export function formatSize(bytes: number): string {
   return bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`
 }
-
-export const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`
 
 export interface ConfigChoices {
   /** The modes built into a theme each (the brands the structure analysis suggests). */

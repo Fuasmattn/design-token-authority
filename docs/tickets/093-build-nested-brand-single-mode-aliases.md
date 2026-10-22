@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** S
 **Blocked by:** —
-**Status:** in review
+**Status:** done
 
 ## Background
 
@@ -28,7 +28,7 @@ Single-mode tokens whose alias chain reaches a brand-mode token are also emitted
 - [x] A test with a single-mode tier over brand modes: the theme files declare the dependent tokens, `variables.css` is unchanged
 - [x] A browser check (or computed-style test) that a nested `data-brand` section resolves the dependent tokens to its own brand
 - [x] `brand-ab` snapshots unchanged, or re-recorded by name and reviewed if its output changes
-- [ ] The caution on the Learn patterns page and the note in Brands and themes updated; Outputs reference states what `base.css` resolves to; all gates pass, and the GitHub run is green (docs and local gates done; GitHub run pending)
+- [x] The caution on the Learn patterns page and the note in Brands and themes updated; Outputs reference states what `base.css` resolves to; all gates pass, and the GitHub run is green
 
 ## Outcome
 
@@ -54,3 +54,5 @@ Single-mode tokens whose alias chain reaches a brand-mode token are also emitted
 - **Snapshots:** no fixture has a single-mode collection that aliases a brand collection (`brand-ab`'s and `daisyui`'s Primitives hold raw values), so build output is unchanged and nothing was re-recorded. The site's tokens have no such alias either: `site/output/css` is byte-identical with and without the change, `pnpm report:tokens` rewrote `tokens-css.ts` unchanged, so no screenshots and no diff re-record were needed.
 - **Files touched:** `packages/build/src/tree.ts`, `build.ts`, `build.test.ts`, `bindings.test.ts`, `site/nested-brands.e2e.test.ts`, `site/package.json` (`test:contrast`), `site/src/content/docs/guides/brands-and-themes.mdx`, `learn/patterns.mdx`, `reference/outputs.mdx`.
 - **Gates** (Node 24): prettier, typecheck, boundaries pass; `TERM=xterm-256color CI=true pnpm test` 1190 passed (149 skipped); `snapshot:check` 41 passed, none changed; `pnpm site:build` 137 pages, links valid; `test:contrast` 152 passed (6 files, incl. the new one); diff e2e (`DTA_E2E=1`) 3 passed. Nothing committed or pushed.
+
+**Closed 2026-10-21.** GitHub run 39688510420 (CI, ee0a71e) green.
