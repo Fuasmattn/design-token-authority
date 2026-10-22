@@ -15,11 +15,6 @@ DTA's token files use the format of the W3C [Design Tokens Community Group](http
 
 ## Where DTA differs
 
-DTA's files are DTCG in the shape of Figma variables: one file per collection and mode (`Brand.BrandA.json`, `Brand.BrandB.json`), or a `.tokens` file for a collection with one mode. It reads every type of 2025.10, group `$type` and `$deprecated`, `$ref`, `$root` and `$extends`, and checks each value against its type; the [Token files](/reference/token-files/) reference has the format. Compared with 2025.10, DTA does **not** yet:
-
-- follow `$extends` from one per-mode file into another (it works within a file, and across the sets of a resolver document),
-- combine several modifiers on one token (a brand and a theme): a resolver document is read, one modifier per token.
-
-These gaps are tracked in the [DTCG 2025.10 spec](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/specs/dtcg-2025-10.md) and its tickets.
+DTA's files are DTCG in the shape of Figma variables: one file per collection and mode (`Brand.BrandA.json`, `Brand.BrandB.json`), or a `.tokens` file for a collection with one mode. It reads every type of 2025.10, group `$type` and `$deprecated`, `$ref`, `$root` and `$extends`, and checks each value against its type; the [Token files](/reference/token-files/) reference has the format. Compared with 2025.10, DTA does **not** yet follow `$extends` from one per-mode file into another (it works within a file, and across the sets of a resolver document). This gap is tracked in the [DTCG 2025.10 spec](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/specs/dtcg-2025-10.md) and its tickets.
 
 A minimal file DTA reads, with all four types and an alias, is [`learn-examples/dtcg-basics/`](https://github.com/Fuasmattn/design-token-authority/tree/main/site/learn-examples/dtcg-basics/). Next: [Token patterns](/learn/patterns/).

@@ -1,6 +1,7 @@
 import { readEntries, type Entry } from './entries.js'
 import { pointerSegments } from './references.js'
-import type { Diagnostic, TokenFileInput } from './types.js'
+import { AXIS_SEPARATOR } from './modes.js'
+import type { Diagnostic, TokenFileInput, TokenLayers, TokenValue } from './types.js'
 
 /**
  * DTCG 2025.10 resolver documents (Resolver module): sets, modifiers with contexts, and the
@@ -30,6 +31,10 @@ export interface ResolverRead {
   defaults: Record<string, string>
   /** File names the document read (sources), so other token files can be reported. */
   used: Set<string>
+  /** The modifiers, in resolution order: each is a collection (or an axis of a combined one). */
+  modifiers: string[]
+  /** Collections of tokens several modifiers change, with each token's layers by path key. */
+  combined: Array<{ collection: string; axes: string[]; layers: Map<string, TokenLayers> }>
 }
 
 interface Stage {
@@ -70,7 +75,7 @@ export function readResolver(
 ): ResolverRead {
   const diagnostics: Diagnostic[] = []
   const used = new Set<string>([document.fileName])
-  const empty = { inputs: [], diagnostics, defaults: {}, used }
+  const empty = { inputs: [], diagnostics, defaults: {}, used, modifiers: [], combined: [] }
   const fail = (code: string, message: string) =>
     diagnostics.push({ severity: 'error', code, message, file: document.fileName })
   const warn = (code: string, message: string) =>
@@ -332,12 +337,14 @@ export function readResolver(
   }
 
   // The tokens in every context of every modifier, the others at their default.
-  const flatten = (selection: Record<string, string>): Map<string, Entry> => {
+  /** Merged in order; a modifier selected as null is left out (for the layers of a token). */
+  const flatten = (selection: Record<string, string | null>): Map<string, Entry> => {
     let tree: Json = {}
     for (const stage of stages) {
       if (stage.kind === 'set' && stage.tree) tree = merge(tree, stage.tree)
       if (stage.kind === 'modifier' && stage.contexts) {
-        const context = stage.contexts.get(selection[stage.name] ?? defaults[stage.name])
+        const chosen = stage.name in selection ? selection[stage.name] : defaults[stage.name]
+        const context = chosen === null ? undefined : stage.contexts.get(chosen)
         if (context) tree = merge(tree, context)
       }
     }
@@ -387,7 +394,8 @@ export function readResolver(
   const sameEntry = (a: Entry | undefined, b: Entry | undefined) =>
     JSON.stringify(a && [a.type, a.value]) === JSON.stringify(b && [b.type, b.value])
 
-  const owned = new Map<string, Map<string, Entry>>() // "set" or "modifier/context" → entries
+  const owned = new Map<string, Map<string, Entry>>() // "set/…", "modifier/…/…" → entries
+  const combined = new Map<string, { axes: string[]; keys: string[] }>()
   const add = (key: string, path: string, entry: Entry) => {
     const map = owned.get(key) ?? owned.set(key, new Map()).get(key)
     map?.set(path, entry)
@@ -402,10 +410,11 @@ export function readResolver(
       return contexts.some((entries) => !sameEntry(entries.get(key), contexts[0].get(key)))
     })
     if (varying.length > 1) {
-      fail(
-        'resolver-several-modifiers',
-        `Token "${(JSON.parse(key) as string[]).join('.')}" is changed by the modifiers ${varying.map((s) => `"${s.name}"`).join(' and ')}; combining several modifiers on one token comes with TICKET-137.`,
-      )
+      // Several modifiers change it: a collection for that combination of modifiers.
+      const axes = varying.map((stage) => stage.name)
+      const name = axes.join(AXIS_SEPARATOR)
+      const group = combined.get(name) ?? combined.set(name, { axes, keys: [] }).get(name)
+      group?.keys.push(key)
       continue
     }
     if (varying.length === 1) {
@@ -434,6 +443,51 @@ export function readResolver(
         for (const context of modifier.contexts?.keys() ?? [])
           add(`modifier/${modifier.name}/${context}`, key, entry)
     }
+  }
+
+  // Combined collections: one mode per combination of contexts, and each token's layers (the
+  // sets' value, then what each context of each modifier sets), for CSS that combines freely.
+  const none = Object.fromEntries(modifierStages.map((stage) => [stage.name, null]))
+  const bare = flatten(none)
+  const layers = new Map<string, Map<string, TokenLayers>>()
+  /** Every combination of the axes' contexts, in resolution order: [["a","light"], …]. */
+  const combosOf = (axes: string[]) =>
+    axes
+      .map((axis) => [
+        ...(modifierStages.find((stage) => stage.name === axis)?.contexts?.keys() ?? []),
+      ])
+      .reduce<
+        string[][]
+      >((all, list) => all.flatMap((combo) => list.map((context) => [...combo, context])), [[]])
+  for (const [name, group] of combined) {
+    for (const combo of combosOf(group.axes)) {
+      const entries = flatten(Object.fromEntries(group.axes.map((axis, i) => [axis, combo[i]])))
+      for (const key of group.keys) {
+        const entry = entries.get(key)
+        if (entry) add(`combined/${name}/${combo.join(AXIS_SEPARATOR)}`, key, entry)
+      }
+    }
+    const byToken = new Map<string, TokenLayers>()
+    for (const key of group.keys) {
+      const path = JSON.parse(key) as string[]
+      const base = bare.get(key)
+      byToken.set(key, {
+        ...(base ? { base: base.value } : {}),
+        axes: group.axes.map((axis) => {
+          const stage = modifierStages.find((s) => s.name === axis)
+          const contexts: Record<string, TokenValue> = {}
+          for (const [context, tree] of stage?.contexts ?? []) {
+            let node: unknown = tree
+            for (const k of path) node = isObject(node) ? node[k] : undefined
+            if (!(isObject(node) && '$value' in node)) continue
+            const value = flatten({ ...none, [axis]: context }).get(key)?.value
+            if (value !== undefined) contexts[context] = value
+          }
+          return { axis, contexts }
+        }),
+      })
+    }
+    layers.set(name, byToken)
   }
 
   /** A tree holding the given tokens, each with its own type (an alias without one stays so). */
@@ -478,5 +532,28 @@ export function readResolver(
       }
     }
   }
-  return { inputs: result, diagnostics, defaults, used }
+  for (const [name, group] of combined) {
+    for (const combo of combosOf(group.axes)) {
+      const mode = combo.join(AXIS_SEPARATOR)
+      const entries = owned.get(`combined/${name}/${mode}`)
+      result.push({
+        fileName: `${document.fileName}#modifiers/${group.axes.join('+')}/${combo.join('+')}`,
+        collection: name,
+        mode,
+        content: JSON.stringify(entries ? treeOf(entries) : {}),
+      })
+    }
+  }
+  return {
+    inputs: result,
+    diagnostics,
+    defaults,
+    used,
+    modifiers: modifierStages.map((stage) => stage.name),
+    combined: [...combined].map(([name, group]) => ({
+      collection: name,
+      axes: group.axes,
+      layers: layers.get(name) ?? new Map(),
+    })),
+  }
 }

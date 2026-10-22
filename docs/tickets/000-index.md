@@ -226,21 +226,21 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 **Follow-ups found while writing the docs (072)**
 
-| #                                             | Ticket                                                                 | Priority | Effort | Blocked by | Status    |
-| --------------------------------------------- | ---------------------------------------------------------------------- | -------- | ------ | ---------- | --------- |
-| [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | 132–138    | Open      |
-| [091](./091-build-breakpoint-modes.md)        | Breakpoint modes in the build output                                   | Medium   | M      | —          | Done      |
-| [092](./092-lint-contrast-per-mode.md)        | `color-contrast` per mode, through aliases                             | Medium   | S      | —          | Done      |
-| [117](./117-css-prefix.md)                    | Make `outputs.css.prefix` work (or remove it)                          | Low      | M      | —          | Done      |
-| [118](./118-init-writes-output-formats.md)    | `dta init` writes `outputs.formats`                                    | Low      | S      | —          | Done      |
-| [119](./119-build-fails-on-broken-aliases.md) | `dta build` must not write broken CSS for dangling or circular aliases | High     | S      | —          | Done      |
-| [125](./125-audit-rank-breakpoint-values.md)  | `dta audit` / `token find` rank breakpoint-only matches lower          | Low      | S      | 091        | Open      |
+| #                                             | Ticket                                                                 | Priority | Effort | Blocked by | Status |
+| --------------------------------------------- | ---------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
+| [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | 132–138    | Open   |
+| [091](./091-build-breakpoint-modes.md)        | Breakpoint modes in the build output                                   | Medium   | M      | —          | Done   |
+| [092](./092-lint-contrast-per-mode.md)        | `color-contrast` per mode, through aliases                             | Medium   | S      | —          | Done   |
+| [117](./117-css-prefix.md)                    | Make `outputs.css.prefix` work (or remove it)                          | Low      | M      | —          | Done   |
+| [118](./118-init-writes-output-formats.md)    | `dta init` writes `outputs.formats`                                    | Low      | S      | —          | Done   |
+| [119](./119-build-fails-on-broken-aliases.md) | `dta build` must not write broken CSS for dangling or circular aliases | High     | S      | —          | Done   |
+| [125](./125-audit-rank-breakpoint-values.md)  | `dta audit` / `token find` rank breakpoint-only matches lower          | Low      | S      | 091        | Open   |
 
 **Follow-ups found while writing Learn (073)**
 
-| #                                                      | Ticket                                                         | Priority | Effort | Blocked by | Status    |
-| ------------------------------------------------------ | -------------------------------------------------------------- | -------- | ------ | ---------- | --------- |
-| [093](./093-build-nested-brand-single-mode-aliases.md) | Nested brands reach single-mode tokens that alias brand tokens | Medium   | S      | —          | Done      |
+| #                                                      | Ticket                                                         | Priority | Effort | Blocked by | Status              |
+| ------------------------------------------------------ | -------------------------------------------------------------- | -------- | ------ | ---------- | ------------------- |
+| [093](./093-build-nested-brand-single-mode-aliases.md) | Nested brands reach single-mode tokens that alias brand tokens | Medium   | S      | —          | Done                |
 | [094](./094-dtcg-2025-10-conformance.md)               | Read DTCG 2025.10 token files and resolver documents           | Medium   | L      | —          | Replaced by 132–138 |
 
 **Found on the first deploy (075)**
@@ -273,18 +273,18 @@ Order: 100 → 101 → 102 → 103 → 104 (the audit section of the guide follo
 
 Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17, revised 2026-10-18). One story, quietly told: a hero on the gravity-well key visual, one change in four scenes with the Orbit Burger example, facts, final call; one surface, no grid, commands as copyable chips, AAA. Accepted prototype: `docs/specs/landing-redesign/prototypes/p17-page.html`.
 
-| #                                               | Ticket                                                                                       | Priority | Effort | Blocked by | Status      |
-| ----------------------------------------------- | -------------------------------------------------------------------------------------------- | -------- | ------ | ---------- | ----------- |
-| [110](./110-design-system-one-surface.md)       | Design system: one surface, the well's tokens, command chips, AAA                            | High     | M      | —          | Done        |
-| [105](./105-orbit-burger-example.md)            | Orbit Burger: example brand as a real token set and fixture                                  | High     | M      | —          | Done        |
-| [106](./106-landing-components.md)              | Design-system components for the redesigned landing page                                     | High     | M      | 110, 105   | Done        |
-| [107](./107-gravity-well.md)                    | `GravityWell` and `FloatingObjects`: the key visual                                          | High     | L      | 110, 106   | Done        |
-| [108](./108-landing-rebuild.md)                 | Rebuild the landing page                                                                     | High     | M      | 106, 107   | Done        |
-| [109](./109-diff-report-before-after.md)        | `dta diff` report: before/after with the change outlined                                     | Medium   | M      | 108        | Done        |
-| [123](./123-diff-report-refs-in-words.md)       | `dta diff` report: refs in words, commit hashes for both sides                               | Low      | S      | 109        | Done        |
-| [111](./111-diff-attribution-scoped-example.md) | `dta diff` attribution for the Orbit Burger example (scoped selectors)                       | Medium   | M      | 108        | Done        |
-| [112](./112-landing-workflow-strip.md)          | Workflow strip below the hero; scenes in the same order                                      | Medium   | M      | —          | Done        |
-| [114](./114-site-polish-after-112-077.md)       | Site polish after 112 and 077 (strip label, nav current page, diagnostic links, scene order) | Low      | S      | 112, 077   | Done        |
+| #                                               | Ticket                                                                                       | Priority | Effort | Blocked by | Status |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
+| [110](./110-design-system-one-surface.md)       | Design system: one surface, the well's tokens, command chips, AAA                            | High     | M      | —          | Done   |
+| [105](./105-orbit-burger-example.md)            | Orbit Burger: example brand as a real token set and fixture                                  | High     | M      | —          | Done   |
+| [106](./106-landing-components.md)              | Design-system components for the redesigned landing page                                     | High     | M      | 110, 105   | Done   |
+| [107](./107-gravity-well.md)                    | `GravityWell` and `FloatingObjects`: the key visual                                          | High     | L      | 110, 106   | Done   |
+| [108](./108-landing-rebuild.md)                 | Rebuild the landing page                                                                     | High     | M      | 106, 107   | Done   |
+| [109](./109-diff-report-before-after.md)        | `dta diff` report: before/after with the change outlined                                     | Medium   | M      | 108        | Done   |
+| [123](./123-diff-report-refs-in-words.md)       | `dta diff` report: refs in words, commit hashes for both sides                               | Low      | S      | 109        | Done   |
+| [111](./111-diff-attribution-scoped-example.md) | `dta diff` attribution for the Orbit Burger example (scoped selectors)                       | Medium   | M      | 108        | Done   |
+| [112](./112-landing-workflow-strip.md)          | Workflow strip below the hero; scenes in the same order                                      | Medium   | M      | —          | Done   |
+| [114](./114-site-polish-after-112-077.md)       | Site polish after 112 and 077 (strip label, nav current page, diagnostic links, scene order) | Low      | S      | 112, 077   | Done   |
 
 Order: 110 → 105 → 106 → 107 → 108 → 112 (done); 114 (done); 109 and 111 later.
 
@@ -292,14 +292,14 @@ Order: 110 → 105 → 106 → 107 → 108 → 112 (done); 114 (done); 109 and 1
 
 Spec: [diff-zero-setup](../specs/diff-zero-setup.md) (approved 2026-10-21). From nine manual steps to two: `npm create dta`, then open a pull request. No new diff features; setup and robustness only.
 
-| #                                             | Ticket                                                   | Priority | Effort | Blocked by    | Status |
-| --------------------------------------------- | -------------------------------------------------------- | -------- | ------ | ------------- | ------ |
-| [126](./126-diff-detect-project.md)           | Detect the project for `dta diff` setup                  | High     | M      | —             | Open   |
-| [127](./127-diff-base-build-without-setup.md) | Base build without `diff.setup`                          | High     | M      | —             | Open   |
-| [128](./128-diff-stories-page-list.md)        | Stories as a page list                                   | Medium   | S      | —             | Open   |
-| [129](./129-diff-one-workflow.md)             | One workflow file for private and team repositories      | High     | M      | 090           | Open   |
-| [130](./130-diff-check-loud-failures.md)      | `dta diff --check` and loud failures                     | High     | S      | —             | Open   |
-| [131](./131-init-diff-step.md)                | Init step for `dta diff`, re-runnable                    | High     | M      | 126, 128, 129 | Open   |
+| #                                             | Ticket                                              | Priority | Effort | Blocked by    | Status |
+| --------------------------------------------- | --------------------------------------------------- | -------- | ------ | ------------- | ------ |
+| [126](./126-diff-detect-project.md)           | Detect the project for `dta diff` setup             | High     | M      | —             | Open   |
+| [127](./127-diff-base-build-without-setup.md) | Base build without `diff.setup`                     | High     | M      | —             | Open   |
+| [128](./128-diff-stories-page-list.md)        | Stories as a page list                              | Medium   | S      | —             | Open   |
+| [129](./129-diff-one-workflow.md)             | One workflow file for private and team repositories | High     | M      | 090           | Open   |
+| [130](./130-diff-check-loud-failures.md)      | `dta diff --check` and loud failures                | High     | S      | —             | Open   |
+| [131](./131-init-diff-step.md)                | Init step for `dta diff`, re-runnable               | High     | M      | 126, 128, 129 | Open   |
 
 Order: 126, 127, 128 and 130 in parallel → 129 (after 090) → 131.
 
@@ -307,15 +307,15 @@ Order: 126, 127, 128 and 130 in parallel → 129 (after 090) → 131.
 
 Spec: [dtcg-2025-10](../specs/dtcg-2025-10.md) (approved 2026-10-21). A valid DTCG 2025.10 token set works in DTA without conversion: every type, `$ref`/`$root`/`$extends`, `.tokens` files, resolver documents and several modifiers at once (axes). All seven slices go into the first npm release (090). Replaces the plan in TICKET-094.
 
-| #                                      | Ticket                                                          | Priority | Effort | Blocked by | Status |
-| -------------------------------------- | --------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| [132](./132-dtcg-types-and-values.md)  | All DTCG 2025.10 types and structured values in core            | High     | L      | —          | In review |
-| [133](./133-dtcg-references.md)        | `$ref`, `$root`, `$extends` and aliases inside composite values | High     | M      | 132        | In review |
-| [134](./134-dtcg-consumers.md)         | Build, lint, diff, queries and audit on the new types           | High     | L      | 133        | In review |
-| [135](./135-dtcg-tokens-files.md)      | Read `.tokens` and `.tokens.json` files                         | High     | S      | 132        | In review |
-| [136](./136-dtcg-resolver.md)          | Resolver documents                                              | High     | L      | 133, 135   | In review |
-| [137](./137-dtcg-modifier-axes.md)     | Several modifiers at once (axes)                                | High     | L      | 134, 136   | Open   |
-| [138](./138-dtcg-figma-push.md)        | Figma push for the new types                                    | Medium   | M      | 134        | In review |
+| #                                     | Ticket                                                          | Priority | Effort | Blocked by | Status    |
+| ------------------------------------- | --------------------------------------------------------------- | -------- | ------ | ---------- | --------- |
+| [132](./132-dtcg-types-and-values.md) | All DTCG 2025.10 types and structured values in core            | High     | L      | —          | In review |
+| [133](./133-dtcg-references.md)       | `$ref`, `$root`, `$extends` and aliases inside composite values | High     | M      | 132        | In review |
+| [134](./134-dtcg-consumers.md)        | Build, lint, diff, queries and audit on the new types           | High     | L      | 133        | In review |
+| [135](./135-dtcg-tokens-files.md)     | Read `.tokens` and `.tokens.json` files                         | High     | S      | 132        | In review |
+| [136](./136-dtcg-resolver.md)         | Resolver documents                                              | High     | L      | 133, 135   | In review |
+| [137](./137-dtcg-modifier-axes.md)    | Several modifiers at once (axes)                                | High     | L      | 134, 136   | In review |
+| [138](./138-dtcg-figma-push.md)       | Figma push for the new types                                    | Medium   | M      | 134        | In review |
 
 Order: 132 → 133 → 134 → 137; 135 after 132; 136 after 133 and 135; 138 after 134.
 

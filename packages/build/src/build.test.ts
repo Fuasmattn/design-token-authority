@@ -919,3 +919,58 @@ describe('buildOutputs: DTCG 2025.10 values', () => {
     expect(js).toContain('export const ColorSky = "oklch(0.7 0.15 250)";')
   })
 })
+
+describe('buildOutputs: several resolver modifiers (TICKET-137)', () => {
+  const color = (value: string) => ({ $type: 'color', $value: value })
+  const json = (fileName: string, tree: unknown) => ({ fileName, content: JSON.stringify(tree) })
+  const model = parseTokenFiles([
+    json('app.resolver.json', {
+      version: '2025.10',
+      sets: {
+        core: { sources: [{ blue: color('#0000ff'), accent: color('{blue}') }] },
+        ui: { sources: [{ link: color('{accent}') }] },
+      },
+      modifiers: {
+        theme: {
+          contexts: { light: [], dark: [{ accent: color('#000088'), page: color('#000000') }] },
+          default: 'light',
+        },
+        brand: { contexts: { a: [], b: [{ accent: color('#ff0000') }] }, default: 'a' },
+      },
+      resolutionOrder: [
+        { $ref: '#/sets/core' },
+        { $ref: '#/modifiers/theme' },
+        { $ref: '#/modifiers/brand' },
+        { $ref: '#/sets/ui' },
+      ],
+    }),
+  ]).model
+  const css = async (brands: string[] = []) =>
+    Object.fromEntries(
+      (await buildOutputs(model, { brands, formats: ['css'] })).files.map((f) => [
+        f.path.replace('output/css/', ''),
+        f.content,
+      ]),
+    )
+
+  it('writes a layer per modifier and reads the last one set, in resolution order', async () => {
+    const files = await css()
+    expect(files['variables.css']).toContain(
+      '  --accent-dta-base: var(--blue);\n  --accent: var(--accent-dta-brand, var(--accent-dta-theme, var(--accent-dta-base)));',
+    )
+    expect(files['themes/theme-dark.css']).toContain(
+      '[data-theme="dark"] {\n  --accent-dta-theme: #000088;\n  --accent: var(--accent-dta-brand, var(--accent-dta-theme, var(--accent-dta-base)));\n  --link: var(--accent);\n}',
+    )
+    // A context that leaves the token alone resets its layer, so a nested context can undo one.
+    expect(files['themes/brand-a.css']).toContain('  --accent-dta-brand: initial;')
+    expect(files['themes/brand-b.css']).toContain('  --accent-dta-brand: #ff0000;')
+    // A token one modifier changes is a plain theme token.
+    expect(files['themes/theme-dark.css']).toContain('  --page: #000000;')
+  })
+
+  it('switches a modifier whose contexts are brands with data-brand', async () => {
+    const files = await css(['a', 'b'])
+    expect(files['themes/b.css']).toContain('[data-brand="b"] {\n  --accent-dta-brand: #ff0000;')
+    expect(files['themes/brand-b.css']).toBeUndefined()
+  })
+})

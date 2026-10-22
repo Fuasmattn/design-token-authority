@@ -20,10 +20,18 @@ function reportOrder(files: readonly OutputFile[], brands: string[], config: Con
   const take = (...paths: string[]) => paths.filter((path) => byPath.has(path))
 
   const base = take(`${css}base.css`)
-  const perBrand = brands.map((brand) => {
+  // Brands, then the themes of resolver modifiers no brand names (themes/theme-dark.css).
+  const slugs = brands.map((brand) => brand.toLowerCase())
+  const modifierThemes = files
+    .map((file) => file.path.startsWith(`${css}themes/`) && file.path.slice(`${css}themes/`.length))
+    .filter((name): name is string => typeof name === 'string' && name.endsWith('.css'))
+    .map((name) => name.slice(0, -'.css'.length))
+    .filter((slug) => !slugs.includes(slug))
+  const perBrand = [...brands, ...modifierThemes].map((brand) => {
     const slug = brand.toLowerCase()
     return {
       brand,
+      theme: !brands.includes(brand),
       files: take(
         `${css}themes/${slug}.css`,
         `${tailwind}${slug}/tailwind.tokens.ts`,
@@ -119,8 +127,10 @@ export async function runBuild(context: CommandContext): Promise<number> {
     spinner.stop(done)
   }
   if (order.base.length > 0) step('Building base layer...', 'Base layer complete')
-  for (const { brand, files: brandFiles } of order.perBrand) {
-    if (brandFiles.length > 0) step(`Building brand: ${brand}...`, `Brand ${brand} complete`)
+  for (const { brand, theme, files: brandFiles } of order.perBrand) {
+    if (brandFiles.length === 0) continue
+    if (theme) step(`Building theme: ${brand}...`, `Theme ${brand} complete`)
+    else step(`Building brand: ${brand}...`, `Brand ${brand} complete`)
   }
   if (order.shared.length > 0) step('Building shared outputs...', 'Shared outputs complete')
 

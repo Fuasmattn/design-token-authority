@@ -1,12 +1,13 @@
 import { indexTokens } from './lookup.js'
+import { expandSelection, modeOf } from './modes.js'
+import type { ModeSelection } from './modes.js'
 import { nameToDot } from './names.js'
 import { nestedReferences, partOf, referenceOf } from './references.js'
 import type { Reference } from './references.js'
 import type { Diagnostic, TokenModel, TokenName, TokenType, TokenValue } from './types.js'
 import { formatValue, valueProblem } from './values.js'
 
-/** Which mode to read in each collection, by collection name. Missing → the first mode. */
-export type ModeSelection = Record<string, string>
+export type { ModeSelection } from './modes.js'
 
 export interface ResolveStep {
   collection: string
@@ -51,7 +52,7 @@ export function resolve(
   name: TokenName,
   selection: ModeSelection = {},
 ): ResolveResult {
-  return resolveIn(indexTokens(model), name, selection, new Set())
+  return resolveIn(indexTokens(model), name, expandSelection(model, selection), new Set())
 }
 
 type Index = ReturnType<typeof indexTokens>
@@ -91,7 +92,7 @@ function resolveIn(
       )
     }
     const { token, collection } = found
-    const mode = selection[collection.name] ?? collection.defaultMode ?? collection.modes[0]
+    const mode = modeOf(collection, selection)
     if (!collection.modes.includes(mode)) {
       return fail(
         'unknown-mode',

@@ -11,7 +11,7 @@ import {
 import type { Collection, ColorValue, Diagnostic, Token, TokenModel, TokenValue } from '@dta/core'
 import StyleDictionary from 'style-dictionary'
 import type { DesignTokens, PlatformConfig } from 'style-dictionary/types'
-import { CSS_TRANSFORM_GROUP, hooks, JS_TRANSFORMS } from './transforms.js'
+import { CSS_TRANSFORM_GROUP, cssVariableName, hooks, JS_TRANSFORMS } from './transforms.js'
 import { aliasesInto, brokenReferences, mergeSources } from './tree.js'
 import type { MergedTokens, Source } from './tree.js'
 
@@ -511,10 +511,14 @@ export async function buildOutputs(
     }
   }
 
+  // Themes: one per brand ([data-brand], the brand's mode of every multi-mode collection) and one
+  // per context of each resolver modifier no brand names ([data-theme="dark"], TICKET-137).
+  const themes: Theme[] = []
+  const brandModes = new Set(options.brands ?? [])
+  const switchable = multiMode.filter((c) => c !== breakpoints?.collection && !c.axes)
   for (const brand of options.brands ?? []) {
-    const modeOf = (c: Collection) => c.modes.find((mode) => mode === brand)
-    const brandCollections = multiMode.filter((c) => modeOf(c) && c !== breakpoints?.collection)
-    if (brandCollections.length === 0) {
+    const collections = switchable.filter((c) => c.modes.includes(brand))
+    if (collections.length === 0) {
       diagnostics.push({
         severity: 'warning',
         code: 'unknown-brand',
@@ -522,7 +526,34 @@ export async function buildOutputs(
       })
       continue
     }
+    themes.push({
+      stem: brand.toLowerCase(),
+      selector: `[data-brand="${brand.toLowerCase()}"]`,
+      collections,
+      mode: brand,
+    })
+  }
+  /** The theme a context of a resolver modifier is switched by. */
+  const contextTheme = (modifier: Collection, context: string): Theme =>
+    modifier.modes.some((mode) => brandModes.has(mode))
+      ? {
+          stem: context.toLowerCase(),
+          selector: `[data-brand="${context.toLowerCase()}"]`,
+          collections: [],
+          mode: context,
+        }
+      : {
+          stem: `${cssVariableName([modifier.name])}-${cssVariableName([context])}`,
+          selector: `[data-${cssVariableName([modifier.name])}="${context.toLowerCase()}"]`,
+          collections: [modifier],
+          mode: context,
+        }
+  for (const modifier of switchable.filter((c) => c.modifier)) {
+    if (modifier.modes.some((mode) => brandModes.has(mode))) continue
+    for (const context of modifier.modes) themes.push(contextTheme(modifier, context))
+  }
 
+  for (const { stem, selector, collections: brandCollections, mode: brand } of themes) {
     // Theme: emit the brand's mode of every multi-mode collection; the single-mode
     // collections (and the breakpoint collection in a mode) are only there so that aliases into
     // them resolve.
@@ -570,7 +601,6 @@ export async function buildOutputs(
     const inTheme = (dotPath: string) => emitted(dotPath) || singleDependents.has(dotPath)
 
     diagnostics.push(...brokenReferences(merged, emitted))
-    const selector = `[data-brand="${brand.toLowerCase()}"]`
     const themeBlocks: Array<{ part: OutputFile; comment: string }> = []
     if (breakpoints && breakpointDependents.size > 0) {
       for (const { mode, query, merged: tree } of trees) {
@@ -583,7 +613,7 @@ export async function buildOutputs(
             buildPath: CSS_DIR,
             files: [
               {
-                destination: `themes/${brand.toLowerCase()}.css`,
+                destination: `themes/${stem}.css`,
                 format: 'css/variables',
                 filter: (token) => {
                   const dotPath = token.path.join('.')
@@ -613,20 +643,17 @@ export async function buildOutputs(
           buildPath: CSS_DIR,
           files: [
             {
-              destination: `themes/${brand.toLowerCase()}.css`,
+              destination: `themes/${stem}.css`,
               format: 'css/variables',
               filter: (token) => inTheme(token.path.join('.')),
-              options: {
-                selector: `[data-brand="${brand.toLowerCase()}"]`,
-                outputReferences: true,
-              },
+              options: { selector, outputReferences: true },
             },
           ],
         },
         'tailwind-v3-brand': {
           output: 'tailwind-v3',
           transformGroup: CSS_TRANSFORM_GROUP,
-          buildPath: `${TAILWIND_DIR}${brand.toLowerCase()}/`,
+          buildPath: `${TAILWIND_DIR}${stem}/`,
           files: [
             {
               destination: 'tailwind.tokens.ts',
@@ -639,7 +666,7 @@ export async function buildOutputs(
         'tailwind-v4-brand': {
           output: 'tailwind-v4',
           transformGroup: CSS_TRANSFORM_GROUP,
-          buildPath: `${TAILWIND_DIR}${brand.toLowerCase()}/`,
+          buildPath: `${TAILWIND_DIR}${stem}/`,
           files: [
             {
               destination: 'tailwind.css',
@@ -654,8 +681,205 @@ export async function buildOutputs(
     for (const { part, comment } of themeBlocks) appendBlock(files, part, comment)
   }
 
+  if (formats.has('css')) {
+    for (const collection of multiMode.filter((c) => c.axes)) {
+      const blocks = await combinedCss(collection, {
+        model,
+        source,
+        singleMode,
+        multiMode,
+        referenceMode,
+        singleOrigins,
+        unresolvable,
+        selectorOf: (axis, context) => {
+          const modifier = model.collections.find((c) => c.name === axis)
+          return modifier ? contextTheme(modifier, context) : undefined
+        },
+        formatted,
+        cssDir: CSS_DIR,
+      })
+      for (const block of blocks) appendBlock(files, block.part, block.comment)
+    }
+  }
+
   files.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))
   return { files, diagnostics: dedupe(diagnostics) }
+}
+
+interface CombinedContext {
+  model: TokenModel
+  source: (collection: Collection, mode: string) => Source
+  singleMode: Collection[]
+  multiMode: Collection[]
+  referenceMode: (collection: Collection) => string
+  singleOrigins: ReadonlySet<string>
+  unresolvable: ReadonlySet<string>
+  selectorOf: (axis: string, context: string) => Theme | undefined
+  formatted: (
+    tree: Record<string, unknown>,
+    platforms: Record<string, PlatformConfig & { output: OutputFormat }>,
+  ) => Promise<OutputFile[]>
+  cssDir: string
+}
+
+/**
+ * CSS for the tokens several resolver modifiers change (TICKET-137), so the modifiers combine
+ * freely and nest: each token gets a custom property per layer (`--surface-dta-base` from the
+ * sets, `--surface-dta-theme` from the theme's context, …) and reads the last one that is set,
+ * in resolution order: `--surface: var(--surface-dta-brand, var(--surface-dta-theme, …))`.
+ * `:root` (in variables.css) holds the sets' layer; each context's rule (in its theme file) sets
+ * its layer (`initial` where the context leaves the token alone, so a nested context resets it)
+ * and declares the token again, with the single-mode tokens that alias it, because CSS resolves
+ * `var()` where a property is declared.
+ */
+async function combinedCss(
+  collection: Collection,
+  context: CombinedContext,
+): Promise<Array<{ part: OutputFile; comment: string }>> {
+  const axes = collection.axes ?? []
+  const tokens = collection.tokens.filter(
+    (token) =>
+      token.layers &&
+      !collection.modes.some((mode) =>
+        context.unresolvable.has(`${collection.name}.${mode}/${nameToSlash(token.name)}`),
+      ),
+  )
+  if (tokens.length === 0) return []
+  const layerPath = (name: readonly string[], layer: string) => [
+    ...name.slice(0, -1),
+    `${name[name.length - 1]}-dta-${layer}`,
+  ]
+  const variable = (path: readonly string[]) => `--${cssVariableName(path)}`
+
+  // One tree for every layer value, with the other tokens there so that aliases resolve.
+  const defaultOrigin = `${collection.name}.${context.referenceMode(collection)}`
+  const merged = mergeSources([
+    ...context.singleMode.map((c) => context.source(c, c.modes[0])),
+    ...context.multiMode.map((c) => context.source(c, context.referenceMode(c))),
+    {
+      origin: 'dta-layers',
+      tokens: tokens.flatMap((token) => {
+        const layers = token.layers
+        if (!layers) return []
+        const prepare = (value: TokenValue) =>
+          prepareValue(context.model, collection, context.referenceMode(collection), token, value)
+        const name = (path: string[]) => ({ ...token, name: path, description: undefined })
+        return [
+          ...(layers.base !== undefined
+            ? [{ token: name(layerPath(token.name, 'base')), value: prepare(layers.base) }]
+            : []),
+          ...layers.axes.flatMap(({ axis, contexts }) =>
+            Object.entries(contexts).map(([ctx, value]) => ({
+              token: name(layerPath(token.name, `${axis}-${ctx}`)),
+              value: prepare(value),
+            })),
+          ),
+        ]
+      }),
+    },
+  ])
+  const dependents = aliasesInto(
+    merged,
+    (origin) => origin === defaultOrigin,
+    (origin) => context.singleOrigins.has(origin),
+  )
+  const parts = await context.formatted(merged.tree, {
+    'css-layers': {
+      output: 'css',
+      transformGroup: CSS_TRANSFORM_GROUP,
+      buildPath: context.cssDir,
+      files: [
+        {
+          destination: 'layers.css',
+          format: 'css/variables',
+          filter: (token) => {
+            const origin = merged.origins.get(token.path.join('.'))
+            return origin === 'dta-layers' || dependents.has(token.path.join('.'))
+          },
+          options: { selector: ':root', outputReferences: true, showFileHeader: false },
+        },
+      ],
+    },
+  })
+  // `  --name: value;` by name (a declaration of css/variables is one line).
+  const declarations = new Map<string, string>()
+  for (const line of (parts[0]?.content ?? '').split('\n')) {
+    const match = /^\s*(--[a-z0-9-]+):\s.*;/.exec(line)
+    if (match) declarations.set(match[1], line.trim())
+  }
+  const layerVariable = (name: readonly string[], axis: string, ctx: string) =>
+    variable(layerPath(name, `${axis}-${ctx}`))
+  const slot = (name: readonly string[], layer: string) => variable(layerPath(name, layer))
+  const reading = (token: Token) => {
+    // The last modifier in resolution order wins, so it is read first.
+    const chain = [
+      ...(token.layers?.base !== undefined ? [slot(token.name, 'base')] : []),
+      ...axes.map((axis) => slot(token.name, axis)),
+    ]
+    const value = chain.reduce(
+      (inner, name) => (inner ? `var(${name}, ${inner})` : `var(${name})`),
+      '',
+    )
+    return `${variable(token.name)}: ${value};`
+  }
+  const dependentLines = [...dependents]
+    .map((dotPath) => declarations.get(variable(dotPath.split('.'))))
+    .filter((line): line is string => line !== undefined)
+  const rule = (selector: string, lines: string[]) =>
+    `${selector} {\n${lines.map((line) => `  ${line}`).join('\n')}\n}\n`
+  const dir = context.cssDir.endsWith('/') ? context.cssDir : `${context.cssDir}/`
+  const css = (path: string, content: string): OutputFile => ({
+    path: `${dir}${path}`,
+    content,
+    format: 'css',
+  })
+  const label = collection.name.replace(/\*\//g, '* /')
+
+  const blocks: Array<{ part: OutputFile; comment: string }> = []
+  const rootLines = tokens.flatMap((token) => [
+    ...(token.layers?.base !== undefined
+      ? [
+          (declarations.get(slot(token.name, 'base')) ?? '').replace(
+            /^--[a-z0-9-]+:/,
+            `${slot(token.name, 'base')}:`,
+          ),
+        ]
+      : []),
+    reading(token),
+  ])
+  blocks.push({
+    part: css('variables.css', rule(':root', rootLines)),
+    comment: `/* ${label}: the sets' values; ${axes.map((a) => `[data-${cssVariableName([a])}]`).join(' and ')} choose the rest */`,
+  })
+  for (const axis of axes) {
+    const modifier = context.model.collections.find((c) => c.name === axis)
+    for (const ctx of modifier?.modes ?? []) {
+      const theme = context.selectorOf(axis, ctx)
+      if (!theme) continue
+      const lines = tokens.flatMap((token) => {
+        const own = token.layers?.axes.find((layer) => layer.axis === axis)
+        const declared =
+          own && ctx in own.contexts
+            ? declarations.get(layerVariable(token.name, axis, ctx))
+            : undefined
+        const value = declared ? declared.replace(/^--[a-z0-9-]+:\s*/, '') : 'initial;'
+        return [`${slot(token.name, axis)}: ${value}`, reading(token)]
+      })
+      blocks.push({
+        part: css(`themes/${theme.stem}.css`, rule(theme.selector, [...lines, ...dependentLines])),
+        comment: `/* ${label}: ${axis} · ${ctx} */`,
+      })
+    }
+  }
+  return blocks
+}
+
+/** A `[data-…]` theme: the mode of each collection it switches, written to `themes/<stem>.css`. */
+interface Theme {
+  stem: string
+  selector: string
+  collections: Collection[]
+  mode: string
 }
 
 const dedupe = (diagnostics: Diagnostic[]) => [

@@ -1,4 +1,5 @@
 import { referenceOf } from './references.js'
+import { AXIS_SEPARATOR } from './modes.js'
 import { readResolver } from './resolver.js'
 import { isObject, nameKey, readEntries } from './entries.js'
 import type {
@@ -92,9 +93,20 @@ export function parseTokenFiles(files: TokenFileInput[], options: ParseOptions =
   }
   const read = readResolver(chosen, files, options.modifiers ?? {})
   const result = parseInputs(read.inputs)
+  const combined = new Map(read.combined.map((c) => [c.collection, c]))
   for (const collection of result.model.collections) {
-    const mode = read.defaults[collection.name]
+    if (read.modifiers.includes(collection.name)) collection.modifier = true
+    const group = combined.get(collection.name)
+    const mode = group
+      ? group.axes.map((axis) => read.defaults[axis]).join(AXIS_SEPARATOR)
+      : read.defaults[collection.name]
     if (mode && collection.modes.includes(mode)) collection.defaultMode = mode
+    if (!group) continue
+    collection.axes = group.axes
+    for (const token of collection.tokens) {
+      const layers = group.layers.get(JSON.stringify(token.name))
+      if (layers) token.layers = layers
+    }
   }
   const unused = files.filter(
     (f) =>

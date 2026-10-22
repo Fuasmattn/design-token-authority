@@ -66,6 +66,7 @@ describe('SCENARIOS', () => {
       'token-get',
       'token-get-composite',
       'token-get-resolver',
+      'token-get-modifiers',
       'token-get-json',
       'token-get-unknown',
       'token-find',

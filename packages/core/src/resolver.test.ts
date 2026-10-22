@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { analyzeGraph } from './graph.js'
 import { parseTokenFiles, type ParseOptions } from './parse.js'
 import { resolve } from './resolve.js'
 import type { TokenModel } from './types.js'
@@ -179,16 +180,82 @@ describe('resolver documents', () => {
     expect(diagnostics.map((d) => [d.code, d.severity])).toEqual([['resolver-default', 'warning']])
   })
 
-  it('reports a token two modifiers change, until they combine as axes', () => {
-    const { diagnostics } = parse({
-      ...THEME,
-      modifiers: {
-        ...THEME.modifiers,
-        brand: { contexts: { a: [], b: [{ surface: color('#ff0000') }] }, default: 'a' },
+  /** THEME plus a brand modifier after it: brand b changes the surface in both themes. */
+  const BRANDED = {
+    ...THEME,
+    modifiers: {
+      ...THEME.modifiers,
+      brand: {
+        contexts: {
+          a: [{ accent: color('#aa0000') }],
+          b: [{ accent: color('#bb0000'), surface: color('#ff0000') }],
+        },
+        default: 'a',
       },
-      resolutionOrder: [...THEME.resolutionOrder, { $ref: '#/modifiers/brand' }],
+    },
+    resolutionOrder: [...THEME.resolutionOrder, { $ref: '#/modifiers/brand' }],
+  }
+
+  it('puts a token several modifiers change into a collection with a mode per combination', () => {
+    const { model, diagnostics } = parse(BRANDED)
+    expect(diagnostics).toEqual([])
+    const combined = model.collections.find((c) => c.axes)
+    expect([combined?.name, combined?.axes, combined?.modes, combined?.defaultMode]).toEqual([
+      'theme × brand',
+      ['theme', 'brand'],
+      ['dark × a', 'dark × b', 'light × a', 'light × b'],
+      'light × a',
+    ])
+    expect(combined?.tokens.map((t) => t.name.join('.'))).toEqual(['surface'])
+    expect(model.collections.filter((c) => c.modifier).map((c) => c.name)).toEqual([
+      'brand',
+      'theme',
+    ])
+    expect(combined?.tokens[0].layers).toEqual({
+      axes: [
+        { axis: 'theme', contexts: { light: '{color.white}', dark: '{color.black}' } },
+        { axis: 'brand', contexts: { b: '#ff0000' } },
+      ],
     })
-    expect(diagnostics.map((d) => d.code)).toEqual(['resolver-several-modifiers'])
+  })
+
+  it('resolves every combination as the resolver merges it, selected by modifier or combination', () => {
+    const { model } = parse(BRANDED)
+    const expected: Record<string, string> = {
+      'light × a': '#ffffff',
+      'dark × a': '#000000',
+      'light × b': '#ff0000',
+      'dark × b': '#ff0000',
+    }
+    for (const [combo, surface] of Object.entries(expected)) {
+      const [theme, brand] = combo.split(' × ')
+      expect(value(model, 'surface', { theme, brand })).toBe(surface)
+      expect(value(model, 'surface', { 'theme × brand': combo })).toBe(surface)
+      // The combination selects the contexts of the single modifiers too.
+      expect(value(model, 'text', { 'theme × brand': combo })).toBe(
+        theme === 'dark' ? '#ffffff' : '#000000',
+      )
+      expect(value(model, 'accent', { brand })).toBe(brand === 'a' ? '#aa0000' : '#bb0000')
+    }
+    // One modifier selected: the other at its default.
+    expect(value(model, 'surface', { theme: 'dark' })).toBe('#000000')
+    expect(value(model, 'surface', { brand: 'b' })).toBe('#ff0000')
+  })
+
+  it('links a combination to the contexts it combines in the graph', () => {
+    const { model } = parse({
+      ...BRANDED,
+      modifiers: {
+        theme: BRANDED.modifiers.theme,
+        brand: {
+          contexts: { a: [], b: [{ surface: color('{text}') }] },
+          default: 'a',
+        },
+      },
+    })
+    const edges = analyzeGraph(model).edges.map((e) => `${e.from} -> ${e.to}`)
+    expect(edges).toContain('theme × brand.dark × b/surface -> theme.dark/text')
+    expect(edges).toContain('theme × brand.light × b/surface -> theme.light/text')
   })
 
   it('reports token files the document does not read, and chooses between several documents', () => {

@@ -1,0 +1,4 @@
+{
+  "control": { "radius": { "$type": "dimension", "$value": "{radius.full}" } },
+  "accent": { "$type": "color", "$value": "{color.navy.700}" }
+}

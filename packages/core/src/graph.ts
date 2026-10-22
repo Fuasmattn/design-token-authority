@@ -1,3 +1,4 @@
+import { AXIS_SEPARATOR, modeOf, type ModeSelection } from './modes.js'
 import { indexTokens } from './lookup.js'
 import { nameToDot, nameToSlash } from './names.js'
 import { nestedReferences, referenceOf } from './references.js'
@@ -112,7 +113,7 @@ export function analyzeGraph(model: TokenModel): GraphAnalysis {
       found &&
       (found.collection.name === node.collection
         ? node.mode
-        : (found.collection.defaultMode ?? found.collection.modes[0]))
+        : modeOf(found.collection, contextsOf(node)))
     const to = found && `${found.collection.name}.${mode}/${nameToSlash(found.token.name)}`
     if (to !== undefined && nodeById.has(to)) {
       if (!edgeKeys.has(`${node.id}\n${to}`)) {
@@ -130,6 +131,17 @@ export function analyzeGraph(model: TokenModel): GraphAnalysis {
         targetName,
       })
     }
+  }
+  // A node in a resolver modifier (or a combination of them) reads other collections in its
+  // contexts: a `theme × brand` node in `dark × b` reads `theme` in `dark`.
+  const collections = new Map(model.collections.map((c) => [c.name, c]))
+  const contextsOf = (node: GraphNode): ModeSelection => {
+    const own = collections.get(node.collection)
+    if (own?.axes) {
+      const contexts = node.mode.split(AXIS_SEPARATOR)
+      return Object.fromEntries(own.axes.map((axis, i) => [axis, contexts[i]]))
+    }
+    return own?.modifier ? { [node.collection]: node.mode } : {}
   }
   const partTargets = new Map<string, string[]>()
   const edgeKeys = new Set<string>()

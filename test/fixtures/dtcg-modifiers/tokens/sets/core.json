@@ -1,0 +1,18 @@
+{
+  "color": {
+    "$type": "color",
+    "blue": { "500": { "$value": "#2563eb" }, "300": { "$value": "#93c5fd" } },
+    "navy": { "700": { "$value": "#1e3a8a" } },
+    "gray": {
+      "900": { "$value": "#111827" },
+      "100": { "$value": "#f3f4f6" },
+      "0": { "$value": "#ffffff" }
+    }
+  },
+  "radius": {
+    "$type": "dimension",
+    "m": { "$value": { "value": 6, "unit": "px" } },
+    "full": { "$value": { "value": 999, "unit": "px" } }
+  },
+  "accent": { "$type": "color", "$value": "{color.blue.500}", "$description": "Brand a in light" }
+}

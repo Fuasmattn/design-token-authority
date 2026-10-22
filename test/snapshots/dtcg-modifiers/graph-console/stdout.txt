@@ -1,0 +1,34 @@
+T   ⮕  dta graph 
+|
+o  Graph built
+|
+|  Tokens: 21 | Aliases: 13 (62%) | Max depth: 2 | Issues: 0
+
+Token Dependency Graph
+──────────────────────────────────────────────────
+
+  Total tokens:       21
+  Alias tokens:       13  (62%)
+  Max chain depth:    2
+  Circular refs:      0
+  Dangling aliases:   0
+  Orphaned tokens:    0
+
+  Tokens by file:
+    brand.a: 1
+    brand.b: 1
+    components.Value: 3
+    core.Value: 8
+    theme × brand.dark × a: 1
+    theme × brand.dark × b: 1
+    theme × brand.light × a: 1
+    theme × brand.light × b: 1
+    theme.dark: 2
+    theme.light: 2
+
+  Tokens by type:
+    dimension: 5
+    color: 16
+|
+—  Done!
+

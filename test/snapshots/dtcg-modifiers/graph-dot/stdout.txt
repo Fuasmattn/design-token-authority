@@ -1,0 +1,106 @@
+T   ⮕  dta graph 
+|
+o  Graph built
+digraph TokenDependencies {
+  rankdir=LR;
+  node [shape=box, fontname="Helvetica", fontsize=10];
+  edge [color="#666666"];
+
+  subgraph "cluster_brand_a" {
+    label="brand.a";
+    style=filled;
+    color="#e3f2fd";
+    "brand.a/control/radius" [label="control/radius"];
+  }
+
+  subgraph "cluster_brand_b" {
+    label="brand.b";
+    style=filled;
+    color="#fce4ec";
+    "brand.b/control/radius" [label="control/radius"];
+  }
+
+  subgraph "cluster_components_Value" {
+    label="components.Value";
+    style=filled;
+    color="#e8f5e9";
+    "components.Value/button/background" [label="button/background"];
+    "components.Value/button/text" [label="button/text"];
+    "components.Value/button/radius" [label="button/radius"];
+  }
+
+  subgraph "cluster_core_Value" {
+    label="core.Value";
+    style=filled;
+    color="#fff3e0";
+    "core.Value/color/blue/300" [label="color/blue/300"];
+    "core.Value/color/blue/500" [label="color/blue/500"];
+    "core.Value/color/navy/700" [label="color/navy/700"];
+    "core.Value/color/gray/0" [label="color/gray/0"];
+    "core.Value/color/gray/100" [label="color/gray/100"];
+    "core.Value/color/gray/900" [label="color/gray/900"];
+    "core.Value/radius/m" [label="radius/m"];
+    "core.Value/radius/full" [label="radius/full"];
+  }
+
+  subgraph "cluster_theme___brand_dark___a" {
+    label="theme × brand.dark × a";
+    style=filled;
+    color="#f3e5f5";
+    "theme × brand.dark × a/accent" [label="accent"];
+  }
+
+  subgraph "cluster_theme___brand_dark___b" {
+    label="theme × brand.dark × b";
+    style=filled;
+    color="#e0f7fa";
+    "theme × brand.dark × b/accent" [label="accent"];
+  }
+
+  subgraph "cluster_theme___brand_light___a" {
+    label="theme × brand.light × a";
+    style=filled;
+    color="#fafafa";
+    "theme × brand.light × a/accent" [label="accent"];
+  }
+
+  subgraph "cluster_theme___brand_light___b" {
+    label="theme × brand.light × b";
+    style=filled;
+    color="#e3f2fd";
+    "theme × brand.light × b/accent" [label="accent"];
+  }
+
+  subgraph "cluster_theme_dark" {
+    label="theme.dark";
+    style=filled;
+    color="#fce4ec";
+    "theme.dark/surface" [label="surface"];
+    "theme.dark/text" [label="text"];
+  }
+
+  subgraph "cluster_theme_light" {
+    label="theme.light";
+    style=filled;
+    color="#e8f5e9";
+    "theme.light/surface" [label="surface"];
+    "theme.light/text" [label="text"];
+  }
+
+  "brand.a/control/radius" -> "core.Value/radius/m";
+  "brand.b/control/radius" -> "core.Value/radius/full";
+  "components.Value/button/background" -> "theme × brand.light × a/accent";
+  "components.Value/button/text" -> "theme.light/surface";
+  "components.Value/button/radius" -> "brand.a/control/radius";
+  "theme × brand.dark × a/accent" -> "core.Value/color/blue/300";
+  "theme × brand.dark × b/accent" -> "core.Value/color/navy/700";
+  "theme × brand.light × a/accent" -> "core.Value/color/blue/500";
+  "theme × brand.light × b/accent" -> "core.Value/color/navy/700";
+  "theme.dark/surface" -> "core.Value/color/gray/900";
+  "theme.dark/text" -> "core.Value/color/gray/100";
+  "theme.light/surface" -> "core.Value/color/gray/0";
+  "theme.light/text" -> "core.Value/color/gray/900";
+}
+|
+—  Done!
+

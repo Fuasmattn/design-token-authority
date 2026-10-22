@@ -131,6 +131,12 @@ export interface Token {
   description?: string
   /** `$deprecated`: `true`, or the explanation. Inherited from groups; `false` is left out. */
   deprecated?: true | string
+  /**
+   * For a token several resolver modifiers change: the sets' value and, per modifier in
+   * resolution order, the value each context that changes the token gives. The build writes
+   * CSS from it that combines the modifiers freely.
+   */
+  layers?: TokenLayers
   /** The `$extensions` object (including `com.figma`), kept as written. */
   extensions?: Record<string, unknown>
 }
@@ -146,6 +152,12 @@ export interface FileSource {
   trailingNewline: boolean
 }
 
+export interface TokenLayers {
+  /** The value the sets give, before any modifier; absent when no set defines the token. */
+  base?: TokenValue
+  axes: Array<{ axis: string; contexts: Record<string, TokenValue> }>
+}
+
 export interface Collection {
   name: string
   /** Mode names, sorted. */
@@ -155,6 +167,13 @@ export interface Collection {
    * config names). Absent: the first mode.
    */
   defaultMode?: string
+  /** A resolver modifier: its contexts are the modes, selected with `data-<modifier>` in CSS. */
+  modifier?: boolean
+  /**
+   * A combination of resolver modifiers (`brand × theme`): each mode joins one context per
+   * modifier (`b × dark`), and a selection by modifier name picks the mode.
+   */
+  axes?: string[]
   tokens: Token[]
   /** Opaque, by mode. Absent for modes that were created in memory. */
   sources: Record<string, FileSource>

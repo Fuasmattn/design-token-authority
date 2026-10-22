@@ -1,0 +1,16 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-theme="light"] {
+  --surface: var(--color-gray-0);
+  --text: var(--color-gray-900);
+  --button-text: var(--surface);
+}
+
+/* theme × brand: theme · light */
+[data-theme="light"] {
+  --accent-dta-theme: initial;
+  --accent: var(--accent-dta-brand, var(--accent-dta-theme, var(--accent-dta-base)));
+  --button-background: var(--accent);
+}

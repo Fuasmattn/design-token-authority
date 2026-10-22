@@ -101,6 +101,11 @@ export const SCENARIOS: readonly Scenario[] = [
     fixtures: ['dtcg-resolver'],
   },
   {
+    name: 'token-get-modifiers',
+    args: ['token', 'get', 'accent'],
+    fixtures: ['dtcg-modifiers'],
+  },
+  {
     name: 'token-get-json',
     args: ['token', 'get', 'Colors.Brand.Primary', '--format', 'json'],
     fixtures: ['brand-ab'],

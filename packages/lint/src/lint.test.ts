@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { parseTokenFiles } from '@dta/core'
 import { lintConfigSchema, lintTokens } from './index.js'
 import { color, fixtureModel, modelFrom, num } from './test-helpers.js'
 
@@ -281,6 +282,37 @@ describe('color-contrast', () => {
         'Brand.B.json',
         'Contrast ratio 1.26:1 between "Via" (#777777) and "Bg" (#888888) is below 7:1 in B',
       ],
+    ])
+  })
+
+  it('reads a token several resolver modifiers change in the same contexts as the other side', () => {
+    const json = (fileName: string, tree: unknown) => ({ fileName, content: JSON.stringify(tree) })
+    const { model: modifiers } = parseTokenFiles([
+      json('app.resolver.json', {
+        version: '2025.10',
+        sets: { core: { sources: [{ accent: color('#777777') }] } },
+        modifiers: {
+          theme: {
+            contexts: {
+              light: [{ page: color('#ffffff') }],
+              dark: [{ page: color('#000000'), accent: color('#cccccc') }],
+            },
+            default: 'light',
+          },
+          brand: { contexts: { a: [], b: [{ accent: color('#111111') }] }, default: 'a' },
+        },
+        resolutionOrder: [
+          { $ref: '#/sets/core' },
+          { $ref: '#/modifiers/theme' },
+          { $ref: '#/modifiers/brand' },
+        ],
+      }),
+    ])
+    const result = lintTokens(modifiers, rules({ pairs: [['accent', 'page']] }))
+    // Four contexts, each with the page of its own theme: b's near-black fails on dark only.
+    expect(result.violations.map((v) => v.message)).toEqual([
+      'Contrast ratio 1.11:1 between "accent" (#111111) and "page" (#000000) is below 4.5:1 in b · dark',
+      'Contrast ratio 4.48:1 between "accent" (#777777) and "page" (#ffffff) is below 4.5:1 in a · light',
     ])
   })
 

@@ -1,4 +1,5 @@
 import {
+  AXIS_SEPARATOR,
   analyzeGraph,
   circularAliasMessage,
   contrastRatio,
@@ -167,13 +168,26 @@ function contrastContexts(
   const multi = new Map(
     model.collections.filter((c) => c.modes.length > 1).map((c) => [c.name, c.modes]),
   )
+  // A combination of resolver modifiers is chosen through its modifiers, so a single modifier the
+  // other side reaches is read in the same context.
+  const axesOf = new Map(model.collections.map((c) => [c.name, c.axes]))
+  const chosen = (collection: string) => {
+    const axes = axesOf.get(collection)
+    return axes ? axes.every((axis) => axis in selection) : collection in selection
+  }
   const open = [...fgResult.chain, ...bgResult.chain].find(
-    (step) => multi.has(step.collection) && !(step.collection in selection),
+    (step) => multi.has(step.collection) && !chosen(step.collection),
   )
   if (!open) return [{ selection, fg: fgResult, bg: bgResult }]
-  return (multi.get(open.collection) ?? []).flatMap((mode) =>
-    contrastContexts(model, fg, bg, { ...selection, [open.collection]: mode }),
-  )
+  const axes = axesOf.get(open.collection)
+  return (multi.get(open.collection) ?? []).flatMap((mode) => {
+    if (!axes) return contrastContexts(model, fg, bg, { ...selection, [open.collection]: mode })
+    const contexts = mode.split(AXIS_SEPARATOR)
+    // Combinations that contradict a modifier already chosen are not this context.
+    if (axes.some((axis, i) => axis in selection && selection[axis] !== contexts[i])) return []
+    const picked = Object.fromEntries(axes.map((axis, i) => [axis, contexts[i]]))
+    return contrastContexts(model, fg, bg, { ...selection, ...picked })
+  })
 }
 
 function colorContrast(

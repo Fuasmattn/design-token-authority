@@ -21,6 +21,7 @@ export type {
 export { analyzeStructure, LOW_CONFIDENCE } from './structure.js'
 export type { CollectionStructure, LayerRole, StructureAnalysis } from './structure.js'
 export { checkUniqueNames, resolve } from './resolve.js'
+export { AXIS_SEPARATOR, expandSelection, modeOf } from './modes.js'
 export {
   describeToken,
   findTokensByValue,
@@ -71,6 +72,7 @@ export type {
   ParseResult,
   Token,
   TokenFileInput,
+  TokenLayers,
   TokenModel,
   TokenName,
   TokenType,

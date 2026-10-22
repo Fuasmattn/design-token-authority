@@ -1,0 +1,32 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/resolver.json",
+  "version": "2025.10",
+  "name": "Brands and themes",
+  "description": "Two modifiers: a theme (light, dark) and a brand (a, b) after it. Both change the accent.",
+  "sets": {
+    "core": { "sources": [{ "$ref": "sets/core.json" }] },
+    "components": { "sources": [{ "$ref": "sets/components.json" }] }
+  },
+  "modifiers": {
+    "theme": {
+      "contexts": {
+        "light": [{ "$ref": "themes/light.json" }],
+        "dark": [{ "$ref": "themes/dark.json" }]
+      },
+      "default": "light"
+    },
+    "brand": {
+      "contexts": {
+        "a": [{ "$ref": "brands/a.json" }],
+        "b": [{ "$ref": "brands/b.json" }]
+      },
+      "default": "a"
+    }
+  },
+  "resolutionOrder": [
+    { "$ref": "#/sets/core" },
+    { "$ref": "#/modifiers/theme" },
+    { "$ref": "#/modifiers/brand" },
+    { "$ref": "#/sets/components" }
+  ]
+}

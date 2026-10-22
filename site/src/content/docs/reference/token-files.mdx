@@ -83,9 +83,9 @@ A DTCG 2025.10 [resolver document](https://www.designtokens.org/tr/2025.10/resol
 - Every **set** becomes a collection with one mode, named after the set.
 - Every **modifier** becomes a collection with one mode per context, named after the modifier; it holds the tokens its contexts change, and `default` is the mode read when nothing selects one. `modifiers: { theme: 'dark' }` in the config reads another context by default.
 - Sources merge in order and the last one wins; aliases and `$extends` resolve after merging, so they reach across sets.
-- Build a modifier's contexts into theme files by listing them in `brands` (`brands: ['light', 'dark']`).
+- `dta build` writes one theme file per context of each modifier: `themes/theme-dark.css` with `[data-theme="dark"]` for a modifier `theme`. List a modifier's contexts in `brands` (`brands: ['a', 'b']`) to switch them with `data-brand` instead (`themes/b.css`).
 - Token files in the folder that the document does not name are reported (`not-in-resolver`) and not read. Errors follow the report's list, for example a modifier without contexts or a `default` that is not one of them.
-- A token that two modifiers change (a brand and a theme) is not supported yet.
+- A token that several modifiers change (a brand and a theme) goes into a collection for that combination, `theme × brand`, with one mode per combination of contexts (`dark × b`). Select it by modifier (`dta token get accent --mode theme=dark --mode brand=b`) or by combination. In CSS the modifiers combine freely and nest: [Brands and themes](/guides/brands-and-themes/#brands-and-themes-together).
 
 ### JSON Schema
 

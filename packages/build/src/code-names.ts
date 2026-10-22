@@ -20,9 +20,9 @@ export interface BuildSelection {
 }
 
 /**
- * Whether `dta build` writes a token of a collection: single-mode collections always,
- * multi-mode collections only in the modes listed in `brands` (the breakpoint collection in all
- * its modes), and only collections it builds.
+ * Whether `dta build` writes a token of a collection: single-mode collections and resolver
+ * modifiers always, other multi-mode collections only in the modes listed in `brands` (the
+ * breakpoint collection in all its modes), and only collections it builds.
  */
 export function isBuilt(
   model: TokenModel,
@@ -33,6 +33,8 @@ export function isBuilt(
   const collection = model.collections.find((c) => c.name === collectionName)
   if (!collection) return false
   if (collection.modes.length === 1) return true
+  // Resolver modifiers and their combinations: every context has a [data-…] theme (TICKET-137).
+  if (collection.modifier || collection.axes) return true
   if (selection?.breakpoints?.collection === collectionName) return true
   return collection.modes.some((mode) => selection?.brands?.includes(mode))
 }
@@ -53,8 +55,10 @@ export function codeNames(
   const raw = figma?.scopes
   const scopes = Array.isArray(raw) ? raw.map(String) : []
   const tailwind = tailwindThemeProperty(path, token.type, scopes)
+  // Tokens several resolver modifiers change are written to CSS only (layers, TICKET-137).
+  const combined = model.collections.find((c) => c.name === token.collection)?.axes
   return {
     css: `--${cssVariableName(path)}`,
-    ...(tailwind.utility ? { tailwind: tailwind.property } : {}),
+    ...(tailwind.utility && !combined ? { tailwind: tailwind.property } : {}),
   }
 }
