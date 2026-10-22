@@ -3,7 +3,7 @@
 **Phase:** 8 — Token Engine Overhaul, follow-ups
 **Priority:** High
 **Effort:** M
-**Blocked by:** —
+**Blocked by:** 132–138 (DTCG 2025.10 support ships with the first release, [dtcg-2025-10](../specs/dtcg-2025-10.md))
 **Status:** open
 
 ## What to build

@@ -228,7 +228,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 | #                                             | Ticket                                                                 | Priority | Effort | Blocked by | Status    |
 | --------------------------------------------- | ---------------------------------------------------------------------- | -------- | ------ | ---------- | --------- |
-| [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | —          | Open      |
+| [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | 132–138    | Open      |
 | [091](./091-build-breakpoint-modes.md)        | Breakpoint modes in the build output                                   | Medium   | M      | —          | Done      |
 | [092](./092-lint-contrast-per-mode.md)        | `color-contrast` per mode, through aliases                             | Medium   | S      | —          | Done      |
 | [117](./117-css-prefix.md)                    | Make `outputs.css.prefix` work (or remove it)                          | Low      | M      | —          | Done      |
@@ -241,7 +241,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | #                                                      | Ticket                                                         | Priority | Effort | Blocked by | Status    |
 | ------------------------------------------------------ | -------------------------------------------------------------- | -------- | ------ | ---------- | --------- |
 | [093](./093-build-nested-brand-single-mode-aliases.md) | Nested brands reach single-mode tokens that alias brand tokens | Medium   | S      | —          | Done      |
-| [094](./094-dtcg-2025-10-conformance.md)               | Read DTCG 2025.10 token files and resolver documents           | Medium   | L      | —          | Open      |
+| [094](./094-dtcg-2025-10-conformance.md)               | Read DTCG 2025.10 token files and resolver documents           | Medium   | L      | —          | Replaced by 132–138 |
 
 **Found on the first deploy (075)**
 
@@ -302,6 +302,22 @@ Spec: [diff-zero-setup](../specs/diff-zero-setup.md) (approved 2026-10-21). From
 | [131](./131-init-diff-step.md)                | Init step for `dta diff`, re-runnable                    | High     | M      | 126, 128, 129 | Open   |
 
 Order: 126, 127, 128 and 130 in parallel → 129 (after 090) → 131.
+
+## Phase 12 — DTCG 2025.10
+
+Spec: [dtcg-2025-10](../specs/dtcg-2025-10.md) (approved 2026-10-21). A valid DTCG 2025.10 token set works in DTA without conversion: every type, `$ref`/`$root`/`$extends`, `.tokens` files, resolver documents and several modifiers at once (axes). All seven slices go into the first npm release (090). Replaces the plan in TICKET-094.
+
+| #                                      | Ticket                                                          | Priority | Effort | Blocked by | Status |
+| -------------------------------------- | --------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
+| [132](./132-dtcg-types-and-values.md)  | All DTCG 2025.10 types and structured values in core            | High     | L      | —          | Open   |
+| [133](./133-dtcg-references.md)        | `$ref`, `$root`, `$extends` and aliases inside composite values | High     | M      | 132        | Open   |
+| [134](./134-dtcg-consumers.md)         | Build, lint, diff, queries and audit on the new types           | High     | L      | 133        | Open   |
+| [135](./135-dtcg-tokens-files.md)      | Read `.tokens` and `.tokens.json` files                         | High     | S      | 132        | Open   |
+| [136](./136-dtcg-resolver.md)          | Resolver documents                                              | High     | L      | 133, 135   | Open   |
+| [137](./137-dtcg-modifier-axes.md)     | Several modifiers at once (axes)                                | High     | L      | 134, 136   | Open   |
+| [138](./138-dtcg-figma-push.md)        | Figma push for the new types                                    | Medium   | M      | 134        | Open   |
+
+Order: 132 → 133 → 134 → 137; 135 after 132; 136 after 133 and 135; 138 after 134.
 
 ---
 

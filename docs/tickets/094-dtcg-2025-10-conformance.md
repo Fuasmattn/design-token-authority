@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** L (split before starting)
 **Blocked by:** —
-**Status:** open
+**Status:** replaced by [dtcg-2025-10](../specs/dtcg-2025-10.md) and TICKET-132–138
 **Related:** TICKET-032 (Figma's native DTCG export)
 
 ## Background
