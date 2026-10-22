@@ -810,12 +810,27 @@ describe.skipIf(!enabled)('playground on the built site', () => {
     try {
       await page.getByRole('button', { name: 'Load example' }).click()
       await page.getByRole('table', { name: 'Structure' }).waitFor()
+      // The view must be tall enough to scroll the bar past the top before scrolling: on a slow
+      // runner the table can be there a frame before the page has its full height, and a scroll
+      // then stops short (the bar stayed at its natural 298px once in CI).
+      const tablist = page.getByRole('tablist')
+      await page.waitForFunction(() => {
+        const bar = document.querySelector('[role="tablist"]')
+        if (!bar) return false
+        const below = bar.getBoundingClientRect().top + window.scrollY
+        return document.documentElement.scrollHeight - window.innerHeight > below
+      })
       await page.evaluate('window.scrollTo(0, 700)')
-      const top = (await page
-        .getByRole('tablist')
-        .evaluate((el: Element) => el.getBoundingClientRect().top)) as number
+      // Polled without scrolling again, so a page that jumps back to the top still fails.
+      await expect
+        .poll(async () =>
+          tablist.evaluate((el: Element) => Math.round(el.getBoundingClientRect().top)),
+        )
+        .toBeLessThan(24)
+      const top = (await tablist.evaluate(
+        (el: Element) => el.getBoundingClientRect().top,
+      )) as number
       expect(top).toBeGreaterThanOrEqual(0)
-      expect(top).toBeLessThan(24)
     } finally {
       await context.close()
     }
