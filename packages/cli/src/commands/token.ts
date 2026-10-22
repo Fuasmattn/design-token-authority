@@ -11,6 +11,8 @@ import {
   type TokenModel,
   type TokenType,
   type TokenValue,
+  formatValue,
+  TOKEN_TYPES,
 } from '@dta/core'
 import type { CommandContext } from '../commands.js'
 import { codeNames, type CodeNames } from '../code-names.js'
@@ -22,7 +24,7 @@ export const TOKEN_JSON_SCHEMA = 'dta.token/1'
 /** Exit code for a usage error: a bad option value, an unknown collection or mode. */
 const EXIT_USAGE = 2
 
-const TYPES: readonly TokenType[] = ['color', 'number', 'string', 'boolean']
+const TYPES: readonly TokenType[] = TOKEN_TYPES
 const FORMATS = ['console', 'json'] as const
 type Format = (typeof FORMATS)[number]
 
@@ -101,7 +103,7 @@ export function parseModeSelection(
 
 const modeLabel = (modes: Record<string, string>) =>
   Object.values(modes).join(' · ') || 'every mode'
-const show = (value: TokenValue | undefined) => (value === undefined ? '–' : String(value))
+const show = (value: TokenValue | undefined) => (value === undefined ? '–' : formatValue(value))
 const pad = (text: string, width: number) => text.padEnd(width)
 const json = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`
 
@@ -225,7 +227,7 @@ export function runTokenFind(context: CommandContext): Promise<number> {
     for (const match of usable) {
       const row = rows.get(match.name) ?? {
         modes: [],
-        value: String(match.value),
+        value: formatValue(match.value),
         css: match.code ? `var(${match.code.css})` : '(not in the build output)',
         alias: match.depth > 0,
       }

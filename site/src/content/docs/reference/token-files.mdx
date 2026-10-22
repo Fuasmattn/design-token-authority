@@ -12,7 +12,8 @@ DTA reads and writes one JSON file per collection and mode. This page describes 
 - File name: `{Collection}.{Mode}.json`, for example `Brand(Alias).BrandA.json`. The name is split at the **first** dot, so a collection name must not contain a dot; a mode name may.
 - Content: [W3C Design Tokens (DTCG)](https://tr.designtokens.org/format/) groups and tokens.
 - Groups nest freely; the path of a token (`Colors/Brand/Primary` in Figma, `Colors.Brand.Primary` in files and aliases) is its variable name.
-- A token has `$type` (`color`, `number`, `string` or `boolean`) and a scalar `$value`; optionally `$description` and `$extensions`.
+- A token has a `$value` and a type: its own `$type`, or, if it has none, the type of the token its alias points to, or the `$type` of the closest group above it. Optionally `$description`, `$deprecated` (`true` or an explanation; groups pass it on, `false` on a token overrides that) and `$extensions`.
+- Names must not contain `{` or `}` (an error). A `.` in a name is a warning: DTA reads it, but DTCG 2025.10 does not allow it, so other tools may not.
 - A value that starts with `{` is an alias to another token: `{Colors.Foundation.Blue.500}`. Variable names are unique across all collections, so the alias carries no collection name.
 - `$extensions["com.figma"]` holds Figma-only metadata that is kept when you push: `hiddenFromPublishing`, `scopes` and `codeSyntax` (`WEB`, `ANDROID`, `iOS`).
 
@@ -34,6 +35,22 @@ DTA reads and writes one JSON file per collection and mode. This page describes 
 ```
 
 A token that exists in several modes of a collection appears in several files with the same name and type.
+
+### Types and values
+
+DTA reads the types of [DTCG 2025.10](https://www.designtokens.org/tr/2025.10/format/) and checks each value against its type, with an `invalid-value` error that names the rule. `string` and `boolean` are Figma variable types that DTCG does not have.
+
+| Type                                                   | `$value`                                                                                                   |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `color`                                                | `{ "colorSpace": "oklch", "components": [0.7, 0.15, 250], "alpha": 1, "hex": "#4ba3f7" }`, or a hex string |
+| `dimension`, `duration`                                | `{ "value": 16, "unit": "px" }` (`px`, `rem`; `ms`, `s`), or `"16px"` as in earlier drafts                 |
+| `fontFamily`, `fontWeight`                             | `"Inter"` or `["Inter", "sans-serif"]`; `700` or `"bold"`                                                  |
+| `cubicBezier`, `number`                                | `[0.5, 0, 1, 1]`; `1.5`                                                                                    |
+| `strokeStyle`, `border`, `transition`                  | the objects of the report; each part may be an alias                                                       |
+| `shadow`, `gradient`, `typography`                     | the objects (a shadow may be a list) of the report; each part may be an alias                              |
+| `string`, `boolean` (and `number`, `color` as strings) | any scalar, as Figma variables hold them                                                                   |
+
+A token of an unknown type is an error. `dta build`, `dta lint` and `dta push` work on `color`, `number`, `string` and `boolean` today; the other types are read and checked, and their outputs follow (`dta push` skips them with a `not-pushable` warning, since Figma variables cannot hold them).
 
 ### JSON Schema
 

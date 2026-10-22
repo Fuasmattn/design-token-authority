@@ -30,7 +30,8 @@ export function serializeTokenFiles(model: { collections: Collection[] }): Token
           continue
         }
         present.add(key)
-        entry.node.$type = token.type
+        // A type the token gets from a group or its alias target stays implicit.
+        if (entry.ownType || entry.type !== token.type) entry.node.$type = token.type
         entry.node.$value = token.values[mode]
         applyMetadata(entry.node, token, baseline.get(key))
       }
@@ -107,5 +108,6 @@ function insertEntry(tree: Json, token: Token, mode: string) {
     $value: token.values[mode],
     ...(token.description !== undefined ? { $description: token.description } : {}),
     ...(token.extensions ? { $extensions: structuredClone(token.extensions) } : {}),
+    ...(token.deprecated !== undefined ? { $deprecated: token.deprecated } : {}),
   }
 }

@@ -793,3 +793,45 @@ describe('buildOutputs: broken aliases (TICKET-119, the brand-ab-problems fixtur
     expect(branda).toContain('--colors-brand-accent:')
   })
 })
+
+describe('buildOutputs: DTCG 2025.10 values', () => {
+  it('writes colour objects as hex (sRGB) or in their own colour space', async () => {
+    const model = modelFrom({
+      'Base.Value.json': {
+        Color: {
+          $type: 'color',
+          Pink: { $value: { colorSpace: 'srgb', components: [1, 0, 0.5] } },
+          Sky: { $value: { colorSpace: 'oklch', components: [0.7, 0.15, 250] } },
+        },
+      },
+    })
+    const { files, diagnostics } = await buildOutputs(model, {})
+    expect(diagnostics).toEqual([])
+    const css = find(files, 'output/css/base.css') ?? ''
+    expect(css).toContain('--color-pink: #ff0080;')
+    expect(css).toContain('--color-sky: oklch(0.7 0.15 250);')
+  })
+
+  it('leaves the types it does not build yet out, with one warning', async () => {
+    const model = modelFrom({
+      'Base.Value.json': {
+        Space: { $type: 'dimension', S: { $value: { value: 4, unit: 'px' } } },
+        Motion: { $type: 'duration', Fast: { $value: { value: 100, unit: 'ms' } } },
+        Plain: { $type: 'number', $value: 7 },
+      },
+    })
+    const { files, diagnostics } = await buildOutputs(model, {})
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        severity: 'warning',
+        code: 'not-built-yet',
+        message:
+          '2 tokens of type dimension, duration are not in the output yet: dta build writes color, number, string and boolean tokens so far.',
+      }),
+    ])
+    const css = find(files, 'output/css/base.css') ?? ''
+    expect(css).toContain('--plain: 7;')
+    expect(css).not.toContain('object Object')
+    expect(css).not.toContain('--space-s')
+  })
+})

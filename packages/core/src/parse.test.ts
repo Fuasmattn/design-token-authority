@@ -145,17 +145,30 @@ describe('parseTokenFiles: bad input becomes diagnostics, never exceptions', () 
     expect(result.model.collections[0]?.tokens ?? []).toEqual([])
   })
 
-  it('warns about an unsupported $type and leaves the token out of the model', () => {
+  it('reports an unknown $type as an error and leaves the token out of the model', () => {
     const result = parseTokenFiles([
       file('A.Value.json', {
-        t: { $type: 'typography', $value: { fontFamily: 'x' } },
+        t: { $type: 'shape', $value: 'round' },
         c: color('#000'),
       }),
     ])
     expect(result.diagnostics).toEqual([
-      expect.objectContaining({ code: 'unsupported-type', severity: 'warning', path: ['t'] }),
+      expect.objectContaining({ code: 'unknown-type', severity: 'error', path: ['t'] }),
     ])
     expect(result.model.collections[0].tokens.map((t) => t.name)).toEqual([['c']])
+  })
+
+  it('reports a DTCG value that does not match its type, naming the rule', () => {
+    const result = parseTokenFiles([
+      file('A.Value.json', { t: { $type: 'typography', $value: { fontFamily: 'x' } } }),
+    ])
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        code: 'invalid-value',
+        severity: 'error',
+        message: 'Token "t" (typography): the $value is missing "fontSize".',
+      }),
+    ])
   })
 
   it('reports a $value that is not a string, number or boolean', () => {

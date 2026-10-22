@@ -1,3 +1,4 @@
+import { parseTokenFiles } from '@dta/core'
 import fs from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -43,18 +44,30 @@ describe('tokenFileSchema', () => {
   })
 
   it('rejects a token with an unknown $type', () => {
-    expect(tokenFileSchema.safeParse({ A: { $type: 'dimension', $value: '4px' } }).success).toBe(
+    expect(tokenFileSchema.safeParse({ A: { $type: 'shape', $value: 'round' } }).success).toBe(
       false,
     )
   })
 
-  it('rejects a token without $value', () => {
-    expect(tokenFileSchema.safeParse({ A: { $type: 'color' } }).success).toBe(false)
+  it('reads an object with $type but no $value as a group whose tokens inherit the type', () => {
+    const file = { A: { $type: 'color', primary: { $value: '#fff' } } }
+    expect(tokenFileSchema.safeParse(file).success).toBe(true)
   })
 
-  it('rejects an object $value (multi-mode values belong to adapters)', () => {
-    const file = { A: { $type: 'color', $value: { Light: '#fff', Dark: '#000' } } }
-    expect(tokenFileSchema.safeParse(file).success).toBe(false)
+  it('accepts DTCG 2025.10 values; the token model checks them against the type', () => {
+    const file = {
+      A: { $type: 'color', $value: { colorSpace: 'srgb', components: [1, 1, 1] } },
+      B: { $type: 'dimension', $value: { value: 4, unit: 'px' }, $deprecated: 'Use C.' },
+    }
+    expect(tokenFileSchema.safeParse(file).success).toBe(true)
+  })
+
+  it('leaves mode-keyed values (multi-mode exports) to the adapters: the model rejects them', () => {
+    const content = JSON.stringify({
+      A: { $type: 'color', $value: { Light: '#fff', Dark: '#000' } },
+    })
+    const { diagnostics } = parseTokenFiles([{ fileName: 'X.Mode.json', content }])
+    expect(diagnostics.map((d) => d.code)).toEqual(['invalid-value'])
   })
 
   it('rejects scalars where a group or token is expected', () => {

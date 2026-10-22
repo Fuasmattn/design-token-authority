@@ -15,13 +15,12 @@ DTA's token files use the format of the W3C [Design Tokens Community Group](http
 
 ## Where DTA differs
 
-DTA's files are DTCG in the shape of Figma variables: one file per collection and mode (`Brand.BrandA.json`, `Brand.BrandB.json`), and the four Figma types `color`, `number`, `string` and `boolean`. The [Token files](/reference/token-files/) reference has the format. Compared with 2025.10, DTA does **not** read yet:
+DTA's files are DTCG in the shape of Figma variables: one file per collection and mode (`Brand.BrandA.json`, `Brand.BrandB.json`). It reads every type of 2025.10, group `$type` and `$deprecated`, and checks each value against its type; the [Token files](/reference/token-files/) reference has the format. Compared with 2025.10, DTA does **not** yet:
 
-- `$type` inherited from a group (every token needs its own),
-- colour and dimension values as objects, and the other DTCG types (they are skipped with an `unsupported-type` warning),
-- `$ref`, `$root` and `$extends`,
-- resolver documents. A collection with several modes plays the role of a modifier, and `brands` in the config picks the contexts to build.
+- build, lint or push the types beyond Figma's `color`, `number`, `string` and `boolean` (they are read and checked, and their outputs follow),
+- read `$ref`, `$root` and `$extends`,
+- read `.tokens` files and resolver documents. A collection with several modes plays the role of a modifier, and `brands` in the config picks the contexts to build.
 
-These gaps are tracked in [TICKET-094](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/tickets/094-dtcg-2025-10-conformance.md).
+These gaps are tracked in the [DTCG 2025.10 spec](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/specs/dtcg-2025-10.md) and its tickets.
 
 A minimal file DTA reads, with all four types and an alias, is [`learn-examples/dtcg-basics/`](https://github.com/Fuasmattn/design-token-authority/tree/main/site/learn-examples/dtcg-basics/). Next: [Token patterns](/learn/patterns/).

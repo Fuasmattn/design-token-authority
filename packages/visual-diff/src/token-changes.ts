@@ -1,9 +1,8 @@
 import {
   nameToDot,
   parseAlias,
-  parseColor,
   resolve,
-  toHex,
+  sameValue as sameTokenValue,
   type ResolveStep,
   type Token,
   type TokenModel,
@@ -81,14 +80,15 @@ function entries(model: TokenModel): Map<string, Entry> {
   return result
 }
 
-/** Colours compare by their hex value (`#FFF` equals `#ffffff`); everything else literally. */
+/**
+ * Colours compare by their hex value (`#FFF` equals `#ffffff`, and the sRGB object), DTCG
+ * objects structurally; strings and aliases literally.
+ */
 function sameValue(type: TokenType, a: TokenValue, b: TokenValue): boolean {
   if (a === b) return true
-  if (type !== 'color' || typeof a !== 'string' || typeof b !== 'string') return false
   if (parseAlias(a) || parseAlias(b)) return false
-  const left = parseColor(a)
-  const right = parseColor(b)
-  return left.ok && right.ok && toHex(left.color) === toHex(right.color)
+  if (type === 'string' || type === 'boolean' || type === 'number') return false
+  return sameTokenValue(a, b)
 }
 
 interface Resolution {

@@ -26,6 +26,7 @@ import {
   parseTokenFiles,
   resolve,
   toColor,
+  formatValue,
 } from '@dta/core'
 import type { Diagnostic, GraphAnalysis, TokenFileInput, TokenModel, TokenValue } from '@dta/core'
 import { detectFormat, importPluginExport } from '@dta/figma'
@@ -218,7 +219,7 @@ export function analyse(files: readonly TokenFileInput[]): PlaygroundResult {
 }
 
 /** A value as the panel shows it: strings as written, numbers and booleans as text. */
-const show = (value: TokenValue) => String(value)
+const show = (value: TokenValue) => formatValue(value)
 
 /** A colour value's CSS (for a swatch), or undefined for anything that is not a colour. */
 const swatchOf = (value: TokenValue | undefined) =>

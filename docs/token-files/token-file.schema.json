@@ -2,8 +2,36 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
+    "$type": {
+      "type": "string",
+      "enum": [
+        "color",
+        "dimension",
+        "fontFamily",
+        "fontWeight",
+        "duration",
+        "cubicBezier",
+        "number",
+        "strokeStyle",
+        "border",
+        "transition",
+        "shadow",
+        "gradient",
+        "typography",
+        "string",
+        "boolean"
+      ],
+      "description": "The types of DTCG 2025.10, plus string and boolean (Figma variables). Inherited from the closest group when the token sets none."
+    },
     "$description": {
       "type": "string"
+    },
+    "$deprecated": {
+      "description": "true, or the explanation (for example which token to use instead).",
+      "type": [
+        "boolean",
+        "string"
+      ]
     },
     "$extensions": {
       "type": "object",
@@ -52,21 +80,57 @@
             "type": "string",
             "enum": [
               "color",
+              "dimension",
+              "fontFamily",
+              "fontWeight",
+              "duration",
+              "cubicBezier",
               "number",
+              "strokeStyle",
+              "border",
+              "transition",
+              "shadow",
+              "gradient",
+              "typography",
               "string",
               "boolean"
-            ]
+            ],
+            "description": "The types of DTCG 2025.10, plus string and boolean (Figma variables). Inherited from the closest group when the token sets none."
           },
           "$value": {
-            "description": "A raw value, or an alias such as \"{Colors.Brand.Primary}\".",
-            "type": [
-              "string",
-              "number",
-              "boolean"
-            ]
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "array",
+                "items": {}
+              },
+              {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {}
+              }
+            ],
+            "description": "A value as DTCG 2025.10 writes it for the type (a colour object, { value, unit }, a composite …), a scalar, or an alias such as \"{Colors.Brand.Primary}\"."
           },
           "$description": {
             "type": "string"
+          },
+          "$deprecated": {
+            "description": "true, or the explanation (for example which token to use instead).",
+            "type": [
+              "boolean",
+              "string"
+            ]
           },
           "$extensions": {
             "type": "object",
@@ -107,7 +171,6 @@
           }
         },
         "required": [
-          "$type",
           "$value"
         ],
         "additionalProperties": false,
@@ -118,5 +181,5 @@
       }
     ]
   },
-  "description": "A group of tokens and further groups. Group names become the variable path."
+  "description": "A group of tokens and further groups. Group names become the variable path; $type and $deprecated apply to the tokens below."
 }

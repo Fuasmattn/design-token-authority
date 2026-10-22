@@ -1,4 +1,4 @@
-import { nameToDot } from '@dta/core'
+import { nameToDot, formatValue } from '@dta/core'
 import type { GraphAnalysis } from '@dta/core'
 import { entries, fileOf, shortId } from './shared.js'
 
@@ -9,7 +9,7 @@ export function generateHtmlVisualization(graph: GraphAnalysis): string {
     id: n.id,
     file: fileOf(n),
     type: n.type,
-    value: String(n.value),
+    value: formatValue(n.value),
     aliasTarget: n.aliasTarget ? nameToDot(n.aliasTarget) : null,
     depth: graph.chainDepths[n.id] || 0,
     shortName: shortId(n.id, fileOf(n)),

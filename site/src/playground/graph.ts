@@ -23,6 +23,7 @@ import {
   type GraphAnalysis,
   type GraphNode,
   type TokenModel,
+  formatValue,
 } from '@dta/core'
 import { codeNames } from '@dta/build'
 import type { DetailLine, DetailNote } from '../components/ds/DetailPanel'
@@ -222,7 +223,7 @@ export function buildGraph(result: PlaygroundResult, requested: Modes = {}): Gra
       name: nameToDot(node.name),
       group,
       leaf,
-      ...(read.ok ? { value: String(read.value) } : {}),
+      ...(read.ok ? { value: formatValue(read.value) } : {}),
       ...(read.ok && typeof read.value === 'string' && toColor(read.value)
         ? { swatch: read.value }
         : {}),
@@ -421,7 +422,7 @@ export function tokenDetail(
   const lines: DetailLine[] = token.readings.map((reading) => {
     const inView = Object.entries(reading.modes).every(([c, m]) => view.modes[c] === m)
     const chain = reading.chain.length > 1 ? `  ${reading.chain.join(' → ')}` : ''
-    const value = reading.value === undefined ? undefined : String(reading.value)
+    const value = reading.value === undefined ? undefined : formatValue(reading.value)
     return {
       name: modeLabel(reading.modes),
       ...(inView ? { tag: 'in view' } : {}),

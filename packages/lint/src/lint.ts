@@ -1,8 +1,10 @@
 import {
   analyzeGraph,
   circularAliasMessage,
+  colorHex,
   contrastRatio,
   danglingAliasMessage,
+  formatValue,
   resolve,
   toColor,
 } from '@dta/core'
@@ -203,14 +205,30 @@ function colorContrast(
           )
           continue
         }
-        const color = result.type === 'color' ? toColor(String(result.value)) : null
+        // Strings as before (hex, rgb()); DTCG colour objects through their sRGB form.
+        const value = result.value
+        const hex = typeof value === 'string' ? null : colorHex(value)
+        const color =
+          result.type !== 'color'
+            ? null
+            : typeof value === 'string'
+              ? toColor(value)
+              : hex !== null
+                ? toColor(hex)
+                : null
         if (!color) {
+          const space =
+            result.type === 'color' && typeof value === 'object' && 'colorSpace' in value
+              ? value.colorSpace
+              : null
           skip(
-            `"${name}" resolves to "${String(result.value)}"${inMode}, which is not a colour. Pair "${fgName}" / "${bgName}" skipped there.`,
+            space
+              ? `"${name}" resolves to "${formatValue(value)}"${inMode}; the contrast check reads ${space} colours only with an sRGB "hex" yet. Pair "${fgName}" / "${bgName}" skipped there.`
+              : `"${name}" resolves to "${formatValue(value)}"${inMode}, which is not a colour. Pair "${fgName}" / "${bgName}" skipped there.`,
           )
           continue
         }
-        colors.push({ hex: String(result.value), color })
+        colors.push({ hex: formatValue(result.value), color })
       }
       if (colors.length < 2 || !fg.ok || !bg.ok) continue
       const ratio = contrastRatio(colors[0].color, colors[1].color)
@@ -236,7 +254,7 @@ function noDuplicateValues(graph: GraphAnalysis, severity: 'error' | 'warn'): Li
   const groups = new Map<string, GraphAnalysis['nodes']>()
   for (const node of graph.nodes) {
     if (node.aliasTarget !== null) continue
-    const key = `${node.type}:${String(node.value)}`
+    const key = `${node.type}:${formatValue(node.value)}`
     groups.set(key, [...(groups.get(key) ?? []), node])
   }
   const violations: LintViolation[] = []

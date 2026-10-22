@@ -73,6 +73,8 @@ const RESOLVED_TYPE = {
   boolean: 'BOOLEAN',
 } as const
 
+const isPushable = (type: string): type is keyof typeof RESOLVED_TYPE => type in RESOLVED_TYPE
+
 type FigmaValue = LocalVariable['valuesByMode'][string]
 type NewValue = Exclude<FigmaValue, boolean | number | string> | ChangeValue
 
@@ -118,6 +120,7 @@ function sameValue(existing: FigmaValue | undefined, next: NewValue): boolean {
  */
 export function planPush(model: TokenModel, figma: LocalVariablesResponse): PushPlan {
   const diagnostics: Diagnostic[] = [...checkUniqueNames(model)]
+  const notPushable = new Set<string>()
   const error = (code: string, message: string, path?: TokenName) =>
     diagnostics.push({ severity: 'error', code, message, ...(path ? { path } : {}) })
 
@@ -252,6 +255,20 @@ export function planPush(model: TokenModel, figma: LocalVariablesResponse): Push
       for (const token of collection.tokens) {
         const raw = token.values[mode]
         if (raw === undefined) continue
+        if (!isPushable(token.type)) {
+          const key = `${collection.name}/${nameToDot(token.name)}`
+          if (!notPushable.has(key)) {
+            notPushable.add(key)
+            diagnostics.push({
+              severity: 'warning',
+              code: 'not-pushable',
+              message: `"${key}" is ${token.type}, which Figma variables cannot hold; it was not pushed.`,
+              path: token.name,
+            })
+          }
+          continue
+        }
+        if (typeof raw === 'object') continue
         planToken(
           collection,
           figmaCollection,
@@ -280,7 +297,10 @@ export function planPush(model: TokenModel, figma: LocalVariablesResponse): Push
     const variableId = variable ? variable.id : nameToSlash(token.name)
     const where = `${collection.name}/${nameToDot(token.name)}`
 
-    if (variable && RESOLVED_TYPE[token.type] !== variable.resolvedType) {
+    if (
+      variable &&
+      RESOLVED_TYPE[token.type as keyof typeof RESOLVED_TYPE] !== variable.resolvedType
+    ) {
       error(
         'type-mismatch',
         `"${where}" is ${token.type} in the token files but ${variable.resolvedType} in Figma; Figma cannot change a variable's type.`,
@@ -298,7 +318,7 @@ export function planPush(model: TokenModel, figma: LocalVariablesResponse): Push
         id: variableId,
         name: nameToSlash(token.name),
         variableCollectionId: collectionId,
-        resolvedType: RESOLVED_TYPE[token.type],
+        resolvedType: RESOLVED_TYPE[token.type as keyof typeof RESOLVED_TYPE],
         ...metadata.fields,
       })
       changes.push({

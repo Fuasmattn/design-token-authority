@@ -1,3 +1,5 @@
+import { TOKEN_TYPES } from '@dta/core'
+import type { TokenType as TokenTypeName } from '@dta/core'
 import * as z from 'zod'
 
 /**
@@ -23,15 +25,32 @@ const FigmaExtension = z
 
 const Extensions = z.looseObject({ 'com.figma': FigmaExtension.optional() })
 
-const TokenType = z.enum(['color', 'number', 'string', 'boolean'])
+const TokenType = z
+  .enum(TOKEN_TYPES as [TokenTypeName, ...TokenTypeName[]])
+  .describe(
+    'The types of DTCG 2025.10, plus string and boolean (Figma variables). Inherited from the closest group when the token sets none.',
+  )
+
+const Deprecated = z
+  .union([z.boolean(), z.string()])
+  .describe('true, or the explanation (for example which token to use instead).')
 
 const Token = z
   .object({
-    $type: TokenType,
+    $type: TokenType.optional(),
     $value: z
-      .union([z.string(), z.number(), z.boolean()])
-      .describe('A raw value, or an alias such as "{Colors.Brand.Primary}".'),
+      .union([
+        z.string(),
+        z.number(),
+        z.boolean(),
+        z.array(z.unknown()),
+        z.record(z.string(), z.unknown()),
+      ])
+      .describe(
+        'A value as DTCG 2025.10 writes it for the type (a colour object, { value, unit }, a composite …), a scalar, or an alias such as "{Colors.Brand.Primary}".',
+      ),
     $description: z.string().optional(),
+    $deprecated: Deprecated.optional(),
     $extensions: Extensions.optional(),
   })
   .describe('A design token: one variable in one mode.')
@@ -40,11 +59,15 @@ type Node = z.infer<typeof Token> | { [key: string]: unknown }
 
 const Group: z.ZodType<Node> = z
   .object({
+    $type: TokenType.optional(),
     $description: z.string().optional(),
+    $deprecated: Deprecated.optional(),
     $extensions: Extensions.optional(),
   })
   .catchall(z.lazy(() => TokenOrGroup))
-  .describe('A group of tokens and further groups. Group names become the variable path.')
+  .describe(
+    'A group of tokens and further groups. Group names become the variable path; $type and $deprecated apply to the tokens below.',
+  )
 
 const TokenOrGroup: z.ZodType<Node> = z.union([Token, Group])
 

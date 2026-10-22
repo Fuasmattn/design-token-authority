@@ -2,7 +2,14 @@
  * The site's design tokens (site/tokens) read through DTA's own packages, shaped for the
  * Design system pages. Runs at build time; the token files are bundled by Vite.
  */
-import { nameToDot, parseTokenFiles, resolve, type Token, type TokenModel } from '@dta/core'
+import {
+  nameToDot,
+  parseTokenFiles,
+  resolve,
+  type Token,
+  type TokenModel,
+  formatValue,
+} from '@dta/core'
 
 const raw = import.meta.glob('../../tokens/*.json', {
   query: '?raw',
@@ -46,7 +53,7 @@ function themed(token: Token, theme: Theme): ThemedValue {
   const result = resolve(model, token.name, { Theme: theme })
   if (!result.ok) throw new Error(`${nameToDot(token.name)} does not resolve in ${theme}`)
   return {
-    value: String(result.value),
+    value: formatValue(result.value),
     chain: result.chain.slice(1).map((step) => nameToDot(step.name)),
   }
 }

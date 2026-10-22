@@ -309,7 +309,7 @@ Spec: [dtcg-2025-10](../specs/dtcg-2025-10.md) (approved 2026-10-21). A valid DT
 
 | #                                      | Ticket                                                          | Priority | Effort | Blocked by | Status |
 | -------------------------------------- | --------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| [132](./132-dtcg-types-and-values.md)  | All DTCG 2025.10 types and structured values in core            | High     | L      | —          | Open   |
+| [132](./132-dtcg-types-and-values.md)  | All DTCG 2025.10 types and structured values in core            | High     | L      | —          | In review |
 | [133](./133-dtcg-references.md)        | `$ref`, `$root`, `$extends` and aliases inside composite values | High     | M      | 132        | Open   |
 | [134](./134-dtcg-consumers.md)         | Build, lint, diff, queries and audit on the new types           | High     | L      | 133        | Open   |
 | [135](./135-dtcg-tokens-files.md)      | Read `.tokens` and `.tokens.json` files                         | High     | S      | 132        | Open   |

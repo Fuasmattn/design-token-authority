@@ -1,3 +1,5 @@
+import { formatValue } from '@dta/core'
+import type { TokenValue } from '@dta/core'
 import type { StoryResult } from './compare.js'
 import type { DiffResult } from './result-schema.js'
 
@@ -36,7 +38,9 @@ export function summarizeCounts(counts: TokenChangeSet['counts']): string {
   return parts.length > 0 ? parts.join(' · ') : 'no changes'
 }
 
-const code = (value: unknown) => `\`${String(value).replace(/`/g, "'").replace(/\|/g, '\\|')}\``
+const show = (value: unknown) =>
+  typeof value === 'object' && value !== null ? formatValue(value as TokenValue) : String(value)
+const code = (value: unknown) => `\`${show(value).replace(/`/g, "'").replace(/\|/g, '\\|')}\``
 
 /** `{Colors.Blue.500}` → `#0057b8` for aliases, the value alone otherwise. */
 export function formatState(state: TokenState | undefined): string {
@@ -323,12 +327,14 @@ export function renderSummaryMarkdown(
 ): string {
   const maxLength = options.maxLength ?? SUMMARY_MAX_LENGTH
   const baseUrl = options.baseUrl?.replace(/\/+$/, '')
-  const set: TokenChangeSet = result.tokens
+  // Values in result.json are DTCG values as written (checked by the schema when it was read).
+  const set = result.tokens as TokenChangeSet
+  const review = result.review as Review | undefined
   const labels = { base: result.base, head: result.head }
   const render = (limit?: number) => {
     const link = baseUrl ? `**[Open the full report](${baseUrl}/index.html)**\n\n` : ''
     const thumbs = baseUrl ? storyThumbnails(result, baseUrl, limit ?? Infinity).join('\n') : ''
-    return `${link}${renderTokenChangesMarkdown(set, labels, { limit, inWords: true })}\n${renderStoriesMarkdown(result.stories, { review: result.review, limit })}${thumbs ? `${thumbs}\n` : ''}`
+    return `${link}${renderTokenChangesMarkdown(set, labels, { limit, inWords: true })}\n${renderStoriesMarkdown(result.stories, { review, limit })}${thumbs ? `${thumbs}\n` : ''}`
   }
   let markdown = render()
   for (let limit = 200; markdown.length > maxLength && limit >= 1; limit = Math.floor(limit / 2)) {

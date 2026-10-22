@@ -114,6 +114,26 @@ describe('planPush: the BrandA/BrandB recording', () => {
     }
   })
 
+  it('skips the DTCG types Figma variables cannot hold, with one warning per token', () => {
+    const model = modelFrom({
+      'Extra.Value.json': {
+        Space: { $type: 'dimension', S: { $value: { value: 4, unit: 'px' } } },
+        Plain: { $type: 'number', $value: 7 },
+      },
+    })
+    const plan = planPush(model, emptyFigma())
+    expect(plan.diagnostics).toEqual([
+      expect.objectContaining({
+        severity: 'warning',
+        code: 'not-pushable',
+        message:
+          '"Extra/Space.S" is dimension, which Figma variables cannot hold; it was not pushed.',
+      }),
+    ])
+    const names = plan.payload?.variables?.map((v) => ('name' in v ? v.name : v.id))
+    expect(names).toEqual(['Plain'])
+  })
+
   it('ignores floating point noise in colors', () => {
     const noisy = structuredClone(recording)
     const variable = noisy.meta.variables['VariableID:1:1']

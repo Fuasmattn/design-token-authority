@@ -147,11 +147,21 @@ describe('importPluginExport: tokenHaus exports', () => {
     expect(diagnostics).toMatchObject([{ severity: 'error', code: 'invalid-collection-name' }])
   })
 
-  it('reports tokens of an unsupported type, through the token model diagnostics', () => {
-    const { diagnostics } = importPluginExport(
+  it('reads DTCG types such as dimension, in the string form of the earlier drafts', () => {
+    const { model, diagnostics } = importPluginExport(
       tokenHaus({ A: { x: { $type: 'dimension', $value: '4px' } } }),
     )
-    expect(diagnostics.map((d) => d.code)).toEqual(['unsupported-type'])
+    expect(diagnostics).toEqual([])
+    expect(model.collections[0]?.tokens).toMatchObject([
+      { type: 'dimension', values: { 'Mode 1': '4px' } },
+    ])
+  })
+
+  it('reports tokens of an unknown type, through the token model diagnostics', () => {
+    const { diagnostics } = importPluginExport(
+      tokenHaus({ A: { x: { $type: 'shape', $value: 'round' } } }),
+    )
+    expect(diagnostics.map((d) => d.code)).toEqual(['unknown-type'])
   })
 
   it('converts a real export (daisyUI) into a model that serializes to valid token files', () => {

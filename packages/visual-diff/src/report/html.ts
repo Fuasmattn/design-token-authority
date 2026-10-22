@@ -1,3 +1,5 @@
+import { formatValue } from '@dta/core'
+import type { TokenValue } from '@dta/core'
 import type { DiffResult } from '../result-schema.js'
 import { baseInWords, headInWords } from '../sides.js'
 import { flatMap } from './flat.js'
@@ -26,7 +28,7 @@ const SAMPLES = 2
 const CROP_MARGIN = 48
 
 const escape = (value: unknown) =>
-  String(value)
+  (typeof value === 'object' && value !== null ? formatValue(value as TokenValue) : String(value))
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')

@@ -1,4 +1,4 @@
-import { aliasProblems, analyzeGraph, nameToSlash } from '@dta/core'
+import { aliasProblems, analyzeGraph, nameToDot, nameToSlash } from '@dta/core'
 import type { Collection, Diagnostic, TokenModel } from '@dta/core'
 import StyleDictionary from 'style-dictionary'
 import type { DesignTokens, PlatformConfig } from 'style-dictionary/types'
@@ -56,6 +56,9 @@ export interface BuildResult {
   files: OutputFile[]
   diagnostics: Diagnostic[]
 }
+
+/** The token types the build writes so far (Figma's variable types). */
+const BUILT_TYPES: ReadonlySet<string> = new Set(['color', 'number', 'string', 'boolean'])
 
 const DEFAULT_CSS_DIR = 'output/css'
 const DEFAULT_TAILWIND_DIR = 'output/tailwind'
@@ -238,9 +241,31 @@ export async function buildOutputs(
     diagnostics,
   )
 
-  const model: TokenModel = options.collections
+  const chosen: TokenModel = options.collections
     ? { collections: fullModel.collections.filter((c) => options.collections?.includes(c.name)) }
     : fullModel
+  // DTCG types beyond Figma's four are read and checked, but not built yet: leave them out
+  // with one warning instead of writing values Style Dictionary 4 cannot format.
+  const notBuilt = new Map<string, string[]>()
+  const model: TokenModel = {
+    collections: chosen.collections.map((collection) => ({
+      ...collection,
+      tokens: collection.tokens.filter((token) => {
+        if (BUILT_TYPES.has(token.type)) return true
+        notBuilt.set(token.type, [...(notBuilt.get(token.type) ?? []), nameToDot(token.name)])
+        return false
+      }),
+    })),
+  }
+  if (notBuilt.size > 0) {
+    const count = [...notBuilt.values()].reduce((sum, names) => sum + names.length, 0)
+    const types = [...notBuilt.keys()].sort().join(', ')
+    diagnostics.push({
+      severity: 'warning',
+      code: 'not-built-yet',
+      message: `${count} token${count === 1 ? '' : 's'} of type ${types} ${count === 1 ? 'is' : 'are'} not in the output yet: dta build writes color, number, string and boolean tokens so far.`,
+    })
+  }
   for (const name of options.collections ?? []) {
     if (!fullModel.collections.some((c) => c.name === name)) {
       diagnostics.push({

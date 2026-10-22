@@ -3,7 +3,7 @@
  * the token model and the config. Primitives are never listed (code should not use them); the
  * tokens to use are listed in full when they fit the size budget, otherwise by group.
  */
-import { analyzeStructure, describeToken, nameToDot, type TokenModel } from '@dta/core'
+import { analyzeStructure, describeToken, nameToDot, type TokenModel, formatValue } from '@dta/core'
 import { codeNames, isBuilt } from '../code-names.js'
 import type { Config } from '../config/schema.js'
 
@@ -39,7 +39,7 @@ function rowsOf(model: TokenModel, config: Config | null, collections: Set<strin
       const names = description && codeNames(model, config, description, token.extensions)
       if (!description || !names) continue
       const readings = description.readings.map((reading) => ({
-        value: reading.value === undefined ? '?' : String(reading.value),
+        value: reading.value === undefined ? '?' : formatValue(reading.value),
         modes: Object.values(reading.modes).join(' · '),
       }))
       // The same value in every mode is shown once.

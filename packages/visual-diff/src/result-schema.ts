@@ -7,7 +7,15 @@ import { DIFF_SCHEMA } from './render.js'
  * docs/diff/result.schema.json is generated from this (`pnpm run schema:generate`).
  */
 
-const value = z.union([z.string(), z.number(), z.boolean()])
+const value = z
+  .union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.array(z.unknown()),
+    z.record(z.string(), z.unknown()),
+  ])
+  .describe('A token value as written: a scalar, or a DTCG 2025.10 object or list.')
 const state = z.object({ raw: value, resolved: value.optional() })
 const tokenType = z.enum(['color', 'number', 'string', 'boolean'])
 const ratio = z.number().min(0).max(1)

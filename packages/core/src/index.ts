@@ -37,9 +37,30 @@ export type {
 } from './query.js'
 export type { ModeSelection, ResolveResult, ResolveStep } from './resolve.js'
 export { serializeTokenFiles } from './serialize.js'
+export {
+  colorHex,
+  FONT_WEIGHT_KEYWORDS,
+  formatColor,
+  formatValue,
+  isTokenType,
+  sameValue,
+  TOKEN_TYPES,
+  valueProblem,
+} from './values.js'
 export type {
+  Alias,
+  BorderValue,
   Collection,
+  ColorSpace,
+  ColorValue,
   Diagnostic,
+  DimensionValue,
+  DurationValue,
+  GradientStop,
+  ShadowObject,
+  StrokeStyleObject,
+  TransitionValue,
+  TypographyValue,
   DiagnosticSeverity,
   DocId,
   FileSource,

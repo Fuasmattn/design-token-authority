@@ -238,6 +238,31 @@ describe('color-contrast', () => {
     expect(slash.map((v) => [v.file, v.tokenPath])).toEqual([['Brand.B.json', 'Text/Main / Light']])
   })
 
+  it('reads DTCG 2025.10 colour objects in sRGB, and says when it cannot read a colour space yet', () => {
+    const objects = modelFrom({
+      'Base.Value.json': {
+        Fg: { $type: 'color', $value: { colorSpace: 'srgb', components: [0.6, 0.6, 0.6] } },
+        Bg: { $type: 'color', $value: { colorSpace: 'srgb', components: [1, 1, 1] } },
+        Wide: { $type: 'color', $value: { colorSpace: 'oklch', components: [0.7, 0.1, 250] } },
+      },
+    })
+    const result = lintTokens(
+      objects,
+      rules({
+        pairs: [
+          ['Fg', 'Bg'],
+          ['Wide', 'Bg'],
+        ],
+      }),
+    )
+    expect(result.violations.map((v) => v.message)).toEqual([
+      'Contrast ratio 2.85:1 between "Fg" (#999999) and "Bg" (#ffffff) is below 4.5:1',
+    ])
+    expect(result.diagnostics.map((d) => d.message)).toEqual([
+      expect.stringContaining('the contrast check reads oklch colours only with an sRGB "hex" yet'),
+    ])
+  })
+
   it('reports a pair once per mode it fails in, in mode order', () => {
     const result = lintTokens(model, rules({ pairs: [['Via', 'Bg']], minRatio: 7 }))
     expect(result.violations.map((v) => [v.file, v.message])).toEqual([

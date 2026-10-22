@@ -1,3 +1,4 @@
+import { parseAlias } from './alias.js'
 import { isObject, nameKey, readEntries } from './entries.js'
 import type {
   Collection,
@@ -87,10 +88,15 @@ export function parseTokenFiles(files: TokenFileInput[]): ParseResult {
           values: { [modeName]: entry.value },
           ...(entry.description !== undefined ? { description: entry.description } : {}),
           ...(entry.extensions ? { extensions: entry.extensions } : {}),
+          ...(entry.deprecated !== undefined ? { deprecated: entry.deprecated } : {}),
         }
         collection.tokens.push(token)
         byName.set(nameKey(entry.path), token)
-      } else if (existing.type !== entry.type) {
+      } else if (
+        existing.type !== entry.type &&
+        existing.type !== ALIAS_PENDING &&
+        entry.type !== ALIAS_PENDING
+      ) {
         explained.add(`${collectionName}|${nameKey(entry.path)}|${modeName}`)
         diagnostics.push({
           severity: 'error',
@@ -100,6 +106,8 @@ export function parseTokenFiles(files: TokenFileInput[]): ParseResult {
           path: entry.path,
         })
       } else {
+        // A mode with its own $type settles the type of an alias that had none so far.
+        if (existing.type === ALIAS_PENDING) existing.type = entry.type
         existing.values[modeName] = entry.value
         if (existing.description === undefined && entry.description !== undefined) {
           existing.description = entry.description
@@ -110,6 +118,8 @@ export function parseTokenFiles(files: TokenFileInput[]): ParseResult {
       }
     }
   }
+
+  settleAliasTypes([...collections.values()], diagnostics)
 
   for (const collection of collections.values()) {
     for (const token of collection.tokens) {
@@ -131,4 +141,49 @@ export function parseTokenFiles(files: TokenFileInput[]): ParseResult {
   }
 
   return { model: { collections: [...collections.values()] }, diagnostics }
+}
+
+/** The type an alias without `$type` (on itself or a group) has until its target is known. */
+const ALIAS_PENDING = 'alias' as Token['type']
+
+/**
+ * DTCG 2025.10: an alias without a `$type` of its own or from a group has the type of the
+ * token it points to. Follows the chain through the whole model; a chain that ends nowhere or
+ * in a circle leaves the token without a type, which is reported and drops it.
+ */
+function settleAliasTypes(collections: Collection[], diagnostics: Diagnostic[]) {
+  const byDot = new Map<string, Token>()
+  for (const collection of collections)
+    for (const token of collection.tokens) byDot.set(token.name.join('.'), token)
+
+  const typeOf = (token: Token, seen: Set<Token>): Token['type'] | null => {
+    if (token.type !== ALIAS_PENDING) return token.type
+    if (seen.has(token)) return null
+    seen.add(token)
+    for (const value of Object.values(token.values)) {
+      const target = parseAlias(value)
+      const next = target ? byDot.get(target.join('.')) : undefined
+      const type = next ? typeOf(next, seen) : null
+      if (type) return type
+    }
+    return null
+  }
+
+  for (const collection of collections) {
+    collection.tokens = collection.tokens.filter((token) => {
+      if (token.type !== ALIAS_PENDING) return true
+      const type = typeOf(token, new Set())
+      if (type) {
+        token.type = type
+        return true
+      }
+      diagnostics.push({
+        severity: 'error',
+        code: 'missing-type',
+        message: `Token "${token.name.join('.')}" has no $type, and the token its alias points to gives none either.`,
+        path: token.name,
+      })
+      return false
+    })
+  }
 }

@@ -75,18 +75,54 @@
                 "type": "object",
                 "properties": {
                   "raw": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
                   },
                   "resolved": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
                   }
                 },
                 "required": [
@@ -98,18 +134,54 @@
                 "type": "object",
                 "properties": {
                   "raw": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
                   },
                   "resolved": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
                   }
                 },
                 "required": [
@@ -323,18 +395,54 @@
                 "type": "object",
                 "properties": {
                   "raw": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
                   },
                   "resolved": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
                   }
                 },
                 "required": [
@@ -346,18 +454,54 @@
                 "type": "object",
                 "properties": {
                   "raw": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
                   },
                   "resolved": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
                   }
                 },
                 "required": [

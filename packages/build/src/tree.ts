@@ -1,11 +1,11 @@
-import { nameToDot, parseAlias } from '@dta/core'
-import type { Diagnostic, Token, TokenName } from '@dta/core'
+import { formatColor, nameToDot, parseAlias } from '@dta/core'
+import type { ColorValue, Diagnostic, Token, TokenName, TokenValue } from '@dta/core'
 
 /** The tokens of one collection in one mode: what a single token file holds. */
 export interface Source {
   /** `Collection.Mode`, used to decide later which tokens a file is built from. */
   origin: string
-  tokens: Array<{ token: Token; value: string | number | boolean }>
+  tokens: Array<{ token: Token; value: TokenValue }>
 }
 
 type Tree = Record<string, unknown>
@@ -17,8 +17,13 @@ export interface MergedTokens {
   origins: Map<string, string>
 }
 
-function leaf(token: Token, value: string | number | boolean) {
-  const node: Record<string, unknown> = { $type: token.type, $value: value }
+function leaf(token: Token, value: TokenValue) {
+  // A DTCG 2025.10 colour object becomes CSS text: hex for sRGB, else oklch(), color(…) and so on.
+  const written =
+    token.type === 'color' && typeof value === 'object' && !Array.isArray(value)
+      ? formatColor(value as ColorValue)
+      : value
+  const node: Record<string, unknown> = { $type: token.type, $value: written }
   if (token.description) node.$description = token.description
   if (token.extensions) node.$extensions = structuredClone(token.extensions)
   return node

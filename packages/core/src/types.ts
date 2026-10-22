@@ -1,10 +1,127 @@
 /** A token's path inside its collection, e.g. `['Colors', 'Brand', 'Primary']`. */
 export type TokenName = string[]
 
-export type TokenType = 'color' | 'number' | 'string' | 'boolean'
+/**
+ * The types of DTCG 2025.10 plus `string` and `boolean`, which Figma variables have and DTCG
+ * does not.
+ */
+export type TokenType =
+  | 'color'
+  | 'dimension'
+  | 'fontFamily'
+  | 'fontWeight'
+  | 'duration'
+  | 'cubicBezier'
+  | 'number'
+  | 'strokeStyle'
+  | 'border'
+  | 'transition'
+  | 'shadow'
+  | 'gradient'
+  | 'typography'
+  | 'string'
+  | 'boolean'
 
-/** Raw value as written in the token file; an alias is the string `{Group.Token}`. */
-export type TokenValue = string | number | boolean
+/** An alias, `{Group.Token}`: allowed for a whole value and for each part of a composite. */
+export type Alias = string
+
+export type ColorSpace =
+  | 'srgb'
+  | 'srgb-linear'
+  | 'hsl'
+  | 'hwb'
+  | 'lab'
+  | 'lch'
+  | 'oklab'
+  | 'oklch'
+  | 'display-p3'
+  | 'a98-rgb'
+  | 'prophoto-rgb'
+  | 'rec2020'
+  | 'xyz-d65'
+  | 'xyz-d50'
+
+/** A DTCG 2025.10 colour. A hex string (`#3366ff`) is a valid colour value too. */
+export interface ColorValue {
+  colorSpace: ColorSpace
+  components: (number | 'none')[]
+  alpha?: number
+  /** sRGB fallback, `#rrggbb`. */
+  hex?: string
+}
+
+export interface DimensionValue {
+  value: number
+  unit: 'px' | 'rem'
+}
+
+export interface DurationValue {
+  value: number
+  unit: 'ms' | 's'
+}
+
+type Part<T> = T | Alias
+
+export interface StrokeStyleObject {
+  dashArray: Part<DimensionValue>[]
+  lineCap: 'round' | 'butt' | 'square'
+}
+
+export interface BorderValue {
+  color: Part<ColorValue | string>
+  width: Part<DimensionValue>
+  style: Part<string | StrokeStyleObject>
+}
+
+export interface TransitionValue {
+  duration: Part<DurationValue>
+  delay: Part<DurationValue>
+  timingFunction: Part<number[]>
+}
+
+export interface ShadowObject {
+  color: Part<ColorValue | string>
+  offsetX: Part<DimensionValue>
+  offsetY: Part<DimensionValue>
+  blur: Part<DimensionValue>
+  spread: Part<DimensionValue>
+  inset?: boolean
+}
+
+export interface GradientStop {
+  color: Part<ColorValue | string>
+  position: Part<number>
+}
+
+export interface TypographyValue {
+  fontFamily: Part<string | string[]>
+  fontSize: Part<DimensionValue>
+  fontWeight: Part<number | string>
+  letterSpacing: Part<DimensionValue>
+  lineHeight: Part<number>
+}
+
+/**
+ * Raw value as written in the token file, never resolved: an alias is the string
+ * `{Group.Token}`. Scalars cover `string`, `boolean`, `number`, hex colours, font names and
+ * weight keywords and the `"4px"` / `"200ms"` strings of earlier DTCG drafts.
+ */
+export type TokenValue =
+  | string
+  | number
+  | boolean
+  | ColorValue
+  | DimensionValue
+  | DurationValue
+  | string[]
+  | number[]
+  | StrokeStyleObject
+  | BorderValue
+  | TransitionValue
+  | ShadowObject
+  | Part<ShadowObject>[]
+  | Part<GradientStop>[]
+  | TypographyValue
 
 export interface Token {
   name: TokenName
@@ -12,6 +129,8 @@ export interface Token {
   /** One value per mode of the collection. A mode may be missing. */
   values: Record<string, TokenValue>
   description?: string
+  /** `$deprecated`: `true`, or the explanation. Inherited from groups; `false` is left out. */
+  deprecated?: true | string
   /** The `$extensions` object (including `com.figma`), kept as written. */
   extensions?: Record<string, unknown>
 }
