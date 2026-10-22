@@ -34,8 +34,9 @@ const enabled = process.env.DTA_E2E === '1' || Boolean(process.env.DTA_BROWSER_P
  */
 const BUDGET: Record<string, number> = {
   // DTCG 2025.10 (types, values, references, colour spaces, resolver documents; TICKET-132–136)
-  // took core from below 32 KB to 45.9 KB minified (2026-10-21), rounded up to the next 5 KB.
-  '@dta/core': 50_000,
+  // took core from below 32 KB to 45.9 KB minified (2026-10-21); several modifiers (137) and the
+  // follow-ups (part types, legacy values) to 50.8 KB (2026-10-22), rounded up to the next 5 KB.
+  '@dta/core': 55_000,
   '@dta/figma': 160_000,
   '@dta/lint': 150_000,
   '@dta/build': 2_600_000,

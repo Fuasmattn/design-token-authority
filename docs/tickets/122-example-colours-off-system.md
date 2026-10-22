@@ -38,17 +38,17 @@ Done 2026-10-20 (on top of 121 item 4, uncommitted). Screenshots shown and the G
 
 **Palette (decision: blues and neutral greys, the maintainer's "blue or some neutral gray tones").** Renamed so no name says a hue the rule forbids; the new names sort where the old ones did, so listings keep their order.
 
-| Where | Was | Now | Used for |
-| --- | --- | --- | --- |
-| brand-ab (all three token sets, both recordings) | `Green.500` `#2e9e5b` | `Navy.500` `#3d5a80` | BrandB `Primary` (white on it 7.06:1) |
-| | `Green.700` `#1f7a43` | `Navy.700` `#2c4466` | BrandB `Primary Dark`; BrandB `Accent` in `tokens-base` |
-| | `Orange.500` `#e8731a` | `Sky.500` `#3b8fd9` | `Accent` (both brands) |
-| | `Red.500` `#d1342f` (`tokens-base` only) | `Steel.500` `#7d8ea3` | the removed token of `diff-tokens` |
-| brand-ab-problems | `{Colors.Foundation.Orange.550}` | `{Colors.Foundation.Sky.550}` | still dangling (no `Sky.550` exists) |
-| Orbit Burger | `Nova.400` `#ff9a4d` | `Nova.400` `#86bcff` | changed values in Token rows (9.24:1 on Void.900, 7:1 needed) |
-| | `Nova.500` `#ff7a1a` | `Nova.500` `#5aa2ff` | brand before (Void.900 label 6.98:1, as before) |
-| | `Nova.600` `#e0600a` | `Nova.600` `#3d87e8` | brand after (5.05:1, was 5.07; 500 vs 600 1.38:1, still "easy to miss") |
-| | `Mint.300` `#9bebcb` | `Ice.300` `#b9d8f7` | `Colors.Accent.Fresh` |
+| Where                                            | Was                                      | Now                           | Used for                                                                |
+| ------------------------------------------------ | ---------------------------------------- | ----------------------------- | ----------------------------------------------------------------------- |
+| brand-ab (all three token sets, both recordings) | `Green.500` `#2e9e5b`                    | `Navy.500` `#3d5a80`          | BrandB `Primary` (white on it 7.06:1)                                   |
+|                                                  | `Green.700` `#1f7a43`                    | `Navy.700` `#2c4466`          | BrandB `Primary Dark`; BrandB `Accent` in `tokens-base`                 |
+|                                                  | `Orange.500` `#e8731a`                   | `Sky.500` `#3b8fd9`           | `Accent` (both brands)                                                  |
+|                                                  | `Red.500` `#d1342f` (`tokens-base` only) | `Steel.500` `#7d8ea3`         | the removed token of `diff-tokens`                                      |
+| brand-ab-problems                                | `{Colors.Foundation.Orange.550}`         | `{Colors.Foundation.Sky.550}` | still dangling (no `Sky.550` exists)                                    |
+| Orbit Burger                                     | `Nova.400` `#ff9a4d`                     | `Nova.400` `#86bcff`          | changed values in Token rows (9.24:1 on Void.900, 7:1 needed)           |
+|                                                  | `Nova.500` `#ff7a1a`                     | `Nova.500` `#5aa2ff`          | brand before (Void.900 label 6.98:1, as before)                         |
+|                                                  | `Nova.600` `#e0600a`                     | `Nova.600` `#3d87e8`          | brand after (5.05:1, was 5.07; 500 vs 600 1.38:1, still "easy to miss") |
+|                                                  | `Mint.300` `#9bebcb`                     | `Ice.300` `#b9d8f7`           | `Colors.Accent.Fresh`                                                   |
 
 Blue (`Blue.500/700`), the greys and White are unchanged, so `dta audit` (`src/Button.css`, `Card.tsx`), `token find '#003f8a'` and every other value stay as they were. Structure, token counts, aliases, the circular alias, the dangling alias and the Figma IDs are unchanged. **Headline diff:** BrandB `Colors.Brand.Accent` `{Navy.700}` `#2c4466` → `{Sky.500}` `#3b8fd9` (dark navy to a light sky blue; plainly different in screenshots).
 

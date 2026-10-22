@@ -25,6 +25,7 @@ This means our existing CSS variable output is almost the right shape — the ma
 ## Implementation Notes
 
 Tailwind v4 `@theme` format:
+
 ```css
 @theme {
   --color-brand-primary: #0066cc;
@@ -37,15 +38,16 @@ Tailwind v4 `@theme` format:
 
 The formatter is essentially TICKET-009 but outputting CSS instead of JS, and using Tailwind's expected namespace prefixes. Token path → Tailwind name mapping:
 
-| Token | CSS property |
-|---|---|
-| `Colors/Brand/Primary` | `--color-brand-primary` |
-| `Spacing/4` | `--spacing-4` |
-| `Typography/fontSize/base` | `--font-size-base` |
-| `BorderRadius/md` | `--radius-md` |
-| `Effects/blur/md` | `--blur-md` |
+| Token                      | CSS property            |
+| -------------------------- | ----------------------- |
+| `Colors/Brand/Primary`     | `--color-brand-primary` |
+| `Spacing/4`                | `--spacing-4`           |
+| `Typography/fontSize/base` | `--font-size-base`      |
+| `BorderRadius/md`          | `--radius-md`           |
+| `Effects/blur/md`          | `--blur-md`             |
 
 The consuming project just imports the file:
+
 ```css
 /* app.css */
 @import 'build/tailwind/tailwind.css';

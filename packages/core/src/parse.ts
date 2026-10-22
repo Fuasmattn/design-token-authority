@@ -1,4 +1,4 @@
-import { isTokenType } from './values.js'
+import { isTokenType, partType } from './values.js'
 import { referenceOf } from './references.js'
 import { AXIS_SEPARATOR } from './modes.js'
 import { readResolver } from './resolver.js'
@@ -297,9 +297,13 @@ function settleAliasTypes(
     seen.add(token)
     for (const value of Object.values(token.values)) {
       const reference = referenceOf(value)
-      const next =
-        reference && reference.part.length === 0 ? byDot.get(reference.target.join('.')) : undefined
-      const type = next ? typeOf(next, seen) : null
+      const next = reference ? byDot.get(reference.target.join('.')) : undefined
+      const whole = next ? typeOf(next, seen) : null
+      // A reference into a value: the type of that part (a colour component is a number).
+      const type =
+        whole && reference && reference.part.length > 0
+          ? (partType(whole, reference.part) ?? null)
+          : whole
       if (type) return type
     }
     return null

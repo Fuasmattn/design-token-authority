@@ -6,6 +6,7 @@ export const tokens = {
       colors: {
         'button-background': 'var(--button-background)',
         'button-text': 'var(--button-text)',
+        'button-focus': 'var(--button-focus)',
         'color-blue-300': 'var(--color-blue-300)',
         'color-blue-500': 'var(--color-blue-500)',
         'color-navy-700': 'var(--color-navy-700)',

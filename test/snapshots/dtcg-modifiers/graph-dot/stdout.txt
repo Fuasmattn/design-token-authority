@@ -27,6 +27,7 @@ digraph TokenDependencies {
     "components.Value/button/background" [label="button/background"];
     "components.Value/button/text" [label="button/text"];
     "components.Value/button/radius" [label="button/radius"];
+    "components.Value/button/focus" [label="button/focus"];
   }
 
   subgraph "cluster_core_Value" {
@@ -77,6 +78,7 @@ digraph TokenDependencies {
     color="#fce4ec";
     "theme.dark/surface" [label="surface"];
     "theme.dark/text" [label="text"];
+    "theme.dark/ring" [label="ring"];
   }
 
   subgraph "cluster_theme_light" {
@@ -85,6 +87,7 @@ digraph TokenDependencies {
     color="#e8f5e9";
     "theme.light/surface" [label="surface"];
     "theme.light/text" [label="text"];
+    "theme.light/ring" [label="ring"];
   }
 
   "brand.a/control/radius" -> "core.Value/radius/m";
@@ -92,14 +95,17 @@ digraph TokenDependencies {
   "components.Value/button/background" -> "theme × brand.light × a/accent";
   "components.Value/button/text" -> "theme.light/surface";
   "components.Value/button/radius" -> "brand.a/control/radius";
+  "components.Value/button/focus" -> "theme.light/ring";
   "theme × brand.dark × a/accent" -> "core.Value/color/blue/300";
   "theme × brand.dark × b/accent" -> "core.Value/color/navy/700";
   "theme × brand.light × a/accent" -> "core.Value/color/blue/500";
   "theme × brand.light × b/accent" -> "core.Value/color/navy/700";
   "theme.dark/surface" -> "core.Value/color/gray/900";
   "theme.dark/text" -> "core.Value/color/gray/100";
+  "theme.dark/ring" -> "theme × brand.dark × a/accent";
   "theme.light/surface" -> "core.Value/color/gray/0";
   "theme.light/text" -> "core.Value/color/gray/900";
+  "theme.light/ring" -> "core.Value/color/gray/900";
 }
 |
 —  Done!

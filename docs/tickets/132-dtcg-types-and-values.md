@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** L
 **Blocked by:** —
-**Status:** in review
+**Status:** done
 **Spec:** [dtcg-2025-10](../specs/dtcg-2025-10.md) (decisions 2, 3, 4; slice 1)
 
 ## What to build
@@ -26,7 +26,7 @@
 - [x] Group `$type`, `$deprecated` and the name rules tested
 - [x] Existing snapshots unchanged
 - [x] JSON Schema (`tokenFileSchema`) and the Token files reference list the new types
-- [ ] All gates pass, and the GitHub run is green
+- [x] All gates pass, and the GitHub run is green
 
 ## Notes
 

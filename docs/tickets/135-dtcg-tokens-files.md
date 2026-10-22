@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** S
 **Blocked by:** 132
-**Status:** in review
+**Status:** done
 **Spec:** [dtcg-2025-10](../specs/dtcg-2025-10.md) (decision 12; slice 4)
 
 ## What to build
@@ -17,7 +17,7 @@
 
 - [x] Tests: `.tokens`, `.tokens.json`, mixed with per-mode files, a name clash between the two forms reported
 - [x] Token files reference documents both forms
-- [ ] All gates pass, and the GitHub run is green
+- [x] All gates pass, and the GitHub run is green
 
 ## Notes
 

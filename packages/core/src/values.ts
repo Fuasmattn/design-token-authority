@@ -204,12 +204,74 @@ function colorProblem(value: unknown): string | null {
   if (hex !== undefined && (typeof hex !== 'string' || !/^#[0-9A-Fa-f]{6}$/.test(hex)))
     return 'hex must be a 6-digit hex colour like #3366ff'
   for (const key of Object.keys(value))
-    if (!['colorSpace', 'components', 'alpha', 'hex'].includes(key))
+    if (!lenient && !['colorSpace', 'components', 'alpha', 'hex'].includes(key))
       return `has an unknown property "${key}"`
   return null
 }
 
+const PART_TYPES: Partial<Record<TokenType, Record<string, TokenType>>> = {
+  shadow: {
+    color: 'color',
+    offsetX: 'dimension',
+    offsetY: 'dimension',
+    blur: 'dimension',
+    spread: 'dimension',
+  },
+  border: { color: 'color', width: 'dimension', style: 'strokeStyle' },
+  transition: { duration: 'duration', delay: 'duration', timingFunction: 'cubicBezier' },
+  gradient: { color: 'color', position: 'number' },
+  typography: {
+    fontFamily: 'fontFamily',
+    fontSize: 'dimension',
+    fontWeight: 'fontWeight',
+    letterSpacing: 'dimension',
+    lineHeight: 'number',
+  },
+}
+
+/**
+ * The type a part of a value has (`at` as in a nested reference: `['color']`, `[1, 'blur']`,
+ * `['components', 0]`), or undefined where the format gives none. A reference there must point at
+ * a token of that type.
+ */
+export function partType(type: TokenType, at: readonly (string | number)[]): TokenType | undefined {
+  const keys = at.filter((key) => !/^\d+$/.test(String(key))).map(String)
+  const indexed = at.length > 0 && /^\d+$/.test(String(at[0]))
+  if (type === 'color')
+    return keys[0] === 'components' || keys[0] === 'alpha' ? 'number' : undefined
+  if ((type === 'dimension' || type === 'duration') && at.length === 1 && keys[0] === 'value')
+    return 'number'
+  if (type === 'cubicBezier') return at.length === 1 ? 'number' : undefined
+  if (type === 'strokeStyle')
+    return keys[0] === 'dashArray' && at.length === 2 ? 'dimension' : undefined
+  if (type === 'shadow' && keys.length === 0 && indexed && at.length === 1) return 'shadow'
+  if (keys.length !== 1) return undefined
+  return PART_TYPES[type]?.[keys[0]]
+}
+
+/** A number with any CSS unit or none (`0`, `100%`, `1em`, `1.5vh`): what earlier drafts wrote. */
+const LEGACY_LENGTH = /^-?(?:\d+\.?\d*|\.\d+)(?:[a-z]+|%)?$/i
+
+/** While true, `valueProblem` accepts what {@link isLegacyValue} keeps. Only set synchronously. */
+let lenient = false
+
+/**
+ * Values earlier drafts and exports wrote that 2025.10 does not allow, but that DTA keeps (with a
+ * `legacy-value` warning) so existing files keep working: a dimension or duration as a number
+ * with any unit or none ("0", "100%", "1em", "1.5vh"), also inside a composite, and a colour object with properties the
+ * Color module does not name. Everything else that `valueProblem` reports is an error.
+ */
+export function isLegacyValue(type: TokenType, value: unknown): boolean {
+  lenient = true
+  try {
+    return valueProblem(type, value) === null
+  } finally {
+    lenient = false
+  }
+}
+
 function unitProblem(value: unknown, units: string[], text: RegExp): string | null {
+  if (lenient && typeof value === 'string' && LEGACY_LENGTH.test(value.trim())) return null
   if (typeof value === 'string') {
     return text.test(value.trim())
       ? null

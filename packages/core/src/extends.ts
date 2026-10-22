@@ -80,14 +80,16 @@ export function expandExtends(tree: Json): Expanded {
     const done = memo.get(key)
     if (done) return done
     if (stack.includes(key)) {
+      // Every group in the circle is reported once, at its own path.
       const cycle = [...stack.slice(stack.indexOf(key)), key]
-      const id = [...cycle].sort().join('|')
-      if (!reported.has(id)) {
-        reported.add(id)
+      const text = cycle.map((k) => `"${k || '(top level)'}"`).join(' → ')
+      for (const member of new Set(cycle)) {
+        if (reported.has(member)) continue
+        reported.add(member)
         error(
           'circular-extends',
-          `Groups extend each other in a circle: ${cycle.map((k) => `"${k || '(top level)'}"`).join(' → ')}.`,
-          path,
+          `Group "${member || '(top level)'}" extends in a circle: ${text}.`,
+          member ? member.split('.') : [],
         )
       }
       return group

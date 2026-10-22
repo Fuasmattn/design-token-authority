@@ -37,6 +37,7 @@ The Graph tab (today a "comes next" note in `Playground.tsx`) shows the token de
 ## Outcome
 
 **Board decisions (approved with the board, 2026-10-20; the board's proposals for its open questions):**
+
 1. A dangling alias ends in a "missing" node built in the playground from the alias's target name (the engine reports it in `danglingAliases`, not as a node).
 2. Brand and breakpoint: segmented buttons on desktop, native selects on phones.
 3. The graph shows one brand; the panel shows every brand (as `dta token get`); "Show BrandB" switches the graph.
@@ -46,6 +47,7 @@ The Graph tab (today a "comes next" note in `Playground.tsx`) shows the token de
 7. **Reuse for `dta graph --format html`: later, separate ticket** (spec decision 8). The CLI's HTML graph stays as it is; the components are ready for it (`graph-layout.ts` is pure, the canvas renders statically).
 
 **Decisions taken while building (closest to the board):**
+
 - **Labels above the segments.** The board puts "BRAND"/"BREAKPOINT" left of their wells; beside the open detail panel (view 752 px at 1280) that row wrapped and the graph jumped down when a token was selected. Stacked, the row keeps one line in both states, so the graph stays in place (e2e checks its box).
 - **Order from the files:** modes as the model has them (`Desktop, Mobile, Tablet`, as the Structure view), groups in the order the next layer uses them, read in file order (BrandA's `Typography.Body` comes before its effects, so `Typography.FontFamily` precedes `Effects.*`; the board had them the other way).
 - **Fixed drawing, scrolls in its box:** three 208 px columns, 46 px apart (716 px) fit beside the panel at 1280; narrower views (760–1279 with the panel) scroll the canvas inside its own box. Up to 760 px (the site's break) the list replaces it; the switcher turns into selects at the same break.

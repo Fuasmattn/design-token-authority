@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** L (split by package if needed)
 **Blocked by:** 133
-**Status:** in review
+**Status:** done
 **Spec:** [dtcg-2025-10](../specs/dtcg-2025-10.md) (decisions 9, 10; slice 3)
 
 ## What to build
@@ -21,7 +21,7 @@
 - [x] Contrast test with an `oklch` pair, clipped and not clipped
 - [x] Existing snapshots unchanged, except `daisyui/build` (re-recorded by name, see notes)
 - [x] Learn page "Where DTA differs" and the Outputs reference updated
-- [ ] All gates pass, and the GitHub run is green
+- [x] All gates pass, and the GitHub run is green
 
 ## Notes
 

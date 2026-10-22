@@ -12,6 +12,7 @@ The local `.env` uses `PERSONAL_ACCESS_TOKEN` and `FILE_KEY`, while the GitHub A
 ## Background
 
 Current inconsistency:
+
 - Local (`.env`): `PERSONAL_ACCESS_TOKEN`, `FILE_KEY`
 - GitHub Actions secret: `GH_ACTION_VARIABLES_SYNC_FIGMA_TOKEN`
 - Source code (`figma_api.ts`, sync scripts): reads `PERSONAL_ACCESS_TOKEN`
@@ -28,10 +29,10 @@ This means: locally the code reads `PERSONAL_ACCESS_TOKEN`, but in CI the workfl
 
 ## Proposed Standard Names
 
-| Variable | Purpose |
-|---|---|
+| Variable                      | Purpose                       |
+| ----------------------------- | ----------------------------- |
 | `FIGMA_PERSONAL_ACCESS_TOKEN` | Figma REST API authentication |
-| `FIGMA_FILE_KEY` | Target Figma file identifier |
+| `FIGMA_FILE_KEY`              | Target Figma file identifier  |
 
 ## Dependencies
 

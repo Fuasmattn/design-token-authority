@@ -1,7 +1,7 @@
 import { expandExtends } from './extends.js'
 import { referenceOf } from './references.js'
 import type { Diagnostic, TokenType, TokenValue } from './types.js'
-import { isTokenType, TOKEN_TYPES, valueProblem } from './values.js'
+import { isLegacyValue, isTokenType, TOKEN_TYPES, valueProblem } from './values.js'
 
 /** Internal: reading the tokens out of one parsed token file. Shared by parse and serialize. */
 
@@ -33,6 +33,19 @@ export interface ReadResult {
   entries: Entry[]
   problems: Omit<Diagnostic, 'file'>[]
 }
+
+/** The DTCG 2025.10 properties of tokens and groups. */
+const DTCG_KEYS = new Set([
+  '$type',
+  '$value',
+  '$description',
+  '$extensions',
+  '$deprecated',
+  '$extends',
+  '$root',
+])
+/** Keys a file may have at the top level that other tools write (a JSON Schema link, themes). */
+const FILE_KEYS = new Set(['$schema', '$metadata', '$themes'])
 
 /** Group defaults that apply to the tokens below them. */
 interface Inherited {
@@ -76,6 +89,19 @@ export function readEntries(file: Json): ReadResult {
       })
     }
     for (const [key, child] of Object.entries(group)) {
+      if (
+        key.startsWith('$') &&
+        !DTCG_KEYS.has(key) &&
+        !(path.length === 0 && FILE_KEYS.has(key))
+      ) {
+        problems.push({
+          severity: 'warning',
+          code: 'reserved-name',
+          message: `"${[...path, key].join('.')}": names starting with $ are reserved for DTCG properties, so it is ignored.`,
+          path: [...path, key],
+        })
+        continue
+      }
       if (key.startsWith('$') && key !== '$root') continue
       const childPath = [...path, key]
       if (key === '$root' && !(isObject(child) && '$value' in child)) {
@@ -152,8 +178,9 @@ function toEntry(
   // Type: the token's own, else (for an alias) the target's, resolved later, else the group's
   // (DTCG 2025.10 §5.2.2).
   const value = node.$value
-  const wholeAlias = referenceOf(value)?.part.length === 0
-  let type = ownType ? node.$type : wholeAlias ? 'alias' : inherited.type
+  // A reference into a value (`#/size/s/$value/value`) gets the type of that part.
+  const alias = referenceOf(value) !== null
+  let type = ownType ? node.$type : alias ? 'alias' : inherited.type
   if (type === undefined) {
     problems.push({
       severity: 'error',
@@ -185,7 +212,14 @@ function toEntry(
     return null
   }
   const problem = valueProblem(type, value)
-  if (problem) {
+  if (problem && isLegacyValue(type, value)) {
+    problems.push({
+      severity: 'warning',
+      code: 'legacy-value',
+      message: `Token "${name}" (${type}): the $value ${problem} in DTCG 2025.10; it is kept as written.`,
+      path,
+    })
+  } else if (problem) {
     problems.push({
       severity: 'error',
       code: 'invalid-value',

@@ -3,6 +3,7 @@
   --color-button-background: var(--button-background);
   --color-button-text: var(--button-text);
   --radius-button-radius: 6px;
+  --color-button-focus: var(--button-focus);
   --color-color-blue-300: var(--color-blue-300);
   --color-color-blue-500: var(--color-blue-500);
   --color-color-navy-700: var(--color-navy-700);

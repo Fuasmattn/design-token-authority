@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** L
 **Blocked by:** 133, 135
-**Status:** in review
+**Status:** done
 **Spec:** [dtcg-2025-10](../specs/dtcg-2025-10.md) (decisions 7, 12; slice 5)
 
 ## What to build
@@ -21,7 +21,7 @@
 - [x] Package tests for every error condition and for the report's example resolver
 - [x] A resolver fixture with one modifier: `lint`, `build`, `graph`, `token get` recorded by name
 - [x] Config reference generated with the new keys
-- [ ] All gates pass, and the GitHub run is green
+- [x] All gates pass, and the GitHub run is green
 
 ## Notes
 

@@ -18,7 +18,7 @@
   --font-font-body: 'Helvetica Neue', Arial, sans-serif;
   --font-weight-font-regular: 400;
   --font-weight-font-strong: 650;
-  --font-line: 1.5;
+  --dta-font-line: 1.5;
   --shadow-shadow-card: 0px 4px 1rem 0px rgba(0, 0, 0, 0.5);
   --shadow-shadow-stack: 0px 1px 2px 0px rgba(0, 0, 0, 0.5), inset 0px 8px 16px -4px #00000033;
   --border-focus: 2px solid oklch(0.7 0.15 250);

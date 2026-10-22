@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** L
 **Blocked by:** 134, 136
-**Status:** in review
+**Status:** done
 **Spec:** [dtcg-2025-10](../specs/dtcg-2025-10.md) (decisions 8, 9; slice 6)
 
 ## What to build
@@ -22,7 +22,7 @@
 - [x] Browser test: `data-brand` and `data-theme` on one element give the resolver's values for all four combinations
 - [x] Existing snapshots unchanged
 - [x] Brands and themes guide: a section on combining modifiers (not a full rewrite); the Learn page no longer lists this gap (the `$extends`-across-files gap stays)
-- [ ] All gates pass (locally: yes), and the GitHub run is green
+- [x] All gates pass, and the GitHub run is green
 
 ## Notes (implementation)
 
@@ -51,10 +51,13 @@ Fixed, each with a test:
 - **`dta diff`:** the result schema takes every token type (it rejected a change to a dimension or shadow); the base is read without the resolver options when it has no resolver document (diffing a migration to one).
 - **CLI:** a resolver document in a folder below the tokens directory is found; `dta clean` removes `.tokens` files and, with a resolver document, the folders it reads (dtcg-2025/clean, dtcg-resolver/clean, dtcg-modifiers/clean re-recorded by name).
 
-Left open (follow-ups):
+Follow-ups, done before closing (2026-10-22):
 
-- A token of one modifier that aliases a combined token is not declared again in the other modifiers' rules, so nested contexts can show it stale (documented in the guide).
-- References inside composites are not type-checked against their target (a border colour pointing at a string token resolves); `$ref` into a value cannot take its type from the target.
-- Stricter values (TICKET-132): `"0"`, `"100%"`, `"1em"` dimensions are now `invalid-value` errors; `X.tokens.json` is now collection X with one mode.
-- Tailwind v4 has no `duration` namespace; typography drops `letterSpacing` and border `dashArray` silently; push keeps a literal `$root` segment; push skips aliases of a token skipped in one mode in every mode.
-- A circular `$extends` is reported once per cycle, not per group; names starting with `$` are skipped silently.
+- **Nested contexts:** a token of one modifier that aliases a combined token (`ring` → `{accent}` in the dark theme) is declared again in every context of its modifier inside `@scope ([data-theme="…"]) { :scope[data-brand], [data-brand] { … } }`, so the nearest context wins where another modifier is set further in (browser test: light inside dark with a brand). The theme files' resolved outputs (Tailwind per theme) read a combined token in the theme's own context.
+- **Types of parts:** a reference inside a composite must point at a token of the part's type (a border colour at a string token is `alias-type-mismatch`); a `$ref` into a value without `$type` takes the part's type (a colour component is a number).
+- **Values of earlier drafts (decision: warn and keep):** a dimension or duration as text (`"0"`, `"100%"`, `"1em"`) and a colour object with extra properties are kept with a `legacy-value` warning, also inside composites. `X.tokens.json` stays collection X with one mode (TICKET-135).
+- **Outputs:** a Tailwind v4 fallback name that starts with a Tailwind namespace gets a `dta-` prefix (`--dta-font-line`, not a font family); `css-shorthand-loss` warns when a typography's `letterSpacing` or a border's dash pattern cannot go into the shorthand. Tailwind v4 has no duration namespace, so durations stay plain custom properties.
+- **Push:** an alias is skipped only when its target is pushed in no mode (the variable does not exist). `$root` stays a literal `$root` segment in Figma names, so `dta pull` gives the same file back (decision).
+- **Parser:** a circular `$extends` is reported for each group in the circle; a name starting with `$` that is not a DTCG property is a `reserved-name` warning (top-level `$schema`, `$metadata`, `$themes` are allowed).
+- **Second review (fixed):** composite parts accept Figma-style scalar tokens whose value fits the part (`fontWeight: "{fw}"` with a number token; a string token holding a hex or a CSS colour function as a colour); a `$ref` into a value must give a valid value; legacy text is a number with a unit or none (not any text: `"{broken"` stays an error); single-mode tokens that alias a scoped token follow it into the `@scope` block; in its own collection, push skips an alias per mode, and the warning names the mode when other modes were pushed; a fallback named exactly like a Tailwind namespace is prefixed too.
+- **Decisions kept:** `$root` is `--group-root` in CSS; a modifier without `default` is a `resolver-default` warning (first context), not an error; the `@dta/core` browser budget is 55 KB (50.8 KB).

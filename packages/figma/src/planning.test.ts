@@ -171,6 +171,39 @@ describe('planPush: the BrandA/BrandB recording', () => {
     expect(values.Sky).toMatchObject({ r: expect.any(Number), g: expect.any(Number) })
   })
 
+  it('keeps an alias to a variable that is pushed in some modes only', () => {
+    const model = modelFrom({
+      'Size.A.json': { Gap: { $type: 'dimension', $value: { value: 8, unit: 'px' } } },
+      'Size.B.json': { Gap: { $type: 'dimension', $value: '1rem' } },
+      'Use.Value.json': { Card: { $type: 'dimension', $value: '{Gap}' } },
+      'Other.Value.json': { Lead: { $type: 'dimension', $value: '2rem' } },
+      'Ref.Value.json': { Line: { $type: 'dimension', $value: '{Lead}' } },
+    })
+    const plan = planPush(model, emptyFigma())
+    const created = (plan.payload?.variables ?? []).map((v) => ('name' in v ? v.name : v.id))
+    // Gap exists in Figma (mode A), so Card aliases it; Lead is never pushed, so Line is not.
+    expect(created).toContain('Card')
+    expect(created).not.toContain('Line')
+    // In its own collection an alias reads the same mode: Pad (B) aliases Gap, not pushed in B.
+    const same = planPush(
+      modelFrom({
+        'Size.A.json': {
+          Gap: { $type: 'dimension', $value: { value: 8, unit: 'px' } },
+          Pad: { $type: 'dimension', $value: '{Gap}' },
+        },
+        'Size.B.json': {
+          Gap: { $type: 'dimension', $value: '1rem' },
+          Pad: { $type: 'dimension', $value: '{Gap}' },
+        },
+      }),
+      emptyFigma(),
+    )
+    expect(same.diagnostics.map((d) => d.message)).toEqual([
+      '"Size/Gap" in mode "B" is 1rem; Figma holds lengths as px numbers; that value was not pushed.',
+      '"Size/Pad" in mode "B" aliases "Gap", which is not pushed; that value was not pushed.',
+    ])
+  })
+
   it('ignores floating point noise in colors', () => {
     const noisy = structuredClone(recording)
     const variable = noisy.meta.variables['VariableID:1:1']

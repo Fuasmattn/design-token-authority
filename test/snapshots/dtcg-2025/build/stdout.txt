@@ -1,5 +1,7 @@
 T   ⚒  dta build 
 |
+!  warning [css-shorthand-loss] "border.dashed": the border shorthand takes a keyword style, so the dash pattern (dashArray, lineCap) is written as dashed.
+|
 o  Base layer complete
 |
 o  Brand A complete

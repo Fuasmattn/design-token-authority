@@ -377,3 +377,140 @@ describe('parseTokenFiles: the type of an alias (review findings)', () => {
     expect(serializeTokenFiles(model)[0].content.trim()).toBe(content)
   })
 })
+
+describe('parseTokenFiles: values of earlier drafts (warned, kept)', () => {
+  const parse = (tree: unknown) =>
+    parseTokenFiles([{ fileName: 'A.Value.json', content: JSON.stringify(tree) }])
+
+  it('keeps text dimensions and durations, colour objects with extra properties, with a warning', () => {
+    const { model, diagnostics } = parse({
+      zero: { $type: 'dimension', $value: '0' },
+      full: { $type: 'dimension', $value: '100%' },
+      em: { $type: 'dimension', $value: '1em' },
+      slow: { $type: 'duration', $value: '1.5s' },
+      named: {
+        $type: 'color',
+        $value: { colorSpace: 'srgb', components: [1, 0, 0], name: 'red' },
+      },
+      text: {
+        $type: 'typography',
+        $value: {
+          fontFamily: 'Inter',
+          fontSize: '1em',
+          fontWeight: 400,
+          letterSpacing: '0',
+          lineHeight: 1.5,
+        },
+      },
+    })
+    expect(model.collections[0].tokens.map((t) => t.name.join('.'))).toEqual([
+      'zero',
+      'full',
+      'em',
+      'slow',
+      'named',
+      'text',
+    ])
+    expect(diagnostics.map((d) => [d.code, d.severity])).toEqual(
+      Array(5).fill(['legacy-value', 'warning']),
+    )
+  })
+
+  it('still rejects what no draft allowed', () => {
+    const { model, diagnostics } = parse({
+      empty: { $type: 'dimension', $value: '' },
+      list: { $type: 'dimension', $value: [1] },
+      space: { $type: 'color', $value: { colorSpace: 'cmyk', components: [0, 0, 0, 1] } },
+    })
+    expect(model.collections[0]?.tokens ?? []).toEqual([])
+    expect(diagnostics.map((d) => d.code)).toEqual([
+      'invalid-value',
+      'invalid-value',
+      'invalid-value',
+    ])
+  })
+})
+
+describe('references inside values have the type of their part', () => {
+  const parse = (tree: unknown) =>
+    parseTokenFiles([{ fileName: 'A.Value.json', content: JSON.stringify(tree) }])
+
+  it('rejects a composite part that points at a token of another type', async () => {
+    const { resolve } = await import('./index.js')
+    const { model } = parse({
+      label: { $type: 'string', $value: 'hello' },
+      ink: { $type: 'color', $value: '#000000' },
+      bad: {
+        $type: 'border',
+        $value: { color: '{label}', width: { value: 1, unit: 'px' }, style: 'solid' },
+      },
+      good: {
+        $type: 'border',
+        $value: { color: '{ink}', width: { value: 1, unit: 'px' }, style: 'solid' },
+      },
+    })
+    const bad = resolve(model, ['bad'])
+    expect(bad.ok ? 'ok' : bad.diagnostics[0].message).toBe(
+      '"bad" refers to "label" in color, which is the string "hello", not a valid color.',
+    )
+    expect(resolve(model, ['good']).ok).toBe(true)
+  })
+
+  it('accepts Figma-style scalar tokens where their value fits the part', async () => {
+    const { resolve } = await import('./index.js')
+    const { model, diagnostics } = parse({
+      ff: { $type: 'string', $value: 'Inter' },
+      fw: { $type: 'number', $value: 700 },
+      fs: { $type: 'string', $value: '16px' },
+      lh: { $type: 'dimension', $value: '24px' },
+      p: { $type: 'number', $value: 0.5 },
+      ink: { $type: 'string', $value: 'rgb(0 0 0)' },
+      text: {
+        $type: 'typography',
+        $value: {
+          fontFamily: '{ff}',
+          fontSize: '{fs}',
+          fontWeight: '{fw}',
+          letterSpacing: '0',
+          lineHeight: '{lh}',
+        },
+      },
+      fade: {
+        $type: 'gradient',
+        $value: [
+          { color: '{ink}', position: 0 },
+          { color: '#ffffff', position: '{p}' },
+        ],
+      },
+      // Pointing into a value must give a valid value: a font name is no width.
+      odd: { $type: 'dimension', $value: { $ref: '#/text/$value/fontFamily' } },
+      typo: { $type: 'dimension', $value: '{broken' },
+    })
+    const why = (name: string) => {
+      const r = resolve(model, [name])
+      return r.ok ? 'ok' : r.diagnostics[0].message
+    }
+    expect(why('text')).toBe('ok')
+    expect(why('fade')).toBe('ok')
+    const odd = resolve(model, ['odd'])
+    expect(odd.ok ? 'ok' : odd.diagnostics[0].code).toBe('alias-type-mismatch')
+    expect(diagnostics.map((d) => [d.code, d.path?.join('.')])).toEqual([
+      ['legacy-value', 'text'],
+      ['invalid-value', 'typo'],
+    ])
+  })
+
+  it('gives a $ref into a value the type of that part', () => {
+    const { model, diagnostics } = parse({
+      c: { $type: 'color', $value: { colorSpace: 'srgb', components: [0.2, 0.4, 0.6] } },
+      size: { $type: 'dimension', $value: { value: 4, unit: 'px' } },
+      green: { $value: { $ref: '#/c/$value/components/1' } },
+      four: { $value: { $ref: '#/size/$value/value' } },
+    })
+    expect(diagnostics).toEqual([])
+    const types = Object.fromEntries(
+      model.collections[0].tokens.map((t) => [t.name.join('.'), t.type]),
+    )
+    expect([types.green, types.four]).toEqual(['number', 'number'])
+  })
+})

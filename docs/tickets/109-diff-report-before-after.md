@@ -31,6 +31,7 @@ The report's per-story row currently shows three thumbnails (baseline, candidate
 ## Outcome
 
 **Board decisions (approved 2026-10-20, with the proposals for its open questions):**
+
 1. A story row shows only "after" with the changed elements outlined and the token notes (stacked, joined by a leader line) plus a token table (base, head, what it outlines); the thumbnails and the slider go; "Whole images: before · after · diff" links stay.
 2. "Show before" (toggle with box, tick and on/off word, keyboard operable) swaps the image in place; outlines and notes hide but keep their space; the label switches "After · head" / "Before · base <sha>".
 3. Unexplained rows: diff overlay on by default, dashed outline and "unexplained · no token", "Show before" beside the overlay toggle. Explained rows have no overlay toggle (the outline shows where; the diff image is linked).
@@ -51,6 +52,7 @@ The report's per-story row currently shows three thumbnails (baseline, candidate
 - **Docs:** Diff card page rewritten (guidelines incl. the contrast numbers, toggle, unexplained, phone, no JS); guide _dta diff in pull requests_: new section "Reading the report", intro no longer mentions the slider; Status colours (redlines with ink line, the new audit); design-system overview; spec `visual-diff.md` decision 10 records the row.
 
 **Deviations from the board (and why):**
+
 - Meta next to "After · head" is "this change", not "this pull request": `dta diff` also runs locally, without a pull request.
 - The image is cropped below the lowest change and shown at most at its natural size; the board drew a hand-made card at 1:1. A 1280 render on a phone is therefore small (whole images linked); the 390 render of the same story is in the report too.
 - While "before" shows, the diff overlay hides as well (the flick shows the real pixels); the overlay toggle keeps its state.
@@ -65,6 +67,7 @@ The report's per-story row currently shows three thumbnails (baseline, candidate
 **Screenshots** (session scratchpad, not committed): `109-report-{explained,before,unexplained}-{1280,390}-{light,dark}.png`. Explained and before: a real Orbit Burger run (`dta diff --base 617cea0` in `site/examples/orbit-burger`, 617cea0 a dangling throwaway commit = the working tree with `tokens/` = `tokens-base/`, on no branch; same result as 111: 6 changed, 106 unchanged, both tokens explain `span.button`), row `scene--default` at 1280 and at 390. Unexplained: a small fixture like the e2e one (an order card whose title goes 22 → 25 px in the component). DiffCard stories: `109-diffcard-{explained,before,unexplained}-{1280,390}.png`.
 
 **Wording (2026-10-21, after the build screenshots).** Headings in words, no git words:
+
 - "With this change", meta: the head. `result.json` records nothing about the head (only `base`, a label), and `dta diff` renders the working tree, so the meta says "working tree"; the branch name would need a new optional `head` field in `dta.diff/1` (not added).
 - "Before this change", meta: the base in words from `result.base`: `merge base with origin/main (1a2b3c4)` → "main · 1a2b3c4" (`origin/`/`upstream/` dropped), `release (1a2b3c4)` → "release · 1a2b3c4", a ref that is itself a sha → only the short sha (e.g. the Orbit run's "617cea0"), a directory base → its name.
 - The separate "this change" meta is gone; the button stays "Show before". Added stories read "With this change · new story", removed ones "Before this change · <base> · removed story". Image alt texts follow ("scene--default@1280 with this change").
@@ -73,4 +76,3 @@ The report's per-story row currently shows three thumbnails (baseline, candidate
 - Screenshots: `109c-report-{explained,before,unexplained}-{1280,390}-{light,dark}.png` (same runs as above).
 
 **Open.** Screenshots shown to the maintainer; GitHub run.
-

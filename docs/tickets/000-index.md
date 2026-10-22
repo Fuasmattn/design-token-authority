@@ -228,7 +228,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 | #                                             | Ticket                                                                 | Priority | Effort | Blocked by | Status |
 | --------------------------------------------- | ---------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | 132–138    | Open   |
+| [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | —          | Open   |
 | [091](./091-build-breakpoint-modes.md)        | Breakpoint modes in the build output                                   | Medium   | M      | —          | Done   |
 | [092](./092-lint-contrast-per-mode.md)        | `color-contrast` per mode, through aliases                             | Medium   | S      | —          | Done   |
 | [117](./117-css-prefix.md)                    | Make `outputs.css.prefix` work (or remove it)                          | Low      | M      | —          | Done   |
@@ -307,15 +307,15 @@ Order: 126, 127, 128 and 130 in parallel → 129 (after 090) → 131.
 
 Spec: [dtcg-2025-10](../specs/dtcg-2025-10.md) (approved 2026-10-21). A valid DTCG 2025.10 token set works in DTA without conversion: every type, `$ref`/`$root`/`$extends`, `.tokens` files, resolver documents and several modifiers at once (axes). All seven slices go into the first npm release (090). Replaces the plan in TICKET-094.
 
-| #                                     | Ticket                                                          | Priority | Effort | Blocked by | Status    |
-| ------------------------------------- | --------------------------------------------------------------- | -------- | ------ | ---------- | --------- |
-| [132](./132-dtcg-types-and-values.md) | All DTCG 2025.10 types and structured values in core            | High     | L      | —          | In review |
-| [133](./133-dtcg-references.md)       | `$ref`, `$root`, `$extends` and aliases inside composite values | High     | M      | 132        | In review |
-| [134](./134-dtcg-consumers.md)        | Build, lint, diff, queries and audit on the new types           | High     | L      | 133        | In review |
-| [135](./135-dtcg-tokens-files.md)     | Read `.tokens` and `.tokens.json` files                         | High     | S      | 132        | In review |
-| [136](./136-dtcg-resolver.md)         | Resolver documents                                              | High     | L      | 133, 135   | In review |
-| [137](./137-dtcg-modifier-axes.md)    | Several modifiers at once (axes)                                | High     | L      | 134, 136   | In review |
-| [138](./138-dtcg-figma-push.md)       | Figma push for the new types                                    | Medium   | M      | 134        | In review |
+| #                                     | Ticket                                                          | Priority | Effort | Blocked by | Status |
+| ------------------------------------- | --------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
+| [132](./132-dtcg-types-and-values.md) | All DTCG 2025.10 types and structured values in core            | High     | L      | —          | Done   |
+| [133](./133-dtcg-references.md)       | `$ref`, `$root`, `$extends` and aliases inside composite values | High     | M      | 132        | Done   |
+| [134](./134-dtcg-consumers.md)        | Build, lint, diff, queries and audit on the new types           | High     | L      | 133        | Done   |
+| [135](./135-dtcg-tokens-files.md)     | Read `.tokens` and `.tokens.json` files                         | High     | S      | 132        | Done   |
+| [136](./136-dtcg-resolver.md)         | Resolver documents                                              | High     | L      | 133, 135   | Done   |
+| [137](./137-dtcg-modifier-axes.md)    | Several modifiers at once (axes)                                | High     | L      | 134, 136   | Done   |
+| [138](./138-dtcg-figma-push.md)       | Figma push for the new types                                    | Medium   | M      | 134        | Done   |
 
 Order: 132 → 133 → 134 → 137; 135 after 132; 136 after 133 and 135; 138 after 134.
 

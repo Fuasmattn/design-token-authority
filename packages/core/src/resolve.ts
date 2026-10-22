@@ -5,7 +5,8 @@ import { nameToDot } from './names.js'
 import { nestedReferences, partOf, referenceOf } from './references.js'
 import type { Reference } from './references.js'
 import type { Diagnostic, TokenModel, TokenName, TokenType, TokenValue } from './types.js'
-import { formatValue, valueProblem } from './values.js'
+import { parseColor } from './color.js'
+import { formatValue, isLegacyValue, partType, valueProblem } from './values.js'
 
 export type { ModeSelection } from './modes.js'
 
@@ -140,7 +141,7 @@ function resolveIn(
           token.name,
         )
       }
-      const problem = valueProblem(token.type, part)
+      const problem = isLegacyValue(token.type, part) ? null : valueProblem(token.type, part)
       if (problem) {
         return fail(
           'alias-type-mismatch',
@@ -153,10 +154,12 @@ function resolveIn(
     if (!reference) {
       // A value: resolve the references inside it (composite parts, colour components …).
       const inner = new Set([...active, ...seen])
-      const deep = resolveParts(byName, value, selection, inner, token.name)
+      const deep = resolveParts(byName, value, selection, inner, token.name, token.type)
       if (!deep.ok) return { ok: false, chain, diagnostics: deep.diagnostics }
       if (deep.value !== value) {
-        const problem = valueProblem(token.type, deep.value)
+        const problem = isLegacyValue(token.type, deep.value)
+          ? null
+          : valueProblem(token.type, deep.value)
         if (problem) {
           return fail(
             'alias-type-mismatch',
@@ -183,6 +186,7 @@ function resolveParts(
   selection: ModeSelection,
   active: Set<string>,
   owner: TokenName,
+  ownerType: TokenType,
 ): PartsResult {
   const references = nestedReferences(value)
   if (references.length === 0) return { ok: true, value }
@@ -220,9 +224,55 @@ function resolveParts(
         ],
       }
     }
+    // The part must have the type the format gives it (a border's colour is a colour).
+    const expected = partType(ownerType, reference.at)
+    const wrong =
+      expected === undefined ? null : partMismatch(expected, target.type, part, reference)
+    if (wrong) {
+      return {
+        ok: false,
+        diagnostics: [
+          {
+            severity: 'error',
+            code: 'alias-type-mismatch',
+            message: `"${nameToDot(owner)}" refers to "${nameToDot(reference.target)}" in ${reference.at.join('.')}, ${wrong}.`,
+            path: owner,
+          },
+        ],
+      }
+    }
     setPart(result, reference.at, part)
   }
   return { ok: true, value: result as TokenValue }
+}
+
+/** CSS colour functions, which a string token may hold where a colour goes. */
+const COLOR_FUNCTION = /^(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\(.*\)$/i
+
+/**
+ * Why a referenced part does not fit (null when it does): a token of the part's type fits; a token
+ * of a Figma scalar type (string, number) or a dimension where a number goes fits when its value
+ * is valid for the part, as Figma-style files write them (`fontWeight: "{weights.bold}"` with a
+ * number variable). A `$ref` into a value must give a valid value.
+ */
+function partMismatch(
+  expected: TokenType,
+  targetType: TokenType,
+  part: unknown,
+  reference: { part: string[] },
+): string | null {
+  if (reference.part.length === 0 && targetType === expected) return null
+  const scalar = ['string', 'number', 'dimension', 'fontFamily', 'fontWeight'].includes(targetType)
+  if (reference.part.length === 0 && !scalar) return `which is ${targetType}, not ${expected}`
+  // A colour must be one: valueProblem reads any string as a colour, as Figma files hold them.
+  const valid =
+    expected === 'color' && typeof part === 'string'
+      ? parseColor(part).ok || COLOR_FUNCTION.test(part.trim())
+      : valueProblem(expected, part) === null || isLegacyValue(expected, part)
+  if (valid) return null
+  return reference.part.length === 0
+    ? `which is the ${targetType} ${typeof part === 'string' ? JSON.stringify(part) : formatValue(part as TokenValue)}, not a valid ${expected}`
+    : `whose part is not a valid ${expected}`
 }
 
 function setPart(root: unknown, at: string[], value: unknown) {

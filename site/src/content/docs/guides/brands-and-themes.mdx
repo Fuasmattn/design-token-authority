@@ -162,8 +162,21 @@ Tokens one modifier changes go to that modifier's theme files as above (`themes/
 
 Each combination gives the value the resolver document gives (a browser test checks all four, nested both ways). `dta token get accent` lists them, and `color-contrast` checks a pair in each combination. Two things to know:
 
-- Single-mode tokens that alias such a token (`button.background` → `{accent}`) are declared again in every context, like [tokens that alias brand tokens](#tokens-that-alias-brand-tokens). A token of one modifier that aliases it is not, so it follows the contexts where its own modifier is set.
-- Tailwind and JS outputs leave combined tokens out; use the CSS custom properties.
+- Single-mode tokens that alias such a token (`button.background` → `{accent}`) are declared again in every context, like [tokens that alias brand tokens](#tokens-that-alias-brand-tokens).
+- A token of one modifier that aliases it (`ring` → `{accent}` in the dark theme) is declared again inside each of that modifier's contexts, wherever an element sets the other modifier, with the single-mode tokens that alias it (`button.focus` → `{ring}`). `@scope` lets the nearest context win (a browser without `@scope` ignores the block, and such a nested section keeps the outer value):
+
+{/* prettier-ignore */}
+```css title="output/css/themes/theme-dark.css (end)"
+/* theme × brand: theme · dark tokens again where [data-brand] is set inside */
+@scope ([data-theme="dark"]) {
+  :scope[data-brand], [data-brand] {
+    --ring: var(--accent); /** Focus ring */
+    --button-focus: var(--ring);
+  }
+}
+```
+
+- Tailwind and JS outputs leave combined tokens out; use the CSS custom properties. A token that aliases one is written resolved there for the defaults of the other modifiers (the Tailwind file of the dark theme has `ring` for dark × a).
 
 ## Keep the brand layer clean
 

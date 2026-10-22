@@ -3,6 +3,7 @@ import {
   analyzeGraph,
   FONT_WEIGHT_KEYWORDS,
   formatColor,
+  modeOf,
   nameToSlash,
   parseAlias,
   referenceOf,
@@ -158,6 +159,42 @@ function cssShapes(token: Token, value: unknown): TokenValue {
       .join(', ')
   }
   return value as TokenValue
+}
+
+/**
+ * Warnings for parts a CSS shorthand cannot hold, so they are not silently gone: a typography's
+ * `letterSpacing` (the `font` shorthand has none) and a border's dash pattern (written `dashed`).
+ */
+function shorthandLosses(model: TokenModel): Diagnostic[] {
+  const out: Diagnostic[] = []
+  const isZero = (v: unknown) =>
+    v === 0 || v === '0' || (isObject(v) && v.value === 0) || v === '0px' || v === '0rem'
+  for (const collection of model.collections) {
+    for (const token of collection.tokens) {
+      const name = token.name.join('.')
+      const values = Object.values(token.values)
+      if (
+        token.type === 'typography' &&
+        values.some((v) => isObject(v) && v.letterSpacing !== undefined && !isZero(v.letterSpacing))
+      ) {
+        out.push({
+          severity: 'warning',
+          code: 'css-shorthand-loss',
+          message: `"${name}": the CSS font shorthand has no letter spacing, so letterSpacing is not in its custom property; give it a dimension token of its own.`,
+          path: token.name,
+        })
+      }
+      if (token.type === 'border' && values.some((v) => isObject(v) && isObject(v.style))) {
+        out.push({
+          severity: 'warning',
+          code: 'css-shorthand-loss',
+          message: `"${name}": the border shorthand takes a keyword style, so the dash pattern (dashArray, lineCap) is written as dashed.`,
+          path: token.name,
+        })
+      }
+    }
+  }
+  return out
 }
 
 /** A gradient stop's position (0–1) as a percentage; an alias becomes `calc({…} * 100%)`. */
@@ -344,6 +381,7 @@ export async function buildOutputs(
   const source = (collection: Collection, mode: string) =>
     sourceOf(fullModel, collection, mode, unresolvable)
 
+  diagnostics.push(...shorthandLosses(model))
   const formats = new Set<OutputFormat>(options.formats ?? OUTPUT_FORMATS)
   const formatted = async (
     tree: Record<string, unknown>,
@@ -563,6 +601,8 @@ export async function buildOutputs(
     // collections (and the breakpoint collection in a mode) are only there so that aliases into
     // them resolve.
     const brandOrigins = new Set(brandCollections.map((c) => `${c.name}.${brand}`))
+    // A combination of modifiers is read in this theme's context (dark × the brand's default).
+    const themeSelection = Object.fromEntries(brandCollections.map((c) => [c.name, brand]))
     const themeTree = (breakpointMode?: string) =>
       mergeSources([
         ...singleMode.map((c) => source(c, c.modes[0])),
@@ -573,7 +613,7 @@ export async function buildOutputs(
         // their default mode, so aliases into them resolve; they are not written here.
         ...multiMode
           .filter((c) => !brandCollections.includes(c) && c !== breakpoints?.collection)
-          .map((c) => source(c, referenceMode(c))),
+          .map((c) => source(c, c.axes ? modeOf(c, themeSelection) : referenceMode(c))),
         ...brandCollections.map((c) => source(c, brand)),
       ])
     // The theme CSS also repeats the tokens whose alias chain reaches this brand through
@@ -888,6 +928,93 @@ async function combinedCss(
       blocks.push({
         part: css(`themes/${theme.stem}.css`, rule(theme.selector, [...lines, ...dependentLines])),
         comment: `/* ${label}: ${axis} · ${ctx} */`,
+      })
+    }
+  }
+  // A token of one modifier that aliases a combined token (`ring: {accent}` in the dark theme)
+  // is declared in its own context's rule; an element below that sets another of the
+  // combination's modifiers changes the combined token, so it declares the token again. @scope
+  // makes the nearest context win where several enclose the element.
+  for (const axis of axes) {
+    const modifier = context.model.collections.find((c) => c.name === axis)
+    if (!modifier) continue
+    const others = axes
+      .filter((other) => other !== axis)
+      .map((other) => {
+        const any = context.model.collections.find((c) => c.name === other)?.modes[0] ?? ''
+        return context.selectorOf(other, any)?.selector.replace(/=".*"\]$/, ']')
+      })
+      .filter((selector): selector is string => selector !== undefined)
+    if (others.length === 0) continue
+    // Trees per context; a token that reaches a combined token in any context is declared in
+    // every context's scope, so the nearest context wins with its own value.
+    const contexts = modifier.modes.map((ctx) => {
+      const origin = `${modifier.name}.${ctx}`
+      const tree = mergeSources([
+        ...context.singleMode.map((c) => context.source(c, c.modes[0])),
+        ...context.multiMode
+          .filter((c) => c !== modifier)
+          .map((c) => context.source(c, context.referenceMode(c))),
+        context.source(modifier, ctx),
+      ])
+      const reaching = aliasesInto(
+        tree,
+        (o) => o === defaultOrigin,
+        (o) => o === origin || context.singleOrigins.has(o),
+      )
+      return { ctx, origin, tree, reaching }
+    })
+    const scoped = new Set(
+      contexts.flatMap(({ origin, tree, reaching }) =>
+        [...reaching].filter((dotPath) => tree.origins.get(dotPath) === origin),
+      ),
+    )
+    if (scoped.size === 0) continue
+    // Single-mode tokens that alias these (`button.focus: {ring}`) follow them into the scope.
+    const followers = new Set(
+      contexts.flatMap(({ tree }) =>
+        [
+          ...aliasesInto(
+            tree,
+            (_, dotPath) => scoped.has(dotPath),
+            (o) => context.singleOrigins.has(o),
+          ),
+        ].filter((dotPath) => context.singleOrigins.has(tree.origins.get(dotPath) ?? '')),
+      ),
+    )
+    for (const { ctx, origin, tree } of contexts) {
+      const theme = context.selectorOf(axis, ctx)
+      if (!theme) continue
+      const own = new Set([
+        ...[...scoped].filter((dotPath) => tree.origins.get(dotPath) === origin),
+        ...followers,
+      ])
+      if (own.size === 0) continue
+      const parts = await context.formatted(tree.tree, {
+        'css-scoped': {
+          output: 'css',
+          transformGroup: CSS_TRANSFORM_GROUP,
+          buildPath: context.cssDir,
+          files: [
+            {
+              destination: 'scoped.css',
+              format: 'css/variables',
+              filter: (token) => own.has(token.path.join('.')),
+              options: { selector: ':root', outputReferences: true, showFileHeader: false },
+            },
+          ],
+        },
+      })
+      const lines = (parts[0]?.content ?? '')
+        .split('\n')
+        .filter((line) => /^\s*--[a-z0-9-]+:/.test(line))
+        .map((line) => line.trim())
+      // `:scope…` matches the context's own element when it also sets another modifier.
+      const targets = others.flatMap((other) => [`:scope${other}`, other]).join(', ')
+      const body = `@scope (${theme.selector}) {\n  ${targets} {\n${lines.map((line) => `    ${line}`).join('\n')}\n  }\n}\n`
+      blocks.push({
+        part: css(`themes/${theme.stem}.css`, body),
+        comment: `/* ${label}: ${axis} · ${ctx} tokens again where ${others.join(' or ')} is set inside */`,
       })
     }
   }

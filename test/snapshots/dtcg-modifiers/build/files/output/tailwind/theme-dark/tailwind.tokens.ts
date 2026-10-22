@@ -6,6 +6,7 @@ export const tokens = {
       colors: {
         'surface': '#111827',
         'text': '#f3f4f6',
+        'ring': '#93c5fd',
       }
     },
   },

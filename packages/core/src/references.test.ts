@@ -222,7 +222,26 @@ describe('$extends', () => {
     expect(codes({ t: { $type: 'number', $value: 1 }, g: { $extends: '{t}' } })).toEqual([
       'invalid-extends',
     ])
-    expect(codes({ a: { $extends: '{b}' }, b: { $extends: '{a}' } })).toEqual(['circular-extends'])
+    // Each group in the circle is reported, at its own path (ticket 133).
+    const circle = parseTokenFiles([
+      file('A.V.json', { a: { $extends: '{b}' }, b: { $extends: '{a}' } }),
+    ]).diagnostics
+    expect(circle.map((d) => [d.code, d.path?.join('.')])).toEqual([
+      ['circular-extends', 'a'],
+      ['circular-extends', 'b'],
+    ])
+  })
+
+  it('warns about names starting with $ that are not DTCG properties', () => {
+    const { diagnostics } = parseTokenFiles([
+      file('A.V.json', {
+        $schema: 'https://example.com/schema.json',
+        color: { $type: 'color', $foo: 1, red: { $value: '#ff0000' } },
+      }),
+    ])
+    expect(diagnostics.map((d) => [d.code, d.path?.join('.')])).toEqual([
+      ['reserved-name', 'color.$foo'],
+    ])
   })
 
   it('writes the file back unchanged, and a changed inherited token as a local one', () => {

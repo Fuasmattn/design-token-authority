@@ -1,4 +1,15 @@
 {
-  "surface": { "$type": "color", "$value": "{color.gray.0}" },
-  "text": { "$type": "color", "$value": "{color.gray.900}" }
+  "surface": {
+    "$type": "color",
+    "$value": "{color.gray.0}"
+  },
+  "text": {
+    "$type": "color",
+    "$value": "{color.gray.900}"
+  },
+  "ring": {
+    "$type": "color",
+    "$value": "{color.gray.900}",
+    "$description": "Focus ring"
+  }
 }

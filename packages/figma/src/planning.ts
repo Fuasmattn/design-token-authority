@@ -235,12 +235,18 @@ export function planPush(model: TokenModel, figma: LocalVariablesResponse): Push
         const raw = token.values[mode]
         if (raw === undefined) continue
         const result = pushValueOf(token, raw, collection, mode)
-        if ('skip' in result) {
-          skipped.set(`${nameToDot(token.name)}|${mode}`, result)
-          skippedNames.add(nameToDot(token.name))
-        }
+        if ('skip' in result) skipped.set(`${nameToDot(token.name)}|${mode}`, result)
       }
   quiet = false
+  // An alias reaches a variable, not one of its modes: it is skipped only when its target is
+  // not pushed in any mode (so the variable does not exist).
+  const notPushed = (collection: Collection, token: Token) =>
+    collection.modes.every(
+      (mode) => token.values[mode] === undefined || skipped.has(`${nameToDot(token.name)}|${mode}`),
+    )
+  for (const collection of model.collections)
+    for (const token of collection.tokens)
+      if (notPushed(collection, token)) skippedNames.add(nameToDot(token.name))
   for (let changed = true; changed; ) {
     changed = false
     for (const collection of model.collections)
@@ -250,9 +256,15 @@ export function planPush(model: TokenModel, figma: LocalVariablesResponse): Push
           const reference = referenceOf(token.values[mode])
           if (skipped.has(key) || !reference || reference.part.length > 0) continue
           const target = reference.target.join('.')
-          if (!skippedNames.has(target)) continue
+          // In its own collection an alias reads the target in the same mode, so a target not
+          // pushed in that mode counts; across collections, a target not pushed at all does.
+          const sameCollection = collection.tokens.some((t) => nameToDot(t.name) === target)
+          const missing = sameCollection
+            ? skipped.has(`${target}|${mode}`)
+            : skippedNames.has(target)
+          if (!missing) continue
           skipped.set(key, { skip: `aliases "${target}", which is not pushed` })
-          skippedNames.add(nameToDot(token.name))
+          if (notPushed(collection, token)) skippedNames.add(nameToDot(token.name))
           changed = true
         }
   }
@@ -302,13 +314,18 @@ export function planPush(model: TokenModel, figma: LocalVariablesResponse): Push
           skipped.get(`${nameToDot(token.name)}|${mode}`) ??
           pushValueOf(token, raw, collection, mode)
         if ('skip' in pushed) {
-          const key = `${collection.name}/${nameToDot(token.name)}`
+          const name = `${collection.name}/${nameToDot(token.name)}`
+          // Not pushed at all, or (when other modes are) only its value in this mode.
+          const whole = notPushed(collection, token)
+          const key = whole ? name : `${name}|${mode}`
           if (!notPushable.has(key)) {
             notPushable.add(key)
             diagnostics.push({
               severity: 'warning',
               code: 'not-pushable',
-              message: `"${key}" ${pushed.skip}; it was not pushed.`,
+              message: whole
+                ? `"${name}" ${pushed.skip}; it was not pushed.`
+                : `"${name}" in mode "${mode}" ${pushed.skip}; that value was not pushed.`,
               path: token.name,
             })
           }

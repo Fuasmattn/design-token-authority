@@ -14,6 +14,7 @@
   --button-background: var(--accent);
   --button-text: var(--surface);
   --button-radius: var(--control-radius);
+  --button-focus: var(--ring);
 }
 
 /* theme × brand: the sets' values and the default contexts; [data-theme] and [data-brand] choose others */

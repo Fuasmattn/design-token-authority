@@ -1,5 +1,19 @@
 {
-  "surface": { "$type": "color", "$value": "{color.gray.900}" },
-  "text": { "$type": "color", "$value": "{color.gray.100}" },
-  "accent": { "$type": "color", "$value": "{color.blue.300}" }
+  "surface": {
+    "$type": "color",
+    "$value": "{color.gray.900}"
+  },
+  "text": {
+    "$type": "color",
+    "$value": "{color.gray.100}"
+  },
+  "accent": {
+    "$type": "color",
+    "$value": "{color.blue.300}"
+  },
+  "ring": {
+    "$type": "color",
+    "$value": "{accent}",
+    "$description": "Focus ring"
+  }
 }

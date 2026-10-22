@@ -63,6 +63,28 @@ function getPropertyPrefixByPath(path: string[]): [string, number] | null {
   }
 }
 
+/** Tailwind v4 theme namespaces: a variable named `--<namespace>-*` makes utilities. */
+const TAILWIND_NAMESPACES = [
+  'color',
+  'font',
+  'text',
+  'font-weight',
+  'tracking',
+  'leading',
+  'breakpoint',
+  'container',
+  'spacing',
+  'radius',
+  'shadow',
+  'inset-shadow',
+  'drop-shadow',
+  'blur',
+  'perspective',
+  'aspect',
+  'ease',
+  'animate',
+]
+
 /**
  * Determine the Tailwind v4 CSS property prefix from token $type and Figma scopes.
  * Returns [prefix, category] or null if the token can't be mapped.
@@ -136,8 +158,12 @@ export function tailwindThemeProperty(
       utility: true,
     }
   }
-  // 3. Fallback: generic custom property (no Tailwind utility generation)
-  return { property: `--${path.map(toKebab).join('-')}`, isColor: false, utility: false }
+  // 3. Fallback: generic custom property (no Tailwind utility generation). A name that starts
+  // with a Tailwind namespace would make utilities of the wrong kind (`--font-line: 1.5` as a
+  // font family), so it gets a `dta-` prefix.
+  const name = path.map(toKebab).join('-')
+  const clash = TAILWIND_NAMESPACES.some((ns) => name === ns || name.startsWith(`${ns}-`))
+  return { property: `--${clash ? 'dta-' : ''}${name}`, isColor: false, utility: false }
 }
 
 export const tailwindV4Formatter: FormatFn = ({ dictionary, options }) => {

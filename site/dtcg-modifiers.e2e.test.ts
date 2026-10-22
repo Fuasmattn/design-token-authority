@@ -52,8 +52,23 @@ const PROBES = [
     theme: 'light',
     brand: 'a',
   },
+  {
+    // A theme token that aliases the combined accent, with the brand set further in.
+    id: 'light-in-dark',
+    html: '<section data-theme="dark"><div data-theme="light"><p data-brand="b" id="light-in-dark"></p></div></section>',
+    theme: 'light',
+    brand: 'b',
+  },
 ]
-const TOKENS = ['accent', 'button.background', 'surface', 'button.text', 'button.radius']
+const TOKENS = [
+  'accent',
+  'button.background',
+  'surface',
+  'button.text',
+  'button.radius',
+  'ring',
+  'button.focus',
+]
 const property = (name: string) => `--${name.replace(/\./g, '-')}`
 
 const STYLES = `(ids) => Object.fromEntries(ids.map((id) => {
@@ -65,6 +80,8 @@ const STYLES = `(ids) => Object.fromEntries(ids.map((id) => {
     surface: style.outlineColor,
     'button.text': style.borderTopColor,
     'button.radius': style.borderTopLeftRadius,
+    ring: style.textDecorationColor,
+    'button.focus': style.caretColor,
   }]
 }))`
 
@@ -137,7 +154,9 @@ describe.skipIf(!enabled)('several resolver modifiers in Chromium', () => {
       const rule = `p { outline: 1px solid; border: 1px solid; color: var(${property('accent')});
         background-color: var(${property('button.background')});
         outline-color: var(${property('surface')}); border-color: var(${property('button.text')});
-        border-radius: var(${property('button.radius')}); }`
+        border-radius: var(${property('button.radius')});
+        text-decoration: underline; text-decoration-color: var(${property('ring')});
+        caret-color: var(${property('button.focus')}); }`
       await page.setContent(
         `<!doctype html><html data-theme="light" data-brand="a"><head><style>${css}\n${rule}</style></head><body>${PROBES.map((p) => p.html).join('\n')}</body></html>`,
       )

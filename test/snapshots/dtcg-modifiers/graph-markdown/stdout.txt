@@ -2,7 +2,7 @@ T   ⮕  dta graph
 |
 o  Graph built
 |
-|  Tokens: 21 | Aliases: 13 (62%) | Max depth: 2 | Issues: 0
+|  Tokens: 24 | Aliases: 16 (67%) | Max depth: 2 | Issues: 0
 
 # Token Dependency Graph Report
 
@@ -10,8 +10,8 @@ o  Graph built
 
 | Metric | Value |
 |--------|-------|
-| Total tokens | 21 |
-| Alias tokens | 13 (62%) |
+| Total tokens | 24 |
+| Alias tokens | 16 (67%) |
 | Max chain depth | 2 |
 | Circular references | 0 |
 | Dangling aliases | 0 |
@@ -24,14 +24,14 @@ o  Graph built
 |------|-------|
 | brand.a | 1 |
 | brand.b | 1 |
-| components.Value | 3 |
+| components.Value | 4 |
 | core.Value | 8 |
 | theme × brand.dark × a | 1 |
 | theme × brand.dark × b | 1 |
 | theme × brand.light × a | 1 |
 | theme × brand.light × b | 1 |
-| theme.dark | 2 |
-| theme.light | 2 |
+| theme.dark | 3 |
+| theme.light | 3 |
 
 |
 —  Done!

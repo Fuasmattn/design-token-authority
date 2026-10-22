@@ -910,6 +910,43 @@ describe('buildOutputs: DTCG 2025.10 values', () => {
     expect([...vars.matchAll(/object Object/g)]).toEqual([])
   })
 
+  it('warns about parts a CSS shorthand cannot hold, and keeps fallbacks out of Tailwind namespaces', async () => {
+    const model = parseTokenFiles([
+      {
+        fileName: 'A.Value.json',
+        content: JSON.stringify({
+          wide: {
+            $type: 'typography',
+            $value: {
+              fontFamily: 'Inter',
+              fontSize: { value: 16, unit: 'px' },
+              fontWeight: 400,
+              letterSpacing: { value: 0.1, unit: 'rem' },
+              lineHeight: 1.5,
+            },
+          },
+          dots: {
+            $type: 'border',
+            $value: {
+              color: '#000000',
+              width: { value: 1, unit: 'px' },
+              style: { dashArray: [{ value: 2, unit: 'px' }], lineCap: 'round' },
+            },
+          },
+          font: { line: { $type: 'number', $value: 1.5 } },
+        }),
+      },
+    ]).model
+    const { files, diagnostics } = await buildOutputs(model, {})
+    expect(diagnostics.map((d) => [d.code, d.path?.join('.')])).toEqual([
+      ['css-shorthand-loss', 'wide'],
+      ['css-shorthand-loss', 'dots'],
+    ])
+    const v4 = find(files, 'output/tailwind/tailwind.css') ?? ''
+    expect(v4).toContain('--dta-font-line: 1.5;')
+    expect(v4).not.toContain('--font-line:')
+  })
+
   it('maps the DTCG types to Tailwind theme keys, dimensions by their name', async () => {
     const { files } = await buildOutputs(dtcg(), {})
     const v4 = find(files, 'output/tailwind/tailwind.css') ?? ''
@@ -1011,6 +1048,10 @@ describe('buildOutputs: several resolver modifiers (TICKET-137)', () => {
       '  --accent-dta-base: #ffffff;\n  --accent-dta-theme: var(--blue);\n  --accent: var(',
     )
     expect(files['themes/theme-dark.css']).toContain('  --ring: var(--accent);')
+    // Declared again where a brand is set inside the dark theme, the nearest theme winning.
+    expect(files['themes/theme-dark.css']).toContain(
+      '@scope ([data-theme="dark"]) {\n  :scope[data-brand], [data-brand] {\n    --ring: var(--accent);\n  }\n}',
+    )
   })
 
   it('switches a modifier whose contexts are brands with data-brand', async () => {

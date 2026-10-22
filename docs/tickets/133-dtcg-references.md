@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** M
 **Blocked by:** 132
-**Status:** in review
+**Status:** done
 **Spec:** [dtcg-2025-10](../specs/dtcg-2025-10.md) (decisions 5, 6; slice 2)
 
 ## What to build
@@ -21,7 +21,7 @@
 - [x] Package tests from the report's examples for each feature, including every error case named in the report
 - [x] `dta token get` shows the chain through `$ref` and composite sub-values
 - [x] Existing snapshots unchanged
-- [ ] All gates pass, and the GitHub run is green
+- [x] All gates pass, and the GitHub run is green
 
 ## Notes
 

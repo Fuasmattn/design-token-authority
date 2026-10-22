@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** M
 **Blocked by:** 134
-**Status:** in review
+**Status:** done
 **Spec:** [dtcg-2025-10](../specs/dtcg-2025-10.md) (decision 11; slice 7)
 
 ## What to build
@@ -18,7 +18,7 @@
 - [x] Push planning tests against the Figma fake for each mapped and each skipped type
 - [x] Push report scenario recorded by name
 - [x] Figma guide documents what is pushed and what is skipped
-- [ ] All gates pass, and the GitHub run is green
+- [x] All gates pass, and the GitHub run is green
 
 ## Notes
 

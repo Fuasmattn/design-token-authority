@@ -117,7 +117,7 @@ function valueAt(tree: Tree, dotPath: string): unknown {
  */
 export function aliasesInto(
   merged: MergedTokens,
-  to: (origin: string) => boolean,
+  to: (origin: string, dotPath: string) => boolean,
   through: (origin: string) => boolean,
 ): Set<string> {
   const memo = new Map<string, boolean>()
@@ -130,7 +130,9 @@ export function aliasesInto(
     const targets = referencesIn(valueAt(merged.tree, dotPath)).map((r) => r.target.join('.'))
     const result = targets.some((target) => {
       const origin = merged.origins.get(target)
-      return origin !== undefined && (to(origin) || (through(origin) && reaches(target, seen)))
+      return (
+        origin !== undefined && (to(origin, target) || (through(origin) && reaches(target, seen)))
+      )
     })
     memo.set(dotPath, result)
     return result
