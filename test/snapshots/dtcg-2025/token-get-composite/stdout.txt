@@ -1,0 +1,11 @@
+shadow.card  shadow · Base
+
+  every mode  0px 4px 1rem 0px #00000080
+
+  Parts
+  color  {color.ink}
+  offsetY  {spacing.s}
+  blur  $ref "#/spacing/m/$value"
+
+  CSS       var(--shadow-card)
+  Tailwind  --shadow-shadow-card

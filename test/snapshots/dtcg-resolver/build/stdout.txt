@@ -1,0 +1,28 @@
+T   ⚒  dta build 
+|
+o  Base layer complete
+|
+o  Brand light complete
+|
+o  Brand dark complete
+|
+o  Shared outputs complete
+|
+o  Generated files --------------------------+
+|                                            |
+|  output/css/base.css                       |
+|  output/css/themes/light.css               |
+|  output/tailwind/light/tailwind.tokens.ts  |
+|  output/tailwind/light/tailwind.css        |
+|  output/css/themes/dark.css                |
+|  output/tailwind/dark/tailwind.tokens.ts   |
+|  output/tailwind/dark/tailwind.css         |
+|  output/css/variables.css                  |
+|  output/js/colorpalette.js                 |
+|  output/tailwind/tailwind.tokens.ts        |
+|  output/tailwind/tailwind.css              |
+|                                            |
++--------------------------------------------+
+|
+—  Build complete!
+

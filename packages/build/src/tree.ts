@@ -1,5 +1,5 @@
-import { formatColor, nameToDot, parseAlias } from '@dta/core'
-import type { ColorValue, Diagnostic, Token, TokenName, TokenValue } from '@dta/core'
+import { nameToDot, parseAlias, referencesIn } from '@dta/core'
+import type { Diagnostic, Token, TokenName, TokenValue } from '@dta/core'
 
 /** The tokens of one collection in one mode: what a single token file holds. */
 export interface Source {
@@ -18,12 +18,7 @@ export interface MergedTokens {
 }
 
 function leaf(token: Token, value: TokenValue) {
-  // A DTCG 2025.10 colour object becomes CSS text: hex for sRGB, else oklch(), color(…) and so on.
-  const written =
-    token.type === 'color' && typeof value === 'object' && !Array.isArray(value)
-      ? formatColor(value as ColorValue)
-      : value
-  const node: Record<string, unknown> = { $type: token.type, $value: written }
+  const node: Record<string, unknown> = { $type: token.type, $value: value }
   if (token.description) node.$description = token.description
   if (token.extensions) node.$extensions = structuredClone(token.extensions)
   return node
@@ -131,12 +126,12 @@ export function aliasesInto(
     if (known !== undefined) return known
     if (seen.has(dotPath)) return false
     seen.add(dotPath)
-    const target = parseAlias(valueAt(merged.tree, dotPath))?.join('.')
-    const origin = target === undefined ? undefined : merged.origins.get(target)
-    const result =
-      target !== undefined &&
-      origin !== undefined &&
-      (to(origin) || (through(origin) && reaches(target, seen)))
+    // The alias, or every reference inside a composite (a shadow's colour, …).
+    const targets = referencesIn(valueAt(merged.tree, dotPath)).map((r) => r.target.join('.'))
+    const result = targets.some((target) => {
+      const origin = merged.origins.get(target)
+      return origin !== undefined && (to(origin) || (through(origin) && reaches(target, seen)))
+    })
     memo.set(dotPath, result)
     return result
   }

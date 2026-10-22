@@ -3,7 +3,14 @@
  * candidate is compared with the tokens of its kind. Tokens the build writes come first, then
  * deeper alias chains (semantic before primitive), as in `dta token find`.
  */
-import { describeToken, nameToDot, valueMatcher, type TokenModel, type TokenType } from '@dta/core'
+import {
+  describeToken,
+  nameToDot,
+  valueMatcher,
+  type TokenModel,
+  type TokenType,
+  type TokenValue,
+} from '@dta/core'
 import { codeNames, type CodeNames } from '../code-names.js'
 import type { Config } from '../config/schema.js'
 import type { Candidate, ValueKind } from './detect.js'
@@ -12,7 +19,7 @@ interface Entry {
   name: string
   type: TokenType
   kinds: Set<ValueKind>
-  values: Array<{ value: string | number | boolean; depth: number }>
+  values: Array<{ value: TokenValue; depth: number }>
   code?: CodeNames
 }
 
@@ -30,6 +37,10 @@ function kindsOf(name: string, type: TokenType, scopes: readonly string[]): Set<
   const kinds = new Set<ValueKind>()
   if (type === 'color') kinds.add('color')
   const lower = name.toLowerCase()
+  if (type === 'fontFamily') {
+    kinds.add('font-family')
+    return kinds
+  }
   if (type === 'string') {
     if (
       scopes.includes('FONT_FAMILY') ||
@@ -40,7 +51,8 @@ function kindsOf(name: string, type: TokenType, scopes: readonly string[]): Set<
     }
     return kinds
   }
-  if (type !== 'number') return kinds
+  // A DTCG dimension is a length: the same kinds as a number, by scopes or name.
+  if (type !== 'number' && type !== 'dimension') return kinds
   if (scopes.includes('GAP') || scopes.includes('WIDTH_HEIGHT')) kinds.add('spacing')
   if (scopes.includes('CORNER_RADIUS')) kinds.add('radius')
   if (scopes.includes('STROKE_FLOAT')) kinds.add('stroke')
@@ -78,7 +90,7 @@ export function buildTokenIndex(model: TokenModel, config: Config | null): Token
       const values = description.readings
         .filter((reading) => reading.value !== undefined)
         .map((reading) => ({
-          value: reading.value as string | number | boolean,
+          value: reading.value as TokenValue,
           depth: reading.chain.length - 1,
         }))
       const code = codeNames(model, config, description, token.extensions)
@@ -93,6 +105,27 @@ const toPx = (value: string) => {
   const number = parseFloat(value)
   return value.endsWith('rem') ? number * 16 : number
 }
+
+/** A token's length in px: a number, or a DTCG dimension in px or rem (16px root). */
+function tokenPx(value: TokenValue): number | null {
+  if (typeof value === 'number') return value
+  if (typeof value === 'string')
+    return /^-?\d*\.?\d+(px|rem)?$/.test(value.trim()) ? toPx(value) : null
+  if (typeof value === 'object' && 'unit' in value && 'value' in value) {
+    const { value: n, unit } = value as { value: unknown; unit: unknown }
+    if (typeof n !== 'number') return null
+    return unit === 'rem' ? n * 16 : unit === 'px' ? n : null
+  }
+  return null
+}
+
+/** A token's first font family, lower case. */
+const firstFamily = (value: TokenValue) =>
+  String(Array.isArray(value) ? value[0] : value)
+    .split(',')[0]
+    .replace(/['"]/g, '')
+    .trim()
+    .toLowerCase()
 
 /** The token a hard-coded value should be, or null when no token has the value. */
 export function suggestToken(
@@ -111,8 +144,8 @@ export function suggestToken(
       const hit = colour
         ? colour(value, entry.type)
         : px !== null
-          ? Number(value) === px
-          : String(value).split(',')[0].replace(/['"]/g, '').trim().toLowerCase() === family
+          ? tokenPx(value) === px
+          : firstFamily(value) === family
       if (hit) {
         matches.push({ entry, depth })
         break

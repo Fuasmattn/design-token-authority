@@ -4,7 +4,7 @@ import { lintTokens } from '@dta/lint'
 import pc from 'picocolors'
 import type { CommandContext } from '../commands.js'
 import { describeFigmaError, figmaClientFor } from '../figma-client.js'
-import { readTokenDir, TokenDirError } from '../io/token-dir.js'
+import { readTokenDir, TokenDirError, tokenParseOptions } from '../io/token-dir.js'
 import { banner, cmd, createUi, filePath } from '../ui.js'
 import {
   buildDiffReport,
@@ -48,7 +48,10 @@ export async function runPush(context: CommandContext): Promise<number> {
     return EXIT_BAD_INPUT
   }
 
-  const { model, diagnostics: parseDiagnostics } = parseTokenFiles(files)
+  const { model, diagnostics: parseDiagnostics } = parseTokenFiles(
+    files,
+    tokenParseOptions(context.config),
+  )
   if (hasErrors(parseDiagnostics)) {
     for (const diagnostic of parseDiagnostics) ui.log.error(formatDiagnostic(diagnostic))
     return 1

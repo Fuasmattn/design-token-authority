@@ -120,6 +120,20 @@ export default {
 - **Numbers** become `px` when the Figma scopes say they are lengths (gap, width and height, corner radius, stroke, effects), decimals when the scope is opacity (`50` → `0.5`), and stay plain otherwise (line heights, font weights).
 - **Descriptions** become comments next to the property.
 
+### DTCG 2025.10 types
+
+| Type                                           | CSS                                                                                                                                |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `color`                                        | sRGB (also `hsl`, `hwb`) as hex or `rgba()`; other colour spaces as written: `oklch(0.7 0.15 250)`, `color(display-p3 1 0.2 0)`    |
+| `dimension`, `duration`                        | with their unit: `16px`, `1rem`; durations in seconds: `0.15s`                                                                     |
+| `fontFamily`, `fontWeight`                     | a font stack: `'Helvetica Neue', Arial`; weights as numbers (`semi-bold` → `600`)                                                  |
+| `cubicBezier`                                  | `cubic-bezier(0.5, 0, 1, 1)`                                                                                                       |
+| `shadow`, `border`, `transition`, `typography` | the CSS shorthand (`box-shadow`, `border`, `transition`, `font`); in `variables.css` each part that is a reference stays a `var()` |
+| `gradient`                                     | the colour stops, `var(--color-sky) 0%, var(--color-grass) 100%`: use it as `linear-gradient(to right, var(--gradient-brand))`     |
+| `strokeStyle`                                  | the keyword (`dashed`); a dash pattern becomes `dashed`, since CSS borders have no dash lengths                                    |
+
+A `$root` token is named after its group plus `root` (`color.accent.$root` → `--color-accent-root`). A token that points into another token's value with `$ref` is written resolved. The JS output holds the same text as `base.css`, colours as hex. Tailwind gets theme keys for `fontFamily`, `fontWeight`, `shadow` and `cubicBezier`, and for a `dimension` by the words in its name (`radius`, `spacing`, `gap`, `font-size`, `blur`, `breakpoint`).
+
 ```css title="output/css/variables.css (excerpt)"
 :root {
   --colors-foundation-blue-500: #0057b8;

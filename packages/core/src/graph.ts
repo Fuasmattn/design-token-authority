@@ -109,7 +109,10 @@ export function analyzeGraph(model: TokenModel): GraphAnalysis {
   const link = (node: GraphNode, targetName: string, text: string, primary: boolean) => {
     const found = byName.get(targetName)?.[0]
     const mode =
-      found && (found.collection.name === node.collection ? node.mode : found.collection.modes[0])
+      found &&
+      (found.collection.name === node.collection
+        ? node.mode
+        : (found.collection.defaultMode ?? found.collection.modes[0]))
     const to = found && `${found.collection.name}.${mode}/${nameToSlash(found.token.name)}`
     if (to !== undefined && nodeById.has(to)) {
       if (!edgeKeys.has(`${node.id}\n${to}`)) {

@@ -1,0 +1,10 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-brand="b"] {
+  --brand-primary: var(--color-grass);
+  --brand-on-primary: var(--color-white);
+  --brand-surface: var(--color-white);
+  --elevation-raised: var(--shadow-stack);
+}

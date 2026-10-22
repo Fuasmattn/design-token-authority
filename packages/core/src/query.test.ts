@@ -160,3 +160,35 @@ describe('valueMatcher and toColor', () => {
     expect(toColor('red')).toBeNull()
   })
 })
+
+describe('findTokensByValue: DTCG 2025.10 values', () => {
+  const { model } = parseTokenFiles([
+    {
+      fileName: 'A.V.json',
+      content: JSON.stringify({
+        sky: { $type: 'color', $value: { colorSpace: 'oklch', components: [0.7, 0.15, 250] } },
+        gap: { $type: 'dimension', $value: { value: 16, unit: 'px' } },
+        lead: { $type: 'dimension', $value: '1rem' },
+        fast: { $type: 'duration', $value: { value: 200, unit: 'ms' } },
+        strong: { $type: 'fontWeight', $value: 'semi-bold' },
+        body: { $type: 'fontFamily', $value: ['Inter', 'sans-serif'] },
+        ease: { $type: 'cubicBezier', $value: [0.5, 0, 1, 1] },
+      }),
+    },
+  ])
+  const names = (query: string) => findTokensByValue(model, query).map((m) => m.name)
+
+  it.each([
+    ['#4ba3f7', ['sky']],
+    ['16px', ['gap']],
+    ['16', ['gap']],
+    ['1rem', ['lead']],
+    ['0.2s', ['fast']],
+    ['600', ['strong']],
+    ['semi-bold', ['strong']],
+    ['"Inter", sans-serif', ['body']],
+    ['cubic-bezier(0.5,0,1,1)', ['ease']],
+  ])('finds %s', (query, expected) => {
+    expect(names(query)).toEqual(expected)
+  })
+})

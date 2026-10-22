@@ -3,7 +3,7 @@ import { groupViolationsByFile, LINT_MESSAGES, lintCounts, lintTokens } from '@d
 import type { LintViolation } from '@dta/lint'
 import pc from 'picocolors'
 import type { CommandContext } from '../commands.js'
-import { readTokenDir, TokenDirError } from '../io/token-dir.js'
+import { readTokenDir, TokenDirError, tokenParseOptions } from '../io/token-dir.js'
 import { banner, createUi } from '../ui.js'
 
 /** Same exit code as the v1 CLI: 2 when there are lint errors. */
@@ -34,7 +34,10 @@ export async function runLint(context: CommandContext): Promise<number> {
 
   const spinner = ui.spinner()
   spinner.start('Linting token files…')
-  const { model, diagnostics: parseDiagnostics } = parseTokenFiles(files)
+  const { model, diagnostics: parseDiagnostics } = parseTokenFiles(
+    files,
+    tokenParseOptions(context.config),
+  )
   const result = lintTokens(model, config?.lint)
   spinner.stop('Linting complete.')
 

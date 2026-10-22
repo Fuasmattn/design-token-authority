@@ -1,8 +1,17 @@
-import { aliasProblems, analyzeGraph, nameToDot, nameToSlash } from '@dta/core'
-import type { Collection, Diagnostic, TokenModel } from '@dta/core'
+import {
+  aliasProblems,
+  analyzeGraph,
+  FONT_WEIGHT_KEYWORDS,
+  formatColor,
+  nameToSlash,
+  referenceOf,
+  referencesIn,
+  resolve,
+} from '@dta/core'
+import type { Collection, ColorValue, Diagnostic, Token, TokenModel, TokenValue } from '@dta/core'
 import StyleDictionary from 'style-dictionary'
 import type { DesignTokens, PlatformConfig } from 'style-dictionary/types'
-import { CSS_TRANSFORM_GROUP, hooks } from './transforms.js'
+import { CSS_TRANSFORM_GROUP, hooks, JS_TRANSFORMS } from './transforms.js'
 import { aliasesInto, brokenReferences, mergeSources } from './tree.js'
 import type { MergedTokens, Source } from './tree.js'
 
@@ -57,9 +66,6 @@ export interface BuildResult {
   diagnostics: Diagnostic[]
 }
 
-/** The token types the build writes so far (Figma's variable types). */
-const BUILT_TYPES: ReadonlySet<string> = new Set(['color', 'number', 'string', 'boolean'])
-
 const DEFAULT_CSS_DIR = 'output/css'
 const DEFAULT_TAILWIND_DIR = 'output/tailwind'
 const JS_DIR = 'output/js/'
@@ -84,16 +90,84 @@ function directory(value: string | undefined, fallback: string, name: string, in
  * the ones in `skip` (graph node ids, `Collection.Mode/Group/Token`): aliases that never reach a
  * value.
  */
-function sourceOf(collection: Collection, mode: string, skip: ReadonlySet<string>): Source {
+function sourceOf(
+  model: TokenModel,
+  collection: Collection,
+  mode: string,
+  skip: ReadonlySet<string>,
+): Source {
   const origin = `${collection.name}.${mode}`
   return {
     origin,
-    tokens: collection.tokens.flatMap((token) =>
-      token.values[mode] === undefined || skip.has(`${origin}/${nameToSlash(token.name)}`)
-        ? []
-        : [{ token, value: token.values[mode] }],
-    ),
+    tokens: collection.tokens.flatMap((token) => {
+      const value = token.values[mode]
+      if (value === undefined || skip.has(`${origin}/${nameToSlash(token.name)}`)) return []
+      return [{ token, value: prepareValue(model, collection, mode, token, value) }]
+    }),
   }
+}
+
+type Json = Record<string, unknown>
+const isObject = (value: unknown): value is Json =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+/**
+ * A DTCG 2025.10 value as Style Dictionary 5 reads it, keeping what we decide ourselves:
+ * colour objects (also inside composites) become CSS text in their own colour space; a `$ref`
+ * to a whole token becomes an alias, so variables keep their `var()` references; a token that
+ * points into another token's value is written resolved.
+ */
+function prepareValue(
+  model: TokenModel,
+  collection: Collection,
+  mode: string,
+  token: Token,
+  value: TokenValue,
+): TokenValue {
+  const references = referencesIn(value)
+  if (references.some((reference) => reference.part.length > 0)) {
+    const resolved = resolve(model, token.name, { [collection.name]: mode })
+    if (resolved.ok) return cssColors(resolved.value) as TokenValue
+  }
+  const asAlias = (node: unknown): unknown => {
+    const reference = referenceOf(node)
+    if (reference?.kind === 'ref' && reference.part.length === 0)
+      return `{${reference.target.join('.')}}`
+    if (Array.isArray(node)) return node.map(asAlias)
+    if (isObject(node))
+      return Object.fromEntries(Object.entries(node).map(([k, v]) => [k, asAlias(v)]))
+    return node
+  }
+  return cssShapes(token, cssColors(references.length > 0 ? asAlias(value) : value))
+}
+
+/** Parts CSS writes differently: weight keywords as numbers, gradients as colour-stop lists. */
+function cssShapes(token: Token, value: unknown): TokenValue {
+  const weight = (w: unknown) =>
+    typeof w === 'string' && w in FONT_WEIGHT_KEYWORDS ? FONT_WEIGHT_KEYWORDS[w] : w
+  if (token.type === 'fontWeight') return weight(value) as TokenValue
+  if (token.type === 'typography' && isObject(value))
+    return { ...value, fontWeight: weight(value.fontWeight) } as TokenValue
+  if (token.type === 'gradient' && Array.isArray(value)) {
+    // A colour-stop list: `linear-gradient(to right, var(--brand-gradient))` in CSS.
+    return value
+      .map((stop) =>
+        isObject(stop)
+          ? `${String(stop.color)} ${Number((Number(stop.position) * 100).toFixed(2))}%`
+          : String(stop),
+      )
+      .join(', ')
+  }
+  return value as TokenValue
+}
+
+/** Colour objects anywhere in a value as CSS text: hex for sRGB, else oklch(), color(…), … */
+function cssColors(node: unknown): unknown {
+  if (isObject(node) && 'colorSpace' in node) return formatColor(node as unknown as ColorValue)
+  if (Array.isArray(node)) return node.map(cssColors)
+  if (isObject(node))
+    return Object.fromEntries(Object.entries(node).map(([k, v]) => [k, cssColors(v)]))
+  return node
 }
 
 /**
@@ -241,31 +315,9 @@ export async function buildOutputs(
     diagnostics,
   )
 
-  const chosen: TokenModel = options.collections
+  const model: TokenModel = options.collections
     ? { collections: fullModel.collections.filter((c) => options.collections?.includes(c.name)) }
     : fullModel
-  // DTCG types beyond Figma's four are read and checked, but not built yet: leave them out
-  // with one warning instead of writing values Style Dictionary 4 cannot format.
-  const notBuilt = new Map<string, string[]>()
-  const model: TokenModel = {
-    collections: chosen.collections.map((collection) => ({
-      ...collection,
-      tokens: collection.tokens.filter((token) => {
-        if (BUILT_TYPES.has(token.type)) return true
-        notBuilt.set(token.type, [...(notBuilt.get(token.type) ?? []), nameToDot(token.name)])
-        return false
-      }),
-    })),
-  }
-  if (notBuilt.size > 0) {
-    const count = [...notBuilt.values()].reduce((sum, names) => sum + names.length, 0)
-    const types = [...notBuilt.keys()].sort().join(', ')
-    diagnostics.push({
-      severity: 'warning',
-      code: 'not-built-yet',
-      message: `${count} token${count === 1 ? '' : 's'} of type ${types} ${count === 1 ? 'is' : 'are'} not in the output yet: dta build writes color, number, string and boolean tokens so far.`,
-    })
-  }
   for (const name of options.collections ?? []) {
     if (!fullModel.collections.some((c) => c.name === name)) {
       diagnostics.push({
@@ -284,7 +336,8 @@ export async function buildOutputs(
     (node) => built.has(node.collection),
   )
   diagnostics.push(...aliasErrors)
-  const source = (collection: Collection, mode: string) => sourceOf(collection, mode, unresolvable)
+  const source = (collection: Collection, mode: string) =>
+    sourceOf(fullModel, collection, mode, unresolvable)
 
   const formats = new Set<OutputFormat>(options.formats ?? OUTPUT_FORMATS)
   const formatted = async (
@@ -306,7 +359,9 @@ export async function buildOutputs(
   const breakpointOrigin = (mode: string) => `${breakpoints?.collection.name}.${mode}`
   /** The mode a multi-mode collection resolves aliases through where none is chosen. */
   const referenceMode = (c: Collection) =>
-    c === breakpoints?.collection ? breakpoints.modes[0].mode : [...c.modes].sort()[0]
+    c === breakpoints?.collection
+      ? breakpoints.modes[0].mode
+      : (c.defaultMode ?? [...c.modes].sort()[0])
   /** Single-mode tokens that alias a breakpoint token (set by the base layer). */
   let responsive = new Set<string>()
 
@@ -381,7 +436,9 @@ export async function buildOutputs(
         },
         js: {
           output: 'js',
-          transformGroup: 'js',
+          // Style Dictionary's js group, plus the DTCG 2025.10 shorthands, so composite values
+          // are one string like in CSS.
+          transforms: JS_TRANSFORMS,
           buildPath: JS_DIR,
           files: [{ destination: 'colorpalette.js', format: 'javascript/es6', filter }],
         },

@@ -55,7 +55,37 @@ DTA reads the types of [DTCG 2025.10](https://www.designtokens.org/tr/2025.10/fo
 | `shadow`, `gradient`, `typography`                     | the objects (a shadow may be a list) of the report; each part may be an alias                              |
 | `string`, `boolean` (and `number`, `color` as strings) | any scalar, as Figma variables hold them                                                                   |
 
-A token of an unknown type is an error. `dta build`, `dta lint` and `dta push` work on `color`, `number`, `string` and `boolean` today; the other types are read and checked, and their outputs follow (`dta push` skips them with a `not-pushable` warning, since Figma variables cannot hold them).
+A token of an unknown type is an error. `dta build` writes every type ([Outputs](/reference/outputs/#dtcg-202510-types)); `dta push` skips the ones Figma variables cannot hold, with a `not-pushable` warning.
+
+### Resolver documents
+
+A DTCG 2025.10 [resolver document](https://www.designtokens.org/tr/2025.10/resolver/) (`*.resolver.json`) in the tokens folder describes the token set instead of the file names: **sets** of token files, **modifiers** whose **contexts** (light and dark, brand A and B) change some tokens, and the **order** they apply in. When the folder has one, DTA reads it and the files it names, also in folders below (`sets/color.json`); `tokens.resolver` in the config names one when there are several.
+
+```json title="tokens/app.resolver.json"
+{
+  "version": "2025.10",
+  "sets": {
+    "core": { "sources": [{ "$ref": "sets/color.json" }, { "$ref": "sets/size.tokens" }] }
+  },
+  "modifiers": {
+    "theme": {
+      "contexts": {
+        "light": [{ "$ref": "themes/light.json" }],
+        "dark": [{ "$ref": "themes/dark.json" }]
+      },
+      "default": "light"
+    }
+  },
+  "resolutionOrder": [{ "$ref": "#/sets/core" }, { "$ref": "#/modifiers/theme" }]
+}
+```
+
+- Every **set** becomes a collection with one mode, named after the set.
+- Every **modifier** becomes a collection with one mode per context, named after the modifier; it holds the tokens its contexts change, and `default` is the mode read when nothing selects one. `modifiers: { theme: 'dark' }` in the config reads another context by default.
+- Sources merge in order and the last one wins; aliases and `$extends` resolve after merging, so they reach across sets.
+- Build a modifier's contexts into theme files by listing them in `brands` (`brands: ['light', 'dark']`).
+- Token files in the folder that the document does not name are reported (`not-in-resolver`) and not read. Errors follow the report's list, for example a modifier without contexts or a `default` that is not one of them.
+- A token that two modifiers change (a brand and a theme) is not supported yet.
 
 ### JSON Schema
 

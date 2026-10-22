@@ -57,3 +57,25 @@ describe('suggestToken', () => {
     expect(suggestToken(index, at('font-family', 'Martian Mono'))?.token).toBe('family.mono')
   })
 })
+
+describe('suggestToken: DTCG 2025.10 tokens', () => {
+  const { model: dtcg } = parseTokenFiles([
+    file('Base.Value.json', {
+      spacing: { $type: 'dimension', m: { $value: { value: 1, unit: 'rem' } } },
+      radius: { $type: 'dimension', card: { $value: { value: 12, unit: 'px' } } },
+      font: { body: { $type: 'fontFamily', $value: ['Source Sans', 'sans-serif'] } },
+      sky: { $type: 'color', $value: { colorSpace: 'oklch', components: [0.7, 0.15, 250] } },
+    }),
+  ])
+  const dtcgIndex = buildTokenIndex(dtcg, null)
+
+  it('matches lengths against dimensions in px and rem', () => {
+    expect(suggestToken(dtcgIndex, at('spacing', '16px'))?.token).toBe('spacing.m')
+    expect(suggestToken(dtcgIndex, at('radius', '0.75rem'))?.token).toBe('radius.card')
+  })
+
+  it('matches a font family list by its first name, and colours in any space', () => {
+    expect(suggestToken(dtcgIndex, at('font-family', 'Source Sans'))?.token).toBe('font.body')
+    expect(suggestToken(dtcgIndex, at('color', '#4ba3f7'))?.token).toBe('sky')
+  })
+})

@@ -1,0 +1,32 @@
+T   ⮕  dta graph 
+|
+o  Graph built
+|
+|  Tokens: 20 | Aliases: 10 (50%) | Max depth: 2 | Issues: 0
+
+# Token Dependency Graph Report
+
+## Summary
+
+| Metric | Value |
+|--------|-------|
+| Total tokens | 20 |
+| Alias tokens | 10 (50%) |
+| Max chain depth | 2 |
+| Circular references | 0 |
+| Dangling aliases | 0 |
+| Orphaned tokens | 2 |
+| Files | 4 |
+
+## Tokens by file
+
+| File | Count |
+|------|-------|
+| components.Value | 4 |
+| core.Value | 8 |
+| theme.dark | 4 |
+| theme.light | 4 |
+
+|
+—  Done!
+

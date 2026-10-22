@@ -1,0 +1,10 @@
+T   ✖  dta clean 
+|
+o  Removed ------------------+
+|                            |
+|  tokens/app.resolver.json  |
+|                            |
++----------------------------+
+|
+—  Clean complete!
+

@@ -33,9 +33,9 @@ const enabled = process.env.DTA_E2E === '1' || Boolean(process.env.DTA_BROWSER_P
  * import pulls in every locale and would put @dta/figma and @dta/lint at about 460 KB each.
  */
 const BUDGET: Record<string, number> = {
-  // DTCG 2025.10 (types, values, references; TICKET-132/133) took core from below 32 KB to
-  // about 32.1 KB; resolver documents and axes (TICKET-136/137) will add more.
-  '@dta/core': 40_000,
+  // DTCG 2025.10 (types, values, references, colour spaces, resolver documents; TICKET-132–136)
+  // took core from below 32 KB to 45.9 KB minified (2026-10-21), rounded up to the next 5 KB.
+  '@dta/core': 50_000,
   '@dta/figma': 160_000,
   '@dta/lint': 150_000,
   '@dta/build': 2_600_000,
@@ -214,7 +214,10 @@ describe('the playground island', () => {
         external: ['preact', 'preact/*'],
       })
       const outputs = result.metafile.outputs
-      const entry = Object.keys(outputs).find((file) => outputs[file].entryPoint)
+      // Lazy chunks (import()) have an entryPoint too: pick the playground's own.
+      const entry = Object.keys(outputs).find((file) =>
+        outputs[file].entryPoint?.endsWith('Playground.tsx'),
+      )
       if (!entry) throw new Error('no entry chunk')
       // The first load: the entry and everything it imports statically, transitively.
       const first = new Set<string>()

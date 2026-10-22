@@ -1,0 +1,32 @@
+{
+  "button": {
+    "background": {
+      "$type": "color",
+      "$value": "{accent}"
+    },
+    "text": {
+      "$type": "color",
+      "$value": "{surface.base}"
+    },
+    "radius": {
+      "$type": "dimension",
+      "$value": "{size.radius}"
+    },
+    "shadow": {
+      "$type": "shadow",
+      "$value": {
+        "color": "{text.default}",
+        "offsetX": {
+          "value": 0,
+          "unit": "px"
+        },
+        "offsetY": "{size.s}",
+        "blur": "{size.m}",
+        "spread": {
+          "value": 0,
+          "unit": "px"
+        }
+      }
+    }
+  }
+}

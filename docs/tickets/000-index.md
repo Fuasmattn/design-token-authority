@@ -311,9 +311,9 @@ Spec: [dtcg-2025-10](../specs/dtcg-2025-10.md) (approved 2026-10-21). A valid DT
 | -------------------------------------- | --------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
 | [132](./132-dtcg-types-and-values.md)  | All DTCG 2025.10 types and structured values in core            | High     | L      | —          | In review |
 | [133](./133-dtcg-references.md)        | `$ref`, `$root`, `$extends` and aliases inside composite values | High     | M      | 132        | In review |
-| [134](./134-dtcg-consumers.md)         | Build, lint, diff, queries and audit on the new types           | High     | L      | 133        | Open   |
+| [134](./134-dtcg-consumers.md)         | Build, lint, diff, queries and audit on the new types           | High     | L      | 133        | In review |
 | [135](./135-dtcg-tokens-files.md)      | Read `.tokens` and `.tokens.json` files                         | High     | S      | 132        | In review |
-| [136](./136-dtcg-resolver.md)          | Resolver documents                                              | High     | L      | 133, 135   | Open   |
+| [136](./136-dtcg-resolver.md)          | Resolver documents                                              | High     | L      | 133, 135   | In review |
 | [137](./137-dtcg-modifier-axes.md)     | Several modifiers at once (axes)                                | High     | L      | 134, 136   | Open   |
 | [138](./138-dtcg-figma-push.md)        | Figma push for the new types                                    | Medium   | M      | 134        | Open   |
 

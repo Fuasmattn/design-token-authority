@@ -16,7 +16,7 @@ import {
 } from '@dta/core'
 import type { CommandContext } from '../commands.js'
 import { codeNames, type CodeNames } from '../code-names.js'
-import { readTokenDir, TokenDirError } from '../io/token-dir.js'
+import { readTokenDir, TokenDirError, tokenParseOptions } from '../io/token-dir.js'
 
 /** Version of the JSON shapes `dta token … --format json` prints (schema on the website). */
 export const TOKEN_JSON_SCHEMA = 'dta.token/1'
@@ -41,7 +41,7 @@ function loadModel(context: CommandContext): TokenModel | number {
     }
     throw error
   }
-  const { model, diagnostics } = parseTokenFiles(files)
+  const { model, diagnostics } = parseTokenFiles(files, tokenParseOptions(context.config))
   if (hasErrors(diagnostics)) {
     for (const diagnostic of diagnostics) context.stderr(`${formatDiagnostic(diagnostic)}\n`)
     context.stderr('The token files have errors; fix them first (dta lint shows them all).\n')

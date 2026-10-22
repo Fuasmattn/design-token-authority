@@ -150,6 +150,11 @@ export interface Collection {
   name: string
   /** Mode names, sorted. */
   modes: string[]
+  /**
+   * The mode read when nothing selects one (a resolver modifier's `default`, or the context the
+   * config names). Absent: the first mode.
+   */
+  defaultMode?: string
   tokens: Token[]
   /** Opaque, by mode. Absent for modes that were created in memory. */
   sources: Record<string, FileSource>

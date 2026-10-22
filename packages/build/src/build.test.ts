@@ -812,26 +812,110 @@ describe('buildOutputs: DTCG 2025.10 values', () => {
     expect(css).toContain('--color-sky: oklch(0.7 0.15 250);')
   })
 
-  it('leaves the types it does not build yet out, with one warning', async () => {
-    const model = modelFrom({
+  const d = (value: number, unit = 'px') => ({ value, unit })
+  const dtcg = () =>
+    modelFrom({
       'Base.Value.json': {
-        Space: { $type: 'dimension', S: { $value: { value: 4, unit: 'px' } } },
-        Motion: { $type: 'duration', Fast: { $value: { value: 100, unit: 'ms' } } },
-        Plain: { $type: 'number', $value: 7 },
+        color: {
+          $type: 'color',
+          ink: { $value: '#00000080' },
+          sky: { $value: { colorSpace: 'oklch', components: [0.7, 0.15, 250] } },
+        },
+        size: { $type: 'dimension', s: { $value: d(2) }, m: { $value: d(1, 'rem') } },
+        radius: { $type: 'dimension', card: { $value: d(8) } },
+        motion: {
+          fast: { $type: 'duration', $value: { value: 150, unit: 'ms' } },
+          ease: { $type: 'cubicBezier', $value: [0.5, 0, 1, 1] },
+        },
+        font: {
+          body: { $type: 'fontFamily', $value: ['Helvetica Neue', 'Arial'] },
+          strong: { $type: 'fontWeight', $value: 'semi-bold' },
+        },
+        shadow: {
+          card: {
+            $type: 'shadow',
+            $value: {
+              color: '{color.ink}',
+              offsetX: d(0),
+              offsetY: '{size.s}',
+              blur: { $ref: '#/size/m/$value' },
+              spread: d(0),
+            },
+          },
+        },
+        line: { $type: 'border', $value: { color: '{color.sky}', width: d(1), style: 'dashed' } },
+        text: {
+          $type: 'typography',
+          $value: {
+            fontFamily: '{font.body}',
+            fontSize: '{size.m}',
+            fontWeight: 'bold',
+            letterSpacing: d(0),
+            lineHeight: 1.5,
+          },
+        },
+        fade: {
+          $type: 'transition',
+          $value: {
+            duration: '{motion.fast}',
+            delay: { value: 0, unit: 'ms' },
+            timingFunction: '{motion.ease}',
+          },
+        },
+        brand: {
+          $type: 'gradient',
+          $value: [
+            { color: '#ff0080', position: 0 },
+            { color: '{color.sky}', position: 1 },
+          ],
+        },
+        half: { $type: 'number', $value: { $ref: '#/size/s/$value/value' } },
       },
     })
-    const { files, diagnostics } = await buildOutputs(model, {})
-    expect(diagnostics).toEqual([
-      expect.objectContaining({
-        severity: 'warning',
-        code: 'not-built-yet',
-        message:
-          '2 tokens of type dimension, duration are not in the output yet: dta build writes color, number, string and boolean tokens so far.',
-      }),
+
+  it('writes every DTCG 2025.10 type as CSS, composites as shorthands with var() references', async () => {
+    const { files, diagnostics } = await buildOutputs(dtcg(), {})
+    expect(diagnostics).toEqual([])
+    const vars = find(files, 'output/css/variables.css') ?? ''
+    for (const line of [
+      '--color-ink: rgba(0, 0, 0, 0.5);',
+      '--color-sky: oklch(0.7 0.15 250);',
+      '--size-m: 1rem;',
+      '--motion-fast: 0.15s;',
+      '--motion-ease: cubic-bezier(0.5, 0, 1, 1);',
+      "--font-body: 'Helvetica Neue', Arial;",
+      '--font-strong: 600;',
+      '--shadow-card: 0px var(--size-s) var(--size-m) 0px var(--color-ink);',
+      '--line: 1px dashed var(--color-sky);',
+      '--text: 700 var(--size-m)/1.5 var(--font-body);',
+      '--fade: var(--motion-fast) var(--motion-ease) 0ms;',
+      '--brand: #ff0080 0%, var(--color-sky) 100%;',
+      '--half: 2;',
     ])
-    const css = find(files, 'output/css/base.css') ?? ''
-    expect(css).toContain('--plain: 7;')
-    expect(css).not.toContain('object Object')
-    expect(css).not.toContain('--space-s')
+      expect(vars).toContain(line)
+    const base = find(files, 'output/css/base.css') ?? ''
+    expect(base).toContain('--shadow-card: 0px 2px 1rem 0px rgba(0, 0, 0, 0.5);')
+    expect(base).toContain('--brand: #ff0080 0%, oklch(0.7 0.15 250) 100%;')
+    expect([...vars.matchAll(/object Object/g)]).toEqual([])
+  })
+
+  it('maps the DTCG types to Tailwind theme keys, dimensions by their name', async () => {
+    const { files } = await buildOutputs(dtcg(), {})
+    const v4 = find(files, 'output/tailwind/tailwind.css') ?? ''
+    expect(v4).toContain('--radius-radius-card: 8px;')
+    expect(v4).toContain('--shadow-shadow-card:')
+    expect(v4).toContain('--ease-motion-ease: cubic-bezier(0.5, 0, 1, 1);')
+    expect(v4).toContain("--font-font-body: 'Helvetica Neue', Arial;")
+    expect(v4).toContain('--font-weight-font-strong: 600;')
+    const v3 = find(files, 'output/tailwind/tailwind.tokens.ts') ?? ''
+    expect(v3).toContain("'font-body': '\\'Helvetica Neue\\', Arial'")
+    expect(v3).toContain("'radius-card': '8px'")
+  })
+
+  it('writes composite values as one string in the JS output', async () => {
+    const { files } = await buildOutputs(dtcg(), {})
+    const js = find(files, 'output/js/colorpalette.js') ?? ''
+    expect(js).toContain('export const ShadowCard = "0px 2px 1rem 0px #00000080";')
+    expect(js).toContain('export const ColorSky = "oklch(0.7 0.15 250)";')
   })
 })

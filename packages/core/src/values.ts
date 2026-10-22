@@ -1,6 +1,7 @@
 import { parseAlias } from './alias.js'
 import { isRefObject, refProblem } from './references.js'
 import { parseColor, toHex } from './color.js'
+import { toSrgb } from './color-spaces.js'
 import type {
   ColorSpace,
   ColorValue,
@@ -342,7 +343,10 @@ export function formatValue(value: TokenValue): string {
   return JSON.stringify(value)
 }
 
-/** sRGB hex of a colour value, when it has one (sRGB objects, their `hex`, hex strings). */
+/**
+ * sRGB hex of a colour value: hex strings, sRGB objects, the `hex` of other objects, else the
+ * object converted (and clipped) to sRGB. Null for anything that is not a colour.
+ */
 export function colorHex(value: unknown): string | null {
   if (typeof value === 'string') {
     const parsed = parseColor(value)
@@ -353,6 +357,7 @@ export function colorHex(value: unknown): string | null {
     if (color.colorSpace === 'srgb' && color.components.every((c) => c !== 'none'))
       return formatColor(color)
     if (typeof color.hex === 'string' && (color.alpha ?? 1) === 1) return color.hex.toLowerCase()
+    if (colorProblem(color) === null) return toHex(toSrgb(color).color)
   }
   return null
 }

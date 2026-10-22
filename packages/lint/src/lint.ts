@@ -1,14 +1,22 @@
 import {
   analyzeGraph,
   circularAliasMessage,
-  colorHex,
   contrastRatio,
   danglingAliasMessage,
   formatValue,
   resolve,
   toColor,
+  toHex,
+  toSrgb,
 } from '@dta/core'
-import type { Color, GraphAnalysis, ModeSelection, ResolveResult, TokenModel } from '@dta/core'
+import type {
+  Color,
+  ColorValue,
+  GraphAnalysis,
+  ModeSelection,
+  ResolveResult,
+  TokenModel,
+} from '@dta/core'
 import { readLintConfig } from './config.js'
 import type { LintSeverity, ValidRules } from './config.js'
 import type { LintResult, LintViolation } from './types.js'
@@ -188,6 +196,17 @@ function colorContrast(
     })
   }
 
+  const note = (message: string) => {
+    if (skipped.has(message)) return
+    skipped.add(message)
+    diagnostics.push({
+      severity: 'warning',
+      code: 'contrast-clipped',
+      message: `color-contrast: ${message}`,
+      docs: 'lint-rules',
+    })
+  }
+
   const violations: LintViolation[] = []
   for (const [fgName, bgName] of options.pairs ?? []) {
     for (const { selection, fg, bg } of contrastContexts(
@@ -211,28 +230,28 @@ function colorContrast(
           )
           continue
         }
-        // Strings as before (hex, rgb()); DTCG colour objects through their sRGB form.
+        // Strings as before (hex, rgb()); DTCG colour objects converted to sRGB.
         const value = result.value
-        const hex = typeof value === 'string' ? null : colorHex(value)
+        const object =
+          result.type === 'color' && typeof value === 'object' && 'colorSpace' in value
+            ? toSrgb(value as ColorValue)
+            : null
         const color =
           result.type !== 'color'
             ? null
             : typeof value === 'string'
               ? toColor(value)
-              : hex !== null
-                ? toColor(hex)
-                : null
+              : (object?.color ?? null)
         if (!color) {
-          const space =
-            result.type === 'color' && typeof value === 'object' && 'colorSpace' in value
-              ? value.colorSpace
-              : null
           skip(
-            space
-              ? `"${name}" resolves to "${formatValue(value)}"${inMode}; the contrast check reads ${space} colours only with an sRGB "hex" yet. Pair "${fgName}" / "${bgName}" skipped there.`
-              : `"${name}" resolves to "${formatValue(value)}"${inMode}, which is not a colour. Pair "${fgName}" / "${bgName}" skipped there.`,
+            `"${name}" resolves to "${formatValue(value)}"${inMode}, which is not a colour. Pair "${fgName}" / "${bgName}" skipped there.`,
           )
           continue
+        }
+        if (object?.clipped) {
+          note(
+            `"${name}" (${formatValue(value)}) is outside sRGB${inMode}; the contrast check uses it clipped to sRGB (${toHex(color)}).`,
+          )
         }
         colors.push({ hex: formatValue(result.value), color })
       }

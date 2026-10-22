@@ -81,6 +81,16 @@ export const SCENARIOS: readonly Scenario[] = [
     fixtures: ['brand-ab'],
   },
   {
+    name: 'token-get-composite',
+    args: ['token', 'get', 'shadow.card'],
+    fixtures: ['dtcg-2025'],
+  },
+  {
+    name: 'token-get-resolver',
+    args: ['token', 'get', 'button.background'],
+    fixtures: ['dtcg-resolver'],
+  },
+  {
     name: 'token-get-json',
     args: ['token', 'get', 'Colors.Brand.Primary', '--format', 'json'],
     fixtures: ['brand-ab'],

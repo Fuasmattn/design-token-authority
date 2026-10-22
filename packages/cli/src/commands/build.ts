@@ -5,7 +5,7 @@ import pc from 'picocolors'
 import type { CommandContext } from '../commands.js'
 import { ContextConflictError, planContext, writeContext } from '../context/write.js'
 import type { Config } from '../config/schema.js'
-import { readTokenDir, TokenDirError } from '../io/token-dir.js'
+import { readTokenDir, TokenDirError, tokenParseOptions } from '../io/token-dir.js'
 import { writeFiles } from '../io/write-files.js'
 import { banner, createUi } from '../ui.js'
 
@@ -69,7 +69,10 @@ export async function runBuild(context: CommandContext): Promise<number> {
     throw error
   }
 
-  const { model, diagnostics: parseDiagnostics } = parseTokenFiles(tokenFiles)
+  const { model, diagnostics: parseDiagnostics } = parseTokenFiles(
+    tokenFiles,
+    tokenParseOptions(context.config),
+  )
   if (hasErrors(parseDiagnostics)) {
     for (const diagnostic of parseDiagnostics) ui.log.error(formatDiagnostic(diagnostic))
     ui.outro(pc.red('Build failed.'))

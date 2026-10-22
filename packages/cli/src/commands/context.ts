@@ -6,7 +6,7 @@ import {
   planContext,
   writeContext,
 } from '../context/write.js'
-import { readTokenDir, TokenDirError } from '../io/token-dir.js'
+import { readTokenDir, TokenDirError, tokenParseOptions } from '../io/token-dir.js'
 
 /** Exit code when the context file exists and DTA did not write it. */
 const EXIT_NOT_OURS = 2
@@ -23,7 +23,7 @@ export async function runContext(context: CommandContext): Promise<number> {
     }
     throw error
   }
-  const { model, diagnostics } = parseTokenFiles(files)
+  const { model, diagnostics } = parseTokenFiles(files, tokenParseOptions(context.config))
   if (hasErrors(diagnostics)) {
     for (const diagnostic of diagnostics) context.stderr(`${formatDiagnostic(diagnostic)}\n`)
     return 1

@@ -17,6 +17,7 @@
  */
 
 import type { FormatFn } from 'style-dictionary/types'
+import { dimensionKind } from './dimension-kind.js'
 
 /**
  * Sanitize a path segment for use in a CSS custom property name.
@@ -69,6 +70,7 @@ function getPropertyPrefixByPath(path: string[]): [string, number] | null {
 function getPropertyPrefixByType(
   type: string | undefined,
   scopes: readonly string[],
+  path: readonly string[] = [],
 ): [string, string] | null {
   if (type === 'color') return ['--color-', 'color']
 
@@ -86,6 +88,21 @@ function getPropertyPrefixByType(
 
   if (type === 'string') {
     if (scopes.includes('FONT_FAMILY')) return ['--font-', 'font']
+    return null
+  }
+
+  // DTCG 2025.10 types; a dimension maps by its name, as DTCG files carry no Figma scopes.
+  if (type === 'fontFamily') return ['--font-', 'font']
+  if (type === 'fontWeight') return ['--font-weight-', 'font-weight']
+  if (type === 'shadow') return ['--shadow-', 'shadow']
+  if (type === 'cubicBezier') return ['--ease-', 'ease']
+  if (type === 'dimension') {
+    const kind = dimensionKind(path)
+    if (kind === 'radius') return ['--radius-', 'radius']
+    if (kind === 'spacing') return ['--spacing-', 'spacing']
+    if (kind === 'font-size') return ['--font-size-', 'font-size']
+    if (kind === 'blur') return ['--blur-', 'blur']
+    if (kind === 'breakpoint') return ['--breakpoint-', 'breakpoint']
     return null
   }
 
@@ -110,7 +127,7 @@ export function tailwindThemeProperty(
     return { property: `${prefix}${suffix}`, isColor: prefix === '--color-', utility: true }
   }
   // 2. Type+scope-based mapping
-  const typeResult = getPropertyPrefixByType(type, scopes)
+  const typeResult = getPropertyPrefixByType(type, scopes, path)
   if (typeResult) {
     const [prefix, category] = typeResult
     return {

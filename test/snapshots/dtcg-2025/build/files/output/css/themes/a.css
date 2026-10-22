@@ -1,0 +1,10 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-brand="a"] {
+  --brand-primary: var(--color-sky);
+  --brand-on-primary: var(--color-white);
+  --brand-surface: var(--color-white);
+  --elevation-raised: var(--shadow-card);
+}

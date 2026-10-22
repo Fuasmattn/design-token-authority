@@ -186,9 +186,20 @@ export const configSchema = z.strictObject({
         .boolean()
         .default(false)
         .describe('Strip emoji characters from collection and mode names in file names.'),
+      resolver: name
+        .optional()
+        .describe(
+          'The DTCG resolver document (`*.resolver.json`) in the tokens folder to read; default: the only one there.',
+        ),
     })
     .prefault({})
     .describe('Where the token files live.'),
+  modifiers: z
+    .record(name, name)
+    .optional()
+    .describe(
+      'For a DTCG resolver document: the context each modifier is read in by default, e.g. `{ theme: "light" }`.',
+    ),
   outputs: outputs.optional(),
   lint: lint.optional().describe('`dta lint` rules (also run by `dta push`).'),
   diff: diffConfigSchema

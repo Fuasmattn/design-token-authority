@@ -63,6 +63,8 @@ describe('SCENARIOS', () => {
       'push-dry-run-markdown',
       'push-dry-run-json',
       'token-get',
+      'token-get-composite',
+      'token-get-resolver',
       'token-get-json',
       'token-get-unknown',
       'token-find',

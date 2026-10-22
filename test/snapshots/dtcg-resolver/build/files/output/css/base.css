@@ -1,0 +1,18 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --button-background: oklch(0.55 0.18 255);
+  --button-text: #ffffff;
+  --button-radius: 6px;
+  --button-shadow: 0px 4px 8px 0px #111827;
+  --color-blue: oklch(0.55 0.18 255);
+  --color-blue-light: oklch(0.8 0.1 255);
+  --color-gray-0: #ffffff;
+  --color-gray-100: #f3f4f6;
+  --color-gray-900: #111827;
+  --size-s: 4px;
+  --size-m: 8px;
+  --size-radius: 6px;
+}

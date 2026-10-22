@@ -1,0 +1,40 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-ink: rgba(0, 0, 0, 0.5);
+  --color-sky: oklch(0.7 0.15 250);
+  --color-grass: #248f24;
+  --color-vivid: color(display-p3 1 0.2 0);
+  --color-accent-soft: oklch(0.85 0.07 250);
+  --spacing-s: 4px;
+  --spacing-m: 1rem;
+  --spacing-l: 24px;
+  --radius-card: 8px;
+  --motion-fast: 0.15s;
+  --motion-slow: 0.4s;
+  --motion-ease: cubic-bezier(0.5, 0, 1, 1);
+  --font-body: 'Helvetica Neue', Arial, sans-serif;
+  --font-regular: 400;
+  --font-strong: 650;
+  --font-line: 1.5;
+  --sky-lightness: 0.7;
+  --button-danger-background: #cc1a1a;
+  --instant: 0s;
+  --color-accent-root: var(--color-sky);
+  --shadow-card: 0px var(--spacing-s) var(--spacing-m) 0px var(--color-ink);
+  --shadow-stack: 0px 1px 2px 0px var(--color-ink), inset 0px 8px 16px -4px #00000033;
+  --border-focus: 2px solid var(--color-sky);
+  --border-dashed: 1px dashed var(--color-ink);
+  --transition-enter: var(--motion-fast) var(--motion-ease) 0ms;
+  --gradient-brand: var(--color-sky) 0%, var(--color-grass) 100%;
+  --typography-body: var(--font-regular) var(--spacing-m)/var(--font-line) var(--font-body);
+  --legacy-gap: var(--spacing-m);
+  --button-background: var(--color-sky);
+  --button-text: var(--color-white);
+  --button-danger-text: var(--color-white);
+  --modal: var(--instant);
+}

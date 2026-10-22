@@ -51,6 +51,23 @@ export function cssVariableName(path: readonly string[]): string {
   return parts.filter((part, i) => i === 0 || part !== parts[i - 1]).join('-')
 }
 
+/** Style Dictionary's `js` group plus the DTCG 2025.10 transforms that leave one string. */
+export const JS_TRANSFORMS = [
+  'attribute/cti',
+  'name/pascal',
+  'size/rem',
+  'color/hex',
+  'time/seconds',
+  'fontFamily/css',
+  'cubicBezier/css',
+  'strokeStyle/css/shorthand',
+  'border/css/shorthand',
+  'typography/css/shorthand',
+  'transition/css/shorthand',
+  'shadow/css/shorthand',
+  'value/alpha-rounded',
+]
+
 export const CSS_TRANSFORM_GROUP = 'design-system/css'
 
 /** Hooks registered per Style Dictionary instance (no global state). */
@@ -65,6 +82,17 @@ export const hooks: NonNullable<Config['hooks']> = {
       filter: (token) =>
         token.$type === 'number' && scopesOf(token).some((scope) => PIXEL_SCOPES.has(scope)),
       transform: (token) => `${token.$value}px`,
+    },
+    // Style Dictionary 5 writes alpha with every digit (0.5019607843137255); 4 wrote 0.5.
+    'value/alpha-rounded': {
+      type: 'value',
+      filter: (token) => typeof token.$value === 'string' && token.$value.includes('rgba('),
+      transform: (token) =>
+        String(token.$value).replace(
+          /rgba\((\d+), (\d+), (\d+), (\d*\.\d+)\)/g,
+          (_, r: string, g: string, b: string, a: string) =>
+            `rgba(${r}, ${g}, ${b}, ${Number(Number(a).toFixed(2))})`,
+        ),
     },
     'value/opacity-decimal': {
       type: 'value',
@@ -82,6 +110,7 @@ export const hooks: NonNullable<Config['hooks']> = {
       'name/kebab-deduped',
       'value/dimension-px',
       'value/opacity-decimal',
+      'value/alpha-rounded',
     ],
   },
 }

@@ -40,7 +40,7 @@ $ dta token find '#003f8a'
 Tokens the build writes come first, aliases (semantic tokens) before primitives: use the first that fits.
 ```
 
-Colours match in any case and as `rgb(…)`; `--near` also matches colours within about 2 % per channel. Numbers match with or without `px`. `--type` limits the search to one token type. No match exits with 1.
+Colours match in any case and as `rgb(…)`, in any colour space (`#4ba3f7` finds `oklch(0.7 0.15 250)`); `--near` also matches colours within about 2 % per channel. Numbers match with or without `px`; dimensions and durations with their unit (`0.2s` finds `200ms`), font weights as number or keyword, font families by their first name, other values by their text (`cubic-bezier(0.5, 0, 1, 1)`). `--type` limits the search to one token type. No match exits with 1.
 
 ## dta token list
 

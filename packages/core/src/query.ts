@@ -6,9 +6,11 @@ import { parseAlias } from './alias.js'
 import { parseColor, type Color } from './color.js'
 import { indexTokens } from './lookup.js'
 import { nameToDot } from './names.js'
+import { toSrgb } from './color-spaces.js'
 import { nestedReferences } from './references.js'
 import { resolve, type ModeSelection } from './resolve.js'
-import type { Collection, Token, TokenModel, TokenType, TokenValue } from './types.js'
+import type { Collection, ColorValue, Token, TokenModel, TokenType, TokenValue } from './types.js'
+import { FONT_WEIGHT_KEYWORDS, formatValue } from './values.js'
 
 /** One context a token can be read in, and what it resolves to there. */
 export interface TokenReading {
@@ -210,10 +212,37 @@ function colorMatches(a: Color, b: Color, near: boolean): boolean {
   return near ? diff <= NEAR : diff < 0.5 / 255
 }
 
+/** `16px`, `1rem`, `200ms`, `0.2s` as value and unit; null for anything else. */
+function unitValue(value: unknown): { value: number; unit: string } | null {
+  if (typeof value === 'string') {
+    const match = /^(-?\d*\.?\d+)(px|rem|ms|s)$/.exec(value.trim())
+    return match ? { value: parseFloat(match[1]), unit: match[2] } : null
+  }
+  if (typeof value === 'object' && value !== null && 'unit' in value && 'value' in value) {
+    const { value: v, unit } = value as { value: unknown; unit: unknown }
+    return typeof v === 'number' && typeof unit === 'string' ? { value: v, unit } : null
+  }
+  return null
+}
+
+const toMs = (u: { value: number; unit: string }) => (u.unit === 's' ? u.value * 1000 : u.value)
+const weight = (value: unknown) =>
+  typeof value === 'string' && value in FONT_WEIGHT_KEYWORDS
+    ? FONT_WEIGHT_KEYWORDS[value]
+    : Number(value)
+const squash = (text: string) =>
+  text
+    .replace(/\s+/g, ' ')
+    .replace(/\s*,\s*/g, ', ')
+    .trim()
+
 /**
  * A predicate that says whether a token value (of a type) equals the query, with the same rules
- * as `findTokensByValue`: colours as hex or `rgb()` (`near`: within about 2 % per channel),
- * numbers with or without `px`, strings and booleans exactly.
+ * as `findTokensByValue`: colours as hex or `rgb()` in any colour space (`near`: within about
+ * 2 % per channel), numbers with or without `px`, dimensions and durations with their unit
+ * (`16px`, `0.2s` = `200ms`), font weights as number or keyword, font families by their first
+ * name, other values by their text (`cubic-bezier(0.5, 0, 1, 1)`, a shadow), strings and
+ * booleans exactly.
  */
 export function valueMatcher(
   query: string,
@@ -221,15 +250,40 @@ export function valueMatcher(
 ): (value: TokenValue, type: TokenType) => boolean {
   const color = toColor(query)
   const number = /^-?\d*\.?\d+(px)?$/.test(query.trim()) ? parseFloat(query) : null
+  const unit = unitValue(query)
   return (value, type) => {
     if (options.type && type !== options.type) return false
-    if (type === 'color' && color && typeof value === 'string') {
-      const other = toColor(value)
+    if (type === 'color' && color) {
+      const other =
+        typeof value === 'string'
+          ? toColor(value)
+          : typeof value === 'object' && 'colorSpace' in value
+            ? toSrgb(value as ColorValue).color
+            : null
       return other !== null && colorMatches(color, other, Boolean(options.near))
     }
     if (type === 'number' && number !== null) return Number(value) === number
+    if (type === 'dimension') {
+      const own = unitValue(value)
+      if (!own) return false
+      if (unit) return own.unit === unit.unit && own.value === unit.value
+      return number !== null && own.unit === 'px' && own.value === number
+    }
+    if (type === 'duration') {
+      const own = unitValue(value)
+      return own !== null && unit !== null && (unit.unit === 'ms' || unit.unit === 's')
+        ? toMs(own) === toMs(unit)
+        : false
+    }
+    if (type === 'fontWeight') return weight(value) === weight(query.trim())
+    if (type === 'fontFamily') {
+      const first = Array.isArray(value) ? value[0] : value
+      const wanted = query.split(',')[0].replace(/['"]/g, '').trim().toLowerCase()
+      return typeof first === 'string' && first.toLowerCase() === wanted
+    }
     if (type === 'boolean') return String(value) === query.trim()
     if (type === 'string') return String(value) === query
+    if (typeof value === 'object') return squash(formatValue(value)) === squash(query)
     return false
   }
 }

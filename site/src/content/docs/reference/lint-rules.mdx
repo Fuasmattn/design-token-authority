@@ -93,7 +93,7 @@ warn Token path segment "overlay" does not match pattern /^[A-Z][A-Za-z ]*$/ for
 
 ### `color-contrast`
 
-For each `[foreground, background]` pair, the WCAG contrast ratio must reach `minRatio` (default 4.5, level AA). Token names are written with dots or slashes.
+For each `[foreground, background]` pair, the WCAG contrast ratio must reach `minRatio` (default 4.5, level AA). Token names are written with dots or slashes. Colours in any DTCG colour space are converted to sRGB first; one outside sRGB is checked clipped to it, with a `contrast-clipped` warning that names the sRGB colour used.
 
 Each pair is checked in every mode it can differ in: both tokens are resolved through their aliases, and every multi-mode collection either alias chain passes through (each brand, light and dark, …) adds its modes. A brand text colour over a single-mode background is checked once per brand; a pair of primitives once, without a mode. The finding names the mode and sits under the file of that mode:
 

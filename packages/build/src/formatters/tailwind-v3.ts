@@ -12,6 +12,7 @@
  *   3. Fallback: unmapped tokens use first path segment as category
  */
 
+import { dimensionKind } from './dimension-kind.js'
 import type { FormatFn, TransformedToken } from 'style-dictionary/types'
 
 type ThemeMap = Record<string, Record<string, string>>
@@ -65,6 +66,9 @@ function getCategoryByPath(path: string[]): [string, number] | null {
  * Determine the Tailwind v3 theme category from token $type and Figma scopes.
  * Returns [category, isColor] or null if the token can't be mapped.
  */
+/** A value inside single quotes in the generated TypeScript. */
+const quote = (text: string) => text.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+
 function getCategoryByType(token: TransformedToken): [string, boolean] | null {
   const type = (token.$type ?? token.type) as string | undefined
   const extensions = token.$extensions as Record<string, { scopes?: string[] }> | undefined
@@ -86,6 +90,22 @@ function getCategoryByType(token: TransformedToken): [string, boolean] | null {
 
   if (type === 'string') {
     if (scopes.includes('FONT_FAMILY')) return ['fontFamily', false]
+    return null
+  }
+
+  // DTCG 2025.10 types; a dimension maps by its name, as DTCG files carry no Figma scopes.
+  if (type === 'fontFamily') return ['fontFamily', false]
+  if (type === 'fontWeight') return ['fontWeight', false]
+  if (type === 'shadow') return ['boxShadow', false]
+  if (type === 'cubicBezier') return ['transitionTimingFunction', false]
+  if (type === 'duration') return ['transitionDuration', false]
+  if (type === 'dimension') {
+    const kind = dimensionKind(token.path)
+    if (kind === 'radius') return ['borderRadius', false]
+    if (kind === 'spacing') return ['spacing', false]
+    if (kind === 'font-size') return ['fontSize', false]
+    if (kind === 'blur') return ['blur', false]
+    if (kind === 'breakpoint') return ['screens', false]
     return null
   }
 
@@ -141,7 +161,7 @@ export const tailwindV3Formatter: FormatFn = ({ dictionary, options }) => {
   const categoryBlocks = Object.entries(theme)
     .map(([cat, values]) => {
       const pairs = Object.entries(values)
-        .map(([k, v]) => `        '${k}': '${v}'`)
+        .map(([k, v]) => `        '${k}': '${quote(v)}'`)
         .join(',\n')
       return `      ${cat}: {\n${pairs},\n      }`
     })

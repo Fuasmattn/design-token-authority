@@ -1,0 +1,7 @@
+button.background  color · components
+
+  light  oklch(0.55 0.18 255)  button.background → accent → color.blue
+  dark   oklch(0.8 0.1 255)    button.background → accent → color.blue-light
+
+  CSS       var(--button-background)
+  Tailwind  --color-button-background

@@ -1,0 +1,51 @@
+T   ⮕  dta graph 
+|
+o  Graph built
+|
+|  Tokens: 42 | Aliases: 15 (36%) | Max depth: 1 | Issues: 0
+
+Token Dependency Graph
+──────────────────────────────────────────────────
+
+  Total tokens:       42
+  Alias tokens:       15  (36%)
+  Max chain depth:    1
+  Circular refs:      0
+  Dangling aliases:   0
+  Orphaned tokens:    13  ℹ
+
+  Tokens by file:
+    Base.Value: 32
+    Brand.A: 4
+    Brand.B: 4
+    motion.Value: 2
+
+  Tokens by type:
+    color: 18
+    dimension: 5
+    duration: 4
+    cubicBezier: 1
+    fontFamily: 1
+    fontWeight: 2
+    number: 2
+    shadow: 4
+    border: 2
+    transition: 1
+    gradient: 1
+    typography: 1
+
+ℹ Orphaned tokens (13 raw values never referenced by any alias):
+  Base.Value/color/black
+  Base.Value/color/vivid
+  Base.Value/color/accent/soft
+  Base.Value/spacing/l
+  Base.Value/radius/card
+  Base.Value/motion/slow
+  Base.Value/font/strong
+  Base.Value/border/focus
+  Base.Value/border/dashed
+  Base.Value/transition/enter
+  ... and 3 more
+|
+—  Done!
+

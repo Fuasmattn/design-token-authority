@@ -3,7 +3,7 @@ import path from 'node:path'
 import { analyzeGraph, formatDiagnostic, hasErrors, parseTokenFiles } from '@dta/core'
 import pc from 'picocolors'
 import type { CommandContext } from '../commands.js'
-import { readTokenDir, TokenDirError } from '../io/token-dir.js'
+import { readTokenDir, TokenDirError, tokenParseOptions } from '../io/token-dir.js'
 import { inV1Order } from '../graph/shared.js'
 import { formatConsoleReport } from '../graph/console.js'
 import { formatDotGraph } from '../graph/dot.js'
@@ -40,7 +40,7 @@ export async function runGraph(context: CommandContext): Promise<number> {
 
   const spinner = ui.spinner()
   spinner.start('Reading token files...')
-  const { model, diagnostics } = parseTokenFiles(files)
+  const { model, diagnostics } = parseTokenFiles(files, tokenParseOptions(context.config))
   spinner.message('Building dependency graph...')
   const graph = inV1Order(analyzeGraph(model))
   spinner.stop('Graph built')

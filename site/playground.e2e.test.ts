@@ -63,12 +63,18 @@ const TYPES: Record<string, string> = {
 const BUDGET = {
   /** The page's module scripts and the island with what they import statically. */
   firstLoad: 25_000,
-  /** `@dta/core`, `@dta/figma`, `@dta/lint`, zod: idle after the first render, or on input. */
-  analysis: 40_000,
+  /**
+   * `@dta/core`, `@dta/figma`, `@dta/lint`, zod: idle after the first render, or on input.
+   * DTCG 2025.10 support (TICKET-132–136) took it to 46.5 KB (2026-10-21).
+   */
+  analysis: 50_000,
   /** The Graph tab (graph-engine). */
   graph: 10_000,
-  /** The Outputs tab: its UI and `@dta/build` with Style Dictionary and the zip code. */
-  outputs: 610_000,
+  /**
+   * The Outputs tab: its UI and `@dta/build` with Style Dictionary and the zip code. Style
+   * Dictionary 5 (TICKET-134) took it to 631.4 KB (2026-10-21).
+   */
+  outputs: 635_000,
 }
 /** A string each heavy package's code contains, to find it in a chunk (TICKET-124). */
 const MARKERS: Record<string, string> = {

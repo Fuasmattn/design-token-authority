@@ -17,9 +17,9 @@ DTA's token files use the format of the W3C [Design Tokens Community Group](http
 
 DTA's files are DTCG in the shape of Figma variables: one file per collection and mode (`Brand.BrandA.json`, `Brand.BrandB.json`), or a `.tokens` file for a collection with one mode. It reads every type of 2025.10, group `$type` and `$deprecated`, `$ref`, `$root` and `$extends`, and checks each value against its type; the [Token files](/reference/token-files/) reference has the format. Compared with 2025.10, DTA does **not** yet:
 
-- build, lint or push the types beyond Figma's `color`, `number`, `string` and `boolean` (they are read and checked, and their outputs follow),
+- push the types beyond Figma's `color`, `number`, `string` and `boolean` to Figma (they are read, linted and built),
 - follow `$extends` across files (it works within one file),
-- read resolver documents. A collection with several modes plays the role of a modifier, and `brands` in the config picks the contexts to build.
+- combine several modifiers on one token (a brand and a theme): a resolver document is read, one modifier per token.
 
 These gaps are tracked in the [DTCG 2025.10 spec](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/specs/dtcg-2025-10.md) and its tickets.
 

@@ -1,0 +1,10 @@
+T   ⮕  dta graph 
+|
+o  Graph built
+|
+|  Tokens: 20 | Aliases: 10 (50%) | Max depth: 2 | Issues: 0
+|
+*  HTML visualization written to graph.html
+|
+—  Opening visualization in browser...
+

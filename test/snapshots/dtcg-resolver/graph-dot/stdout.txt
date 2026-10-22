@@ -1,0 +1,69 @@
+T   ⮕  dta graph 
+|
+o  Graph built
+digraph TokenDependencies {
+  rankdir=LR;
+  node [shape=box, fontname="Helvetica", fontsize=10];
+  edge [color="#666666"];
+
+  subgraph "cluster_components_Value" {
+    label="components.Value";
+    style=filled;
+    color="#e3f2fd";
+    "components.Value/button/background" [label="button/background"];
+    "components.Value/button/text" [label="button/text"];
+    "components.Value/button/radius" [label="button/radius"];
+    "components.Value/button/shadow" [label="button/shadow"];
+  }
+
+  subgraph "cluster_core_Value" {
+    label="core.Value";
+    style=filled;
+    color="#fce4ec";
+    "core.Value/color/blue" [label="color/blue"];
+    "core.Value/color/blue-light" [label="color/blue-light"];
+    "core.Value/color/gray/0" [label="color/gray/0"];
+    "core.Value/color/gray/100" [label="color/gray/100"];
+    "core.Value/color/gray/900" [label="color/gray/900"];
+    "core.Value/size/s" [label="size/s"];
+    "core.Value/size/m" [label="size/m"];
+    "core.Value/size/radius" [label="size/radius"];
+  }
+
+  subgraph "cluster_theme_dark" {
+    label="theme.dark";
+    style=filled;
+    color="#e8f5e9";
+    "theme.dark/surface/base" [label="surface/base"];
+    "theme.dark/surface/muted" [label="surface/muted"];
+    "theme.dark/text/default" [label="text/default"];
+    "theme.dark/accent" [label="accent"];
+  }
+
+  subgraph "cluster_theme_light" {
+    label="theme.light";
+    style=filled;
+    color="#fff3e0";
+    "theme.light/surface/base" [label="surface/base"];
+    "theme.light/surface/muted" [label="surface/muted"];
+    "theme.light/text/default" [label="text/default"];
+    "theme.light/accent" [label="accent"];
+  }
+
+  "components.Value/button/background" -> "theme.light/accent";
+  "components.Value/button/text" -> "theme.light/surface/base";
+  "components.Value/button/radius" -> "core.Value/size/radius";
+  "components.Value/button/shadow" -> "theme.light/text/default";
+  "components.Value/button/shadow" -> "core.Value/size/s";
+  "components.Value/button/shadow" -> "core.Value/size/m";
+  "theme.dark/surface/base" -> "core.Value/color/gray/900";
+  "theme.dark/text/default" -> "core.Value/color/gray/100";
+  "theme.dark/accent" -> "core.Value/color/blue-light";
+  "theme.light/surface/base" -> "core.Value/color/gray/0";
+  "theme.light/surface/muted" -> "core.Value/color/gray/100";
+  "theme.light/text/default" -> "core.Value/color/gray/900";
+  "theme.light/accent" -> "core.Value/color/blue";
+}
+|
+—  Done!
+

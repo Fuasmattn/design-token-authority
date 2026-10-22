@@ -1,0 +1,13 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-brand="light"] {
+  --surface-base: var(--color-gray-0);
+  --surface-muted: var(--color-gray-100);
+  --text-default: var(--color-gray-900);
+  --accent: var(--color-blue);
+  --button-background: var(--accent);
+  --button-text: var(--surface-base);
+  --button-shadow: 0px var(--size-s) var(--size-m) 0px var(--text-default);
+}

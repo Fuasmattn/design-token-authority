@@ -1,0 +1,23 @@
+{
+  "size": {
+    "$type": "dimension",
+    "s": {
+      "$value": {
+        "value": 4,
+        "unit": "px"
+      }
+    },
+    "m": {
+      "$value": {
+        "value": 8,
+        "unit": "px"
+      }
+    },
+    "radius": {
+      "$value": {
+        "value": 6,
+        "unit": "px"
+      }
+    }
+  }
+}

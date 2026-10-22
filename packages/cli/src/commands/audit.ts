@@ -15,7 +15,7 @@ import {
   readBaseline,
 } from '../audit/audit.js'
 import type { CommandContext } from '../commands.js'
-import { readTokenDir, TokenDirError } from '../io/token-dir.js'
+import { readTokenDir, TokenDirError, tokenParseOptions } from '../io/token-dir.js'
 
 /** Invalid input: token files, options, the baseline. */
 const EXIT_INVALID = 2
@@ -39,7 +39,7 @@ export async function runAudit(context: CommandContext): Promise<number> {
     }
     throw error
   }
-  const { model, diagnostics } = parseTokenFiles(tokenFiles)
+  const { model, diagnostics } = parseTokenFiles(tokenFiles, tokenParseOptions(context.config))
   if (hasErrors(diagnostics)) {
     for (const diagnostic of diagnostics) context.stderr(`${formatDiagnostic(diagnostic)}\n`)
     return EXIT_INVALID

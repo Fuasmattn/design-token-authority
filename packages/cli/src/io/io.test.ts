@@ -25,14 +25,22 @@ describe('readTokenDir', () => {
     ])
   })
 
-  it('reads DTCG .tokens files too, and leaves resolver documents to the resolver', () => {
-    fs.mkdirSync(path.join(dir, 'tokens'))
-    fs.writeFileSync(path.join(dir, 'tokens', 'base.tokens'), '{}')
-    fs.writeFileSync(path.join(dir, 'tokens', 'motion.tokens.json'), '{}')
-    fs.writeFileSync(path.join(dir, 'tokens', 'app.resolver.json'), '{}')
+  it('reads DTCG .tokens files and resolver documents, and folders only with a resolver', () => {
+    const tokens = path.join(dir, 'tokens')
+    fs.mkdirSync(path.join(tokens, 'sets'), { recursive: true })
+    fs.writeFileSync(path.join(tokens, 'base.tokens'), '{}')
+    fs.writeFileSync(path.join(tokens, 'motion.tokens.json'), '{}')
+    fs.writeFileSync(path.join(tokens, 'sets', 'brand.json'), '{}')
     expect(readTokenDir('tokens', dir).map((f) => f.fileName)).toEqual([
       'base.tokens',
       'motion.tokens.json',
+    ])
+    fs.writeFileSync(path.join(tokens, 'app.resolver.json'), '{}')
+    expect(readTokenDir('tokens', dir).map((f) => f.fileName)).toEqual([
+      'app.resolver.json',
+      'base.tokens',
+      'motion.tokens.json',
+      'sets/brand.json',
     ])
   })
 

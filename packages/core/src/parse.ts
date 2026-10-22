@@ -1,4 +1,5 @@
 import { referenceOf } from './references.js'
+import { readResolver } from './resolver.js'
 import { isObject, nameKey, readEntries } from './entries.js'
 import type {
   Collection,
@@ -40,16 +41,100 @@ export function detectFormat(content: string): Pick<FileSource, 'indent' | 'trai
   return { indent, trailingNewline: content.endsWith('\n') }
 }
 
+export interface ParseOptions {
+  /** The resolver document to use, by file name; default: the only `*.resolver.json`. */
+  resolver?: string
+  /** The context to read for each modifier of a resolver document by default. */
+  modifiers?: Record<string, string>
+}
+
 /**
- * Turns per-mode DTCG token files (`{Collection}.{Mode}.json`) into a token model.
- * Never throws on bad input: problems come back as diagnostics.
+ * Turns token files into a token model: per-mode DTCG files (`{Collection}.{Mode}.json`),
+ * `.tokens` files, or a DTCG 2025.10 resolver document (`*.resolver.json`) and the files it
+ * names. Never throws on bad input: problems come back as diagnostics.
  */
-export function parseTokenFiles(files: TokenFileInput[]): ParseResult {
+export function parseTokenFiles(files: TokenFileInput[], options: ParseOptions = {}): ParseResult {
+  const resolvers = files.filter((f) => f.fileName.endsWith('.resolver.json'))
+  const chosen = options.resolver
+    ? (resolvers.find(
+        (f) => f.fileName === options.resolver || f.fileName.endsWith(`/${options.resolver}`),
+      ) ?? null)
+    : resolvers.length === 1
+      ? resolvers[0]
+      : null
+  if (options.resolver && !chosen) {
+    return {
+      model: { collections: [] },
+      diagnostics: [
+        {
+          severity: 'error',
+          code: 'resolver-not-found',
+          message: `The resolver document "${options.resolver}" is not in the tokens directory.`,
+          file: options.resolver,
+        },
+      ],
+    }
+  }
+  if (!chosen && resolvers.length > 1) {
+    return {
+      model: { collections: [] },
+      diagnostics: [
+        {
+          severity: 'error',
+          code: 'several-resolvers',
+          message: `The tokens directory has several resolver documents (${resolvers.map((f) => `"${f.fileName}"`).join(', ')}); name the one to use in tokens.resolver.`,
+        },
+      ],
+    }
+  }
+  if (!chosen) {
+    return parseInputs(files)
+  }
+  const read = readResolver(chosen, files, options.modifiers ?? {})
+  const result = parseInputs(read.inputs)
+  for (const collection of result.model.collections) {
+    const mode = read.defaults[collection.name]
+    if (mode && collection.modes.includes(mode)) collection.defaultMode = mode
+  }
+  const unused = files.filter(
+    (f) =>
+      f !== chosen &&
+      !read.used.has(f.fileName) &&
+      isTokenFileName(f.fileName.split('/').pop() ?? ''),
+  )
+  return {
+    model: result.model,
+    diagnostics: [
+      ...read.diagnostics,
+      ...result.diagnostics,
+      ...unused.map(
+        (f): Diagnostic => ({
+          severity: 'warning',
+          code: 'not-in-resolver',
+          message: `"${f.fileName}" is not part of the resolver document "${chosen.fileName}" and was not read.`,
+          file: f.fileName,
+        }),
+      ),
+    ],
+  }
+}
+
+/** A token file, or (from a resolver document) a tree that names its collection and mode. */
+export interface ParseInput extends TokenFileInput {
+  collection?: string
+  mode?: string
+}
+
+function parseInputs(files: ParseInput[]): ParseResult {
   const diagnostics: Diagnostic[] = []
   const collections = new Map<string, Collection>()
   // Sort by collection, then mode, so the result does not depend on the order of the input.
-  const parts = (f: TokenFileInput) => {
-    const found = tokenFileParts(f.fileName)
+  const partsOf = (f: ParseInput) =>
+    f.collection !== undefined && f.mode !== undefined
+      ? { collection: f.collection, mode: f.mode }
+      : tokenFileParts(f.fileName)
+  const parts = (f: ParseInput) => {
+    const found = partsOf(f)
     return found ? [found.collection, found.mode] : [f.fileName, '']
   }
   const compare = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0)
@@ -60,11 +145,12 @@ export function parseTokenFiles(files: TokenFileInput[]): ParseResult {
   })
   const explained = new Set<string>()
 
-  for (const { fileName, content } of sorted) {
+  for (const input of sorted) {
+    const { fileName, content } = input
     const fail = (code: string, message: string) =>
       diagnostics.push({ severity: 'error', code, message, file: fileName })
 
-    const match = tokenFileParts(fileName)
+    const match = partsOf(input)
     if (!match) {
       fail(
         'invalid-file-name',

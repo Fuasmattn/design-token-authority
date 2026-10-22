@@ -238,12 +238,13 @@ describe('color-contrast', () => {
     expect(slash.map((v) => [v.file, v.tokenPath])).toEqual([['Brand.B.json', 'Text/Main / Light']])
   })
 
-  it('reads DTCG 2025.10 colour objects in sRGB, and says when it cannot read a colour space yet', () => {
+  it('reads DTCG 2025.10 colour objects in any colour space, noting when one is clipped to sRGB', () => {
     const objects = modelFrom({
       'Base.Value.json': {
         Fg: { $type: 'color', $value: { colorSpace: 'srgb', components: [0.6, 0.6, 0.6] } },
         Bg: { $type: 'color', $value: { colorSpace: 'srgb', components: [1, 1, 1] } },
-        Wide: { $type: 'color', $value: { colorSpace: 'oklch', components: [0.7, 0.1, 250] } },
+        Sky: { $type: 'color', $value: { colorSpace: 'oklch', components: [0.7, 0.15, 250] } },
+        Red: { $type: 'color', $value: { colorSpace: 'display-p3', components: [1, 0, 0] } },
       },
     })
     const result = lintTokens(
@@ -251,15 +252,21 @@ describe('color-contrast', () => {
       rules({
         pairs: [
           ['Fg', 'Bg'],
-          ['Wide', 'Bg'],
+          ['Sky', 'Bg'],
+          ['Red', 'Bg'],
         ],
       }),
     )
     expect(result.violations.map((v) => v.message)).toEqual([
       'Contrast ratio 2.85:1 between "Fg" (#999999) and "Bg" (#ffffff) is below 4.5:1',
+      'Contrast ratio 2.66:1 between "Sky" (oklch(0.7 0.15 250)) and "Bg" (#ffffff) is below 4.5:1',
+      'Contrast ratio 4.00:1 between "Red" (color(display-p3 1 0 0)) and "Bg" (#ffffff) is below 4.5:1',
     ])
-    expect(result.diagnostics.map((d) => d.message)).toEqual([
-      expect.stringContaining('the contrast check reads oklch colours only with an sRGB "hex" yet'),
+    expect(result.diagnostics.map((d) => [d.code, d.message])).toEqual([
+      [
+        'contrast-clipped',
+        'color-contrast: "Red" (color(display-p3 1 0 0)) is outside sRGB; the contrast check uses it clipped to sRGB (#ff0000).',
+      ],
     ])
   })
 

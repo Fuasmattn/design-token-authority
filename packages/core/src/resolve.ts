@@ -91,7 +91,7 @@ function resolveIn(
       )
     }
     const { token, collection } = found
-    const mode = selection[collection.name] ?? collection.modes[0]
+    const mode = selection[collection.name] ?? collection.defaultMode ?? collection.modes[0]
     if (!collection.modes.includes(mode)) {
       return fail(
         'unknown-mode',

@@ -50,7 +50,7 @@ import { DiffBaseError, resolveDiffBase, resolveDiffHead } from '../io/diff-base
 import { CommandFailedError, runCommand } from '../io/run-command.js'
 import { serveStatic } from '../io/static-server.js'
 import { createBaseWorktree } from '../io/worktree.js'
-import { readTokenDir, TokenDirError } from '../io/token-dir.js'
+import { readTokenDir, TokenDirError, tokenParseOptions } from '../io/token-dir.js'
 import { banner, createUi } from '../ui.js'
 import { breakpointOptions } from './build.js'
 
@@ -136,8 +136,8 @@ export async function runDiff(context: CommandContext): Promise<number> {
     throw error
   }
 
-  const head = parseTokenFiles(headFiles)
-  const before = parseTokenFiles(baseInfo.files)
+  const head = parseTokenFiles(headFiles, tokenParseOptions(context.config))
+  const before = parseTokenFiles(baseInfo.files, tokenParseOptions(context.config))
   const problems = [
     ...before.diagnostics.map((d) => ({ side: 'base', d })),
     ...head.diagnostics.map((d) => ({ side: 'head', d })),
