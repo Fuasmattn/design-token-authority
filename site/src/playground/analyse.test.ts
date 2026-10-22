@@ -276,3 +276,22 @@ describe('playground analysis', () => {
     expect(result.model && findingChain(result.model, 'Brand.BrandA')).toBeUndefined()
   })
 })
+
+describe('analyse: DTCG .tokens files', () => {
+  it('reads one .tokens file as tokens, not as a plugin export', () => {
+    const result = analyse([
+      {
+        fileName: 'base.tokens',
+        content: JSON.stringify({
+          color: {
+            $type: 'color',
+            blue: { $value: { colorSpace: 'srgb', components: [0, 0, 1] } },
+          },
+        }),
+      },
+    ])
+    expect(result.format).toBe('dtcg-per-mode')
+    expect(result.files).toEqual(['base.tokens'])
+    expect(result.input.failed).toBe(false)
+  })
+})

@@ -10,6 +10,29 @@ import type {
 } from './types.js'
 
 const FILE_NAME = /^([^.]+)\.(.+)\.json$/
+/** DTCG 2025.10 token files: `app.tokens` or `app.tokens.json`, one collection, one mode. */
+const TOKENS_FILE = /^(.+)\.tokens(?:\.json)?$/
+
+/** The mode name of a collection read from a `.tokens` file, which has no modes. */
+export const SINGLE_MODE = 'Value'
+
+/**
+ * The collection and mode a token file holds: `{Collection}.{Mode}.json`, or a DTCG `.tokens` /
+ * `.tokens.json` file (the whole base name is the collection, in one mode, `Value`). Null for
+ * any other name.
+ */
+export function tokenFileParts(fileName: string): { collection: string; mode: string } | null {
+  const tokens = TOKENS_FILE.exec(fileName)
+  if (tokens) return { collection: tokens[1], mode: SINGLE_MODE }
+  const match = FILE_NAME.exec(fileName)
+  return match ? { collection: match[1], mode: match[2] } : null
+}
+
+/** Whether a file in a tokens directory holds tokens (not a resolver document or other JSON). */
+export function isTokenFileName(fileName: string): boolean {
+  if (fileName.endsWith('.resolver.json')) return false
+  return TOKENS_FILE.test(fileName) || fileName.endsWith('.json')
+}
 
 /** Detect how a file was formatted so serialize can write it back the same way. */
 export function detectFormat(content: string): Pick<FileSource, 'indent' | 'trailingNewline'> {
@@ -25,7 +48,10 @@ export function parseTokenFiles(files: TokenFileInput[]): ParseResult {
   const diagnostics: Diagnostic[] = []
   const collections = new Map<string, Collection>()
   // Sort by collection, then mode, so the result does not depend on the order of the input.
-  const parts = (f: TokenFileInput) => FILE_NAME.exec(f.fileName)?.slice(1, 3) ?? [f.fileName, '']
+  const parts = (f: TokenFileInput) => {
+    const found = tokenFileParts(f.fileName)
+    return found ? [found.collection, found.mode] : [f.fileName, '']
+  }
   const compare = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0)
   const sorted = [...files].sort((a, b) => {
     const [ca, ma] = parts(a)
@@ -38,12 +64,15 @@ export function parseTokenFiles(files: TokenFileInput[]): ParseResult {
     const fail = (code: string, message: string) =>
       diagnostics.push({ severity: 'error', code, message, file: fileName })
 
-    const match = FILE_NAME.exec(fileName)
+    const match = tokenFileParts(fileName)
     if (!match) {
-      fail('invalid-file-name', `"${fileName}" must be named {Collection}.{Mode}.json.`)
+      fail(
+        'invalid-file-name',
+        `"${fileName}" must be named {Collection}.{Mode}.json, or {Collection}.tokens(.json) for a collection with one mode.`,
+      )
       continue
     }
-    const [, collectionName, modeName] = match
+    const { collection: collectionName, mode: modeName } = match
     if (content.trim() === '') {
       fail('empty-file', `"${fileName}" is empty.`)
       continue
@@ -62,9 +91,10 @@ export function parseTokenFiles(files: TokenFileInput[]): ParseResult {
 
     let collection = collections.get(collectionName)
     if (collection?.modes.includes(modeName)) {
+      const first = collection.sources[modeName]?.fileName
       fail(
         'duplicate-file',
-        `"${fileName}" repeats collection "${collectionName}" mode "${modeName}".`,
+        `"${fileName}" repeats collection "${collectionName}" mode "${modeName}"${first ? `, which "${first}" already holds` : ''}.`,
       )
       continue
     }

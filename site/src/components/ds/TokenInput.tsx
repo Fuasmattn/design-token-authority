@@ -207,15 +207,15 @@ export default function TokenInput({
             <span class="dta-token-input__drop-action">or choose files</span>
           </button>
           <p class="dta-token-input__help" id={`${idPrefix}-drop-help`}>
-            Per-mode files (<code>{'{Collection}.{Mode}.json'}</code>, several at once) or one
-            plugin export. They stay in your browser.
+            Per-mode files (<code>{'{Collection}.{Mode}.json'}</code>, several at once),{' '}
+            <code>.tokens</code> files or one plugin export. They stay in your browser.
           </p>
           <input
             ref={picker}
             id={`${idPrefix}-picker`}
             class="dta-token-input__picker"
             type="file"
-            accept=".json,application/json"
+            accept=".json,.tokens,application/json,application/design-tokens+json"
             multiple
             tabIndex={-1}
             aria-hidden="true"

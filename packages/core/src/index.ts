@@ -6,7 +6,7 @@ export type { AliasProblems } from './alias-problems.js'
 export { DOC_PATHS, formatDiagnostic, hasErrors } from './diagnostics.js'
 export type { FormatDiagnosticOptions } from './diagnostics.js'
 export { nameToDot, nameToSlash } from './names.js'
-export { parseTokenFiles } from './parse.js'
+export { isTokenFileName, parseTokenFiles, SINGLE_MODE, tokenFileParts } from './parse.js'
 export { analyzeGraph } from './graph.js'
 export type {
   DanglingAlias,

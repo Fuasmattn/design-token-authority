@@ -10,6 +10,7 @@ DTA reads and writes one JSON file per collection and mode. This page describes 
 ## The format
 
 - File name: `{Collection}.{Mode}.json`, for example `Brand(Alias).BrandA.json`. The name is split at the **first** dot, so a collection name must not contain a dot; a mode name may.
+- A DTCG file `{Collection}.tokens` or `{Collection}.tokens.json` (for example `motion.tokens`) holds a collection with one mode, named `Value`. It must not repeat a collection and mode a per-mode file already holds. `*.resolver.json` files are not read as token files.
 - Content: [W3C Design Tokens (DTCG)](https://tr.designtokens.org/format/) groups and tokens.
 - Groups nest freely; the path of a token (`Colors/Brand/Primary` in Figma, `Colors.Brand.Primary` in files and aliases) is its variable name.
 - A token has a `$value` and a type: its own `$type`, or, if it has none, the type of the token its alias points to, or the `$type` of the closest group above it. Optionally `$description`, `$deprecated` (`true` or an explanation; groups pass it on, `false` on a token overrides that) and `$extensions`.

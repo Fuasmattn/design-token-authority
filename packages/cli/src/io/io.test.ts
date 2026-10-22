@@ -25,6 +25,17 @@ describe('readTokenDir', () => {
     ])
   })
 
+  it('reads DTCG .tokens files too, and leaves resolver documents to the resolver', () => {
+    fs.mkdirSync(path.join(dir, 'tokens'))
+    fs.writeFileSync(path.join(dir, 'tokens', 'base.tokens'), '{}')
+    fs.writeFileSync(path.join(dir, 'tokens', 'motion.tokens.json'), '{}')
+    fs.writeFileSync(path.join(dir, 'tokens', 'app.resolver.json'), '{}')
+    expect(readTokenDir('tokens', dir).map((f) => f.fileName)).toEqual([
+      'base.tokens',
+      'motion.tokens.json',
+    ])
+  })
+
   it('names the directory and the fix when it is missing', () => {
     expect(() => readTokenDir('tokens', dir)).toThrow(TokenDirError)
     expect(() => readTokenDir('tokens', dir)).toThrow(/"tokens" not found[\s\S]*dta pull/)

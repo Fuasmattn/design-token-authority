@@ -305,3 +305,41 @@ describe('serializeTokenFiles: applying model changes', () => {
     expect(read(out, 'A.Two.json').g.x.$description).toBe('edited')
   })
 })
+
+describe('parseTokenFiles: DTCG .tokens files', () => {
+  const tokens = (fileName: string, tree: unknown) => ({ fileName, content: JSON.stringify(tree) })
+
+  it('reads app.tokens and app.tokens.json as one collection in one mode, next to per-mode files', () => {
+    const result = parseTokenFiles([
+      tokens('base.tokens', { blue: { $type: 'color', $value: '#0000ff' } }),
+      tokens('motion.tokens.json', {
+        fast: { $type: 'duration', $value: { value: 100, unit: 'ms' } },
+      }),
+      tokens('Brand.A.json', { primary: { $type: 'color', $value: '{blue}' } }),
+    ])
+    expect(result.diagnostics).toEqual([])
+    expect(result.model.collections.map((c) => [c.name, c.modes])).toEqual([
+      ['Brand', ['A']],
+      ['base', ['Value']],
+      ['motion', ['Value']],
+    ])
+  })
+
+  it('reports a .tokens file and a per-mode file for the same collection and mode', () => {
+    const result = parseTokenFiles([tokens('base.Value.json', {}), tokens('base.tokens.json', {})])
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        code: 'duplicate-file',
+        message:
+          '"base.tokens.json" repeats collection "base" mode "Value", which "base.Value.json" already holds.',
+      }),
+    ])
+  })
+
+  it('names the two file name forms when a name fits neither', () => {
+    const result = parseTokenFiles([tokens('base.json', {})])
+    expect(result.diagnostics[0].message).toBe(
+      '"base.json" must be named {Collection}.{Mode}.json, or {Collection}.tokens(.json) for a collection with one mode.',
+    )
+  })
+})

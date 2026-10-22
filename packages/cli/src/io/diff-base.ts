@@ -1,3 +1,4 @@
+import { isTokenFileName } from '@dta/core'
 import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -57,7 +58,7 @@ function readTokensAtCommit(cwd: string, sha: string, tokensDir: string): TokenF
     git(cwd, ['ls-tree', '-z', '--full-tree', '--name-only', sha, '--', `${dir}/`]) ?? ''
   return listing
     .split('\0')
-    .filter((entry) => entry.endsWith('.json'))
+    .filter(isTokenFileName)
     .map((entry) => path.posix.basename(entry))
     .sort()
     .map((fileName) => {

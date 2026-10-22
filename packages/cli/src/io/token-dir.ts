@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { isTokenFileName } from '@dta/core'
 import type { TokenFileInput } from '@dta/core'
 
 /** The tokens directory is missing or unreadable. */
@@ -13,7 +14,7 @@ export class TokenDirError extends Error {
 }
 
 /**
- * Reads the `*.json` token files of a directory (relative paths resolve against `cwd`),
+ * Reads the token files of a directory (`*.json`, `*.tokens`, not `*.resolver.json`) (relative paths resolve against `cwd`),
  * sorted by name. Blank files are skipped, as in the v1 CLI.
  */
 export function readTokenDir(directory: string, cwd: string): TokenFileInput[] {
@@ -23,7 +24,7 @@ export function readTokenDir(directory: string, cwd: string): TokenFileInput[] {
   }
   return fs
     .readdirSync(absolute)
-    .filter((fileName) => fileName.endsWith('.json'))
+    .filter(isTokenFileName)
     .sort()
     .map((fileName) => ({
       fileName,

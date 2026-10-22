@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** S
 **Blocked by:** 132
-**Status:** open
+**Status:** in review
 **Spec:** [dtcg-2025-10](../specs/dtcg-2025-10.md) (decision 12; slice 4)
 
 ## What to build
@@ -15,6 +15,13 @@
 
 ## Acceptance criteria
 
-- [ ] Tests: `.tokens`, `.tokens.json`, mixed with per-mode files, a name clash between the two forms reported
-- [ ] Token files reference documents both forms
+- [x] Tests: `.tokens`, `.tokens.json`, mixed with per-mode files, a name clash between the two forms reported
+- [x] Token files reference documents both forms
 - [ ] All gates pass, and the GitHub run is green
+
+## Notes
+
+- A `.tokens` / `.tokens.json` file is one collection named after the file, in one mode named `Value` (`SINGLE_MODE`, the name the fixtures use for single-mode collections). Core exports `tokenFileParts` and `isTokenFileName`.
+- `readTokenDir` and the `dta diff` base reader skip `*.resolver.json` already, so TICKET-136 can read resolver documents on their own.
+- Playground: the file picker accepts `.tokens` and `application/design-tokens+json`; a single `.tokens` file never goes through plugin-export detection. The drop zone's hint names `.tokens` files (a copy change on the playground, so it is in the screenshots before a push).
+- The `duplicate-file` message now names the file that already holds the collection and mode.

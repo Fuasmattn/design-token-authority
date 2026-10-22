@@ -131,6 +131,8 @@ export const diagnosticGroups = (diagnostics: readonly Diagnostic[]): FindingGro
 
 function isPluginExport(files: readonly TokenFileInput[]): unknown {
   if (files.length !== 1) return undefined
+  // A DTCG `.tokens` file is never a plugin export.
+  if (/\.tokens(\.json)?$/.test(files[0].fileName)) return undefined
   let json: unknown
   try {
     json = JSON.parse(files[0].content)
