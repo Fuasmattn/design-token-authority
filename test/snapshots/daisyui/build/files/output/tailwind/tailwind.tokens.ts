@@ -745,7 +745,7 @@ export const tokens = {
         'tailwind-typography-size-8xl': '96',
         'tailwind-typography-size-9xl': '128',
       },
-      safe-area: {
+      'safe-area': {
         'safe-area': '16',
       },
       list: {

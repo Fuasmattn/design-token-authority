@@ -4,6 +4,7 @@ import {
   FONT_WEIGHT_KEYWORDS,
   formatColor,
   nameToSlash,
+  parseAlias,
   referenceOf,
   referencesIn,
   resolve,
@@ -152,13 +153,17 @@ function cssShapes(token: Token, value: unknown): TokenValue {
     // A colour-stop list: `linear-gradient(to right, var(--brand-gradient))` in CSS.
     return value
       .map((stop) =>
-        isObject(stop)
-          ? `${String(stop.color)} ${Number((Number(stop.position) * 100).toFixed(2))}%`
-          : String(stop),
+        isObject(stop) ? `${String(stop.color)} ${stopPosition(stop.position)}` : String(stop),
       )
       .join(', ')
   }
   return value as TokenValue
+}
+
+/** A gradient stop's position (0–1) as a percentage; an alias becomes `calc({…} * 100%)`. */
+function stopPosition(position: unknown): string {
+  if (typeof position === 'string' && parseAlias(position)) return `calc(${position} * 100%)`
+  return `${Number((Number(position) * 100).toFixed(2))}%`
 }
 
 /** Colour objects anywhere in a value as CSS text: hex for sRGB, else oklch(), color(…), … */
@@ -564,6 +569,11 @@ export async function buildOutputs(
         ...(breakpoints && breakpointMode !== undefined
           ? [source(breakpoints.collection, breakpointMode)]
           : []),
+        // The other multi-mode collections (another modifier, a combination of modifiers) in
+        // their default mode, so aliases into them resolve; they are not written here.
+        ...multiMode
+          .filter((c) => !brandCollections.includes(c) && c !== breakpoints?.collection)
+          .map((c) => source(c, referenceMode(c))),
         ...brandCollections.map((c) => source(c, brand)),
       ])
     // The theme CSS also repeats the tokens whose alias chain reaches this brand through
@@ -836,20 +846,30 @@ async function combinedCss(
   const label = collection.name.replace(/\*\//g, '* /')
 
   const blocks: Array<{ part: OutputFile; comment: string }> = []
+  // :root holds the sets' layer and each modifier's default context, so a page without the
+  // attributes gets the default combination (as base.css and `dta token get` do).
+  const defaultContexts = axes.map((axis) => {
+    const modifier = context.model.collections.find((c) => c.name === axis)
+    return modifier?.defaultMode ?? modifier?.modes[0]
+  })
   const rootLines = tokens.flatMap((token) => [
-    ...(token.layers?.base !== undefined
-      ? [
-          (declarations.get(slot(token.name, 'base')) ?? '').replace(
-            /^--[a-z0-9-]+:/,
-            `${slot(token.name, 'base')}:`,
-          ),
-        ]
-      : []),
+    ...(token.layers?.base !== undefined ? [declarations.get(slot(token.name, 'base')) ?? ''] : []),
+    ...axes.flatMap((axis, i) => {
+      const ctx = defaultContexts[i] ?? ''
+      const own = token.layers?.axes.find((layer) => layer.axis === axis)
+      const declared =
+        own && ctx in own.contexts
+          ? declarations.get(layerVariable(token.name, axis, ctx))
+          : undefined
+      return declared
+        ? [`${slot(token.name, axis)}: ${declared.replace(/^--[a-z0-9-]+:\s*/, '')}`]
+        : []
+    }),
     reading(token),
   ])
   blocks.push({
     part: css('variables.css', rule(':root', rootLines)),
-    comment: `/* ${label}: the sets' values; ${axes.map((a) => `[data-${cssVariableName([a])}]`).join(' and ')} choose the rest */`,
+    comment: `/* ${label}: the sets' values and the default contexts; ${axes.map((a) => `[data-${cssVariableName([a])}]`).join(' and ')} choose others */`,
   })
   for (const axis of axes) {
     const modifier = context.model.collections.find((c) => c.name === axis)

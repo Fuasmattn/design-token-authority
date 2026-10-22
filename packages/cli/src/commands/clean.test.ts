@@ -44,6 +44,20 @@ describe('dta clean', () => {
     expect(stdout).toContain('Clean complete!')
   })
 
+  it('removes .tokens files, and a resolver document with the folders it reads', async () => {
+    put('tokens/motion.tokens')
+    put('tokens/app.resolver.json')
+    put('tokens/sets/core.json')
+    put('tokens/themes/dark/colors.json')
+    put('tokens/themes/notes.md')
+    await clean()
+    expect(exists('tokens/motion.tokens')).toBe(false)
+    expect(exists('tokens/app.resolver.json')).toBe(false)
+    expect(exists('tokens/sets')).toBe(false)
+    expect(exists('tokens/themes/dark')).toBe(false)
+    expect(exists('tokens/themes/notes.md')).toBe(true)
+  })
+
   it('removes configured output folders', async () => {
     put('dist/css/base.css')
     put('dist/tw/tailwind.css')

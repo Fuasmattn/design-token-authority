@@ -37,6 +37,9 @@ export interface ResolverRead {
   combined: Array<{ collection: string; axes: string[]; layers: Map<string, TokenLayers> }>
 }
 
+/** Up to this many combinations of modifier contexts, all are compared (see `changes`). */
+const MAX_COMBINATIONS = 256
+
 interface Stage {
   kind: 'set' | 'modifier'
   name: string
@@ -404,11 +407,49 @@ export function readResolver(
   for (const contexts of perContext.values())
     for (const entries of contexts.values()) for (const key of entries.keys()) paths.add(key)
 
-  for (const key of paths) {
-    const varying = modifierStages.filter((stage) => {
-      const contexts = [...(perContext.get(stage.name)?.values() ?? [])]
-      return contexts.some((entries) => !sameEntry(entries.get(key), contexts[0].get(key)))
+  // Which modifiers change a token: one does when switching its context changes the token for
+  // some choice of the others (not only at their defaults: a later modifier can undo an earlier
+  // one, and a default context can hide one). Every combination is merged once; past
+  // MAX_COMBINATIONS only the defaults of the others are tried, with a warning.
+  const names = modifierStages.map((stage) => stage.name)
+  const contextsOf = (stage: Stage) => [...(stage.contexts?.keys() ?? [])]
+  const total = modifierStages.reduce((n, stage) => n * Math.max(1, contextsOf(stage).length), 1)
+  const exhaustive = total <= MAX_COMBINATIONS
+  if (!exhaustive) {
+    diagnostics.push({
+      severity: 'warning',
+      code: 'resolver-combinations',
+      message: `The modifiers have ${total} combinations of contexts; DTA compares each modifier's contexts with the others at their defaults only (up to ${MAX_COMBINATIONS} it compares all), so a token one modifier changes only away from another's default can be read wrong.`,
+      file: document.fileName,
     })
+  }
+  const combinations = exhaustive
+    ? modifierStages.reduce<string[][]>(
+        (all, stage) => all.flatMap((combo) => contextsOf(stage).map((c) => [...combo, c])),
+        [[]],
+      )
+    : []
+  const merged = combinations.map((combo) =>
+    quiet(Object.fromEntries(names.map((name, i) => [name, combo[i]]))),
+  )
+  const changes = (key: string, index: number): boolean => {
+    if (!exhaustive) {
+      const contexts = [...(perContext.get(names[index])?.values() ?? [])]
+      return contexts.some((entries) => !sameEntry(entries.get(key), contexts[0].get(key)))
+    }
+    // Combinations that differ only in this modifier's context.
+    const groups = new Map<string, Entry | undefined | null>()
+    for (let i = 0; i < combinations.length; i++) {
+      const others = combinations[i].filter((_, j) => j !== index).join('\u0000')
+      const entry = merged[i].get(key)
+      if (!groups.has(others)) groups.set(others, entry ?? null)
+      else if (!sameEntry(groups.get(others) ?? undefined, entry)) return true
+    }
+    return false
+  }
+
+  for (const key of paths) {
+    const varying = modifierStages.filter((_, index) => changes(key, index))
     if (varying.length > 1) {
       // Several modifiers change it: a collection for that combination of modifiers.
       const axes = varying.map((stage) => stage.name)

@@ -1,3 +1,4 @@
+import { isTokenType } from './values.js'
 import { referenceOf } from './references.js'
 import { AXIS_SEPARATOR } from './modes.js'
 import { readResolver } from './resolver.js'
@@ -156,6 +157,7 @@ function parseInputs(files: ParseInput[]): ParseResult {
     return compare(ca, cb) || compare(ma, mb) || compare(a.fileName, b.fileName)
   })
   const explained = new Set<string>()
+  const groupTypes = new Map<Token, Token['type']>()
 
   for (const input of sorted) {
     const { fileName, content } = input
@@ -220,6 +222,7 @@ function parseInputs(files: ParseInput[]): ParseResult {
         }
         collection.tokens.push(token)
         byName.set(nameKey(entry.path), token)
+        if (entry.groupType && isTokenType(entry.groupType)) groupTypes.set(token, entry.groupType)
       } else if (
         existing.type !== entry.type &&
         existing.type !== ALIAS_PENDING &&
@@ -247,7 +250,7 @@ function parseInputs(files: ParseInput[]): ParseResult {
     }
   }
 
-  settleAliasTypes([...collections.values()], diagnostics)
+  settleAliasTypes([...collections.values()], diagnostics, groupTypes)
 
   for (const collection of collections.values()) {
     for (const token of collection.tokens) {
@@ -279,7 +282,11 @@ const ALIAS_PENDING = 'alias' as Token['type']
  * token it points to. Follows the chain through the whole model; a chain that ends nowhere or
  * in a circle leaves the token without a type, which is reported and drops it.
  */
-function settleAliasTypes(collections: Collection[], diagnostics: Diagnostic[]) {
+function settleAliasTypes(
+  collections: Collection[],
+  diagnostics: Diagnostic[],
+  groupTypes: ReadonlyMap<Token, Token['type']>,
+) {
   const byDot = new Map<string, Token>()
   for (const collection of collections)
     for (const token of collection.tokens) byDot.set(token.name.join('.'), token)
@@ -301,7 +308,8 @@ function settleAliasTypes(collections: Collection[], diagnostics: Diagnostic[]) 
   for (const collection of collections) {
     collection.tokens = collection.tokens.filter((token) => {
       if (token.type !== ALIAS_PENDING) return true
-      const type = typeOf(token, new Set())
+      // The group's type when the chain gives none (it ends nowhere: reported as dangling).
+      const type = typeOf(token, new Set()) ?? groupTypes.get(token)
       if (type) {
         token.type = type
         return true

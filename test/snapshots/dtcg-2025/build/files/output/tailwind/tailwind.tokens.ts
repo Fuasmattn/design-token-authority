@@ -62,7 +62,7 @@ export const tokens = {
       typography: {
         'body': '400 1rem/1.5 \'Helvetica Neue\', Arial, sans-serif',
       },
-      sky-lightness: {
+      'sky-lightness': {
         'sky-lightness': '0.7',
       }
     },

@@ -16,7 +16,7 @@
   --button-radius: var(--control-radius);
 }
 
-/* theme × brand: the sets' values; [data-theme] and [data-brand] choose the rest */
+/* theme × brand: the sets' values and the default contexts; [data-theme] and [data-brand] choose others */
 :root {
   --accent-dta-base: var(--color-blue-500);
   --accent: var(--accent-dta-brand, var(--accent-dta-theme, var(--accent-dta-base)));

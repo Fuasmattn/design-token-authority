@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { TOKEN_TYPES, type TokenType } from '@dta/core'
 import { DIFF_SCHEMA } from './render.js'
 
 /**
@@ -17,7 +18,7 @@ const value = z
   ])
   .describe('A token value as written: a scalar, or a DTCG 2025.10 object or list.')
 const state = z.object({ raw: value, resolved: value.optional() })
-const tokenType = z.enum(['color', 'number', 'string', 'boolean'])
+const tokenType = z.enum(TOKEN_TYPES as [TokenType, ...TokenType[]])
 const ratio = z.number().min(0).max(1)
 const region = z.object({
   x: z.number().int(),

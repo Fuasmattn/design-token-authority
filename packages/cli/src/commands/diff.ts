@@ -137,7 +137,13 @@ export async function runDiff(context: CommandContext): Promise<number> {
   }
 
   const head = parseTokenFiles(headFiles, tokenParseOptions(context.config))
-  const before = parseTokenFiles(baseInfo.files, tokenParseOptions(context.config))
+  // The base may predate the resolver document the config names (a migration to one): its files
+  // are read without the resolver options then.
+  const baseHasResolver = baseInfo.files.some((f) => f.fileName.endsWith('.resolver.json'))
+  const before = parseTokenFiles(
+    baseInfo.files,
+    baseHasResolver ? tokenParseOptions(context.config) : {},
+  )
   const problems = [
     ...before.diagnostics.map((d) => ({ side: 'base', d })),
     ...head.diagnostics.map((d) => ({ side: 'head', d })),

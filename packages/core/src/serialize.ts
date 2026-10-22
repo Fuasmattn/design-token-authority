@@ -38,7 +38,8 @@ export function serializeTokenFiles(model: { collections: Collection[] }): Token
         }
         present.add(key)
         // A type the token gets from a group or its alias target stays implicit.
-        if (entry.ownType || entry.type !== token.type) entry.node.$type = token.type
+        const implicit = (entry.type as string) === 'alias' || entry.type === token.type
+        if (entry.ownType || !implicit) entry.node.$type = token.type
         entry.node.$value = token.values[mode]
         applyMetadata(entry.node, token, baseline.get(key))
       }

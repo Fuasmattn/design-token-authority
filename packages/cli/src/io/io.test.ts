@@ -44,6 +44,17 @@ describe('readTokenDir', () => {
     ])
   })
 
+  it('finds a resolver document in a folder below too', () => {
+    const tokens = path.join(dir, 'tokens')
+    fs.mkdirSync(path.join(tokens, 'r', 'sets'), { recursive: true })
+    fs.writeFileSync(path.join(tokens, 'r', 'app.resolver.json'), '{}')
+    fs.writeFileSync(path.join(tokens, 'r', 'sets', 'core.json'), '{}')
+    expect(readTokenDir('tokens', dir).map((f) => f.fileName)).toEqual([
+      'r/app.resolver.json',
+      'r/sets/core.json',
+    ])
+  })
+
   it('names the directory and the fix when it is missing', () => {
     expect(() => readTokenDir('tokens', dir)).toThrow(TokenDirError)
     expect(() => readTokenDir('tokens', dir)).toThrow(/"tokens" not found[\s\S]*dta pull/)

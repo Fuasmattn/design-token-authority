@@ -155,6 +155,28 @@ describe('dta diff with git', () => {
     expect(stdout).toContain('| `Primary` | Brand · A | `#0000ff` | `#0000cc` | `Blue` |')
   })
 
+  it('reads a base from before a resolver document without the resolver options', async () => {
+    // The head moves to a resolver document in a subfolder, named in the config.
+    fs.rmSync(path.join(dir, 'tokens'), { recursive: true })
+    fs.mkdirSync(path.join(dir, 'tokens', 'r'), { recursive: true })
+    fs.writeFileSync(
+      path.join(dir, 'tokens', 'r', 'app.resolver.json'),
+      JSON.stringify({
+        version: '2025.10',
+        sets: { base: { sources: [{ Blue: color('#0000aa') }] } },
+        resolutionOrder: [{ $ref: '#/sets/base' }],
+      }),
+    )
+    fs.writeFileSync(
+      path.join(dir, 'dta.config.json'),
+      JSON.stringify({ tokens: { dir: 'tokens', resolver: 'r/app.resolver.json' } }),
+    )
+    const { exitCode, stdout, stderr } = await diff(['--base', 'main', '--format', 'markdown'])
+    expect(stderr).toBe('')
+    expect(exitCode).toBe(0)
+    expect(stdout).toContain('`Blue`')
+  })
+
   it('reads the base at a ref without touching the working tree, and includes uncommitted edits', async () => {
     writeTokens('#000099')
     const { exitCode, stdout } = await diff(['--base', 'main', '--format', 'json'])

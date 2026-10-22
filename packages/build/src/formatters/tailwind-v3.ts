@@ -163,7 +163,9 @@ export const tailwindV3Formatter: FormatFn = ({ dictionary, options }) => {
       const pairs = Object.entries(values)
         .map(([k, v]) => `        '${k}': '${quote(v)}'`)
         .join(',\n')
-      return `      ${cat}: {\n${pairs},\n      }`
+      // A category such as `safe-area` is not an identifier: quote it.
+      const name = /^[A-Za-z_$][\w$]*$/.test(cat) ? cat : `'${quote(cat)}'`
+      return `      ${name}: {\n${pairs},\n      }`
     })
     .join(',\n')
 

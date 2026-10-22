@@ -242,6 +242,33 @@ describe('resolver documents', () => {
     expect(value(model, 'surface', { brand: 'b' })).toBe('#ff0000')
   })
 
+  it("finds a token a modifier changes only away from the other one's default", () => {
+    const two = (second: object, secondDefault: string) =>
+      parseTokenFiles([
+        resolver({
+          sets: { base: { sources: [{ x: color('#ffffff') }] } },
+          modifiers: {
+            theme: { contexts: { light: [], dark: [{ x: color('#000000') }] }, default: 'light' },
+            second: { contexts: second, default: secondDefault },
+          },
+          resolutionOrder: [
+            { $ref: '#/sets/base' },
+            { $ref: '#/modifiers/theme' },
+            { $ref: '#/modifiers/second' },
+          ],
+        }),
+      ]).model
+    // A later modifier undoes the dark theme: at its default nothing seems to change.
+    const reset = two({ normal: [], high: [{ x: color('#ffffff') }] }, 'normal')
+    expect(value(reset, 'x', { theme: 'dark', second: 'high' })).toBe('#ffffff')
+    expect(value(reset, 'x', { theme: 'dark', second: 'normal' })).toBe('#000000')
+    // The default context of a later modifier hides the dark theme.
+    const hidden = two({ compact: [{ x: color('#ff0000') }], comfy: [] }, 'compact')
+    expect(value(hidden, 'x', { theme: 'dark', second: 'comfy' })).toBe('#000000')
+    expect(value(hidden, 'x', { theme: 'light', second: 'compact' })).toBe('#ff0000')
+    expect(hidden.collections.find((c) => c.axes)?.name).toBe('theme × second')
+  })
+
   it('links a combination to the contexts it combines in the graph', () => {
     const { model } = parse({
       ...BRANDED,

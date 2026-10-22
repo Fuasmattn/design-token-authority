@@ -124,7 +124,7 @@ Tokens one modifier changes go to that modifier's theme files as above (`themes/
 
 {/* prettier-ignore */}
 ```css title="output/css/variables.css (end)"
-/* theme × brand: the sets' values; [data-theme] and [data-brand] choose the rest */
+/* theme × brand: the sets' values and the default contexts; [data-theme] and [data-brand] choose others */
 :root {
   --accent-dta-base: var(--color-blue-500);
   --accent: var(--accent-dta-brand, var(--accent-dta-theme, var(--accent-dta-base)));
@@ -151,7 +151,7 @@ Tokens one modifier changes go to that modifier's theme files as above (`themes/
 }
 ```
 
-A context that leaves the token alone sets its layer to `initial` (brand a, light), so a nested section can undo an outer one. Set both attributes on any elements, in either order:
+`:root` also holds the layers of each modifier's default context (none here: light and a leave `accent` alone), so a page without the attributes gets the default combination. A context that leaves the token alone sets its layer to `initial` (brand a, light), so a nested section can undo an outer one. Set both attributes on any elements, in either order:
 
 ```html
 <html data-theme="light" data-brand="a">

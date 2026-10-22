@@ -343,3 +343,37 @@ describe('parseTokenFiles: DTCG .tokens files', () => {
     )
   })
 })
+
+describe('parseTokenFiles: the type of an alias (review findings)', () => {
+  const file = (tree: unknown) => [{ fileName: 'A.Value.json', content: JSON.stringify(tree) }]
+
+  it("takes the alias target's type before the group's (DTCG 2025.10 §5.2.2)", () => {
+    const { model, diagnostics } = parseTokenFiles(
+      file({
+        color: { blue: { $type: 'color', $value: '#0000ff' } },
+        size: { $type: 'dimension', ref: { $value: '{color.blue}' } },
+      }),
+    )
+    expect(diagnostics).toEqual([])
+    const ref = model.collections[0].tokens.find((t) => t.name.join('.') === 'size.ref')
+    expect(ref?.type).toBe('color')
+  })
+
+  it("falls back to the group's type when the target does not exist", () => {
+    const { model } = parseTokenFiles(
+      file({ size: { $type: 'dimension', ref: { $value: '{nowhere}' } } }),
+    )
+    expect(model.collections[0].tokens.map((t) => t.type)).toEqual(['dimension'])
+  })
+
+  it('writes an alias back without the $type it never had', () => {
+    const content = JSON.stringify(
+      { c: { $type: 'color', $value: '#ff0000' }, a: { $value: '{c}' } },
+      null,
+      2,
+    )
+    const files = [{ fileName: 'A.Value.json', content }]
+    const { model } = parseTokenFiles(files)
+    expect(serializeTokenFiles(model)[0].content.trim()).toBe(content)
+  })
+})

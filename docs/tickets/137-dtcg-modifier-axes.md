@@ -40,3 +40,21 @@
 - **`dta push`** writes a combined collection as a Figma collection with one mode per combination (Figma has no axes); not tested against Figma.
 - **`dta diff` and the playground** were not changed: they read the model and the built CSS, so they see combined collections as collections with one mode per combination. Not checked by hand.
 - The CLI build report lists modifier themes as "Theme theme-dark complete".
+
+### Independent review (three agents, before the first push)
+
+Fixed, each with a test:
+
+- **Resolver:** a modifier now counts as changing a token when switching its context changes the token for _any_ choice of the other modifiers, not only at their defaults (a later modifier can undo an earlier one; a default context can hide one). Every combination is compared up to 256; past that, the old check with a `resolver-combinations` warning.
+- **Type order (TICKET-132):** an alias without `$type` takes its target's type before its group's (DTCG §5.2.2); the group's type is the fallback when the target does not exist. Writing files back no longer adds `$type` to such aliases.
+- **Build:** theme files resolve aliases into other modifiers and into combined tokens (a dark-theme token `{accent}` was written as literal `{accent}`); `:root` also holds the default contexts' layers, so a page without the attributes gets the default combination, as `base.css` does; a gradient stop whose position is an alias is `calc(var(--x) * 100%)` (was `NaN%`); Tailwind v3 quotes category keys that are not identifiers (`'safe-area'`, `'sky-lightness'`; daisyui/build and dtcg-2025/build re-recorded by name).
+- **`dta diff`:** the result schema takes every token type (it rejected a change to a dimension or shadow); the base is read without the resolver options when it has no resolver document (diffing a migration to one).
+- **CLI:** a resolver document in a folder below the tokens directory is found; `dta clean` removes `.tokens` files and, with a resolver document, the folders it reads (dtcg-2025/clean, dtcg-resolver/clean, dtcg-modifiers/clean re-recorded by name).
+
+Left open (follow-ups):
+
+- A token of one modifier that aliases a combined token is not declared again in the other modifiers' rules, so nested contexts can show it stale (documented in the guide).
+- References inside composites are not type-checked against their target (a border colour pointing at a string token resolves); `$ref` into a value cannot take its type from the target.
+- Stricter values (TICKET-132): `"0"`, `"100%"`, `"1em"` dimensions are now `invalid-value` errors; `X.tokens.json` is now collection X with one mode.
+- Tailwind v4 has no `duration` namespace; typography drops `letterSpacing` and border `dashArray` silently; push keeps a literal `$root` segment; push skips aliases of a token skipped in one mode in every mode.
+- A circular `$extends` is reported once per cycle, not per group; names starting with `$` are skipped silently.

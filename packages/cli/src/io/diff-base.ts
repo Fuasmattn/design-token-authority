@@ -54,26 +54,16 @@ function defaultBranch(cwd: string): string | null {
 function readTokensAtCommit(cwd: string, sha: string, tokensDir: string): TokenFileInput[] {
   const prefix = (git(cwd, ['rev-parse', '--show-prefix']) ?? '').trim()
   const dir = path.posix.normalize(path.posix.join(prefix, tokensDir.split(path.sep).join('/')))
-  const list = (recursive: boolean) =>
-    (
-      git(cwd, [
-        'ls-tree',
-        '-z',
-        ...(recursive ? ['-r'] : []),
-        '--full-tree',
-        '--name-only',
-        sha,
-        '--',
-        `${dir}/`,
-      ]) ?? ''
-    )
+  const list = () =>
+    (git(cwd, ['ls-tree', '-z', '-r', '--full-tree', '--name-only', sha, '--', `${dir}/`]) ?? '')
       .split('\0')
       .filter(Boolean)
       .map((entry) => (entry.startsWith(`${dir}/`) ? entry.slice(dir.length + 1) : entry))
-  // As readTokenDir: with a resolver document, the files in folders below are read too.
-  const top = list(false)
-  const nested = top.some((name) => name.endsWith('.resolver.json'))
-  return (nested ? list(true) : top)
+  // As readTokenDir: with a resolver document (at any depth), the files in folders below are
+  // read too.
+  const all = list()
+  const nested = all.some((name) => name.endsWith('.resolver.json'))
+  return (nested ? all : all.filter((name) => !name.includes('/')))
     .filter((name) => {
       const base = name.split('/').pop() ?? ''
       return isTokenFileName(base) || base.endsWith('.resolver.json')

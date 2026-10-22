@@ -25,6 +25,8 @@ export interface Entry {
   deprecated?: true | string
   /** Whether the token came from a group's `$extends` (it is not written at this path). */
   inherited?: boolean
+  /** For an alias without `$type`: the group's type, used when the target gives none. */
+  groupType?: string
 }
 
 export interface ReadResult {
@@ -147,10 +149,11 @@ function toEntry(
 ): Entry | null {
   const name = path.join('.')
   const ownType = '$type' in node
-  // Type: the token's own, else (for an alias) the target's, resolved later, else the group's.
-  let type = ownType ? node.$type : inherited.type
+  // Type: the token's own, else (for an alias) the target's, resolved later, else the group's
+  // (DTCG 2025.10 §5.2.2).
   const value = node.$value
-  if (type === undefined && referenceOf(value)?.part.length === 0) type = 'alias'
+  const wholeAlias = referenceOf(value)?.part.length === 0
+  let type = ownType ? node.$type : wholeAlias ? 'alias' : inherited.type
   if (type === undefined) {
     problems.push({
       severity: 'error',
@@ -168,6 +171,7 @@ function toEntry(
       type: 'alias' as TokenType,
       ownType: false,
       value: value as string,
+      ...(typeof inherited.type === 'string' ? { groupType: inherited.type } : {}),
       ...metadata(node, inherited),
     }
   }

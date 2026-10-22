@@ -870,6 +870,14 @@ describe('buildOutputs: DTCG 2025.10 values', () => {
           ],
         },
         half: { $type: 'number', $value: { $ref: '#/size/s/$value/value' } },
+        stop: { $type: 'number', $value: 0.25 },
+        split: {
+          $type: 'gradient',
+          $value: [
+            { color: '#ff0080', position: '{stop}' },
+            { color: '#000000', position: 1 },
+          ],
+        },
       },
     })
 
@@ -891,11 +899,14 @@ describe('buildOutputs: DTCG 2025.10 values', () => {
       '--fade: var(--motion-fast) var(--motion-ease) 0ms;',
       '--brand: #ff0080 0%, var(--color-sky) 100%;',
       '--half: 2;',
+      // A position that is an alias stays a percentage (review finding: it was NaN%).
+      '--split: #ff0080 calc(var(--stop) * 100%), #000000 100%;',
     ])
       expect(vars).toContain(line)
     const base = find(files, 'output/css/base.css') ?? ''
     expect(base).toContain('--shadow-card: 0px 2px 1rem 0px rgba(0, 0, 0, 0.5);')
     expect(base).toContain('--brand: #ff0080 0%, oklch(0.7 0.15 250) 100%;')
+    expect(base).toContain('--split: #ff0080 calc(0.25 * 100%), #000000 100%;')
     expect([...vars.matchAll(/object Object/g)]).toEqual([])
   })
 
@@ -966,6 +977,40 @@ describe('buildOutputs: several resolver modifiers (TICKET-137)', () => {
     expect(files['themes/brand-b.css']).toContain('  --accent-dta-brand: #ff0000;')
     // A token one modifier changes is a plain theme token.
     expect(files['themes/theme-dark.css']).toContain('  --page: #000000;')
+  })
+
+  it('writes the default contexts on :root and resolves aliases into a combined token', async () => {
+    const withDefaults = parseTokenFiles([
+      json('app.resolver.json', {
+        version: '2025.10',
+        sets: { core: { sources: [{ blue: color('#0000ff'), accent: color('#ffffff') }] } },
+        modifiers: {
+          theme: {
+            contexts: {
+              light: [{ accent: color('{blue}') }],
+              dark: [{ accent: color('#000088'), ring: color('{accent}') }],
+            },
+            default: 'light',
+          },
+          brand: { contexts: { a: [], b: [{ accent: color('#ff0000') }] }, default: 'a' },
+        },
+        resolutionOrder: [
+          { $ref: '#/sets/core' },
+          { $ref: '#/modifiers/theme' },
+          { $ref: '#/modifiers/brand' },
+        ],
+      }),
+    ]).model
+    const files = Object.fromEntries(
+      (await buildOutputs(withDefaults, { formats: ['css'] })).files.map((f) => [
+        f.path.replace('output/css/', ''),
+        f.content,
+      ]),
+    )
+    expect(files['variables.css']).toContain(
+      '  --accent-dta-base: #ffffff;\n  --accent-dta-theme: var(--blue);\n  --accent: var(',
+    )
+    expect(files['themes/theme-dark.css']).toContain('  --ring: var(--accent);')
   })
 
   it('switches a modifier whose contexts are brands with data-brand', async () => {

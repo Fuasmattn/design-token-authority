@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import pc from 'picocolors'
 import type { CommandContext } from '../commands.js'
+import { listTokenFiles } from '../io/token-dir.js'
 import { banner, createUi } from '../ui.js'
 
 /** Where `dta build` writes when nothing else is configured. */
@@ -34,10 +35,20 @@ export async function runClean(context: CommandContext): Promise<number> {
 
   const tokensPath = path.resolve(root, tokensDir)
   if (fs.existsSync(tokensPath) && fs.statSync(tokensPath).isDirectory()) {
-    const files = fs.readdirSync(tokensPath).filter((name) => name.endsWith('.json'))
+    // The files dta reads: per-mode and .tokens files, resolver documents and their folders.
+    const files = listTokenFiles(tokensPath)
     for (const name of files) {
       fs.rmSync(path.join(tokensPath, name))
       removed.push(`${tokensDir}/${name}`)
+    }
+    const folders = new Set<string>()
+    for (const file of files) {
+      for (let dir = path.posix.dirname(file); dir !== '.'; dir = path.posix.dirname(dir))
+        folders.add(dir)
+    }
+    for (const parent of [...folders].sort().reverse()) {
+      const folder = path.join(tokensPath, parent)
+      if (fs.existsSync(folder) && fs.readdirSync(folder).length === 0) fs.rmdirSync(folder)
     }
     if (context.options.verbose && files.length > 0) {
       ui.log.message(`Removed ${files.length} token file(s) from ${tokensDir}/`)
