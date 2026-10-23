@@ -220,21 +220,22 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [084](./084-diff-attribution.md)         | Explain visual changes by token                     | High     | L      | 083        | Done        |
 | [085](./085-diff-report.md)              | Review report in the Drafting Table design          | High     | M      | 084        | Done        |
 | [086](./086-diff-github.md)              | Publish hook and `dta diff` in pull requests        | High     | M      | 085        | In progress |
-| [087](./087-diff-dogfood-site.md)        | Guard the DTA website with `dta diff`               | Medium   | S      | 086        | Open        |
+| [087](./087-diff-dogfood-site.md)        | Guard the DTA website with `dta diff`               | Medium   | S      | 086        | In progress |
 | [088](./088-diff-retire-test-visual.md)  | Retire `test:visual`                                | Medium   | XS     | 082        | Done        |
 | [089](./089-diff-storybook-adapter.md)   | Storybook adapter for `dta diff`                    | Medium   | M      | 082        | Done        |
 
 **Follow-ups found while writing the docs (072)**
 
-| #                                             | Ticket                                                                 | Priority | Effort | Blocked by | Status |
-| --------------------------------------------- | ---------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | —          | Open   |
-| [091](./091-build-breakpoint-modes.md)        | Breakpoint modes in the build output                                   | Medium   | M      | —          | Done   |
-| [092](./092-lint-contrast-per-mode.md)        | `color-contrast` per mode, through aliases                             | Medium   | S      | —          | Done   |
-| [117](./117-css-prefix.md)                    | Make `outputs.css.prefix` work (or remove it)                          | Low      | M      | —          | Done   |
-| [118](./118-init-writes-output-formats.md)    | `dta init` writes `outputs.formats`                                    | Low      | S      | —          | Done   |
-| [119](./119-build-fails-on-broken-aliases.md) | `dta build` must not write broken CSS for dangling or circular aliases | High     | S      | —          | Done   |
-| [125](./125-audit-rank-breakpoint-values.md)  | `dta audit` / `token find` rank breakpoint-only matches lower          | Low      | S      | 091        | Open   |
+| #                                             | Ticket                                                                 | Priority | Effort | Blocked by | Status    |
+| --------------------------------------------- | ---------------------------------------------------------------------- | -------- | ------ | ---------- | --------- |
+| [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | —          | Open      |
+| [091](./091-build-breakpoint-modes.md)        | Breakpoint modes in the build output                                   | Medium   | M      | —          | Done      |
+| [092](./092-lint-contrast-per-mode.md)        | `color-contrast` per mode, through aliases                             | Medium   | S      | —          | Done      |
+| [117](./117-css-prefix.md)                    | Make `outputs.css.prefix` work (or remove it)                          | Low      | M      | —          | Done      |
+| [118](./118-init-writes-output-formats.md)    | `dta init` writes `outputs.formats`                                    | Low      | S      | —          | Done      |
+| [119](./119-build-fails-on-broken-aliases.md) | `dta build` must not write broken CSS for dangling or circular aliases | High     | S      | —          | Done      |
+| [125](./125-audit-rank-breakpoint-values.md)  | `dta audit` / `token find` rank breakpoint-only matches lower          | Low      | S      | 091        | In review |
+| [139](./139-playground-e2e-races.md)          | Two playground e2e tests that fail now and then in CI                  | Medium   | S      | —          | In review |
 
 **Follow-ups found while writing Learn (073)**
 

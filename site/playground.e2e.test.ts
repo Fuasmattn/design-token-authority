@@ -816,10 +816,15 @@ describe.skipIf(!enabled)('playground on the built site', () => {
     try {
       await page.getByRole('button', { name: 'Load example' }).click()
       await page.getByRole('table', { name: 'Structure' }).waitFor()
-      // The view must be tall enough to scroll the bar past the top before scrolling: on a slow
-      // runner the table can be there a frame before the page has its full height, and a scroll
-      // then stops short (the bar stayed at its natural 298px once in CI).
+      // The bar stayed at its natural 298px once in CI (TICKET-139). Two things must have
+      // happened before scrolling: loading moves focus to the source bar's status, which scrolls
+      // it into view (a scroll before that focus lands is undone), and the view must be tall
+      // enough to scroll the bar past the top (the table can be there a frame before the page
+      // has its full height).
       const tablist = page.getByRole('tablist')
+      await page.waitForFunction(() =>
+        document.activeElement?.classList.contains('dta-source__status'),
+      )
       await page.waitForFunction(() => {
         const bar = document.querySelector('[role="tablist"]')
         if (!bar) return false

@@ -408,14 +408,20 @@ export default function Playground() {
   // A selection made from another view (or a hash) has no row that opened it: once its row (or
   // finding) is on screen, closing the panel returns focus there (one more render hands it over).
   const [, setOpenerFound] = useState(0)
+  const onScreen = (): HTMLElement | null => {
+    if (selection?.kind === 'token' && view === 'graph' && graphView) {
+      return visibleNode(selection.id)
+    }
+    if (selection?.kind === 'finding' && view === 'lint') {
+      return document.getElementById(findingId(FINDINGS_ID, selection.group, selection.line))
+    }
+    return null
+  }
+  const onScreenNow = useRef(onScreen)
+  onScreenNow.current = onScreen
   useEffect(() => {
     if (opener.current?.isConnected) return
-    let found: HTMLElement | null = null
-    if (selection?.kind === 'token' && view === 'graph' && graphView) {
-      found = visibleNode(selection.id)
-    } else if (selection?.kind === 'finding' && view === 'lint') {
-      found = document.getElementById(findingId(FINDINGS_ID, selection.group, selection.line))
-    }
+    const found = onScreen()
     if (!found) return
     opener.current = found
     setOpenerFound((count) => count + 1)
@@ -520,6 +526,13 @@ export default function Playground() {
   const selectionNow = useRef(selection)
   selectionNow.current = selection
   const close = useCallback(() => {
+    // Closed before the opener reached the panel (it is found one render after a selection made
+    // in another view): focus is still in the closed panel, so it goes to the row or finding on
+    // screen now. Focus anywhere else is the visitor's and stays.
+    const active = document.activeElement
+    if (active?.closest('dialog.dta-detail')) {
+      ;(opener.current?.isConnected ? opener.current : onScreenNow.current())?.focus()
+    }
     if (selectionNow.current?.kind === 'token') history.replaceState(null, '', hashOf('graph'))
     setSelection(null)
   }, [])
