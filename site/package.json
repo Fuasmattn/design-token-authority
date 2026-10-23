@@ -28,6 +28,7 @@
     "@dta/lint": "workspace:*",
     "@types/node": "^24.12.2",
     "astro": "7.3.5",
+    "design-token-authority": "workspace:*",
     "esbuild": "0.28.2",
     "fflate": "0.8.2",
     "playwright-core": "1.59.1",

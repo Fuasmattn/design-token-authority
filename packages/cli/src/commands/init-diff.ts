@@ -9,6 +9,7 @@ import { gitOutput } from '../io/diff-base.js'
 import { CommandFailedError, runCommand } from '../io/run-command.js'
 import {
   addDevDependency,
+  keyLines,
   planSection,
   planWorkflows,
   proposeSection,
@@ -51,7 +52,7 @@ function currentSection(
       ? stories
       : stories?.type === 'storybook'
         ? { type: 'storybook' }
-        : stories,
+        : stories && { type: 'static-site', manifest: (stories as { manifest?: string }).manifest },
     ...(diff.workflow !== undefined ? { workflow: diff.workflow } : {}),
   }
 }
@@ -116,9 +117,13 @@ export async function runDiffStep(
   ui.log.message(describeDetection(detection))
 
   let current: Partial<Record<DiffKey, unknown>> = {}
+  let publish: string | undefined
   try {
     const { config } = await loadConfig({ cwd, configPath: configName })
     current = currentSection(config?.diff as Record<string, unknown> | undefined)
+    // A publish hook is the user's: init only carries it into the report workflow.
+    const hook = (config?.diff as { publish?: string | { command: string } } | undefined)?.publish
+    publish = typeof hook === 'string' ? hook : hook?.command
   } catch (error) {
     if (!(error instanceof ConfigError)) throw error
     ui.log.error(error.message)
@@ -129,7 +134,9 @@ export async function runDiffStep(
   const answers: DiffAnswers = {}
   const ask = !options.yes
   if (!detection.storybook.value) {
-    if (!Array.isArray(current.stories)) {
+    // A page list or a manifest is kept: only a project without either is asked for pages.
+    const stories = current.stories as { type?: string } | string[] | undefined
+    if (!Array.isArray(stories) && stories?.type !== 'static-site') {
       answers.pages = ask
         ? answered(
             await ui.text({
@@ -189,7 +196,7 @@ export async function runDiffStep(
   const workflows =
     detection.git.host.value === 'other'
       ? null
-      : planWorkflows(repoRoot, workflowsFor(detection, section.next, workingDirectory))
+      : planWorkflows(repoRoot, workflowsFor(detection, section.next, workingDirectory, publish))
   const playwright = playwrightState(cwd)
   const manager = detection.packageManager.value ?? 'npm'
   const installSteps = [
@@ -197,7 +204,15 @@ export async function runDiffStep(
     ...(playwright.chromium ? [] : [`${RUNNER[manager]} playwright-core install chromium`]),
   ]
 
-  const changes = [...section.changes, ...(workflows?.changes ?? [])]
+  // The report folder holds screenshots of every run: keep it out of git.
+  const inRepo = gitOutput(cwd, ['rev-parse', '--git-dir']) !== null
+  const ignoreReport =
+    inRepo && gitOutput(cwd, ['check-ignore', '-q', '--no-index', '.dta/diff/index.html']) === null
+  const changes = [
+    ...section.changes,
+    ...(workflows?.changes ?? []),
+    ...(ignoreReport ? ['.gitignore: .dta/diff/ (the report folder)'] : []),
+  ]
   const kept = [...section.kept, ...(workflows?.kept ?? [])]
   if (kept.length > 0) ui.note(kept.join('\n'), 'Kept')
   if (changes.length === 0) {
@@ -226,9 +241,23 @@ export async function runDiffStep(
       fs.writeFileSync(configPath, edit.content)
       ui.log.success(`Wrote the diff section of ${pc.bold(configName)}`)
     } else {
-      ui.log.warn(
-        `Did not edit ${configName}: ${edit.reason}. Put this in it instead:\n${edit.block}`,
-      )
+      // Never rewrite a section written by hand: say which keys to add or change in it. Without
+      // a section to change, print the whole block to add.
+      const lines = keyLines(section.next, section.changedKeys)
+      if (Object.keys(current).length === 0) {
+        ui.log.warn(`Did not edit ${configName}: ${edit.reason}. Add this to it:\n${edit.block}`)
+      } else if (lines.length > 0) {
+        ui.log.warn(
+          `Did not edit ${configName}: ${edit.reason}. Add or change these keys in its diff section:\n${lines.map((line) => `  ${line}`).join('\n')}`,
+        )
+      }
+    }
+    if (ignoreReport) {
+      const file = path.join(cwd, '.gitignore')
+      const before = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : ''
+      const separator = before === '' || before.endsWith('\n') ? '' : '\n'
+      fs.writeFileSync(file, `${before}${separator}# dta diff reports\n.dta/diff/\n`)
+      ui.log.success(`Added ${pc.bold('.dta/diff/')} to .gitignore`)
     }
     for (const file of workflows?.write ?? []) {
       const target = path.join(repoRoot, file.path)

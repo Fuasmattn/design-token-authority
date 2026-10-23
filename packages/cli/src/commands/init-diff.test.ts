@@ -205,7 +205,8 @@ describe('dta init --diff (TICKET-131)', () => {
     const { stdout } = await initDiff()
     expect(stdout).toContain('.github/workflows/dta-diff.yml (edited by hand: not overwritten)')
     expect(read('.github/workflows/dta-diff.yml')).toContain('self-hosted')
-    expect(read('.github/workflows/dta-diff-report.yml')).toContain('pnpm install')
+    // Without a publish hook the report workflow runs no code of the project.
+    expect(read('.github/workflows/dta-diff-report.yml')).not.toContain('actions/checkout')
   })
 
   it('asks about outside contributors once, and writes one file for a team', async () => {
@@ -222,6 +223,84 @@ describe('dta init --diff (TICKET-131)', () => {
     expect((await loadConfig({ cwd: dir })).config?.diff?.workflow).toBe('single')
     // Saved: the re-run does not ask again.
     expect((await initDiff([], [])).stdout).toContain('Up to date')
+  })
+
+  it('keeps the report folder out of git, once', async () => {
+    const first = await initDiff()
+    expect(first.stdout).toContain('Added .dta/diff/ to .gitignore')
+    expect(read('.gitignore')).toContain('.dta/diff/')
+    expect((await initDiff()).stdout).toContain('Up to date')
+  })
+
+  it('names only the keys to add when the diff section was written by hand', async () => {
+    put(
+      'dta.config.ts',
+      CONFIG.replace(
+        "  tokens: {\n    dir: 'tokens',\n  },",
+        "  tokens: {\n    dir: 'tokens',\n  },\n  diff: {\n    build: 'pnpm build',\n    outDir: 'dist',\n    stories: { type: 'static-site', manifest: 'stories/manifest.json' },\n    viewports: [1280],\n  },",
+      ),
+    )
+    fs.rmSync(path.join(dir, '.storybook'), { recursive: true })
+    put(
+      'package.json',
+      JSON.stringify({
+        scripts: { build: 'vite build' },
+        devDependencies: { 'playwright-core': '1' },
+      }),
+    )
+    const before = read('dta.config.ts')
+    const { stdout } = await initDiff()
+    expect(stdout).toContain('build: pnpm build (set by hand)')
+    expect(stdout).not.toContain('stories:')
+    expect(stdout).toContain(
+      "Add or change these keys in its diff section:\n|    workflow: 'split',",
+    )
+    expect(read('dta.config.ts')).toBe(before)
+  })
+
+  it("carries the config's publish hook into the report workflow", async () => {
+    await initDiff()
+    put(
+      'dta.config.ts',
+      read('dta.config.ts').replace(
+        "    workflow: 'split',",
+        "    workflow: 'split',\n    publish: 'sh .github/dta-diff-publish.sh',",
+      ),
+    )
+    const { stdout } = await initDiff()
+    expect(stdout).toContain('.github/workflows/dta-diff-report.yml (updated)')
+    const report = read('.github/workflows/dta-diff-report.yml')
+    expect(report).toContain('actions/checkout@v4')
+    expect(report).toContain("'sh .github/dta-diff-publish.sh'")
+    expect(report).toContain("The publish hook's secrets go here as env")
+  })
+
+  it('does not ask for pages when the config renders a manifest', async () => {
+    put(
+      'dta.config.ts',
+      CONFIG.replace(
+        "  tokens: {\n    dir: 'tokens',\n  },",
+        "  tokens: {\n    dir: 'tokens',\n  },\n  diff: {\n    build: 'pnpm build',\n    outDir: 'dist',\n    stories: { type: 'static-site', manifest: 'stories/manifest.json' },\n    workflow: 'split',\n  },",
+      ),
+    )
+    fs.rmSync(path.join(dir, '.storybook'), { recursive: true })
+    put(
+      'package.json',
+      JSON.stringify({
+        scripts: { build: 'vite build' },
+        devDependencies: { 'playwright-core': '1' },
+      }),
+    )
+    // Only the confirmation: a pages question would be left unanswered and time out.
+    const { exitCode, stdout } = await initDiff([], [['Apply these changes?', '']])
+    expect(exitCode).toBe(0)
+    expect(stdout).not.toContain('Which pages')
+  })
+
+  it('adds the report folder to a .gitignore that does not end in a newline', async () => {
+    put('.gitignore', 'node_modules')
+    await initDiff()
+    expect(read('.gitignore')).toBe('node_modules\n# dta diff reports\n.dta/diff/\n')
   })
 
   it('needs a config first', async () => {

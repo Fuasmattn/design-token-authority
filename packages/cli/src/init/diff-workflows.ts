@@ -23,6 +23,12 @@ export interface WorkflowOptions {
   lockDir?: string
   /** pnpm only: the version to install when package.json has no packageManager field. */
   pnpmVersion?: string
+  /**
+   * A publish hook for the report workflow (the docs' example uses the Vercel recipe): the
+   * command and the repository secrets it reads. Without one, the report stays a workflow
+   * artifact, linked from the comment (spec decision 5), and the report workflow installs nothing.
+   */
+  publish?: { command: string; secrets: readonly string[] }
   ref?: string
 }
 
@@ -128,7 +134,14 @@ function single(options: WorkflowOptions, ref: string): WorkflowFile {
     '    steps:',
     ...indent([...checkout, ...setupSteps(options)], 6),
     `      - uses: ${ACTIONS}/diff-pr@${ref}`,
-    ...indent(actionInputs(options), 6),
+    ...indent(
+      actionInputs(
+        options,
+        options.publish ? [`publish: ${yamlString(options.publish.command)}`] : [],
+      ),
+      6,
+    ),
+    ...(options.publish ? publishEnv(options.publish) : []),
     '  # Adding the dta-diff-approved label turns the status of the head commit green.',
     '  approve:',
     "    if: github.event.label.name == 'dta-diff-approved'",
@@ -138,6 +151,23 @@ function single(options: WorkflowOptions, ref: string): WorkflowFile {
     '',
   ]
   return { path: '.github/workflows/dta-diff.yml', content: lines.join('\n') }
+}
+
+/** A YAML string as Prettier writes it: single quotes, double when the text has a single one. */
+const yamlString = (text: string) =>
+  text.includes("'") && !text.includes('"') ? JSON.stringify(text) : `'${text.replace(/'/g, "''")}'`
+
+/** The publish step's env: its secrets, or where to add them when they are not known. */
+function publishEnv(publish: { secrets: readonly string[] }): string[] {
+  return publish.secrets.length > 0
+    ? [
+        '        env:',
+        ...publish.secrets.map((name) => `          ${name}: \${{ secrets.${name} }}`),
+      ]
+    : [
+        "        # The publish hook's secrets go here as env, e.g. TOKEN: ${{ secrets.TOKEN }}",
+        '        # (see "Publishing the report" in "dta diff in pull requests").',
+      ]
 }
 
 function split(options: WorkflowOptions, ref: string): WorkflowFile[] {
@@ -177,20 +207,27 @@ function split(options: WorkflowOptions, ref: string): WorkflowFile[] {
     "    if: github.event.workflow_run.conclusion == 'success'",
     '    runs-on: ubuntu-latest',
     '    steps:',
-    '      - uses: actions/checkout@v4 # the default branch: your config and publish script',
-    // Publishing runs DTA, rendering does not happen here: no Chromium.
-    ...indent(setupSteps(options, false), 6),
-    `      - uses: ${ACTIONS}/diff-report@${ref}`,
-    ...indent(
-      actionInputs(options, [
-        '# Optional: one of the recipes in "dta diff in pull requests". Publish only reports',
-        "# of branches in this repository: a fork's report is untrusted HTML.",
-        "publish: ${{ github.event.workflow_run.head_repository.full_name == github.repository && 'sh .github/dta-diff-publish.sh' || '' }}",
-      ]),
-      6,
-    ),
-    '        env:',
-    '          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}',
+    ...(options.publish
+      ? [
+          '      - uses: actions/checkout@v4 # the default branch: your config and publish script',
+          // Publishing runs DTA, rendering does not happen here: no Chromium.
+          ...indent(setupSteps(options, false), 6),
+          `      - uses: ${ACTIONS}/diff-report@${ref}`,
+          ...indent(
+            actionInputs(options, [
+              "# Publish only reports of branches in this repository: a fork's report is untrusted HTML.",
+              `publish: ${yamlString(`\${{ github.event.workflow_run.head_repository.full_name == github.repository && '${options.publish.command.replace(/'/g, "''")}' || '' }}`)}`,
+            ]),
+            6,
+          ),
+          ...publishEnv(options.publish),
+        ]
+      : [
+          '      # The comment links the report artifact. To host the report, add a publish hook',
+          '      # (`publish:` and the checkout, install and secrets it needs): see "Publishing the',
+          '      # report" in "dta diff in pull requests".',
+          `      - uses: ${ACTIONS}/diff-report@${ref}`,
+        ]),
     '',
   ]
   const approve = [
@@ -230,7 +267,12 @@ export function renderDiffWorkflows(options: WorkflowOptions): WorkflowFile[] {
  * one-file setup, as the docs show them. `pnpm workflows:generate` writes them.
  */
 export function exampleWorkflows(): Array<{ name: string; content: string }> {
-  const options = { manager: 'npm', install: 'npm ci', node: { version: '24' } } as const
+  const options = {
+    manager: 'npm',
+    install: 'npm ci',
+    node: { version: '24' },
+    publish: { command: 'sh .github/dta-diff-publish.sh', secrets: ['VERCEL_TOKEN'] },
+  } as const
   const split = renderDiffWorkflows({ ...options, layout: 'split' })
   const [single] = renderDiffWorkflows({ ...options, layout: 'single' })
   return [

@@ -823,13 +823,17 @@ async function checkSetup(context: CommandContext, base: string | undefined): Pr
         : {
             name: 'base',
             ok: false,
-            detail: ref
-              ? `no commit for ${ref}`
-              : 'no default branch (origin/HEAD, main or master)',
+            detail: !ref
+              ? 'no default branch (origin/HEAD, main or master)'
+              : base !== undefined
+                ? `no commit for ${ref}`
+                : `no merge base with ${ref}`,
             problem: diffProblems.noBase(
-              ref
-                ? `HEAD has no merge base with ${ref}.`
-                : 'Could not find the default branch (origin/HEAD, main or master).',
+              !ref
+                ? 'Could not find the default branch (origin/HEAD, main or master).'
+                : base !== undefined
+                  ? `"${ref}" is not a commit here.`
+                  : `HEAD has no merge base with ${ref}.`,
             ),
           },
     )

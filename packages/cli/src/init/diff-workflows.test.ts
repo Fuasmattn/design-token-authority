@@ -53,6 +53,7 @@ describe('renderDiffWorkflows (TICKET-129)', () => {
       node: { version: '22' },
       layout: 'split',
       workingDirectory: 'apps/web',
+      publish: { command: 'sh .github/dta-diff-publish.sh', secrets: ['VERCEL_TOKEN'] },
     })
     expect(files.map((f) => f.path)).toEqual([
       '.github/workflows/dta-diff.yml',
@@ -97,6 +98,44 @@ describe('renderDiffWorkflows (TICKET-129)', () => {
     expect(steps[2].with).toEqual({ 'node-version-file': '.nvmrc', cache: 'pnpm' })
     expect(steps[3]).toEqual({ run: 'pnpm install --frozen-lockfile' })
     expect(steps[4]['working-directory']).toBe('packages/web')
+  })
+
+  it('leaves publishing out unless a hook is given: the report workflow installs nothing', () => {
+    const report = renderDiffWorkflows({
+      manager: 'npm',
+      install: 'npm ci',
+      node: { version: '24' },
+      layout: 'split',
+    })[1].content
+    const steps = parse(report).jobs.report.steps
+    expect(steps).toEqual([{ uses: 'Fuasmattn/design-token-authority/actions/diff-report@main' }])
+    expect(report).not.toContain('secrets.')
+  })
+
+  it("publishes with the config's hook, quoted, and says where its secrets go", () => {
+    const files = renderDiffWorkflows({
+      manager: 'npm',
+      install: 'npm ci',
+      node: { version: '24' },
+      layout: 'split',
+      publish: { command: "node publish.mjs --name 'a: b'", secrets: [] },
+    })
+    const step = parse(files[1].content).jobs.report.steps.at(-1)
+    expect(step.with.publish).toBe(
+      "${{ github.event.workflow_run.head_repository.full_name == github.repository && 'node publish.mjs --name ''a: b''' || '' }}",
+    )
+    expect(step.env).toBeUndefined()
+    expect(files[1].content).toContain("The publish hook's secrets go here as env")
+    const [single] = renderDiffWorkflows({
+      manager: 'npm',
+      install: 'npm ci',
+      node: { version: '24' },
+      layout: 'single',
+      publish: { command: "node publish.mjs --name 'a: b'", secrets: [] },
+    })
+    expect(parse(single.content).jobs.diff.steps.at(-1).with.publish).toBe(
+      "node publish.mjs --name 'a: b'",
+    )
   })
 
   it('renders yarn and bun', () => {

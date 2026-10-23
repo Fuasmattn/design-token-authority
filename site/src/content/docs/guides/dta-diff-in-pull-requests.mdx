@@ -94,7 +94,7 @@ o  Found
 —  dta diff is set up.
 ```
 
-It only touches what it wrote: a key you changed in the `diff` section is kept and listed as kept, keys you added stay, and a workflow file you edited is not overwritten (init names it). Everything else is plain config: every key is in the [configuration reference](/reference/configuration/).
+It only touches what it wrote: a key you changed in the `diff` section is kept and listed as kept, keys you added stay, and a workflow file you edited is not overwritten (init names it). A `diff` section you wrote yourself in a TypeScript or JavaScript config is not edited: init prints the keys to add to it instead (`dta.config.json` gets them merged in, your keys kept). A `diff.publish` hook in the config goes into the report workflow; add the secrets it needs as `env` of that step. In a git repository it also adds `.dta/diff/` (the report folder) to `.gitignore`, unless that is already ignored. Everything else is plain config: every key is in the [configuration reference](/reference/configuration/).
 
 ## Reading the report
 
@@ -132,6 +132,8 @@ Pull requests from forks run with a read-only token and no secrets, so the work 
    <Code code={runWorkflow} lang="yaml" title=".github/workflows/dta-diff.yml" />
 
 2. **Report** when the run finishes: publish (optional), status check, comment.
+
+   This example publishes with the [Vercel recipe](#vercel). Without `diff.publish` in the config, `dta init` writes the report workflow with one step and no checkout, install or secrets; the comment then links the report artifact. With it, init adds the checkout, the install and the hook, and a note where its secrets go.
 
    <Code code={reportWorkflow} lang="yaml" title=".github/workflows/dta-diff-report.yml" />
 

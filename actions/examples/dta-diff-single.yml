@@ -30,6 +30,10 @@ jobs:
       - run: npm ci
       - run: npx playwright-core install --with-deps chromium
       - uses: Fuasmattn/design-token-authority/actions/diff-pr@main
+        with:
+          publish: 'sh .github/dta-diff-publish.sh'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
   # Adding the dta-diff-approved label turns the status of the head commit green.
   approve:
     if: github.event.label.name == 'dta-diff-approved'

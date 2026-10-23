@@ -36,3 +36,4 @@ Projects publish the report wherever they want through a hook, and pull requests
 
 - [ ] Vercel recipe tested once: needs a Vercel project for reports (Deployment Protection off for previews), `VERCEL_TOKEN` as a repository secret, `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID`. Planned together with 087.
 - [ ] Private-repo rendering of assets-branch thumbnails verified and documented: needs a private test repository (the guide says "not verified yet" until then).
+- [ ] The actions on a real pull request of this repository: needs the plan branch merged into main, since the report and approval workflows run from the default branch (see TICKET-087).

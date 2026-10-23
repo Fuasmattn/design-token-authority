@@ -46,3 +46,10 @@
 - Docs: Quick start step 6 and the diff guide's "Before you start" lead with the one command; "Change your setup later" starts with re-running. Output copied from a run on the Storybook trial project.
 - **Review (fixed):** the block is inserted after a last property without a trailing comma, at the end of the exported object (found by matching brackets, skipping strings and comments; a function after the export is left alone); a `diff` key written as shorthand counts as hand-written; keys Prettier wrapped over several lines are replaced whole; the record holds what init proposed, so a key kept by hand is kept on every later run too.
 - **Changed after review with the maintainer (2026-10-22):** in a project that has a config, plain `dta init` no longer stops with "Config file already exists": it runs the diff step (set up or update) and never rewrites the config. `--diff` stays as the explicit form for scripts and agents (`dta init --diff --yes`), and also runs only this step. The docs lead with `dta init`.
+
+### Found by running init on the site (TICKET-087)
+
+- A static-site manifest is shown as `manifest <path>` and kept; init no longer asks for pages when the config has a page list or a manifest.
+- A `diff` section written by hand in a TS/JS config is never edited: init names only the keys to add (`keyLines`); with no section and no place to insert one, it prints the whole block.
+- The report workflow has one step (no checkout, install or secrets) unless the config has `diff.publish`; then init carries that command into the workflow (quoted as Prettier writes YAML) with a note where the hook's secrets go.
+- In a git repository init adds `.dta/diff/` to the project's `.gitignore` unless a rule already ignores it (`git check-ignore --no-index`, so a committed report folder does not add the rule again).

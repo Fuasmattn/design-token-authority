@@ -280,7 +280,18 @@ describe('actions and example workflows', () => {
       'pull-requests': 'write',
       statuses: 'write',
     })
-    expect(JSON.stringify(single)).not.toContain('secrets.')
+    // The publish secret only on the step that publishes, never on the job or the install.
+    const steps = single.jobs.diff.steps as Array<{ uses?: string; env?: object }>
+    const withSecrets = steps.filter((step) => JSON.stringify(step).includes('secrets.'))
+    expect(withSecrets.map((step) => step.uses)).toEqual([
+      'Fuasmattn/design-token-authority/actions/diff-pr@main',
+    ])
+    expect(
+      JSON.stringify({
+        ...single,
+        jobs: { ...single.jobs, diff: { ...single.jobs.diff, steps: [] } },
+      }),
+    ).not.toContain('secrets.')
 
     const approve = load('examples/dta-diff-approve.yml')
     expect(approve.on.pull_request_target.types).toEqual(['labeled', 'unlabeled'])

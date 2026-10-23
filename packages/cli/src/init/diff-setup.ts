@@ -17,7 +17,7 @@ import { renderDiffWorkflows, type WorkflowFile } from './diff-workflows.js'
 export interface DiffSection {
   build?: string
   outDir: string
-  stories: string[] | { type: 'storybook' }
+  stories: string[] | { type: 'storybook' } | { type: 'static-site'; manifest: string }
   workflow: 'single' | 'split'
 }
 
@@ -71,12 +71,17 @@ export function proposeSection(
       workflow,
     }
   }
+  // A stories manifest the project already uses stays: it is a choice, not something to detect.
+  const manifest =
+    current.stories && !Array.isArray(current.stories) && current.stories.type === 'static-site'
+      ? current.stories
+      : null
   const pages = Array.isArray(current.stories) ? current.stories : (answers.pages ?? ['/'])
   const build = detection.build.value ?? answers.build
   return {
     ...(build ? { build: `${RUN_DTA[manager]} build && ${build}` } : {}),
     outDir: answers.outDir ?? current.outDir ?? 'dist',
-    stories: pages,
+    stories: manifest ?? pages,
     workflow,
   }
 }
@@ -87,8 +92,10 @@ const show = (value: unknown) =>
     ? '(none)'
     : Array.isArray(value)
       ? `pages ${value.join(', ')}`
-      : typeof value === 'object'
-        ? 'Storybook'
+      : typeof value === 'object' && value !== null
+        ? (value as { type?: string }).type === 'storybook'
+          ? 'Storybook'
+          : `manifest ${String((value as { manifest?: string }).manifest)}`
         : String(value)
 
 export interface SectionPlan {
@@ -98,6 +105,8 @@ export interface SectionPlan {
   changes: string[]
   /** Keys changed by hand since init wrote them: kept as they are. */
   kept: string[]
+  /** The keys that change (new or updated), for a section init may not edit itself. */
+  changedKeys: DiffKey[]
 }
 
 /**
@@ -113,27 +122,40 @@ export function planSection(
   const next = { ...proposed } as Record<DiffKey, unknown>
   const changes: string[] = []
   const kept: string[] = []
+  const changedKeys: DiffKey[] = []
   for (const key of Object.keys(proposed) as DiffKey[]) {
     const now = current[key]
     if (now === undefined) {
       changes.push(`${key}: ${show(proposed[key])} (new)`)
+      changedKeys.push(key)
       continue
     }
     if (same(now, proposed[key])) continue
     const untouched = record !== null && key in record && same(record[key], now)
-    if (untouched) changes.push(`${key}: ${show(now)} → ${show(proposed[key])}`)
-    else {
+    if (untouched) {
+      changes.push(`${key}: ${show(now)} → ${show(proposed[key])}`)
+      changedKeys.push(key)
+    } else {
       next[key] = now
-      kept.push(`${key}: ${show(now)} (changed by hand)`)
+      kept.push(`${key}: ${show(now)} (${record === null ? 'set by hand' : 'changed by hand'})`)
     }
   }
-  return { next: next as unknown as DiffSection, changes, kept }
+  return { next: next as unknown as DiffSection, changes, kept, changedKeys }
 }
 
 // --- The section in dta.config.* -----------------------------------------------------------
 
 const BEGIN = '// dta init --diff: generated'
 const END = '// end of dta init --diff'
+
+/** `key: value,` lines for keys of a section, as init writes them into a config. */
+export function keyLines(section: DiffSection, keys: readonly DiffKey[]): string[] {
+  return keys.map((key) => {
+    const value = section[key]
+    if (key === 'workflow') return `workflow: '${String(value)}',`
+    return `${key}: ${JSON.stringify(value)},`
+  })
+}
 
 /** The block init writes into a TypeScript or JavaScript config, with the record of its values. */
 export function sectionBlock(
@@ -149,7 +171,9 @@ export function sectionBlock(
     `    outDir: ${JSON.stringify(section.outDir)},`,
     Array.isArray(section.stories)
       ? `    stories: [${section.stories.map((page) => JSON.stringify(page)).join(', ')}],`
-      : "    stories: { type: 'storybook' },",
+      : section.stories.type === 'storybook'
+        ? "    stories: { type: 'storybook' },"
+        : `    stories: { type: 'static-site', manifest: ${JSON.stringify(section.stories.manifest)} },`,
     `    workflow: '${section.workflow}',`,
     ...extra,
     '  },',
@@ -344,6 +368,8 @@ export function workflowsFor(
   detection: ProjectDetection,
   section: DiffSection,
   workingDirectory: string,
+  /** The config's `diff.publish` command: the report workflow then publishes with it. */
+  publish?: string,
 ): WorkflowFile[] {
   const manager = detection.packageManager.value ?? 'npm'
   // Paths from the project folder become paths from the repository root.
@@ -365,5 +391,6 @@ export function workflowsFor(
     lockDir: detection.lockfile.value ? fromRoot(detection.lockfile.value.dir) : workingDirectory,
     // pnpm/action-setup reads packageManager from package.json; without it, it needs a version.
     ...(manager === 'pnpm' && !detection.pnpmVersion ? { pnpmVersion: '10' } : {}),
+    ...(publish ? { publish: { command: publish, secrets: [] } } : {}),
   })
 }
