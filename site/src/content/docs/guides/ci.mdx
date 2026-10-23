@@ -14,7 +14,7 @@ All exit codes: [Exit codes](/reference/exit-codes/).
 
 ## Workflow
 
-Until DTA is on npm, the workflow checks out the DTA repository into `.dta-cli` and runs its CLI (Node.js 24, pnpm). Not `.dta`: that folder is DTA's own, for the `dta diff` report and the audit baseline. After the release, the second checkout and the install step become `npx dta`.
+Until DTA is on npm, the workflow checks out the DTA repository into `.dta-cli` and runs its CLI (Node.js 24, pnpm). Not `.dta`: that folder is DTA's own, for the `dta diff` report and the audit baseline. After the release, the second checkout and its install step go: install `design-token-authority` as a dev dependency of your project and run `npx design-token-authority` (or `dta` in a package script).
 
 ```yaml title=".github/workflows/tokens.yml"
 name: tokens

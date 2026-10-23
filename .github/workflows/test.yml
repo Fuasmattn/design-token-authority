@@ -62,3 +62,18 @@ jobs:
         run: pnpm vitest run --project @dta/cli packages/cli/test/diff-visual.test.ts packages/cli/test/init-diff-e2e.test.ts
         env:
           DTA_E2E: '1'
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: The npm packages from their tarballs (create-dta, build, lint, diff --tokens-only, types)
+        run: pnpm vitest run --project create-dta
+        env:
+          DTA_PACKAGE_E2E: '1'

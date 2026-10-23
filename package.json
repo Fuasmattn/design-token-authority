@@ -4,6 +4,14 @@
   "description": "Bi-directional sync between Figma Variables and design token JSON files, with multi-target output (CSS, Tailwind, iOS, Android)",
   "license": "MIT",
   "author": "Martin Preciado Prinz",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fuasmattn/design-token-authority.git"
+  },
+  "homepage": "https://github.com/Fuasmattn/design-token-authority#readme",
+  "bugs": {
+    "url": "https://github.com/Fuasmattn/design-token-authority/issues"
+  },
   "keywords": [
     "design-tokens",
     "figma",
@@ -23,8 +31,7 @@
     "dta": "./bin/dta.js"
   },
   "files": [
-    "bin",
-    "packages"
+    "dist"
   ],
   "scripts": {
     "prettier:check": "prettier --check packages/ scripts/ bin/ site/ actions/",
@@ -36,17 +43,25 @@
     "test:coverage": "vitest run --coverage",
     "release": "release-it",
     "release:dry": "release-it --dry-run",
-    "typecheck": "tsc --noEmit -p scripts/snapshots/tsconfig.json && tsc --noEmit -p scripts/figma/tsconfig.json && tsc --noEmit -p scripts/guardrails/tsconfig.json && pnpm -r typecheck",
+    "typecheck": "tsc --noEmit -p scripts/snapshots/tsconfig.json && tsc --noEmit -p scripts/figma/tsconfig.json && tsc --noEmit -p scripts/guardrails/tsconfig.json && tsc --noEmit -p scripts/package/tsconfig.json && pnpm -r typecheck",
     "snapshot:check": "vitest run --project @dta/cli packages/cli/test/snapshots.test.ts",
     "snapshot:record": "tsx scripts/snapshots/record.ts",
     "report:tokens": "pnpm --filter dta-site report:tokens",
     "schema:generate": "tsx scripts/generate-schemas.ts",
     "figma:recording": "tsx scripts/figma/build-recording.ts",
     "guardrails:boundaries": "tsx scripts/guardrails/package-boundaries.ts",
-    "workflows:generate": "tsx scripts/generate-diff-workflows.ts"
+    "workflows:generate": "tsx scripts/generate-diff-workflows.ts",
+    "package:build": "tsx scripts/package/build.ts"
   },
   "dependencies": {
-    "tsx": "^4.21.0"
+    "@clack/prompts": "^1.2.0",
+    "commander": "^14.0.3",
+    "picocolors": "^1.1.1",
+    "pixelmatch": "7.2.0",
+    "pngjs": "7.0.0",
+    "style-dictionary": "^5.7.0",
+    "tsx": "^4.21.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
@@ -57,11 +72,37 @@
     "@release-it/conventional-changelog": "^10.0.6",
     "@types/node": "^24.12.2",
     "@vitest/coverage-v8": "^4.1.2",
+    "esbuild": "0.27.7",
     "prettier": "^3.8.1",
     "release-it": "^19.2.4",
+    "rollup": "4.52.5",
+    "rollup-plugin-dts": "6.2.3",
     "typescript": "^5.1.6",
     "vitest": "^4.1.2",
     "yaml": "2.8.3"
   },
-  "packageManager": "pnpm@10.28.0"
+  "packageManager": "pnpm@10.28.0",
+  "peerDependencies": {
+    "playwright-core": ">=1.59.0"
+  },
+  "peerDependenciesMeta": {
+    "playwright-core": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "bin": {
+      "design-token-authority": "./dist/bin.js",
+      "dta": "./dist/bin.js"
+    },
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./package.json": "./package.json"
+    },
+    "types": "./dist/index.d.ts",
+    "access": "public"
+  }
 }

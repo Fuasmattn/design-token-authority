@@ -1,0 +1,37 @@
+{
+  "name": "create-dta",
+  "version": "1.0.0",
+  "description": "npm create dta: set up Design Token Authority in a project (runs design-token-authority init)",
+  "license": "MIT",
+  "author": "Martin Preciado Prinz",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fuasmattn/design-token-authority.git",
+    "directory": "packages/create-dta"
+  },
+  "homepage": "https://github.com/Fuasmattn/design-token-authority#readme",
+  "bugs": {
+    "url": "https://github.com/Fuasmattn/design-token-authority/issues"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=24.14.1"
+  },
+  "bin": {
+    "create-dta": "./bin.js"
+  },
+  "files": [
+    "bin.js"
+  ],
+  "dependencies": {
+    "design-token-authority": "workspace:^"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.2",
+    "typescript": "^5.1.6",
+    "vitest": "^4.1.2"
+  }
+}

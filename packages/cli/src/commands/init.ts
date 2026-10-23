@@ -238,6 +238,29 @@ async function runFollowUp(
   }
 }
 
+/**
+ * `dta init --yes` without a config: no questions (CI, coding agents, the package test). The
+ * config for token files exported from Figma, every output format; no dta diff (that is
+ * `dta init --diff --yes`, once the project can be built), nothing pulled or built.
+ */
+function writeDefaultConfig(ui: Ui, cwd: string): void {
+  fs.writeFileSync(
+    path.join(cwd, 'dta.config.ts'),
+    generateConfigContent({
+      fileKey: '',
+      source: 'file',
+      collections: [],
+      brands: [],
+      stripEmojis: false,
+      outputs: [],
+    }),
+    'utf8',
+  )
+  ui.log.success(
+    `Created ${pc.bold('dta.config.ts')} (token files in tokens/, every output format)`,
+  )
+}
+
 async function wizard(ui: Ui, context: CommandContext): Promise<void> {
   const cwd = context.cwd
   ui.log.message(
@@ -416,6 +439,13 @@ async function wizard(ui: Ui, context: CommandContext): Promise<void> {
 }
 
 export async function runInit(context: CommandContext): Promise<number> {
+  // No terminal to answer in (CI, a coding agent's shell): a prompt would wait forever.
+  if (!context.options.yes && context.input === process.stdin && !process.stdin.isTTY) {
+    context.stderr(
+      'dta init asks questions, and this is not a terminal. Run it in a terminal, or pass --yes for the default answers.\n',
+    )
+    return 2
+  }
   const ui = createUi(context.stdout, context.input)
   const existing = CONFIG_FILES.find((name) => fs.existsSync(path.join(context.cwd, name)))
   // With a config, `dta init` sets up (or updates) dta diff and never rewrites the config.
@@ -439,6 +469,11 @@ export async function runInit(context: CommandContext): Promise<number> {
     }
   }
   ui.intro(banner('init'))
+  if (context.options.yes) {
+    writeDefaultConfig(ui, context.cwd)
+    ui.outro('Next: put your token files in tokens/ (or run dta pull --from-file <export.json>).')
+    return 0
+  }
   try {
     await wizard(ui, context)
   } catch (error) {

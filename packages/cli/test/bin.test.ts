@@ -23,6 +23,22 @@ describe('bin/dta.js', () => {
       fs.rmSync(cwd, { recursive: true, force: true })
     }
   })
+  it('stops dta init without a terminal instead of waiting for an answer (TICKET-090)', () => {
+    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'dta-bin-'))
+    try {
+      let failure: { status?: number; stderr?: string } = {}
+      try {
+        execFileSync(process.execPath, [bin, 'init'], { cwd, encoding: 'utf-8', stdio: 'pipe' })
+      } catch (error) {
+        failure = error as typeof failure
+      }
+      expect(failure.status).toBe(2)
+      expect(failure.stderr).toContain('pass --yes')
+      expect(fs.existsSync(path.join(cwd, 'dta.config.ts'))).toBe(false)
+    } finally {
+      fs.rmSync(cwd, { recursive: true, force: true })
+    }
+  })
   // A project without "type": "module" in its package.json (or without a package.json at all):
   // the config is ESM syntax in a .ts / .js file. TICKET-072 found that this failed to load.
   for (const [file, body] of [

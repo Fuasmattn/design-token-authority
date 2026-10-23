@@ -24,14 +24,15 @@ A pnpm workspace of small packages behind one CLI ([ADR 0002](https://github.com
 | `@dta/visual-diff` | `dta diff`: token change sets, screenshot comparison, attribution, report     |
 | `@dta/cli`         | Commands, config loading, terminal UI; the only user-facing package           |
 | `@dta/testkit`     | Private test helpers: the Figma fake and snapshot capture                     |
+| `create-dta`       | `npm create dta`: runs `design-token-authority init`                          |
 
-`bin/dta.js` starts the CLI. `site/` is this website, built with DTA from its own tokens. `actions/` holds the GitHub actions for `dta diff`.
+`bin/dta.js` starts the CLI from the sources. The npm package `design-token-authority` is the root of the repository: `pnpm package:build` bundles `@dta/cli` and the packages it uses into `dist/` (plain JavaScript and one declaration file; third-party packages stay dependencies). `site/` is this website, built with DTA from its own tokens. `actions/` holds the GitHub actions for `dta diff`.
 
 ## Rules every change follows
 
 - **Package boundaries.** A package imports another only by its name (`@dta/core`), never by a path into it, and `@dta/core` depends on no other package. `pnpm run guardrails:boundaries` checks this.
 - **Variable names are unique** across collections; alias resolution and push planning rely on it.
-- **Push never deletes** variables in Figma.
+- **Push never deletes** variables in Figma. Deleting is `dta prune`, a separate command with its own confirmation.
 - **No real customer names** in code, fixtures or docs: BrandA, BrandB.
 - **Imports use `.js` extensions** in TypeScript sources (ESM with tsx).
 
@@ -63,4 +64,6 @@ A plugin-export adapter is a good first contribution: one file in `packages/figm
 
 ## Releases
 
-Releases are tagged from `main` with release-it: the version, a changelog from the conventional commit messages and a GitHub release. Publishing to npm is not set up yet; the package needs a compiled build first.
+Releases run from `main` with the **Release** workflow (Actions → Release → Run workflow, with `patch`, `minor`, `major` or a version). release-it sets the version of both packages, writes the changelog from the conventional commit messages, builds `dist/`, tags and creates the GitHub release; then pnpm publishes `design-token-authority` and `create-dta` to npm with provenance. The workflow needs the repository secret `NPM_TOKEN`.
+
+Before a release, the CI job `package` installs both packages from their tarballs into an empty project and runs `create-dta --yes`, `build`, `lint`, `diff --tokens-only` and a type check of the config there. Locally: `DTA_PACKAGE_E2E=1 pnpm vitest run --project create-dta`.

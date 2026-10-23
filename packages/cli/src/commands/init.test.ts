@@ -106,6 +106,17 @@ describe('dta init', () => {
     }
   })
 
+  it('writes a config without questions with --yes, which loads (TICKET-090)', async () => {
+    const { exitCode, stdout } = await init([], ['init', '--yes'])
+    expect(exitCode).toBe(0)
+    expect(stdout).toContain('Created dta.config.ts')
+    expect(stdout).not.toContain('Which Figma plan')
+    const { config } = await loadConfig({ cwd: dir })
+    expect(config?.figma).toMatchObject({ source: 'file' })
+    expect(config?.tokens.dir).toBe('tokens')
+    expect(config?.diff).toBeUndefined()
+  })
+
   it('is cancelled cleanly without writing anything', async () => {
     const { exitCode, stdout } = await init([['Which Figma plan', '\u0003']])
     expect(exitCode).toBe(0)
