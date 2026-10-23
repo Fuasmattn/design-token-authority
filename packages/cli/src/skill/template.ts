@@ -48,6 +48,11 @@ Work in a loop until it is clean:
 4. \`dta diff --tokens-only --format markdown\`: which tokens changed and what depends on them. With stories configured, \`dta diff\` also compares screenshots and names the tokens behind each visual change.
 5. Read the result, fix, repeat.
 
+## When asked to set up visual review of pull requests
+
+1. \`dta init --diff --yes\` (in a project with a config, \`dta init\` does the same): detects Storybook (or uses the page \`/\`), the package manager and Node version, and writes the \`diff\` section, the GitHub workflow and \`playwright-core\`. It prints what it found and what it wrote; run it again to update the setup (it keeps what was changed by hand).
+2. \`dta diff --check\`: one line per check (config, browser, git history, base, stories); each failure names its fix. Fix them, then run \`dta diff\` once to see the report in \`.dta/diff/index.html\`.
+
 ## Never
 
 - Run \`dta push --yes\`, or \`dta push\` without being asked: a person pushes to Figma. \`dta push --dry-run\` shows the plan and changes nothing.

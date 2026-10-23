@@ -19,28 +19,28 @@ alias dta="node $PWD/bin/dta.js"
 Then, in your project:
 
 ```sh
-dta init     # writes dta.config.ts for your Figma plan and outputs
+dta init     # writes dta.config.ts, then sets up dta diff (run again to update it)
 dta pull     # Figma variables → tokens/ (Enterprise; otherwise: dta pull --from-file <export.json>)
 dta build    # tokens/ → output/css, output/js, output/tailwind
 dta lint     # structure checks; exits 2 on errors
-dta diff     # token changes against the merge base with main (+ screenshots with a diff section)
+dta diff     # token changes against the merge base with main, and screenshots explained by token
 ```
 
 The config `dta init` writes imports `defineConfig` from `design-token-authority`; until the release, drop the import and export the object directly.
 
 ## Commands
 
-| Command       | What it does                                                                        |
-| ------------- | ----------------------------------------------------------------------------------- |
-| `dta init`    | Wizard that writes `dta.config.ts`                                                  |
-| `dta pull`    | Figma → token files (REST API on Enterprise, `--from-file` with a plugin export)    |
-| `dta push`    | Token files → Figma; dry run, typed confirmation, never deletes                     |
-| `dta build`   | CSS custom properties, JavaScript, Tailwind v3 and v4, one theme per brand          |
-| `dta lint`    | Dangling and circular aliases, default mode names, configurable rules               |
-| `dta graph`   | Alias graph: console, Markdown, DOT or interactive HTML                             |
-| `dta diff`    | Token changes against a base; stories rendered at base and head, explained by token |
-| `dta analyze` | Which role each Figma collection plays                                              |
-| `dta clean`   | Removes token files and build output                                                |
+| Command       | What it does                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------------------- |
+| `dta init`    | Wizard that writes `dta.config.ts` and sets up `dta diff`; with a config, sets up or updates `dta diff` |
+| `dta pull`    | Figma → token files (REST API on Enterprise, `--from-file` with a plugin export)                        |
+| `dta push`    | Token files → Figma; dry run, typed confirmation, never deletes                                         |
+| `dta build`   | CSS custom properties, JavaScript, Tailwind v3 and v4, one theme per brand                              |
+| `dta lint`    | Dangling and circular aliases, default mode names, configurable rules                                   |
+| `dta graph`   | Alias graph: console, Markdown, DOT or interactive HTML                                                 |
+| `dta diff`    | Token changes against a base; stories rendered at base and head, explained by token                     |
+| `dta analyze` | Which role each Figma collection plays                                                                  |
+| `dta clean`   | Removes token files and build output                                                                    |
 
 ## Documentation
 

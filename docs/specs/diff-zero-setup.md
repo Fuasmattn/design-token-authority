@@ -42,7 +42,7 @@ Order: 126, 127, 128 and 130 in parallel → 129 (after 090) → 131.
 
 ## Decisions
 
-1. **Setup lives in `dta init`.** `npm create dta` runs `dta init` (TICKET-090), so it covers `dta diff` without a second command to learn. `dta init --diff` runs only this step, for projects that are already set up.
+1. **Setup lives in `dta init`.** `npm create dta` runs `dta init` (TICKET-090), so it covers `dta diff` without a second command to learn. In a project that is already set up, plain `dta init` runs only this step (it never rewrites the config); `dta init --diff` is the explicit form (2026-10-22).
 2. **Detect first, ask only what cannot be detected.** Init prints what it found and where from ("pnpm, from pnpm-lock.yaml"), so nothing is guessed silently.
 3. **Explicit config always wins** over detection, at run time and when init runs again.
 4. **Re-running is how settings change.** There is no separate settings wizard: the config is typed and documented, and `dta init --diff` on an existing setup detects again, lists what it would change and asks once. It only touches what it generated.

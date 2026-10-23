@@ -17,16 +17,9 @@ import {
   extractFileKey,
   generateConfigContent,
 } from './init-config.js'
+import { CONFIG_FILES, DiffSetupCancelled, runDiffStep } from './init-diff.js'
 import { runPull } from './pull.js'
-
-const EXIT_CONFIG_EXISTS = 2
-const CONFIG_FILES = [
-  'dta.config.ts',
-  'dta.config.mts',
-  'dta.config.js',
-  'dta.config.mjs',
-  'dta.config.json',
-]
+import { detectProject } from '../io/detect.js'
 
 /** Thrown when a prompt is cancelled, to leave the wizard from any depth. */
 class Cancelled extends Error {}
@@ -383,6 +376,16 @@ async function wizard(ui: Ui, context: CommandContext): Promise<void> {
   ui.log.success(`Created ${pc.bold('dta.config.ts')}`)
   if (isEnterprise) writeEnv(ui, cwd, fileKey, token)
 
+  // dta diff (TICKET-131): screenshots of the stories in pull requests, explained by token.
+  ui.log.step(pc.bold('Visual review'))
+  const review = answered(
+    await ui.confirm({
+      message: 'Review UI changes in pull requests (dta diff)?',
+      initialValue: detectProject(cwd).storybook.value !== null,
+    }),
+  )
+  if (review) await runDiffStep(ui, context, { yes: false })
+
   const canPull = isEnterprise || importFile !== ''
   if (!canPull) {
     ui.note(
@@ -415,17 +418,31 @@ async function wizard(ui: Ui, context: CommandContext): Promise<void> {
 export async function runInit(context: CommandContext): Promise<number> {
   const ui = createUi(context.stdout, context.input)
   const existing = CONFIG_FILES.find((name) => fs.existsSync(path.join(context.cwd, name)))
-  if (existing) {
-    ui.log.error(`Config file already exists: ${pc.dim(path.join(context.cwd, existing))}`)
-    ui.log.info('Remove it first if you want to re-initialize.')
-    return EXIT_CONFIG_EXISTS
+  // With a config, `dta init` sets up (or updates) dta diff and never rewrites the config.
+  if (context.options.diff || existing) {
+    ui.intro(banner('init'))
+    if (existing && !context.options.diff) {
+      ui.log.info(
+        `${pc.bold(existing)} is already here, so dta init sets up dta diff (or updates it). To start the config over, remove ${existing} first.`,
+      )
+    }
+    try {
+      const code = await runDiffStep(ui, context, { yes: Boolean(context.options.yes) })
+      if (code === 0) ui.outro('dta diff is set up.')
+      return code
+    } catch (error) {
+      if (error instanceof DiffSetupCancelled) {
+        ui.cancel('Setup cancelled.')
+        return 0
+      }
+      throw error
+    }
   }
-
   ui.intro(banner('init'))
   try {
     await wizard(ui, context)
   } catch (error) {
-    if (error instanceof Cancelled) {
+    if (error instanceof Cancelled || error instanceof DiffSetupCancelled) {
       ui.cancel('Setup cancelled.')
       return 0
     }

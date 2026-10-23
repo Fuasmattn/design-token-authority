@@ -149,7 +149,69 @@ The examples on this page ran on the `brand-ab` fixture of the repository (`test
    —  Tokens: 3 changed · 1 added · 1 removed · 2 affected
    ```
 
-   With a `diff` section in the config it also screenshots your stories at the base and the head and explains each change by token: [dta diff in pull requests](/guides/dta-diff-in-pull-requests/).
+   With a `diff` section in the config it also screenshots your stories at the base and the head and explains each change by token.
+
+6. **Review UI changes in pull requests.** `dta init` sets this up: as the last question of the wizard in a new project, and straight away in a project that already has a config (`dta init --diff` runs only this step). It finds your Storybook (or asks which pages to check), package manager, Node version and default branch, says where each came from, and writes the `diff` section, the GitHub workflow and `playwright-core`. On a project with Storybook (`--yes` takes the detected and default answers):
+
+   ```text
+   $ dta init --diff --yes
+   T   ✨  dta init
+   |
+   o  Found
+   |
+   |  Storybook        build-storybook → storybook-static, from the "build-storybook" script in package.json
+   |  Package manager  npm, from package-lock.json
+   |  Node             22, from .nvmrc
+   |  Build            npm run build-storybook, from the "build-storybook" script in package.json
+   |  Git host         GitHub, from the origin remote
+   |  Default branch   main, from the local branches
+   |
+   o  Will write --------------------------------------------+
+   |                                                         |
+   |  build: npx dta build && npm run build-storybook (new)  |
+   |  outDir: storybook-static (new)                         |
+   |  stories: Storybook (new)                               |
+   |  workflow: split (new)                                  |
+   |  .github/workflows/dta-diff.yml (new)                   |
+   |  .github/workflows/dta-diff-report.yml (new)            |
+   |  .github/workflows/dta-diff-approve.yml (new)           |
+   |                                                         |
+   +---------------------------------------------------------+
+   |
+   *  Wrote the diff section of dta.config.json
+   |
+   *  Wrote .github/workflows/dta-diff.yml
+   |
+   *  Wrote .github/workflows/dta-diff-report.yml
+   |
+   *  Wrote .github/workflows/dta-diff-approve.yml
+   |
+   o  Ran npm install --save-dev playwright-core
+   |
+   o  Next -------------------------------------------+
+   |                                                  |
+   |  npx dta diff --check  checks the setup          |
+   |  npx dta diff          renders a report locally  |
+   |  Then open a pull request.                       |
+   |                                                  |
+   +--------------------------------------------------+
+   |
+   —  dta diff is set up.
+   ```
+
+   Then check the setup and open a pull request:
+
+   ```text
+   $ dta diff --check
+   ✓ config       diff section: outDir storybook-static, build `npx dta build && npm run build-storybook`
+   ✓ browser      DTA_BROWSER_PATH (/usr/bin/chromium)
+   ✓ git history  full history
+   ✓ base         merge base with main (c320792)
+   ✓ stories      1 story in storybook-static/index.json
+   Ready for dta diff.
+   ```
+
+   More in [dta diff in pull requests](/guides/dta-diff-in-pull-requests/).
 
 </Steps>
 

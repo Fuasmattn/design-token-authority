@@ -42,7 +42,8 @@
     "report:tokens": "pnpm --filter dta-site report:tokens",
     "schema:generate": "tsx scripts/generate-schemas.ts",
     "figma:recording": "tsx scripts/figma/build-recording.ts",
-    "guardrails:boundaries": "tsx scripts/guardrails/package-boundaries.ts"
+    "guardrails:boundaries": "tsx scripts/guardrails/package-boundaries.ts",
+    "workflows:generate": "tsx scripts/generate-diff-workflows.ts"
   },
   "dependencies": {
     "tsx": "^4.21.0"

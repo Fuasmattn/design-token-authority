@@ -1,0 +1,82 @@
+name: dta diff (one job)
+description: >-
+  Runs `dta diff` on a pull request and reports it in the same job: the "dta diff" status check
+  and one sticky comment, the report uploaded as a workflow artifact (optionally published with
+  your publish hook). For repositories without outside contributors: the job needs
+  pull-requests:write and statuses:write, which a pull request from a fork must not get. Public
+  repositories use `diff`, `diff-report` and `diff-approve` in three workflows instead.
+inputs:
+  github-token:
+    description: Token with pull-requests:write and statuses:write.
+    default: ${{ github.token }}
+  command:
+    description: How to run DTA (e.g. `npx dta`, `pnpm dta`).
+    default: npx dta
+  args:
+    description: Extra arguments for `dta diff` (e.g. `--base origin/main`).
+    default: ''
+  working-directory:
+    description: Folder with dta.config.* (relative to the repository).
+    default: .
+  report-dir:
+    description: Report folder (relative to working-directory).
+    default: .dta/diff
+  artifact-name:
+    description: Name of the uploaded artifact.
+    default: dta-diff-report
+  publish:
+    description: >-
+      Publish hook command (gets the report folder as argument and DTA_REPORT_DIR, prints the
+      public URL last). Empty: no publishing, the comment points to the artifact.
+    default: ''
+  label:
+    description: Label that approves the head commit.
+    default: dta-diff-approved
+outputs:
+  verdict:
+    description: pass, review or fail (empty when no stories were rendered)
+    value: ${{ steps.diff.outputs.verdict }}
+  state:
+    description: State of the status check (success, pending, failure)
+    value: ${{ steps.report.outputs.state }}
+runs:
+  using: composite
+  steps:
+    - id: diff
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        DTA: ${{ inputs.command }}
+        ARGS: ${{ inputs.args }}
+        REPORT: ${{ inputs.report-dir }}
+        PR: ${{ github.event.pull_request.number }}
+        SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      run: bash "$GITHUB_ACTION_PATH/../lib/run-diff.sh"
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ inputs.working-directory }}/${{ inputs.report-dir }}
+        retention-days: 14
+        if-no-files-found: error
+    - if: inputs.publish != ''
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        DTA: ${{ inputs.command }}
+        PUBLISH: ${{ inputs.publish }}
+        REPORT: ${{ inputs.report-dir }}
+      run: $DTA diff --from-report --report "$REPORT" --publish "$PUBLISH"
+    - id: report
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        REPORT: ${{ inputs.report-dir }}
+        PR: ${{ github.event.pull_request.number }}
+        SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        LABEL: ${{ inputs.label }}
+      run: |
+        node "$GITHUB_ACTION_PATH/../lib/dta-diff.mjs" report \
+          --dir "$REPORT" --sha "$SHA" ${PR:+--pr "$PR"} \
+          --artifact-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+          --label "$LABEL"

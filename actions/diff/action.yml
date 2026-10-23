@@ -35,21 +35,7 @@ runs:
         REPORT: ${{ inputs.report-dir }}
         PR: ${{ github.event.pull_request.number }}
         SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-      run: |
-        # The verdict decides the status check later; the run itself only fails on errors.
-        set +e
-        $DTA diff --report "$REPORT" --format json -o "$RUNNER_TEMP/dta-diff.json" $ARGS
-        code=$?
-        set -e
-        if [ ! -f "$REPORT/result.json" ]; then
-          echo "::error::dta diff wrote no report (exit $code). Is there a diff section in the config?"
-          exit 1
-        fi
-        printf '{"pr":%s,"sha":"%s"}\n' "${PR:-null}" "$SHA" > "$REPORT/pull-request.json"
-        verdict=$(node -e "process.stdout.write(require(process.argv[1]).verdict ?? '')" "$PWD/$REPORT/result.json")
-        echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
-        echo "dta diff: ${verdict:-tokens only}" >> "$GITHUB_STEP_SUMMARY"
-        cat "$REPORT/summary.md" >> "$GITHUB_STEP_SUMMARY"
+      run: bash "$GITHUB_ACTION_PATH/../lib/run-diff.sh"
     - uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.artifact-name }}

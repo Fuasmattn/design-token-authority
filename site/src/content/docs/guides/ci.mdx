@@ -49,7 +49,7 @@ Commit the `tokens/` folder, not the build output: CI rebuilds it, and `dta clea
 ## On pull requests
 
 - **What changed in the tokens:** `dta diff --tokens-only -f markdown -o token-changes.md` writes the change set as a Markdown table for a comment or the job summary (`>> $GITHUB_STEP_SUMMARY`).
-- **What it looks like:** with a `diff` section in the config, `dta diff` renders your stories at the base and the head and explains the differences by token. [dta diff in pull requests](/guides/dta-diff-in-pull-requests/) has ready-made actions for the status check and the comment.
+- **What it looks like:** with a `diff` section in the config (`dta init` writes it, and the workflow), `dta diff` renders your stories at the base and the head and explains the differences by token. [dta diff in pull requests](/guides/dta-diff-in-pull-requests/) has ready-made actions for the status check and the comment.
 - **Pushing to Figma from CI** (Enterprise): `dta push --yes` skips the typed confirmation. Run `dta push --dry-run --format markdown` on the pull request and the real push only on the main branch.
 
 The token diff needs the base commit: check out with `fetch-depth: 0`, or pass `--base <ref|folder>`.

@@ -28,17 +28,17 @@ DTA turns each change into something you can review: the token diff, the lint fi
 
 ## What it does today
 
-| Command       | What it does                                                                            |
-| ------------- | --------------------------------------------------------------------------------------- |
-| `dta init`    | Wizard that writes `dta.config.ts` for your Figma plan and outputs                      |
-| `dta pull`    | Figma variables → token files (REST API, or `--from-file` with a plugin export)         |
-| `dta push`    | Token files → Figma variables, with a dry run and a typed confirmation                  |
-| `dta build`   | Token files → CSS custom properties, JavaScript, Tailwind v3 and v4                     |
-| `dta lint`    | Structure checks: dangling and circular aliases, default mode names, configurable rules |
-| `dta graph`   | The alias graph: depth, orphans, cycles; console, Markdown, DOT or interactive HTML     |
-| `dta diff`    | Token changes against a base, and screenshots of your stories explained by token        |
-| `dta analyze` | Which layer each Figma collection plays (primitives, brand, dimension)                  |
-| `dta clean`   | Removes token files and build output                                                    |
+| Command       | What it does                                                                                                                         |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `dta init`    | Wizard that writes `dta.config.ts` for your Figma plan and outputs, and sets up `dta diff` (with a config: sets it up or updates it) |
+| `dta pull`    | Figma variables → token files (REST API, or `--from-file` with a plugin export)                                                      |
+| `dta push`    | Token files → Figma variables, with a dry run and a typed confirmation                                                               |
+| `dta build`   | Token files → CSS custom properties, JavaScript, Tailwind v3 and v4                                                                  |
+| `dta lint`    | Structure checks: dangling and circular aliases, default mode names, configurable rules                                              |
+| `dta graph`   | The alias graph: depth, orphans, cycles; console, Markdown, DOT or interactive HTML                                                  |
+| `dta diff`    | Token changes against a base, and screenshots of your stories explained by token                                                     |
+| `dta analyze` | Which layer each Figma collection plays (primitives, brand, dimension)                                                               |
+| `dta clean`   | Removes token files and build output                                                                                                 |
 
 Native iOS and Android outputs, breaking-change detection in code and an agent skill are planned; this page lists only what is released in the CLI.
 

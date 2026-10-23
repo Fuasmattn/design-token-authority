@@ -22,7 +22,7 @@ export function github({
   apiUrl = 'https://api.github.com',
   fetch = globalThis.fetch,
 }) {
-  const call = async (method, route, body) => {
+  const call = async (method, route, body, allowMissing = false) => {
     const response = await fetch(`${apiUrl}/repos/${repository}${route}`, {
       method,
       headers: {
@@ -33,7 +33,7 @@ export function github({
       },
       body: body ? JSON.stringify(body) : undefined,
     })
-    if (response.status === 404 && method === 'DELETE') return null
+    if (response.status === 404 && (method === 'DELETE' || allowMissing)) return null
     if (!response.ok) {
       throw new Error(`GitHub ${method} ${route}: ${response.status} ${await response.text()}`)
     }
@@ -41,6 +41,8 @@ export function github({
   }
   return {
     get: (route) => call('GET', route),
+    /** GET that returns null for 404 instead of throwing. */
+    find: (route) => call('GET', route, undefined, true),
     post: (route, body) => call('POST', route, body),
     patch: (route, body) => call('PATCH', route, body),
     delete: (route) => call('DELETE', route),
@@ -146,6 +148,25 @@ async function upsertComment(api, pr, body) {
   return api.post(`/issues/${pr}/comments`, { body })
 }
 
+/**
+ * Creates the approval label when the repository does not have it yet, so the comment's "add
+ * the label" works without setup. Best effort: a token that may not create labels only warns.
+ */
+export async function ensureLabel(api, label = DEFAULT_LABEL) {
+  try {
+    if (await api.find(`/labels/${encodeURIComponent(label)}`)) return false
+    await api.post('/labels', {
+      name: label,
+      color: '2da44e',
+      description: 'dta diff: the visual changes of the head commit are reviewed',
+    })
+    return true
+  } catch (error) {
+    console.warn(`dta diff (GitHub): could not create the label "${label}": ${error.message}`)
+    return false
+  }
+}
+
 const hasLabel = async (api, pr, label) =>
   (await api.get(`/issues/${pr}/labels`)).some((l) => l.name === label)
 
@@ -163,6 +184,7 @@ export async function report(api, options) {
   const existing = pr ? await findComment(api, pr) : null
   const previous = readState(existing?.body)
   const approved = previous.approvedSha === sha ? previous.approvedBy : undefined
+  if (pr && result.verdict && result.verdict !== 'pass') await ensureLabel(api, label)
   if (pr && !approved && (await hasLabel(api, pr, label))) {
     await api.delete(`/issues/${pr}/labels/${encodeURIComponent(label)}`)
   }

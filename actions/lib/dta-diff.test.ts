@@ -19,6 +19,7 @@ function fakeGitHub(headSha = SHA) {
   const db = {
     head: headSha,
     labels: [] as string[],
+    repoLabels: [] as string[],
     comments: [] as Comment[],
     statuses: [] as Array<{ sha: string; state: string; description: string; target_url?: string }>,
     calls: [] as string[],
@@ -32,8 +33,17 @@ function fakeGitHub(headSha = SHA) {
       if (route.startsWith('/issues/7/comments')) return db.comments
       throw new Error(`unexpected GET ${route}`)
     },
+    async find(route: string) {
+      db.calls.push(`GET ${route}`)
+      const name = decodeURIComponent(route.replace('/labels/', ''))
+      return db.repoLabels.includes(name) ? { name } : null
+    },
     async post(route: string, body: Record<string, string>) {
       db.calls.push(`POST ${route}`)
+      if (route === '/labels') {
+        db.repoLabels.push(body.name)
+        return {}
+      }
       if (route.startsWith('/statuses/')) {
         db.statuses.push({ sha: route.slice(10), ...body } as never)
         return {}
@@ -147,6 +157,24 @@ describe('report', () => {
   })
 })
 
+describe('the approval label', () => {
+  it('is created on the first run that needs a review, once', async () => {
+    const { db, api } = fakeGitHub()
+    writeReport({ verdict: 'review' })
+    await lib.report(api, { dir, sha: SHA, pr: '7' })
+    expect(db.repoLabels).toEqual(['dta-diff-approved'])
+    await lib.report(api, { dir, sha: SHA, pr: '7' })
+    expect(db.calls.filter((c) => c === 'POST /labels')).toHaveLength(1)
+  })
+
+  it('is not created for a run that passes', async () => {
+    const { db, api } = fakeGitHub()
+    writeReport({ verdict: 'pass' })
+    await lib.report(api, { dir, sha: SHA, pr: '7' })
+    expect(db.repoLabels).toEqual([])
+  })
+})
+
 describe('approval by label', () => {
   it('approves the reported head commit and records it in the comment', async () => {
     const { db, api } = fakeGitHub()
@@ -218,12 +246,16 @@ describe('actions and example workflows', () => {
   const load = (file: string) => parse(fs.readFileSync(path.join(root, file), 'utf8'))
 
   it('are composite actions that call the shared script', () => {
-    for (const name of ['diff', 'diff-report', 'diff-approve']) {
+    for (const name of ['diff', 'diff-pr', 'diff-report', 'diff-approve']) {
       const action = load(`${name}/action.yml`)
       expect(action.runs.using).toBe('composite')
       expect(action.name).toMatch(/^dta diff/)
     }
     expect(JSON.stringify(load('diff-report/action.yml'))).toContain('lib/dta-diff.mjs')
+    // diff and diff-pr run dta diff the same way.
+    for (const name of ['diff', 'diff-pr'])
+      expect(JSON.stringify(load(`${name}/action.yml`))).toContain('lib/run-diff.sh')
+    expect(JSON.stringify(load('diff-pr/action.yml'))).toContain('lib/dta-diff.mjs')
   })
 
   it('keep untrusted runs read-only and give the trusted ones minimal permissions', () => {
@@ -239,6 +271,16 @@ describe('actions and example workflows', () => {
       'pull-requests': 'write',
       statuses: 'write',
     })
+
+    // One file (private and team repositories): write permissions, so no workflow_run split.
+    const single = load('examples/dta-diff-single.yml')
+    expect(single.on.pull_request.types).toContain('labeled')
+    expect(single.permissions).toEqual({
+      contents: 'read',
+      'pull-requests': 'write',
+      statuses: 'write',
+    })
+    expect(JSON.stringify(single)).not.toContain('secrets.')
 
     const approve = load('examples/dta-diff-approve.yml')
     expect(approve.on.pull_request_target.types).toEqual(['labeled', 'unlabeled'])

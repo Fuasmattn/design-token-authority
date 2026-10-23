@@ -25,7 +25,7 @@ $ dta skill add
 Wrote .claude/skills/dta/SKILL.md.
 ```
 
-The skill (`SKILL.md` with `name` and `description` front matter, the Agent Skills format) is the same for every project: look a token up before writing a value, the change loop (`dta lint` → `dta build` → `dta diff`), never `dta push --yes`, never edit generated files, and every command with its purpose. Its command list comes from the CLI itself, so it cannot name a command that does not exist. For agents that read skills from another folder, use `--dir`. In CI, `dta skill add --check` exits with 1 when the installed skill is out of date, for example after a DTA update.
+The skill (`SKILL.md` with `name` and `description` front matter, the Agent Skills format) is the same for every project: look a token up before writing a value, the change loop (`dta lint` → `dta build` → `dta diff`), setting up visual review when asked (`dta init --diff --yes`, then `dta diff --check`), never `dta push --yes`, never edit generated files, and every command with its purpose. Its command list comes from the CLI itself, so it cannot name a command that does not exist. For agents that read skills from another folder, use `--dir`. In CI, `dta skill add --check` exits with 1 when the installed skill is out of date, for example after a DTA update.
 
 ## 2. Generate the project context
 

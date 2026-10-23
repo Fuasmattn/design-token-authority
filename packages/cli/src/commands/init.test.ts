@@ -83,12 +83,27 @@ const read = (file: string) => fs.readFileSync(path.join(dir, file), 'utf8')
 const exists = (file: string) => fs.existsSync(path.join(dir, file))
 
 describe('dta init', () => {
-  it('refuses to overwrite an existing config', async () => {
-    fs.writeFileSync(path.join(dir, 'dta.config.ts'), 'export default {}')
-    const { exitCode, stdout } = await init([])
-    expect(exitCode).toBe(2)
-    expect(stdout).toContain('Config file already exists')
-    expect(read('dta.config.ts')).toBe('export default {}')
+  it('sets up dta diff in a project with a config, without rewriting the config', async () => {
+    const config =
+      "export default {\n  figma: { source: 'file' },\n  tokens: { dir: 'tokens' },\n}\n"
+    fs.writeFileSync(path.join(dir, 'dta.config.ts'), config)
+    fs.writeFileSync(
+      path.join(dir, 'package.json'),
+      JSON.stringify({
+        scripts: { build: 'vite build' },
+        devDependencies: { 'playwright-core': '1' },
+      }),
+    )
+    process.env.DTA_BROWSER_PATH = process.execPath
+    try {
+      const { exitCode, stdout } = await init([], ['init', '--yes'])
+      expect(exitCode).toBe(0)
+      expect(stdout).toContain('dta.config.ts is already here, so dta init sets up dta diff')
+      expect(read('dta.config.ts').startsWith(config.trimEnd().slice(0, -2))).toBe(true)
+      expect(read('dta.config.ts')).toContain('// dta init --diff: generated')
+    } finally {
+      delete process.env.DTA_BROWSER_PATH
+    }
   })
 
   it('is cancelled cleanly without writing anything', async () => {
@@ -111,6 +126,7 @@ describe('dta init', () => {
       ['Which collections should be included', ENTER],
       ['Use these brand names?', ENTER],
       ['Which formats should dta generate?', `${SPACE}${DOWN}${DOWN}${SPACE}`],
+      ['Review UI changes', 'n'],
     ]
 
     it('discovers the file, writes a valid config and the env files', async () => {
@@ -165,6 +181,7 @@ describe('dta init', () => {
         ['Which collections should be included', ENTER],
         ['Use these brand names?', ENTER],
         ['Which formats should dta generate?', ENTER],
+        ['Review UI changes', 'n'],
         ['Run dta pull now?', 'n'],
       ])
       expect(exitCode).toBe(0)
@@ -178,6 +195,7 @@ describe('dta init', () => {
         ['Figma Personal Access Token', 'wrong'],
         ['Collection names (comma-separated', 'Primitives, Brand'],
         ['Which formats should dta generate?', ENTER],
+        ['Review UI changes', 'n'],
         ['Run dta pull now?', 'n'],
       ])
       expect(exitCode).toBe(0)
@@ -195,6 +213,7 @@ describe('dta init', () => {
         ['Which collections should be included', ENTER],
         ['Use these brand names?', ENTER],
         ['Which formats should dta generate?', `${SPACE}`],
+        ['Review UI changes', 'n'],
         ['Run dta pull now?', ENTER],
         ['Run dta build now?', ENTER],
       ])
@@ -224,6 +243,7 @@ describe('dta init', () => {
         ['Which collections should be included', ENTER],
         ['Brand names (comma-separated, or blank to skip)', ENTER],
         ['Which formats should dta generate?', ENTER],
+        ['Review UI changes', 'n'],
         ['Run dta pull --from-file export.json now?', 'n'],
       ])
       expect(exitCode).toBe(0)
@@ -244,6 +264,7 @@ describe('dta init', () => {
         ['Which collections should be included', ENTER],
         ['Brand names (comma-separated, or blank to skip)', ENTER],
         ['Which formats should dta generate?', ENTER],
+        ['Review UI changes', 'n'],
         ['Run dta pull --from-file export.json now?', ENTER],
         ['Run dta build now?', 'n'],
       ])
@@ -258,6 +279,7 @@ describe('dta init', () => {
         ['Path to exported token JSON file', ENTER],
         ['Collection names (comma-separated', ENTER],
         ['Which formats should dta generate?', ENTER],
+        ['Review UI changes', 'n'],
       ])
       expect(exitCode).toBe(0)
       expect(stdout).toContain('dta pull --from-file <exported.json>')
@@ -272,6 +294,7 @@ describe('dta init', () => {
         ['Path to exported token JSON file', 'missing.json'],
         ['Collection names (comma-separated', ENTER],
         ['Which formats should dta generate?', ENTER],
+        ['Review UI changes', 'n'],
         ['Run dta pull --from-file missing.json now?', 'n'],
       ])
       expect(exitCode).toBe(0)

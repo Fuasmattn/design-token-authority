@@ -3,7 +3,7 @@ title: dta diff with Storybook
 description: Screenshot every story of a static Storybook build and explain the changes by token, without writing a stories manifest.
 ---
 
-`dta diff` needs to know which pages to screenshot. A static site lists them in a stories manifest; a Storybook build already has the list: `index.json`. Point `dta diff` at the build and it renders each story on its own, through Storybook's `iframe.html` (the story without the Storybook interface).
+`dta diff` needs to know which pages to screenshot. A site lists them (`stories: ['/', '/pricing']`); a Storybook build already has the list: `index.json`. `dta init` finds your Storybook and writes the configuration below for you ([Before you start](/guides/dta-diff-in-pull-requests/#before-you-start)); this page explains what it means. Point `dta diff` at the build and it renders each story on its own, through Storybook's `iframe.html` (the story without the Storybook interface).
 
 ## Configure
 
@@ -11,8 +11,6 @@ description: Screenshot every story of a static Storybook build and explain the 
 export default {
   // …tokens, outputs
   diff: {
-    // A fresh checkout of the base needs its dependencies first.
-    setup: 'npm ci --prefer-offline',
     // Build your tokens, then Storybook, at the base and at the head.
     build: 'npx dta build && npm run build-storybook',
     outDir: 'storybook-static',
@@ -21,6 +19,8 @@ export default {
   },
 }
 ```
+
+The base is built in a fresh checkout. `dta diff` prepares it on its own: with the same lockfile as your branch it reuses your installed packages, otherwise it runs the lockfile's clean install (`npm ci`, `pnpm install --frozen-lockfile`, `yarn install --immutable`, `bun install --frozen-lockfile`). Set `diff.setup` only when that does not fit; it then runs instead.
 
 Check what it would render, after one build:
 
