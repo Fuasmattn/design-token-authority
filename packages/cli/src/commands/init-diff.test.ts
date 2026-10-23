@@ -139,7 +139,7 @@ describe('dta init --diff (TICKET-131)', () => {
     put('pnpm-lock.yaml', 'lockfileVersion: 9')
     const { stdout } = await initDiff()
     // The note box wraps long lines.
-    expect(stdout.replace(/\s*\|\s*\n\|\s*/g, ' ')).toContain(
+    expect(stdout.replace(/\s*[|│]\s*\n[|│]\s*/g, ' ')).toContain(
       'build: npx dta build && npm run build-storybook → pnpm exec dta build && pnpm run build-storybook',
     )
     expect(stdout).toContain('.github/workflows/dta-diff.yml (updated)')
