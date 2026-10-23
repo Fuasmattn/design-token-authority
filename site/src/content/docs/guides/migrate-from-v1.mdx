@@ -40,7 +40,7 @@ Each change is a reviewed snapshot diff, listed with its reason in the quirk tab
 | `dta --version`   | Always `0.1.0`                                                                    | The version from `package.json`                                                                                             |
 | `dta build`       | Also wrote a token docs page (`output/docs/index.html`)                           | No docs page; `outputs.docs` in a config is an error ("removed in v2"), delete the key. The DTA website replaces it         |
 | `dta init`        | Animated logo, opened `build/docs/index.html`, `.env.example` named old scripts   | Static banner, opens nothing, names `dta pull` / `dta push`                                                                 |
-| `dta clean`       | Treated `output/docs` as a build folder                                           | Only `output/css`, `output/js`, `output/tailwind` and configured folders                                                    |
+| `dta clean`       | Treated `output/docs` as a build folder                                           | Only `output/css`, `output/js`, `output/tailwind`, `output/ios`, `output/android` and configured folders                    |
 | `dta test:visual` | Ran the Playwright tests                                                          | Removed (TICKET-088): use `dta diff`, which renders your stories at the base and the head and explains the changes by token |
 
 ## Removed

@@ -73,8 +73,14 @@ function colorsInText(file: string): Found[] {
     .flatMap((line, i) => {
       if (KEY_VISUAL.test(line)) return []
       const where = `${rel}:${i + 1}`
+      // Android resources write colours as #AARRGGBB (native outputs, TICKET-012).
+      const argb = /<color\b/.test(line)
       return [
-        ...[...line.matchAll(HEX)].map((m) => ({ where, value: m[0], rgb: hexToRgb(m[0]) })),
+        ...[...line.matchAll(HEX)].map((m) => ({
+          where,
+          value: m[0],
+          rgb: hexToRgb(argb && m[0].length === 9 ? `#${m[0].slice(3)}` : m[0]),
+        })),
         ...[...line.matchAll(RGB)].map((m) => ({
           where,
           value: m[0],

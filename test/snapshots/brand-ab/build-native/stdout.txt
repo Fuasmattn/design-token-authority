@@ -1,0 +1,25 @@
+T   ⚒  dta build 
+|
+!  warning [native-breakpoints] The native outputs use the default breakpoint "Mobile" of "ScreenType"; "Desktop", "Tablet" are not in them (native apps have no media queries).
+|
+!  warning [native-xml-kinds] android-xml: 6 tokens are not a colour or a dimension (numbers, strings, booleans, durations) and are not written; android-compose and ios-swift have them.
+|
+o  Native outputs complete
+|
+o  Generated files -------------------------+
+|                                           |
+|  output/android/branda/values/colors.xml  |
+|  output/android/branda/values/dimens.xml  |
+|  output/android/brandb/values/colors.xml  |
+|  output/android/brandb/values/dimens.xml  |
+|  output/android/compose/DesignTokens.kt   |
+|  output/android/main/values/colors.xml    |
+|  output/android/main/values/dimens.xml    |
+|  output/ios/BrandTokens+BrandA.swift      |
+|  output/ios/BrandTokens+BrandB.swift      |
+|  output/ios/DesignTokens.swift            |
+|                                           |
++-------------------------------------------+
+|
+—  Build complete!
+

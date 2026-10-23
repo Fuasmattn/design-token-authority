@@ -214,8 +214,9 @@ describe('generateConfig', () => {
 
 describe('grouping, sizes and the zip', () => {
   it('offers the outputs the build knows, in its order', async () => {
-    const { OUTPUT_FORMATS } = await import('@dta/build')
-    expect(OUTPUT_CHOICES.map((choice) => choice.format)).toEqual([...OUTPUT_FORMATS])
+    // The web outputs: the native ones (TICKET-011–013) are not offered in the browser.
+    const { DEFAULT_FORMATS } = await import('@dta/build')
+    expect(OUTPUT_CHOICES.map((choice) => choice.format)).toEqual([...DEFAULT_FORMATS])
   })
 
   it('groups the files into CSS, Tailwind and JS in path order', async () => {

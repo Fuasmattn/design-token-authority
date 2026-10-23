@@ -6,7 +6,13 @@ import { listTokenFiles } from '../io/token-dir.js'
 import { banner, createUi } from '../ui.js'
 
 /** Where `dta build` writes when nothing else is configured. */
-const DEFAULT_OUTPUT_DIRS = ['output/css', 'output/js', 'output/tailwind']
+const DEFAULT_OUTPUT_DIRS = [
+  'output/css',
+  'output/js',
+  'output/tailwind',
+  'output/ios',
+  'output/android',
+]
 
 const inside = (root: string, target: string) =>
   target !== root && target.startsWith(root + path.sep)

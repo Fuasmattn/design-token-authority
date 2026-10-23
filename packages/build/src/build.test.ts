@@ -4,7 +4,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { parseTokenFiles } from '@dta/core'
 import type { TokenModel } from '@dta/core'
-import { buildOutputs, OUTPUT_FORMATS } from './index.js'
+import { buildOutputs, DEFAULT_FORMATS, OUTPUT_FORMATS } from './index.js'
 import { fixtureOptions } from './test-helpers.js'
 
 const repoRoot = path.resolve(import.meta.dirname, '..', '..', '..')
@@ -633,10 +633,10 @@ describe('buildOutputs: formats', () => {
   const paths = async (formats?: (typeof OUTPUT_FORMATS)[number][]) =>
     (await buildOutputs(fixtureModel('brand-ab'), { brands, formats })).files.map((f) => f.path)
 
-  it('writes every output without formats, the same as with all of them', async () => {
+  it('writes the web outputs without formats, the same as with DEFAULT_FORMATS', async () => {
     const all = await paths()
     expect(all).toHaveLength(11)
-    expect(await paths([...OUTPUT_FORMATS])).toEqual(all)
+    expect(await paths([...DEFAULT_FORMATS])).toEqual(all)
   })
 
   it.each([
@@ -671,7 +671,10 @@ describe('buildOutputs: formats', () => {
   })
 
   it('says which output each file belongs to', async () => {
-    const { files } = await buildOutputs(fixtureModel('brand-ab'), { brands })
+    const { files } = await buildOutputs(fixtureModel('brand-ab'), {
+      brands,
+      formats: [...OUTPUT_FORMATS],
+    })
     for (const format of OUTPUT_FORMATS) {
       const alone = await paths([format])
       expect(
@@ -773,7 +776,11 @@ describe('buildOutputs: broken aliases (TICKET-119, the brand-ab-problems fixtur
   })
 
   it('writes no broken declaration into any output', async () => {
-    const { files } = await buildOutputs(fixtureModel('brand-ab-problems'), { brands })
+    // The native outputs (TICKET-011–013) too: they leave such tokens out as the CSS does.
+    const { files } = await buildOutputs(fixtureModel('brand-ab-problems'), {
+      brands,
+      formats: [...OUTPUT_FORMATS],
+    })
     expect(new Set(files.map((file) => file.format))).toEqual(new Set(OUTPUT_FORMATS))
     for (const file of files) {
       // No unresolved alias, in CSS, Tailwind v4/v3 or JS

@@ -1,4 +1,4 @@
-export { buildOutputs, OUTPUT_FORMATS } from './build.js'
+export { buildOutputs, DEFAULT_FORMATS, OUTPUT_FORMATS } from './build.js'
 export type { BuildOptions, BuildResult, Breakpoints, OutputFile, OutputFormat } from './build.js'
 export { cssBindings, parseCssVariables } from './bindings.js'
 export type { CssBinding } from './bindings.js'

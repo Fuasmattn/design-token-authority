@@ -61,12 +61,27 @@ describe('outputFormats', () => {
   })
 
   it('keeps the order of OUTPUT_FORMATS, whatever the order of the answer', () => {
-    expect(outputFormats(['js', 'tailwind3', 'css', 'tailwind4'])).toEqual([...OUTPUT_FORMATS])
+    expect(
+      outputFormats([
+        'android-compose',
+        'js',
+        'ios',
+        'tailwind3',
+        'android-xml',
+        'css',
+        'tailwind4',
+      ]),
+    ).toEqual([...OUTPUT_FORMATS])
   })
 
-  it('leaves out the targets dta build does not write yet', () => {
-    expect(outputFormats(['css', 'ios', 'android-xml', 'android-compose'])).toEqual(['css'])
-    expect(outputFormats(['ios'])).toEqual([])
+  it('maps the native answers to their formats (TICKET-011–013)', () => {
+    expect(outputFormats(['css', 'ios', 'android-xml', 'android-compose'])).toEqual([
+      'css',
+      'ios-swift',
+      'android-xml',
+      'android-compose',
+    ])
+    expect(outputFormats(['ios'])).toEqual(['ios-swift'])
   })
 
   it('offers every build format in the wizard', () => {
@@ -148,7 +163,7 @@ describe('generateConfigContent', () => {
     expect(result).toContain("outputs: {\n    formats: ['js'],\n  },")
   })
 
-  it('omits formats when only targets that are not built yet are chosen', () => {
+  it('writes formats for a native answer too', () => {
     const data: ConfigData = {
       fileKey: 'testkey123',
       collections: [],
@@ -157,8 +172,8 @@ describe('generateConfigContent', () => {
       outputs: ['ios'],
     }
     const result = generateConfigContent(data)
+    expect(result).toContain("formats: ['ios-swift'],")
     expect(result).toContain('ios: {')
-    expect(result).not.toContain('formats:')
   })
 
   it('includes Tailwind v4 output', () => {
@@ -198,8 +213,9 @@ describe('generateConfigContent', () => {
       outputs: ['ios'],
     }
     const result = generateConfigContent(data)
-    expect(result).toContain('ios: {')
-    expect(result).toContain("lang: 'swift'")
+    expect(result).toContain("formats: ['ios-swift'],")
+    expect(result).toContain("ios: {\n      outDir: 'build/ios',\n    },")
+    expect(result).not.toContain('lang')
   })
 
   it('includes Android XML output', () => {
@@ -211,8 +227,8 @@ describe('generateConfigContent', () => {
       outputs: ['android-xml'],
     }
     const result = generateConfigContent(data)
-    expect(result).toContain('android: {')
-    expect(result).toContain("lang: 'xml'")
+    expect(result).toContain("formats: ['android-xml'],")
+    expect(result).toContain("android: {\n      outDir: 'build/android',\n    },")
   })
 
   it('includes Android Compose output', () => {
@@ -224,8 +240,9 @@ describe('generateConfigContent', () => {
       outputs: ['android-compose'],
     }
     const result = generateConfigContent(data)
+    expect(result).toContain("formats: ['android-compose'],")
     expect(result).toContain('android: {')
-    expect(result).toContain("lang: 'compose'")
+    expect(result).not.toContain('lang')
   })
 
   it('includes stripEmojis when true', () => {

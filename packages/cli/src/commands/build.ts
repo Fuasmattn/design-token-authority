@@ -1,4 +1,4 @@
-import { buildOutputs, OUTPUT_FORMATS } from '@dta/build'
+import { buildOutputs, DEFAULT_FORMATS } from '@dta/build'
 import type { Breakpoints, OutputFile } from '@dta/build'
 import { formatDiagnostic, hasErrors, parseTokenFiles } from '@dta/core'
 import pc from 'picocolors'
@@ -45,8 +45,14 @@ function reportOrder(files: readonly OutputFile[], brands: string[], config: Con
     `${tailwind}tailwind.tokens.ts`,
     `${tailwind}tailwind.css`,
   )
-  return { base, perBrand, shared }
+  // Native outputs (TICKET-011–013): every file the build made for them, in path order.
+  const native = files
+    .filter((file) => file.format && NATIVE.has(file.format))
+    .map((file) => file.path)
+  return { base, perBrand, shared, native }
 }
+
+const NATIVE = new Set<string>(['ios-swift', 'android-xml', 'android-compose'])
 
 /** The config's `breakpoints` section as `@dta/build` takes it (modes in the order written). */
 export function breakpointOptions(config: Config | null): Breakpoints | undefined {
@@ -91,7 +97,7 @@ export async function runBuild(context: CommandContext): Promise<number> {
     const names = model.collections
       .map((collection) => collection.name)
       .filter((name) => !config?.collections || config.collections.includes(name))
-    const outputs = (config?.outputs?.formats ?? OUTPUT_FORMATS).join(', ')
+    const outputs = (config?.outputs?.formats ?? DEFAULT_FORMATS).join(', ')
     ui.log.message(
       `${pc.dim('Source:')} ${tokensDir}\n${pc.dim('Outputs:')} ${outputs}\n${pc.dim('Collections:')} ${names.join(', ') || 'none'}\n${pc.dim('Brands:')} ${brands.length ? brands.join(', ') : 'none'}`,
     )
@@ -104,6 +110,11 @@ export async function runBuild(context: CommandContext): Promise<number> {
     collections: config?.collections,
     css: { outDir: config?.outputs?.css?.outDir },
     tailwind: { outDir: config?.outputs?.tailwind?.outDir },
+    ios: { outDir: config?.outputs?.ios?.outDir },
+    android: {
+      outDir: config?.outputs?.android?.outDir,
+      ...(config?.outputs?.android?.package ? { package: config.outputs.android.package } : {}),
+    },
   })
   const problems = [...parseDiagnostics, ...diagnostics]
   for (const diagnostic of problems) {
@@ -133,11 +144,13 @@ export async function runBuild(context: CommandContext): Promise<number> {
     else step(`Building brand: ${brand}...`, `Brand ${brand} complete`)
   }
   if (order.shared.length > 0) step('Building shared outputs...', 'Shared outputs complete')
+  if (order.native.length > 0) step('Building native outputs...', 'Native outputs complete')
 
   const generated = [
     ...order.base,
     ...order.perBrand.flatMap((entry) => entry.files),
     ...order.shared,
+    ...order.native,
   ]
   if (config?.context) {
     try {

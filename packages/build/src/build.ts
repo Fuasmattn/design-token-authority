@@ -21,8 +21,18 @@ import type { MergedTokens, Source } from './tree.js'
  * The outputs `buildOutputs` can write, in the order the config reference lists them:
  * CSS custom properties, Tailwind v4 `@theme` CSS, the Tailwind v3 theme object, the JS palette.
  */
-export const OUTPUT_FORMATS = ['css', 'tailwind-v4', 'tailwind-v3', 'js'] as const
+export const OUTPUT_FORMATS = [
+  'css',
+  'tailwind-v4',
+  'tailwind-v3',
+  'js',
+  'ios-swift',
+  'android-xml',
+  'android-compose',
+] as const
 export type OutputFormat = (typeof OUTPUT_FORMATS)[number]
+/** What `dta build` writes without `outputs.formats`: the web outputs (native ones are opt-in). */
+export const DEFAULT_FORMATS: readonly OutputFormat[] = ['css', 'tailwind-v4', 'tailwind-v3', 'js']
 
 /**
  * A collection whose modes are breakpoints (TICKET-091): its default mode is written on `:root`,
@@ -38,7 +48,7 @@ export interface Breakpoints {
 }
 
 export interface BuildOptions {
-  /** Which outputs to write (default: all of {@link OUTPUT_FORMATS}). */
+  /** Which outputs to write (default: {@link DEFAULT_FORMATS}, the web outputs). */
   formats?: readonly OutputFormat[]
   /** Brands to build themes for: modes of the multi-mode collections. None means no themes. */
   brands?: string[]
@@ -49,6 +59,10 @@ export interface BuildOptions {
   /** Output directories relative to the project root. */
   css?: { outDir?: string }
   tailwind?: { outDir?: string }
+  /** Swift files (`ios-swift`, default folder `output/ios`). */
+  ios?: { outDir?: string }
+  /** XML resources and Compose (`android-xml`, `android-compose`, default `output/android`). */
+  android?: { outDir?: string; package?: string }
 }
 
 export interface OutputFile {
@@ -71,6 +85,9 @@ export interface BuildResult {
 const DEFAULT_CSS_DIR = 'output/css'
 const DEFAULT_TAILWIND_DIR = 'output/tailwind'
 const JS_DIR = 'output/js/'
+const DEFAULT_IOS_DIR = 'output/ios'
+const DEFAULT_ANDROID_DIR = 'output/android'
+const DEFAULT_ANDROID_PACKAGE = 'designtokens'
 
 /** `output/css` and `output/css/` both become `output/css/`; blank values are reported. */
 function directory(value: string | undefined, fallback: string, name: string, into: Diagnostic[]) {
@@ -382,7 +399,7 @@ export async function buildOutputs(
     sourceOf(fullModel, collection, mode, unresolvable)
 
   diagnostics.push(...shorthandLosses(model))
-  const formats = new Set<OutputFormat>(options.formats ?? OUTPUT_FORMATS)
+  const formats = new Set<OutputFormat>(options.formats ?? DEFAULT_FORMATS)
   const formatted = async (
     tree: Record<string, unknown>,
     platforms: Record<string, PlatformConfig & { output: OutputFormat }>,
@@ -752,8 +769,85 @@ export async function buildOutputs(
     }
   }
 
+  files.push(...(await nativeOutputs(fullModel, model, options, formats, diagnostics)))
   files.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))
   return { files, diagnostics: dedupe(diagnostics) }
+}
+
+/**
+ * The native outputs (spec native-outputs): resolved from the model, not through Style Dictionary.
+ * Loaded only when a native format is asked for, so a web build (and the playground's bundle)
+ * does not carry them.
+ */
+async function nativeOutputs(
+  fullModel: TokenModel,
+  model: TokenModel,
+  options: BuildOptions,
+  formats: ReadonlySet<OutputFormat>,
+  diagnostics: Diagnostic[],
+): Promise<OutputFile[]> {
+  const chosen = (['ios-swift', 'android-xml', 'android-compose'] as const).filter((format) =>
+    formats.has(format),
+  )
+  if (chosen.length === 0) return []
+  const [{ androidXmlFiles }, { composeFiles, isPackageName }, { swiftFiles }, { nativeTokens }] =
+    await Promise.all([
+      import('./native/android-xml.js'),
+      import('./native/compose.js'),
+      import('./native/swift.js'),
+      import('./native/tokens.js'),
+    ])
+  const tokens = nativeTokens(
+    fullModel,
+    model,
+    {
+      ...(options.brands ? { brands: options.brands } : {}),
+      ...(options.breakpoints
+        ? {
+            breakpoints: {
+              collection: options.breakpoints.collection,
+              default: options.breakpoints.default,
+            },
+          }
+        : {}),
+    },
+    diagnostics,
+  )
+  for (const format of chosen) {
+    for (const [type, count] of Object.entries(tokens.unsupported)) {
+      diagnostics.push({
+        severity: 'warning',
+        code: 'native-unsupported-type',
+        message: `${format}: ${count} ${type} token${count === 1 ? ' is' : 's are'} not written (composite types are not in the native outputs yet).`,
+      })
+    }
+  }
+  const iosDir = directory(options.ios?.outDir, DEFAULT_IOS_DIR, 'ios.outDir', diagnostics)
+  const androidDir = directory(
+    options.android?.outDir,
+    DEFAULT_ANDROID_DIR,
+    'android.outDir',
+    diagnostics,
+  )
+  const packageName = options.android?.package ?? DEFAULT_ANDROID_PACKAGE
+  const files: OutputFile[] = []
+  const add = (format: OutputFormat, made: Array<{ path: string; content: string }>) =>
+    files.push(...made.map((file) => ({ ...file, format })))
+  if (formats.has('ios-swift')) add('ios-swift', swiftFiles(tokens, iosDir, diagnostics))
+  if (formats.has('android-xml'))
+    add('android-xml', androidXmlFiles(tokens, androidDir, diagnostics))
+  if (formats.has('android-compose')) {
+    if (!isPackageName(packageName)) {
+      diagnostics.push({
+        severity: 'error',
+        code: 'invalid-option',
+        message: `outputs.android.package "${packageName}" is not a Kotlin package name (dot-separated identifiers, e.g. com.example.tokens).`,
+      })
+    } else {
+      add('android-compose', composeFiles(tokens, androidDir, packageName, diagnostics))
+    }
+  }
+  return files
 }
 
 interface CombinedContext {

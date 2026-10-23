@@ -5,7 +5,7 @@ sidebar:
   order: 4
 ---
 
-`dta build` writes into `output/` by default; `outputs.css.outDir` and `outputs.tailwind.outDir` move the CSS and Tailwind files. The list below is from a build of the `brand-ab` fixture (`brands: ['BrandA', 'BrandB']`). To see them for your own token files without an install, open the [playground](/playground/)'s Outputs view: it builds the same files in your browser.
+`dta build` writes into `output/` by default; `outputs.css.outDir` and `outputs.tailwind.outDir` move the CSS and Tailwind files. The [native outputs](#native-outputs) for iOS and Android are written when `outputs.formats` lists them. The list below is from a build of the `brand-ab` fixture (`brands: ['BrandA', 'BrandB']`). To see them for your own token files without an install, open the [playground](/playground/)'s Outputs view: it builds the same files in your browser.
 
 | File                                         | Content                                                                                     |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------- |
@@ -94,25 +94,127 @@ An alias that points at a token that does not exist, or aliases that point at ea
 
 ## Choosing outputs
 
-By default `dta build` writes all four outputs. `outputs.formats` lists the ones you want; the others are not written:
+By default `dta build` writes the four web outputs. `outputs.formats` lists the ones you want; the others are not written. The native outputs are written only when listed:
 
 ```ts title="dta.config.ts"
 export default {
   brands: ['BrandA', 'BrandB'],
   outputs: {
-    formats: ['css', 'tailwind-v4'], // also: 'tailwind-v3', 'js'
+    formats: ['css', 'tailwind-v4'], // also: 'tailwind-v3', 'js', 'ios-swift', 'android-xml', 'android-compose'
   },
 }
 ```
 
-| Format        | Files                                                                        |
-| ------------- | ---------------------------------------------------------------------------- |
-| `css`         | `variables.css`, `base.css`, `themes/<brand>.css`                            |
-| `tailwind-v4` | `tailwind.css` and `<brand>/tailwind.css` in the Tailwind folder             |
-| `tailwind-v3` | `tailwind.tokens.ts` and `<brand>/tailwind.tokens.ts` in the Tailwind folder |
-| `js`          | `output/js/colorpalette.js`                                                  |
+| Format            | Files                                                                            |
+| ----------------- | -------------------------------------------------------------------------------- |
+| `css`             | `variables.css`, `base.css`, `themes/<brand>.css`                                |
+| `tailwind-v4`     | `tailwind.css` and `<brand>/tailwind.css` in the Tailwind folder                 |
+| `tailwind-v3`     | `tailwind.tokens.ts` and `<brand>/tailwind.tokens.ts` in the Tailwind folder     |
+| `js`              | `output/js/colorpalette.js`                                                      |
+| `ios-swift`       | `DesignTokens.swift`, `BrandTokens+<Brand>.swift` in `output/ios`                |
+| `android-xml`     | `main/values/colors.xml`, `dimens.xml` and `<brand>/values/` in `output/android` |
+| `android-compose` | `compose/DesignTokens.kt` in `output/android`                                    |
 
 `dta init` writes this key from your answer to "Which formats should dta generate?", and the playground's output checkboxes write it into the `dta.config.ts` it generates.
+
+## Native outputs
+
+Swift for SwiftUI, Android resource XML and Kotlin for Jetpack Compose, from the same tokens (the design is in the [native outputs spec](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/specs/native-outputs.md)). They are written from the resolved values: native code has no `var()`, so the alias chain is kept as a comment. `outputs.ios.outDir` and `outputs.android.outDir` move them; `outputs.android.package` sets the Kotlin package (default `designtokens`).
+
+```ts title="dta.config.ts"
+export default {
+  brands: ['BrandA', 'BrandB'],
+  outputs: {
+    formats: ['css', 'ios-swift', 'android-xml', 'android-compose'],
+    android: { package: 'com.example.tokens' },
+  },
+}
+```
+
+**Brands are themes.** A token whose alias chain goes through a brand collection (one that has the brands as modes, `Brand(Alias)` in `brand-ab`) is a brand token, written once per brand; every other token is shared. This depends on where a token lives, not on its values, so a token does not move between the files when a value changes. On a build of `brand-ab`:
+
+```swift title="output/ios/DesignTokens.swift (excerpt)"
+public enum DesignTokens {
+    public enum Colors {
+        /// Colors.Foundation.Blue.500
+        public static let foundationBlue500: SwiftUI.Color = SwiftUI.Color(.sRGB, red: 0, green: 0.3412, blue: 0.7216, opacity: 1)
+        …
+public protocol BrandTheme {
+    var colorsBrandPrimary: SwiftUI.Color { get }
+    var colorsBrandPrimaryDark: SwiftUI.Color { get }
+    …
+    var effectsOverlayOpacity: Swift.Double { get }
+    var effectsShadowBlur: CoreGraphics.CGFloat { get }
+}
+```
+
+```swift title="output/ios/BrandTokens+BrandA.swift (excerpt)"
+public struct BrandA: BrandTheme {
+    public init() {}
+
+    /// Colors.Brand.Primary → Colors.Foundation.Blue.500
+    public let colorsBrandPrimary: SwiftUI.Color = SwiftUI.Color(.sRGB, red: 0, green: 0.3412, blue: 0.7216, opacity: 1)
+```
+
+The app picks one (`let theme: BrandTheme = BrandA()`, also through SwiftUI's environment). Types are written in full (`SwiftUI.Color`, `Swift.String`, `androidx.compose.ui.graphics.Color`), so a token group named `Color` or `String` cannot hide them. Compose has the same shape: `object DesignTokens` for the shared tokens, `interface BrandTheme` and one `object` per brand, to provide with a `CompositionLocal`:
+
+```kotlin title="output/android/compose/DesignTokens.kt (excerpt)"
+object DesignTokens {
+    object Colors {
+        /** Colors.Foundation.Blue.500 */
+        val FoundationBlue500: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color(0xFF0057B8)
+        …
+interface BrandTheme {
+    val ColorsBrandPrimary: androidx.compose.ui.graphics.Color
+    …
+    val EffectsShadowBlur: androidx.compose.ui.unit.Dp
+}
+
+/** The BrandA theme. */
+object BrandA : BrandTheme {
+    /** Colors.Brand.Primary → Colors.Foundation.Blue.500 */
+    override val ColorsBrandPrimary: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color(0xFF0057B8)
+```
+
+Android XML puts the shared resources in `main/values/` and each brand's in `<brand>/values/` (the brand in lower case, words joined with `_`: `Brand A` → `brand_a`): use them as product-flavour source sets (`sourceSets["branda"].res.srcDirs("…/branda")`). Every flavour defines the same brand resources, so code in `main` can use them.
+
+```xml title="output/android/branda/values/colors.xml (excerpt)"
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated by dta build; do not edit. -->
+<resources>
+    <!-- Colors.Brand.Primary → Colors.Foundation.Blue.500 -->
+    <color name="colors_brand_primary">#FF0057B8</color>
+    <!-- Colors.Brand.Primary Dark → Colors.Foundation.Blue.700 -->
+    <color name="colors_brand_primary_dark">#FF003F8A</color>
+    …
+</resources>
+```
+
+Resource XML holds colours and dimensions; the other tokens (numbers, strings, booleans, durations) are only in Swift and Compose, and the build says how many.
+
+**Breakpoints:** native apps have no media queries, so the native files use the default breakpoint (`breakpoints.default`) and say which modes they leave out:
+
+```text
+warning [native-breakpoints] The native outputs use the default breakpoint "Mobile" of "ScreenType"; "Desktop", "Tablet" are not in them (native apps have no media queries).
+```
+
+Other multi-mode collections no brand selects (a dark mode, say) are read in their default mode, with a note.
+
+| Token                                                                                             | Swift                                   | Android XML                | Compose                                                                       |
+| ------------------------------------------------------------------------------------------------- | --------------------------------------- | -------------------------- | ----------------------------------------------------------------------------- |
+| `color` (other colour spaces converted to sRGB)                                                   | `Color(.sRGB, red:green:blue:opacity:)` | `<color>#AARRGGBB</color>` | `Color(0xAARRGGBB)`                                                           |
+| length: `dimension` (px; rem × 16) or a `number` whose scopes or name say spacing, radius, size … | `CGFloat`                               | `<dimen>16dp</dimen>`      | `16.dp`                                                                       |
+| font size (scope `FONT_SIZE`, or a name with font size / text size)                               | `CGFloat`                               | `<dimen>16sp</dimen>`      | `16.sp`                                                                       |
+| opacity (scope `OPACITY`: `50` → `0.5`, as in the CSS), line height, other `number`, `fontWeight` | `Double`                                | not written                | `Int` or `Double` (a brand member fractional in one brand is `Double` in all) |
+| `string`, `fontFamily`                                                                            | `String`                                | not written                | `String`                                                                      |
+| `boolean`                                                                                         | `Bool`                                  | not written                | `Boolean`                                                                     |
+| `duration`                                                                                        | `TimeInterval` (seconds)                | not written                | `Long` (ms)                                                                   |
+
+**Names:** the first segment of the path is the group, the rest the name: `DesignTokens.Colors.foundationBlue500` (Swift), `DesignTokens.Colors.FoundationBlue500` (Compose), `colors_foundation_blue_500` (XML); brand tokens are named from the whole path (`colorsBrandPrimary`). Letters of any script stay in Swift and Kotlin (`grün`); XML folds them to ASCII (`grun`). A name that starts with a digit gets `_` (`_700`), a Swift keyword gets backticks. Two tokens that end up with the same name are a warning that names both; the second is left out.
+
+**Never silently:** composite types, values without a native form (`50%`, `1em`), tokens that do not resolve in every brand and colours outside sRGB (written clipped) are each counted in a warning.
+
+Composite types (`shadow`, `typography`, `border`, `gradient`, `transition`, `cubicBezier`, `strokeStyle`) are not in the native files yet. The playground builds the web outputs only; the native files come from `dta build`.
 
 ## Names and values
 
@@ -145,6 +247,6 @@ A `$root` token is named after its group plus `root` (`color.accent.$root` → `
 ## Not built yet
 
 - Breakpoint modes switch by media query only; a mode cannot be mapped to a selector, and container queries are not written.
-- `outputs.ios` and `outputs.android` are accepted in the config and cleaned by `dta clean`, but `dta build` writes no Swift, XML or Compose files yet.
+- Native outputs: composite types, light and dark (resolver modifiers) as native themes, size classes, `values-night` and asset catalogs are not written. `outputs.ios.lang` and `outputs.android.lang` were removed (`outputs.formats` chooses the native outputs); a config that still sets them fails with a message to delete the line.
 - There is no Tailwind version option: `outputs.formats` chooses `tailwind-v4`, `tailwind-v3` or both. `outputs.tailwind.version` was removed because it never had an effect; a config that still sets it fails with a message to delete the line.
 - There is no prefix option: CSS variable names always start with `--` followed by the token path. `outputs.css.prefix` was removed because it never had an effect; a config that still sets it fails with a message to delete the line.

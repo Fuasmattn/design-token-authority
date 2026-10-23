@@ -10,7 +10,7 @@ import type { OutputFormat } from '@dta/build'
 /** `1 file`, `3 breakpoints`. */
 export const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`
 
-/** The outputs a visitor can choose, in the order of the config reference (`OUTPUT_FORMATS`). */
+/** The outputs a visitor can choose: the web outputs (`DEFAULT_FORMATS`), in their order. */
 export const OUTPUT_CHOICES: ReadonlyArray<{ format: OutputFormat; label: string }> = [
   { format: 'css', label: 'CSS' },
   { format: 'tailwind-v4', label: 'Tailwind v4' },

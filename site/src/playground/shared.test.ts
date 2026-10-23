@@ -1,4 +1,4 @@
-import { OUTPUT_FORMATS } from '@dta/build'
+import { DEFAULT_FORMATS } from '@dta/build'
 import { describe, expect, it } from 'vitest'
 import * as outputs from './outputs'
 import { ALL_FORMATS, OUTPUT_CHOICES, plural } from './shared'
@@ -11,8 +11,9 @@ describe('shared (what the first load needs, TICKET-124)', () => {
   })
 
   it('offers every output format, all chosen at first', () => {
-    expect(OUTPUT_CHOICES.map((choice) => choice.format)).toEqual([...OUTPUT_FORMATS])
-    expect(ALL_FORMATS).toEqual([...OUTPUT_FORMATS])
+    // The web outputs: the native ones (TICKET-011–013) are not offered in the browser.
+    expect(OUTPUT_CHOICES.map((choice) => choice.format)).toEqual([...DEFAULT_FORMATS])
+    expect(ALL_FORMATS).toEqual([...DEFAULT_FORMATS])
   })
 
   it('is what outputs.ts exports under the same names', () => {
