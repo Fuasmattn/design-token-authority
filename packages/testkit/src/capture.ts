@@ -11,6 +11,11 @@ import type { CaptureOptions, Scenario, ScenarioResult } from './types.js'
 /** The CLI invocations every fixture is run with. */
 export const SCENARIOS: readonly Scenario[] = [
   { name: 'build', args: ['build'] },
+  {
+    name: 'build-native',
+    args: ['build', '--config', 'dta.native.config.ts'],
+    fixtures: ['brand-ab'],
+  },
   { name: 'lint', args: ['lint'] },
   { name: 'graph-console', args: ['graph'] },
   { name: 'graph-dot', args: ['graph', '--format', 'dot'] },
@@ -124,6 +129,7 @@ export const SCENARIOS: readonly Scenario[] = [
   { name: 'token-list', args: ['token', 'list', '--match', 'Colors.**'], fixtures: ['brand-ab'] },
   { name: 'skill-add', args: ['skill', 'add'], fixtures: ['brand-ab'] },
   { name: 'context', args: ['context'], fixtures: ['brand-ab'] },
+  { name: 'brief', args: ['brief'], fixtures: ['brand-ab'] },
   { name: 'audit', args: ['audit'], fixtures: ['brand-ab'] },
   {
     name: 'audit-json',

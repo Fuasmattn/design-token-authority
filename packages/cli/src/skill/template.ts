@@ -56,6 +56,7 @@ Work in a loop until it is clean:
 ## Never
 
 - Run \`dta push --yes\`, or \`dta push\` without being asked: a person pushes to Figma. \`dta push --dry-run\` shows the plan and changes nothing.
+- Run \`dta prune\` or \`dta prune --force\`: it deletes variables from the Figma file, a person decides that. \`dta prune --dry-run\` lists them and deletes nothing.
 - Run \`dta pull\` or \`dta clean\` without being asked: they overwrite or remove token files.
 - Edit generated files: the build output, \`DESIGN.md\`, this skill.
 

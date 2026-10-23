@@ -16,7 +16,7 @@ Fix correctness issues and security problems before any new features.
 | [003](./003-fix-css-transform-units.md)     | Fix missing units in CSS output (blur, opacity)    | High         | S      | **Done** |
 | [004](./004-fix-redundant-css-naming.md)    | Fix repeated segments in CSS variable names        | Medium       | S      | **Done** |
 | [005](./005-standardize-ci-secret-names.md) | Standardize env variable names across local and CI | Medium       | XS     | **Done** |
-| [006](./006-fix-meta-mode1-naming.md)       | Rename default Figma mode name in meta collection  | Low          | XS     | Open     |
+| [006](./006-fix-meta-mode1-naming.md)       | Rename default Figma mode name in meta collection  | Low          | XS     | **Done** |
 | [025](./025-switch-to-vitest.md)            | Switch from Jest to Vitest                         | Medium       | S      | **Done** |
 | [027](./027-rename-and-readme.md)           | Rename project and replace README                  | Medium       | XS     | **Done** |
 
@@ -37,14 +37,14 @@ Turn the project into a proper CLI tool, usable by other projects without forkin
 
 Add output formats for web and mobile development.
 
-| #                                                  | Ticket                                              | Priority | Effort | Status   |
-| -------------------------------------------------- | --------------------------------------------------- | -------- | ------ | -------- |
-| [009](./009-tailwind-v3-output.md)                 | Tailwind v3 theme output                            | High     | M      | **Done** |
-| [010](./010-tailwind-v4-output.md)                 | Tailwind v4 @theme CSS output                       | Medium   | S      | **Done** |
-| [026](./026-per-brand-build-and-tailwind-theme.md) | Per-brand build output + Tailwind theme integration | High     | M      | **Done** |
-| [011](./011-ios-swift-output.md)                   | iOS Swift output (Color, CGFloat, Font)             | Medium   | M      | Open     |
-| [012](./012-android-xml-output.md)                 | Android XML resources (colors.xml, dimens.xml)      | Medium   | M      | Open     |
-| [013](./013-android-compose-output.md)             | Android Jetpack Compose output (Kotlin)             | Low      | M      | Open     |
+| #                                                  | Ticket                                              | Priority | Effort | Status    |
+| -------------------------------------------------- | --------------------------------------------------- | -------- | ------ | --------- |
+| [009](./009-tailwind-v3-output.md)                 | Tailwind v3 theme output                            | High     | M      | **Done**  |
+| [010](./010-tailwind-v4-output.md)                 | Tailwind v4 @theme CSS output                       | Medium   | S      | **Done**  |
+| [026](./026-per-brand-build-and-tailwind-theme.md) | Per-brand build output + Tailwind theme integration | High     | M      | **Done**  |
+| [011](./011-ios-swift-output.md)                   | iOS Swift output (Color, CGFloat, Font)             | Medium   | M      | In review |
+| [012](./012-android-xml-output.md)                 | Android XML resources (colors.xml, dimens.xml)      | Medium   | M      | In review |
+| [013](./013-android-compose-output.md)             | Android Jetpack Compose output (Kotlin)             | Low      | M      | In review |
 
 ---
 
@@ -65,12 +65,12 @@ Make the tool understand and auto-discover Figma variable structure.
 
 Plausibility checks, linting, and guardrails.
 
-| #                                             | Ticket                                   | Priority | Effort | Status   |
-| --------------------------------------------- | ---------------------------------------- | -------- | ------ | -------- |
-| [018](./018-token-linter.md)                  | Token linter with configurable rules     | High     | L      | **Done** |
-| [019](./019-naming-convention-enforcement.md) | Naming convention rules (extends linter) | Medium   | S      | Open     |
-| [020](./020-sync-diff-report.md)              | Human-readable diff report on push/sync  | Medium   | S      | **Done** |
-| [021](./021-deletion-safety-prune.md)         | `dta prune` for orphaned variables       | Low      | M      | Open     |
+| #                                             | Ticket                                   | Priority | Effort | Status    |
+| --------------------------------------------- | ---------------------------------------- | -------- | ------ | --------- |
+| [018](./018-token-linter.md)                  | Token linter with configurable rules     | High     | L      | **Done**  |
+| [019](./019-naming-convention-enforcement.md) | Naming convention rules (extends linter) | Medium   | S      | In review |
+| [020](./020-sync-diff-report.md)              | Human-readable diff report on push/sync  | Medium   | S      | **Done**  |
+| [021](./021-deletion-safety-prune.md)         | `dta prune` for orphaned variables       | Low      | M      | In review |
 
 **018 first; 019 is an extension of 018. 020 and 021 are independent.**
 
@@ -99,7 +99,7 @@ Figma and the design/coding AI tools will not build themselves.
 | [028](./028-design-md-generator.md)         | `DESIGN.md` / `AGENTS.md` generator for AI coding agents    | **High** | M      | Replaced by 102                           |
 | [029](./029-mcp-server.md)                  | MCP server exposing token graph to AI tools                 | **High** | M      | Deferred (agent-interop spec, decision 1) |
 | [030](./030-ai-code-audit.md)               | `dta audit` — detect hardcoded values in AI-generated code  | **High** | M      | Replaced by 103                           |
-| [031](./031-ai-design-brief-export.md)      | Brand brief export for AI design generators (Stitch, v0, …) | Medium   | S      | Open                                      |
+| [031](./031-ai-design-brief-export.md)      | Brand brief export for AI design generators (Stitch, v0, …) | Medium   | S      | In review                                 |
 | [032](./032-native-figma-dtcg-migration.md) | Migrate to Figma's native W3C DTCG export/import            | Medium   | M      | Open                                      |
 
 **Recommended order:** 028 first (static context is the cheapest win and unblocks 031). 029 next (biggest leverage; turns the tool into a live authority). 030 alongside or after 029 — they reinforce each other. 031 is light and can slot in any time. 032 is a tracking/long-running ticket paced by Figma.
@@ -228,7 +228,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 | #                                             | Ticket                                                                 | Priority | Effort | Blocked by | Status    |
 | --------------------------------------------- | ---------------------------------------------------------------------- | -------- | ------ | ---------- | --------- |
-| [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | —          | Open      |
+| [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | —          | In review |
 | [091](./091-build-breakpoint-modes.md)        | Breakpoint modes in the build output                                   | Medium   | M      | —          | Done      |
 | [092](./092-lint-contrast-per-mode.md)        | `color-contrast` per mode, through aliases                             | Medium   | S      | —          | Done      |
 | [117](./117-css-prefix.md)                    | Make `outputs.css.prefix` work (or remove it)                          | Low      | M      | —          | Done      |

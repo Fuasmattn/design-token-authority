@@ -41,6 +41,7 @@ Work in a loop until it is clean:
 ## Never
 
 - Run `dta push --yes`, or `dta push` without being asked: a person pushes to Figma. `dta push --dry-run` shows the plan and changes nothing.
+- Run `dta prune` or `dta prune --force`: it deletes variables from the Figma file, a person decides that. `dta prune --dry-run` lists them and deletes nothing.
 - Run `dta pull` or `dta clean` without being asked: they overwrite or remove token files.
 - Edit generated files: the build output, `DESIGN.md`, this skill.
 
@@ -54,6 +55,8 @@ Work in a loop until it is clean:
 
 - `dta pull`: Export variables from Figma to local token JSON files.
 - `dta push`: Push local token JSON files to Figma.
+- `dta brief`: A short, prompt-ready brief of each brand for AI design tools: colours with their roles, type, spacing, radii, breakpoints, rules.
+- `dta prune`: Delete variables from the Figma file whose tokens are no longer in the token files (push never deletes).
 - `dta build`: Generate CSS, JS, and other outputs from local token files.
 - `dta analyze`: Analyze Figma file structure and infer layer roles.
 - `dta graph`: Build and visualize the token alias dependency graph.

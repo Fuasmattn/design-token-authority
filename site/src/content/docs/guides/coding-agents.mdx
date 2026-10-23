@@ -25,7 +25,7 @@ $ dta skill add
 Wrote .claude/skills/dta/SKILL.md.
 ```
 
-The skill (`SKILL.md` with `name` and `description` front matter, the Agent Skills format) is the same for every project: look a token up before writing a value, the change loop (`dta lint` → `dta build` → `dta diff`), setting up visual review when asked (`dta init --diff --yes`, then `dta diff --check`), never `dta push --yes`, never edit generated files, and every command with its purpose. Its command list comes from the CLI itself, so it cannot name a command that does not exist. For agents that read skills from another folder, use `--dir`. In CI, `dta skill add --check` exits with 1 when the installed skill is out of date, for example after a DTA update.
+The skill (`SKILL.md` with `name` and `description` front matter, the Agent Skills format) is the same for every project: look a token up before writing a value, the change loop (`dta lint` → `dta build` → `dta diff`), setting up visual review when asked (`dta init --diff --yes`, then `dta diff --check`), never `dta push --yes` or `dta prune`, never edit generated files, and every command with its purpose. Its command list comes from the CLI itself, so it cannot name a command that does not exist. For agents that read skills from another folder, use `--dir`. In CI, `dta skill add --check` exits with 1 when the installed skill is out of date, for example after a DTA update.
 
 ## 2. Generate the project context
 
@@ -119,6 +119,55 @@ What the skill asks of the agent when it changes token files:
 4. `dta diff --tokens-only --format markdown`: what changed and what depends on it. With stories configured, `dta diff` also shows the screenshots ([dta diff in pull requests](/guides/dta-diff-in-pull-requests/)).
 5. Read the result, fix, repeat. Then a person reviews the pull request and pushes to Figma.
 
+## Briefs for AI design tools
+
+Design generators without a terminal (Stitch, v0, a chat) cannot run `dta token find`, so they invent colours. `dta brief` writes a short brief per brand to paste at the top of the prompt: the colours with a role (primary, accent, success …) and what each is for, text and surface colours, a neutral ramp, fonts, a few sizes, spacing, radii, breakpoints and rules. Colours meant for content on another colour (`Text.On Primary`) are left out of the text colours, neutrals are a ramp from dark to light, and fonts name the token that says what they are for. Values are those of the default breakpoint. Every list is capped, so a brief stays near 400 tokens. On `brand-ab`:
+
+```text
+$ dta brief --brand BrandA
+# BrandA brief
+
+## Colors
+
+- Primary: `#0057b8` (Colors.Brand.Primary): main actions, links, brand moments
+- Accent: `#3b8fd9` (Colors.Brand.Accent): emphasis, used sparingly
+- Text: `#111827` (Colors.Text.Default), `#6b7280` (Colors.Text.Muted)
+- Surfaces: `#ffffff` (Colors.Surface.Default), `#f3f4f6` (Colors.Surface.Muted)
+- Neutrals, dark to light: `#111827` `#6b7280` `#f3f4f6` `#ffffff`
+
+## Typography
+
+- Fonts: Inter (Typography.Body.Family), Source Serif 4 (Typography.FontFamily.Serif)
+- Sizes: 14, 16, 20, 28 (px)
+
+## Spacing
+
+4, 8, 16, 32 (px)
+
+## Radius
+
+4, 8, 999 (px)
+
+## Breakpoints
+
+Mobile (default), Tablet (min-width: 768px), Desktop (min-width: 1024px)
+
+## Rules
+
+- Use only the values in this brief: no other colours, sizes or fonts.
+```
+
+`brief.identity` in the config adds a line on the brand's character and `brief.rules` replaces the generic rule, since neither can be read from tokens:
+
+```ts title="dta.config.ts"
+brief: {
+  identity: 'Calm, trustworthy, institutional.',
+  rules: ['Never use pure black: use Colors.Text.Default.', 'Radius is never 0 on buttons.'],
+},
+```
+
+Without `--brand` there is one brief per brand. `--format json` gives the same content as data (`"schema": "dta.brief/1"`) for a tool's API, and `--copy` puts the brief on the clipboard (pbcopy, clip, wl-copy, xclip or xsel).
+
 ## No terminal?
 
-All of this assumes an agent that can run commands. For chat or design tools without a terminal, an MCP server over the same queries is planned but not built. Until then, [`/llms.txt`](/llms.txt) and the [JSON Schemas](/reference/#schemas) are what such a tool can read.
+All of this assumes an agent that can run commands. For chat or design tools without a terminal, an MCP server over the same queries is planned but not built. Until then, a [brief](#briefs-for-ai-design-tools), [`/llms.txt`](/llms.txt) and the [JSON Schemas](/reference/#schemas) are what such a tool can read.

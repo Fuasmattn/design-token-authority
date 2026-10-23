@@ -48,6 +48,7 @@ describe('SCENARIOS', () => {
   it('lists the commands every fixture is run with', async () => {
     expect(SCENARIOS.map((s) => s.name)).toEqual([
       'build',
+      'build-native',
       'lint',
       'graph-console',
       'graph-dot',
@@ -74,6 +75,7 @@ describe('SCENARIOS', () => {
       'token-list',
       'skill-add',
       'context',
+      'brief',
       'audit',
       'audit-json',
       'audit-baseline',

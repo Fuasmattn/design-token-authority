@@ -8,6 +8,8 @@ import { runGraph } from './commands/graph.js'
 import { runInit } from './commands/init.js'
 import { runLint } from './commands/lint.js'
 import { runPull } from './commands/pull.js'
+import { runBrief } from './commands/brief.js'
+import { runPrune } from './commands/prune.js'
 import { runPush } from './commands/push.js'
 import { runAudit } from './commands/audit.js'
 import { runContext } from './commands/context.js'
@@ -104,6 +106,44 @@ export const COMMANDS: readonly CommandDefinition[] = [
       {
         flags: '-y, --yes',
         description: 'Skip confirmation prompt (use in CI/automation)',
+      },
+      CONFIG,
+      VERBOSE,
+    ],
+  },
+  {
+    name: 'brief',
+    description:
+      'A short, prompt-ready brief of each brand for AI design tools: colours with their roles, type, spacing, radii, breakpoints, rules',
+    needsConfig: true,
+    run: runBrief,
+    options: [
+      { flags: '--brand <name>', description: 'Only this brand (default: one brief per brand)' },
+      {
+        flags: '--format <format>',
+        description: 'markdown (to paste into a prompt) or json (to pipe into a tool)',
+        defaultValue: 'markdown',
+      },
+      { flags: '--copy', description: 'Also put the brief on the clipboard' },
+      CONFIG,
+    ],
+  },
+  {
+    name: 'prune',
+    description:
+      'Delete variables from the Figma file whose tokens are no longer in the token files (push never deletes)',
+    needsConfig: true,
+    run: runPrune,
+    options: [
+      { flags: '--dry-run', description: 'List the orphaned variables without deleting anything' },
+      {
+        flags: '--force',
+        description: 'Delete without the typed confirmation (CI, with explicit opt-in)',
+      },
+      {
+        flags: '--allow-bulk',
+        description:
+          'Also delete in a collection that would lose more than half of its variables (left alone by default)',
       },
       CONFIG,
       VERBOSE,
@@ -358,7 +398,7 @@ export const COMMANDS: readonly CommandDefinition[] = [
       {
         flags: '-y, --yes',
         description:
-          'With --diff: no questions; detected or default answers (CI and coding agents)',
+          'No questions (CI and coding agents): without a config, a dta.config.ts for exported token files with every output format; with --diff or a config, the detected or default answers',
       },
       VERBOSE,
     ],

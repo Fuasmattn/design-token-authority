@@ -93,8 +93,9 @@ packages/
   build/     CSS, JS, Tailwind v3/v4 outputs
   lint/      lint rules and config
   visual-diff/  dta diff engine: token change sets, screenshots compared, changes explained by token
-  cli/       commands (pull, push, build, lint, graph, analyze, clean, init, diff, token, skill, context, audit), config loader, UI
+  cli/       commands (pull, push, prune, build, lint, graph, analyze, clean, init, diff, token, skill, context, audit), config loader, UI
   testkit/   private test helpers: Figma fake, snapshot capture
+  create-dta/   `npm create dta` (runs design-token-authority init); its test checks the packed packages
 bin/dta.js   binary entry (runs packages/cli/src/bin.ts through tsx)
 site/        the DTA website (private workspace app); site/tokens = DTA Drafting Table tokens, built with dta build
 actions/     GitHub composite actions for dta diff (run, report, approve), example workflows, publish recipes
@@ -120,7 +121,7 @@ Push planning (`@dta/figma`) and alias resolution (`@dta/core`) assume variable 
 
 ### Conservative sync
 
-The push direction (`dta push`) **never deletes** variables from Figma. It only creates new ones or updates existing ones. Deletion is intentionally out-of-scope for the push command (see TICKET-021 for `prune`).
+The push direction (`dta push`) **never deletes** variables from Figma. It only creates new ones or updates existing ones. Deletion is intentionally out-of-scope for the push command: it is `dta prune` (TICKET-021), a separate command with its own typed confirmation (`delete variables from figma`, or `--force`).
 
 ### Push confirmation
 
@@ -149,6 +150,7 @@ FIGMA_FILE_KEY=                # From Figma file URL: figma.com/file/<FILE_KEY>/
 pnpm dta pull            # Pull variables from Figma → tokens/
 pnpm dta push            # Push tokens/ → Figma (typed confirmation required)
 pnpm dta push --yes      # Push without confirmation (CI/automation)
+pnpm dta prune --dry-run # Variables in Figma without a token (prune deletes them, typed confirmation)
 pnpm dta build           # Generate CSS + JS from tokens/
 pnpm dta clean           # Remove all token files and build output
 pnpm dta analyze         # Inspect Figma file structure
@@ -165,6 +167,7 @@ pnpm dta diff --base <ref|dir> -f markdown   # ...against another base, as markd
 pnpm dta diff --list                   # Stories dta diff would render (diff section in the config)
 pnpm dta diff                          # Tokens + screenshots of base and head (needs playwright-core + Chromium; report in .dta/diff)
 pnpm dta diff --publish "<command>"    # ...then run a publish hook on the report folder (prints its URL); --from-report reuses the last report
+pnpm package:build             # npm package: bundle the CLI into dist/ (published by the Release workflow)
 pnpm site:dev                  # Website (Astro + Starlight) on its DTA-built tokens
 pnpm site:build                # Website build incl. link check (CI job "site")
 pnpm test                      # Run Vitest (all packages, scripts)
@@ -194,9 +197,9 @@ The `dta init` wizard asks which Figma plan you have and adjusts the setup flow 
 
 These are tracked as tickets — do not work around them, fix them at the source:
 
-| Issue                                              | Ticket     |
-| -------------------------------------------------- | ---------- |
-| `meta.Mode1.json` uses Figma default mode name     | TICKET-006 |
+| Issue | Ticket |
+| ----- | ------ |
+| (none open: TICKET-006 was closed as obsolete on 2026-10-23) | — |
 
 ---
 

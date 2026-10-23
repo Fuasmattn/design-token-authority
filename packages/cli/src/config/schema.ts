@@ -36,7 +36,7 @@ const outputs = z
       .min(1)
       .optional()
       .describe(
-        'Which outputs `dta build` writes: `css`, `tailwind-v4`, `tailwind-v3`, `js` (default: all four). `dta init` writes it from your answer to "Which formats should dta generate?".',
+        'Which outputs `dta build` writes: the web outputs `css`, `tailwind-v4`, `tailwind-v3`, `js` (the default: all four) and the native ones `ios-swift`, `android-xml`, `android-compose` (only when listed). `dta init` writes it from your answer to "Which formats should dta generate?".',
       ),
     css: z
       .strictObject({
@@ -72,19 +72,42 @@ const outputs = z
       .describe('Tailwind theme files (default folder `output/tailwind`).'),
     ios: z
       .strictObject({
-        outDir,
-        lang: z.literal('swift').default('swift').describe('Target language.'),
-      })
-      .optional()
-      .describe('Accepted and cleaned by `dta clean`; `dta build` writes no Swift files yet.'),
-    android: z
-      .strictObject({
-        outDir,
-        lang: z.enum(['xml', 'compose']).default('xml').describe('Target language.'),
+        outDir: outDir.optional(),
+        /** Removed (TICKET-011): rejected with a message that says so instead of "unrecognized key". */
+        lang: z
+          .never({
+            error:
+              "was removed: `outputs.formats` chooses the native outputs ('ios-swift'). Delete this line.",
+          })
+          .optional()
+          .describe('Removed; rejected. `formats` chooses the native outputs. Delete the line.'),
       })
       .optional()
       .describe(
-        'Accepted and cleaned by `dta clean`; `dta build` writes no XML or Compose files yet.',
+        'Swift for SwiftUI (`ios-swift` in `formats`): `DesignTokens.swift` and one `BrandTokens+<Brand>.swift` per brand (default folder `output/ios`).',
+      ),
+    android: z
+      .strictObject({
+        outDir: outDir.optional(),
+        package: z
+          .string()
+          .regex(/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/, {
+            message: 'is a Kotlin package name: dot-separated identifiers, e.g. com.example.tokens',
+          })
+          .optional()
+          .describe('The Kotlin package of `DesignTokens.kt` (default `designtokens`).'),
+        /** Removed (TICKET-012/013): rejected with a message that says so instead of "unrecognized key". */
+        lang: z
+          .never({
+            error:
+              "was removed: `outputs.formats` chooses the native outputs ('android-xml', 'android-compose'). Delete this line.",
+          })
+          .optional()
+          .describe('Removed; rejected. `formats` chooses the native outputs. Delete the line.'),
+      })
+      .optional()
+      .describe(
+        'Android (`android-xml`, `android-compose` in `formats`): resource XML in `main/values/` and `<brand>/values/`, Compose in `compose/DesignTokens.kt` (default folder `output/android`).',
       ),
     /** Removed in v2 (TICKET-067): rejected with a message that says so instead of "unrecognized key". */
     docs: z
@@ -150,6 +173,18 @@ const lint = lintConfigSchema.superRefine((value, context) => {
         code: 'custom',
         message: 'must be a valid regular expression',
         path: ['rules', 'naming-pattern', 'patterns', collection],
+      })
+    }
+  }
+  const collectionPattern = value.rules?.['collection-pattern']?.pattern
+  if (collectionPattern !== undefined) {
+    try {
+      new RegExp(collectionPattern)
+    } catch {
+      context.addIssue({
+        code: 'custom',
+        message: 'must be a valid regular expression',
+        path: ['rules', 'collection-pattern', 'pattern'],
       })
     }
   }
@@ -239,6 +274,23 @@ export const configSchema = z.strictObject({
     .describe(
       'With this section, `dta build` also writes the context file for coding agents and the pointer in `AGENTS.md`, like `dta context`. Off by default.',
     ),
+  brief: z
+    .strictObject({
+      identity: z
+        .string()
+        .optional()
+        .describe(
+          'One line on the brand\'s character, which tokens cannot say: "Calm, trustworthy, institutional."',
+        ),
+      rules: z
+        .array(z.string())
+        .optional()
+        .describe(
+          'The rules a generator should follow, one line each: "Never use pure black: use Colors.Text.Default."',
+        ),
+    })
+    .optional()
+    .describe('`dta brief`: what the brief for AI design tools says beyond the tokens.'),
   push: z
     .strictObject({
       skipConfirmation: z
