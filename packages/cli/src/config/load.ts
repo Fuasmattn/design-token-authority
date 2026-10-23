@@ -101,6 +101,10 @@ function unwrapInterop(module: Record<string, unknown>): Record<string, unknown>
   return module
 }
 
+/** Config files this process loaded (see readRaw). */
+const loadedPaths = new Set<string>()
+let copyCounter = 0
+
 async function readRaw(filePath: string): Promise<unknown> {
   const reason = (error: unknown) => (error instanceof Error ? error.message : String(error))
 
@@ -116,13 +120,27 @@ async function readRaw(filePath: string): Promise<unknown> {
   // must load in projects without "type": "module" too (a plain import there goes through the
   // CommonJS loader and fails on the ESM syntax).
   let module: Record<string, unknown>
+  // tsx keeps a loaded config module for the rest of the process. The first load of a path reads
+  // it; a later one (dta init --diff writes the config it read before) reads a fresh copy next to
+  // it, so relative imports still resolve, and removes the copy.
+  const again = loadedPaths.has(filePath)
+  loadedPaths.add(filePath)
+  const target = again
+    ? path.join(
+        path.dirname(filePath),
+        `.dta-config-${process.pid}-${(copyCounter += 1)}${path.extname(filePath)}`,
+      )
+    : filePath
+  if (again) fs.copyFileSync(filePath, target)
   try {
     const { tsImport } = await import('tsx/esm/api')
     module = unwrapInterop(
-      (await tsImport(pathToFileURL(filePath).href, import.meta.url)) as Record<string, unknown>,
+      (await tsImport(pathToFileURL(target).href, import.meta.url)) as Record<string, unknown>,
     )
   } catch (error) {
     throw new ConfigError('unreadable', `Could not load ${filePath}: ${reason(error)}`)
+  } finally {
+    if (again) fs.rmSync(target, { force: true })
   }
   if (!('default' in module)) {
     throw new ConfigError(

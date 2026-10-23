@@ -17,6 +17,7 @@ export { baseInWords, headInWords } from './sides.js'
 export type { DiffHead } from './sides.js'
 export {
   diffConfigSchema,
+  pageStories,
   readStoriesManifest,
   readStorybookIndex,
   STORIES_SCHEMA,

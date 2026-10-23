@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process'
 import fs from 'node:fs'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 import { cssBindings, type BuildOptions } from '@dta/build'
 import {
@@ -28,6 +29,7 @@ import {
   type PageDeclaration,
   type Review,
   type RevertPlan,
+  pageStories,
   readStoriesManifest,
   readStorybookIndex,
   storyImagePaths,
@@ -45,8 +47,16 @@ import {
 } from '@dta/visual-diff'
 import pc from 'picocolors'
 import type { CommandContext } from '../commands.js'
+import { diffProblems, docsUrl, formatProblem, type DiffProblem } from '../diff-problems.js'
+import { BaseBuildError, buildBase } from '../io/base-build.js'
 import { BrowserUnavailableError, launchScreenshotter } from '../io/browser.js'
-import { DiffBaseError, resolveDiffBase, resolveDiffHead } from '../io/diff-base.js'
+import {
+  defaultBranch,
+  DiffBaseError,
+  gitOutput,
+  resolveDiffBase,
+  resolveDiffHead,
+} from '../io/diff-base.js'
 import { CommandFailedError, runCommand } from '../io/run-command.js'
 import { serveStatic } from '../io/static-server.js'
 import { createBaseWorktree } from '../io/worktree.js'
@@ -99,29 +109,32 @@ export async function runDiff(context: CommandContext): Promise<number> {
     typeof context.options.base === 'string' ? context.options.base : context.config?.diff?.base
   const failOnChange = Boolean(context.options.failOnChange)
   const ui = createUi(context.stdout)
-  const fail = (message: string) => {
-    context.stderr(`dta diff: ${message}\n`)
+  const fail = (problem: DiffProblem) => {
+    context.stderr(formatProblem(problem))
     return 1
   }
 
   if (!FORMATS.includes(requested as Format)) {
-    return fail(`unknown format "${requested}". Use one of: ${FORMATS.join(', ')}.`)
+    return fail(diffProblems.unknownFormat(requested, FORMATS))
   }
   const format = requested as Format
 
   if (context.options.list) return listStories(context, format, fail)
+  if (context.options.check) return checkSetup(context, base)
   const reportDir = path.resolve(
     context.cwd,
     typeof context.options.report === 'string' ? context.options.report : '.dta/diff',
   )
   const hook = publishHook(context)
   if (context.options.fromReport) {
-    if (!hook) return fail('--from-report needs a publish hook (--publish or diff.publish).')
+    if (!hook) return fail(diffProblems.fromReportWithoutHook())
     if (!fs.existsSync(path.join(reportDir, 'result.json'))) {
-      return fail(`no result.json in ${path.relative(context.cwd, reportDir) || '.'}.`)
+      return fail(
+        diffProblems.fromReportWithoutResult(path.relative(context.cwd, reportDir) || '.'),
+      )
     }
     const published = publishReport(context, reportDir, hook)
-    if (!published.ok) return fail(published.message)
+    if (!published.ok) return fail(diffProblems.publishFailed(published.message))
     context.stdout(`${published.url}\n`)
     return 0
   }
@@ -132,7 +145,8 @@ export async function runDiff(context: CommandContext): Promise<number> {
     headFiles = readTokenDir(tokensDir, context.cwd)
     baseInfo = resolveDiffBase(context.cwd, tokensDir, base)
   } catch (error) {
-    if (error instanceof TokenDirError || error instanceof DiffBaseError) return fail(error.message)
+    if (error instanceof TokenDirError) return fail(diffProblems.noTokens(error.message))
+    if (error instanceof DiffBaseError) return fail(diffProblems.noBase(error.message))
     throw error
   }
 
@@ -150,7 +164,7 @@ export async function runDiff(context: CommandContext): Promise<number> {
   ]
   if (hasErrors(problems.map((p) => p.d))) {
     for (const { side, d } of problems) context.stderr(`${side}: ${formatDiagnostic(d)}\n`)
-    return 1
+    return fail(diffProblems.tokenErrors())
   }
 
   const set = diffTokens(before.model, head.model)
@@ -184,10 +198,14 @@ export async function runDiff(context: CommandContext): Promise<number> {
       review = reviewStories(stories, plan.causes, diff.thresholds)
     } catch (error) {
       if (error instanceof BrowserUnavailableError) {
-        context.stderr(`dta diff: ${error.message}\n`)
-        skip('Showing token changes only.')
-      } else if (error instanceof CommandFailedError || error instanceof VisualDiffError) {
-        return fail(error.message)
+        // In CI a missing browser is a broken setup, not a reason to compare tokens only.
+        if (isCI()) return fail(diffProblems.noBrowser(error.message))
+        context.stderr(formatProblem(diffProblems.noBrowser(error.message)))
+        if (format === 'console') ui.log.warn('No screenshots: showing token changes only.')
+      } else if (error instanceof VisualDiffError) {
+        return fail(error.problem)
+      } else if (error instanceof CommandFailedError) {
+        return fail(diffProblems.commandFailed(error.message, error.command))
       } else {
         throw error
       }
@@ -206,7 +224,7 @@ export async function runDiff(context: CommandContext): Promise<number> {
       } else {
         // Loud, but the diff result below is still printed and written.
         publishFailed = true
-        context.stderr(`dta diff: ${published.message}\n`)
+        context.stderr(formatProblem(diffProblems.publishFailed(published.message)))
       }
     }
     if (format === 'console') {
@@ -292,12 +310,17 @@ async function planAttribution(
 }
 
 /** A problem with the built output (missing manifest, broken story). */
-class VisualDiffError extends Error {}
+class VisualDiffError extends Error {
+  constructor(readonly problem: DiffProblem) {
+    super(problem.message)
+  }
+}
 
 /** The configured stories source: which file in the output to read, and how. */
 function storiesSource(diff: DiffConfig) {
   const options = { viewports: diff.viewports }
   const stories = diff.stories
+  if (Array.isArray(stories)) return null
   if (stories.type === 'storybook') {
     return {
       file: stories.index,
@@ -317,21 +340,96 @@ function storiesSource(diff: DiffConfig) {
   }
 }
 
-function readManifest(outDir: string, diff: DiffConfig, side: string) {
+/** The file a page path is served from: `/` → index.html, `/a` → a/index.html, a.html or a. */
+function pageExists(outDir: string, url: string): boolean {
+  const clean = decodeURIComponent(url.split(/[?#]/)[0]).replace(/^\/+/, '')
+  const candidates =
+    clean.endsWith('/') || clean === ''
+      ? [path.join(clean, 'index.html')]
+      : [clean, `${clean}.html`, path.join(clean, 'index.html')]
+  return candidates.some((file) => {
+    const full = path.join(outDir, file)
+    return fs.existsSync(full) && fs.statSync(full).isFile()
+  })
+}
+
+type StoriesRead =
+  | { ok: true; stories: StoryRef[]; absent: string[]; where: string }
+  | { ok: false; problem: 'missing' | 'invalid'; message: string; where: string }
+
+/**
+ * The stories of a built output: the pages of `diff.stories` that exist in it (the others listed
+ * as absent), or the stories of its manifest or Storybook index.
+ */
+function readStories(outDir: string, diff: DiffConfig): StoriesRead {
+  if (Array.isArray(diff.stories)) {
+    const { stories, diagnostics } = pageStories(diff.stories, { viewports: diff.viewports })
+    if (hasErrors(diagnostics)) {
+      return {
+        ok: false,
+        problem: 'invalid',
+        where: 'diff.stories',
+        message: diagnostics.map((d) => formatDiagnostic(d)).join('; '),
+      }
+    }
+    const present = stories.filter((story) => pageExists(outDir, story.url))
+    return {
+      ok: true,
+      stories: present,
+      absent: stories.filter((story) => !present.includes(story)).map((story) => story.url),
+      where: diff.outDir,
+    }
+  }
   const source = storiesSource(diff)
+  if (!source) throw new Error('unreachable: a page list has no source file')
+  const where = path.join(diff.outDir, source.file)
   const file = path.join(outDir, source.file)
-  if (!fs.existsSync(file)) return null
+  if (!fs.existsSync(file))
+    return { ok: false, problem: 'missing', where, message: `no ${source.label} at ${where}` }
   let json: unknown
   try {
     json = JSON.parse(fs.readFileSync(file, 'utf8'))
   } catch {
-    throw new VisualDiffError(`${side}: ${source.file} is not valid JSON.`)
+    return { ok: false, problem: 'invalid', where, message: `${where} is not valid JSON` }
   }
   const { stories, diagnostics } = source.read(json)
   if (hasErrors(diagnostics)) {
-    throw new VisualDiffError(`${side}: ${diagnostics.map((d) => formatDiagnostic(d)).join('; ')}`)
+    return {
+      ok: false,
+      problem: 'invalid',
+      where,
+      message: diagnostics.map((d) => formatDiagnostic(d)).join('; '),
+    }
   }
-  return stories
+  return { ok: true, stories, absent: [], where }
+}
+
+/** The problem when the built output has no stories file. */
+function storiesMissing(outDir: string, diff: DiffConfig): DiffProblem {
+  const read = readStories(outDir, diff)
+  const message = read.ok ? `no stories in ${diff.outDir}` : read.message
+  return !Array.isArray(diff.stories) && diff.stories.type === 'storybook'
+    ? diffProblems.noStorybookIndex(read.where, diff.build)
+    : diffProblems.storiesMissing(message, diff.build)
+}
+
+/** Whether `dta diff` runs in CI (GitHub Actions and most others set CI=true). */
+function isCI(): boolean {
+  const value = process.env.CI
+  return value !== undefined && value !== '' && value !== '0' && value !== 'false'
+}
+
+function readManifest(outDir: string, diff: DiffConfig, side: string) {
+  const read = readStories(outDir, diff)
+  if (!read.ok) {
+    if (read.problem === 'missing') return null
+    throw new VisualDiffError(diffProblems.storiesInvalid(`${side}: ${read.message}`))
+  }
+  // A page the head does not have is a mistake in the list; the base may not have it yet.
+  if (side === 'head' && read.absent.length > 0) {
+    throw new VisualDiffError(diffProblems.pagesAbsent(read.absent, diff.outDir, diff.build))
+  }
+  return read.stories
 }
 
 /**
@@ -355,25 +453,27 @@ async function compareVisually(
     const headOut = path.resolve(context.cwd, diff.outDir)
     const headStories = readManifest(headOut, diff, 'head')
     if (!headStories) {
-      throw new VisualDiffError(
-        `no ${storiesSource(diff).label} at ${path.join(diff.outDir, storiesSource(diff).file)} after the build.`,
-      )
+      throw new VisualDiffError(storiesMissing(headOut, diff))
     }
 
     log(`${pc.dim('Building base:')} ${sha.slice(0, 7)} in a temporary worktree`)
     const worktree = createBaseWorktree(context.cwd, sha)
     cleanup.push(() => worktree.remove())
-    if (diff.setup) runCommand(diff.setup, worktree.root)
-    let baseStories: StoryRef[] = []
     const baseOut = path.resolve(worktree.projectDir, diff.outDir)
     try {
-      if (diff.build) runCommand(diff.build, worktree.projectDir)
-      baseStories = readManifest(baseOut, diff, 'base') ?? []
+      buildBase({
+        cwd: context.cwd,
+        worktree,
+        setup: diff.setup,
+        build: diff.build,
+        log: (text) => log(pc.dim(text)),
+      })
     } catch (error) {
-      if (!(error instanceof CommandFailedError)) throw error
-      // A base that cannot be built (e.g. before the site existed) has no stories: all are new.
-      log(pc.yellow(`The base did not build, so every story counts as added.\n${error.message}`))
+      if (!(error instanceof BaseBuildError)) throw error
+      throw new VisualDiffError(diffProblems.baseBuildFailed(error.message, error.failure.command))
     }
+    // No stories file at the base (before the site had one): every story is new.
+    const baseStories: StoryRef[] = readManifest(baseOut, diff, 'base') ?? []
 
     const headServer = await serveStatic(headOut)
     cleanup.push(() => headServer.close())
@@ -555,32 +655,23 @@ function consoleReview(review: Review): string {
 function listStories(
   context: CommandContext,
   format: Format,
-  fail: (message: string) => number,
+  fail: (problem: DiffProblem) => number,
 ): number {
   const diff = context.config?.diff
-  if (!diff) {
+  if (!diff) return fail(diffProblems.noDiffSection())
+  const outDir = path.resolve(context.cwd, diff.outDir)
+  const read = readStories(outDir, diff)
+  if (!read.ok) {
     return fail(
-      'no `diff` section in the config. Add at least `diff: { outDir: "dist" }` (see the docs).',
+      read.problem === 'missing'
+        ? storiesMissing(outDir, diff)
+        : diffProblems.storiesInvalid(read.message),
     )
   }
-  const source = storiesSource(diff)
-  const manifestPath = path.join(diff.outDir, source.file)
-  const absolute = path.resolve(context.cwd, manifestPath)
-  if (!fs.existsSync(absolute)) {
-    const build = diff.build ? `run \`${diff.build}\` first` : 'build the project first'
-    return fail(`no ${source.label} at ${manifestPath}; ${build}.`)
-  }
-  let json: unknown
-  try {
-    json = JSON.parse(fs.readFileSync(absolute, 'utf8'))
-  } catch {
-    return fail(`${manifestPath} is not valid JSON.`)
-  }
-  const { stories, diagnostics } = source.read(json)
-  if (hasErrors(diagnostics)) {
-    for (const d of diagnostics) context.stderr(`${manifestPath}: ${formatDiagnostic(d)}\n`)
-    return 1
-  }
+  if (read.absent.length > 0)
+    return fail(diffProblems.pagesAbsent(read.absent, diff.outDir, diff.build))
+  const { stories } = read
+  const manifestPath = read.where
 
   if (format === 'json') {
     context.stdout(`${JSON.stringify({ manifest: manifestPath, stories }, null, 2)}\n`)
@@ -598,9 +689,12 @@ function listStories(
   }
   const ui = createUi(context.stdout)
   ui.intro(banner('diff'))
-  ui.log.message(
-    `${pc.dim(source.label === 'stories manifest' ? 'Manifest:' : 'Storybook index:')} ${manifestPath}`,
-  )
+  const label = Array.isArray(diff.stories)
+    ? 'Pages in:'
+    : diff.stories.type === 'storybook'
+      ? 'Storybook index:'
+      : 'Manifest:'
+  ui.log.message(`${pc.dim(label)} ${manifestPath}`)
   const idWidth = Math.max(...stories.map((s) => s.id.length), 0)
   const urlWidth = Math.max(...stories.map((s) => s.url.length), 0)
   const rows = stories.map(
@@ -609,4 +703,188 @@ function listStories(
   context.stdout(`\n${rows.join('\n')}\n\n`)
   ui.outro(`${stories.length} ${stories.length === 1 ? 'story' : 'stories'}`)
   return 0
+}
+
+interface Check {
+  name: string
+  ok: boolean
+  detail: string
+  problem?: DiffProblem
+}
+
+/** Whether a browser is there for screenshots, without starting it. */
+async function browserCheck(cwd: string): Promise<Check> {
+  const name = 'browser'
+  const custom = process.env.DTA_BROWSER_PATH
+  if (custom) {
+    return fs.existsSync(custom)
+      ? { name, ok: true, detail: `DTA_BROWSER_PATH (${custom})` }
+      : {
+          name,
+          ok: false,
+          detail: `DTA_BROWSER_PATH points at ${custom}, which does not exist`,
+          problem: diffProblems.noBrowser(
+            `DTA_BROWSER_PATH points at ${custom}, which does not exist.`,
+          ),
+        }
+  }
+  let playwright: { chromium: { executablePath(): string } }
+  try {
+    // The project's own playwright-core first (what dta init installs), then DTA's.
+    try {
+      playwright = createRequire(path.join(cwd, 'package.json'))(
+        'playwright-core',
+      ) as typeof playwright
+    } catch {
+      playwright = (await import('playwright-core')) as unknown as typeof playwright
+    }
+  } catch {
+    return {
+      name,
+      ok: false,
+      detail: 'playwright-core is not installed',
+      problem: diffProblems.noBrowser('playwright-core is not installed.'),
+    }
+  }
+  const executable = playwright.chromium.executablePath()
+  return executable && fs.existsSync(executable)
+    ? { name, ok: true, detail: `playwright-core with Chromium (${executable})` }
+    : {
+        name,
+        ok: false,
+        detail: 'playwright-core is installed, Chromium is not',
+        problem: diffProblems.noBrowser('playwright-core is installed, but Chromium is not.'),
+      }
+}
+
+/** `dta diff --check`: the setup, without building or rendering anything (TICKET-130). */
+async function checkSetup(context: CommandContext, base: string | undefined): Promise<number> {
+  const checks: Check[] = []
+  const diff = context.config?.diff
+
+  checks.push(
+    diff
+      ? {
+          name: 'config',
+          ok: true,
+          detail: `diff section: outDir ${diff.outDir}${diff.build ? `, build \`${diff.build}\`` : ''}`,
+        }
+      : {
+          name: 'config',
+          ok: false,
+          detail: 'no diff section',
+          problem: diffProblems.noDiffSection(),
+        },
+  )
+  checks.push(await browserCheck(context.cwd))
+
+  const inRepo = gitOutput(context.cwd, ['rev-parse', '--show-toplevel']) !== null
+  const shallow =
+    gitOutput(context.cwd, ['rev-parse', '--is-shallow-repository'])?.trim() === 'true'
+  checks.push(
+    !inRepo
+      ? {
+          name: 'git history',
+          ok: false,
+          detail: 'not a git repository',
+          problem: diffProblems.noBase(
+            'Not inside a git repository, so there is no base to build.',
+          ),
+        }
+      : shallow
+        ? {
+            name: 'git history',
+            ok: false,
+            detail: 'a shallow clone: the merge base may be missing',
+            problem: diffProblems.noBase(
+              'This is a shallow clone, so the merge base may be missing.',
+            ),
+          }
+        : { name: 'git history', ok: true, detail: 'full history' },
+  )
+
+  if (inRepo) {
+    const ref = base ?? defaultBranch(context.cwd)
+    const sha = ref
+      ? base !== undefined
+        ? gitOutput(context.cwd, ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`])?.trim()
+        : gitOutput(context.cwd, ['merge-base', 'HEAD', ref])?.trim()
+      : undefined
+    checks.push(
+      sha
+        ? {
+            name: 'base',
+            ok: true,
+            detail:
+              base !== undefined
+                ? `${ref} (${sha.slice(0, 7)})`
+                : `merge base with ${ref} (${sha.slice(0, 7)})`,
+          }
+        : {
+            name: 'base',
+            ok: false,
+            detail: ref
+              ? `no commit for ${ref}`
+              : 'no default branch (origin/HEAD, main or master)',
+            problem: diffProblems.noBase(
+              ref
+                ? `HEAD has no merge base with ${ref}.`
+                : 'Could not find the default branch (origin/HEAD, main or master).',
+            ),
+          },
+    )
+  }
+
+  if (diff) {
+    const outDir = path.resolve(context.cwd, diff.outDir)
+    const read = readStories(outDir, diff)
+    checks.push(
+      !read.ok
+        ? {
+            name: 'stories',
+            ok: false,
+            detail: read.message,
+            problem:
+              read.problem === 'missing'
+                ? storiesMissing(outDir, diff)
+                : diffProblems.storiesInvalid(read.message),
+          }
+        : read.absent.length > 0
+          ? {
+              name: 'stories',
+              ok: false,
+              detail: `${read.absent.length} of the pages not in ${diff.outDir}`,
+              problem: diffProblems.pagesAbsent(read.absent, diff.outDir, diff.build),
+            }
+          : read.stories.length === 0
+            ? {
+                name: 'stories',
+                ok: false,
+                detail: 'the source lists no story',
+                problem: diffProblems.storiesInvalid(`${read.where} lists no story`),
+              }
+            : {
+                name: 'stories',
+                ok: true,
+                detail: `${read.stories.length} ${read.stories.length === 1 ? 'story' : 'stories'} in ${read.where}`,
+              },
+    )
+  }
+
+  const width = Math.max(...checks.map((c) => c.name.length))
+  for (const check of checks) {
+    const mark = check.ok ? pc.green('✓') : pc.red('✗')
+    context.stdout(
+      `${mark} ${check.name.padEnd(width)}  ${check.ok ? check.detail : pc.red(check.detail)}\n`,
+    )
+    if (!check.ok && check.problem) {
+      context.stdout(`  ${' '.repeat(width)}  Fix: ${check.problem.fix}\n`)
+      context.stdout(`  ${' '.repeat(width)}  Docs: ${docsUrl(check.problem.docs)}\n`)
+    }
+  }
+  const failed = checks.filter((c) => !c.ok).length
+  context.stdout(
+    failed === 0 ? 'Ready for dta diff.\n' : `${failed} of ${checks.length} checks failed.\n`,
+  )
+  return failed === 0 ? 0 : 1
 }

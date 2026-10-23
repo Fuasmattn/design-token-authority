@@ -170,6 +170,11 @@ export const COMMANDS: readonly CommandDefinition[] = [
       { flags: '--tokens-only', description: 'Only compare token values, no screenshots' },
       { flags: '--list', description: 'List the stories dta diff would render, then exit' },
       {
+        flags: '--check',
+        description:
+          'Check the setup without rendering (config, browser, git history, base, stories); one fix per problem',
+      },
+      {
         flags: '--report <dir>',
         description: 'Folder for screenshots and results (default: .dta/diff)',
       },
@@ -340,10 +345,23 @@ export const COMMANDS: readonly CommandDefinition[] = [
 
   {
     name: 'init',
-    description: 'Create a new dta.config.ts in the current directory',
+    description:
+      'Create a dta.config.ts and set up dta diff; in a project with a config, set up or update dta diff',
     needsConfig: false,
     run: runInit,
-    options: [VERBOSE],
+    options: [
+      {
+        flags: '--diff',
+        description:
+          'Only the dta diff step (what dta init does in a project with a config): detect, write the diff section, the GitHub workflow and playwright-core; run again to update',
+      },
+      {
+        flags: '-y, --yes',
+        description:
+          'With --diff: no questions; detected or default answers (CI and coding agents)',
+      },
+      VERBOSE,
+    ],
   },
 ]
 

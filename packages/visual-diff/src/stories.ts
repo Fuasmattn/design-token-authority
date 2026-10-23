@@ -15,7 +15,7 @@ export const diffConfigSchema = z.strictObject({
   setup: path
     .optional()
     .describe(
-      'Command that prepares a fresh checkout of the base, run in its repo root (e.g. an install).',
+      "Optional command that prepares the fresh checkout of the base, run in its repo root. Without it, dta diff reuses your installed packages when the lockfile did not change, and otherwise runs the lockfile's clean install (npm ci, pnpm install --frozen-lockfile, …).",
     ),
   build: path
     .optional()
@@ -25,6 +25,15 @@ export const diffConfigSchema = z.strictObject({
   // config describes the input: `stories` and its `type` may be left out.
   stories: z
     .union([
+      z
+        .array(
+          z
+            .string()
+            .startsWith('/', 'a page path starts with "/" (for example "/pricing")')
+            .describe('A page of the static output, e.g. "/" or "/pricing".'),
+        )
+        .min(1)
+        .describe('Pages of the static output, rendered as they are: no manifest needed.'),
       z.strictObject({
         type: z.literal('static-site').default('static-site'),
         manifest: path
@@ -57,7 +66,7 @@ export const diffConfigSchema = z.strictObject({
     ])
     .default({ type: 'static-site', manifest: 'stories/manifest.json' })
     .describe(
-      'Where the stories come from: a dta.stories/1 manifest in the static output (`static-site`, the default) or the index of a static Storybook build (`storybook`).',
+      'Where the stories come from: a list of pages (`["/", "/pricing"]`), a dta.stories/1 manifest in the static output (`static-site`, the default) or the index of a static Storybook build (`storybook`).',
     ),
   viewports: z
     .array(viewport)
@@ -110,6 +119,12 @@ export const diffConfigSchema = z.strictObject({
   base: path
     .optional()
     .describe('Default base for `dta diff` (a git ref or directory); `--base` overrides it.'),
+  workflow: z
+    .enum(['single', 'split'])
+    .optional()
+    .describe(
+      'The GitHub workflow `dta init` writes: `single` (one file, for repositories without outside contributors) or `split` (three files, safe for pull requests from forks). Saved so a re-run does not ask again.',
+    ),
 })
 
 export type DiffConfigInput = z.input<typeof diffConfigSchema>
@@ -185,6 +200,39 @@ export function readStoriesManifest(
       url: story.url,
       viewports: story.viewports ?? options.viewports,
     })
+  }
+  return { stories, diagnostics }
+}
+
+/**
+ * Page-list adapter (TICKET-128): each path of `diff.stories` becomes a story with the path as its
+ * title and a file-safe id (`/` → `home`, `/docs/intro/` → `docs-intro`).
+ */
+export function pageStories(
+  paths: readonly string[],
+  options: { viewports: number[] },
+): { stories: StoryRef[]; diagnostics: Diagnostic[] } {
+  const diagnostics: Diagnostic[] = []
+  const stories: StoryRef[] = []
+  const seen = new Set<string>()
+  for (const url of paths) {
+    const id =
+      url
+        .split(/[?#]/)[0]
+        .toLowerCase()
+        .replace(/\.html?$/, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || 'home'
+    if (seen.has(id)) {
+      diagnostics.push({
+        severity: 'error',
+        code: 'duplicate-story',
+        message: `The pages "${url}" and an earlier one both become the story "${id}"; list each page once.`,
+      })
+      continue
+    }
+    seen.add(id)
+    stories.push({ id, title: url, url, viewports: options.viewports })
   }
   return { stories, diagnostics }
 }

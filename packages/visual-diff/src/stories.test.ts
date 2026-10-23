@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { diffConfigSchema, readStoriesManifest, STORIES_SCHEMA } from './index.js'
+import { diffConfigSchema, pageStories, readStoriesManifest, STORIES_SCHEMA } from './index.js'
 
 const manifest = {
   schema: STORIES_SCHEMA,
@@ -104,5 +104,32 @@ describe('readStoriesManifest', () => {
     expect(result.diagnostics).toEqual([
       expect.objectContaining({ code: 'duplicate-story', message: expect.stringContaining('"a"') }),
     ])
+  })
+})
+
+describe('pageStories (TICKET-128)', () => {
+  it('makes a story per page, with a file-safe id and the path as title', () => {
+    const { stories, diagnostics } = pageStories(['/', '/pricing', '/docs/intro/', '/a.html'], {
+      viewports: [1280, 390],
+    })
+    expect(diagnostics).toEqual([])
+    expect(stories.map((s) => [s.id, s.title, s.url])).toEqual([
+      ['home', '/', '/'],
+      ['pricing', '/pricing', '/pricing'],
+      ['docs-intro', '/docs/intro/', '/docs/intro/'],
+      ['a', '/a.html', '/a.html'],
+    ])
+    expect(stories[0].viewports).toEqual([1280, 390])
+  })
+
+  it('reports two pages that would share an id', () => {
+    const { diagnostics } = pageStories(['/about', '/about/'], { viewports: [1280] })
+    expect(diagnostics.map((d) => d.code)).toEqual(['duplicate-story'])
+  })
+
+  it('is accepted by the config schema only with paths that start with "/"', () => {
+    expect(diffConfigSchema.safeParse({ outDir: 'dist', stories: ['/'] }).success).toBe(true)
+    expect(diffConfigSchema.safeParse({ outDir: 'dist', stories: ['about'] }).success).toBe(false)
+    expect(diffConfigSchema.safeParse({ outDir: 'dist', stories: [] }).success).toBe(false)
   })
 })

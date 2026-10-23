@@ -339,8 +339,33 @@ describe('dta diff --list', () => {
     const missing = await diff(['--list'])
     expect(missing.exitCode).toBe(1)
     expect(missing.stderr).toContain(
-      'no stories manifest at dist/stories/manifest.json; run `pnpm build` first',
+      'dta diff: no stories manifest at dist/stories/manifest.json.\n  Fix: run `pnpm build` first',
     )
+  })
+
+  it('lists a page list (TICKET-128), and names pages the output does not have', async () => {
+    site({ diff: { outDir: 'dist', stories: ['/', '/pricing'] } }, false)
+    fs.mkdirSync(path.join(dir, 'dist', 'pricing'), { recursive: true })
+    fs.writeFileSync(path.join(dir, 'dist', 'index.html'), '<h1>Home</h1>')
+    fs.writeFileSync(path.join(dir, 'dist', 'pricing', 'index.html'), '<h1>Pricing</h1>')
+    const { exitCode, stdout } = await diff(['--list'])
+    expect(exitCode).toBe(0)
+    expect(stdout).toContain('Pages in: dist')
+    expect(stdout).toMatch(/home\s+\/\s+1280/)
+    expect(stdout).toMatch(/pricing\s+\/pricing\s+1280/)
+    site({ diff: { outDir: 'dist', stories: ['/', '/checkout'], build: 'npm run build' } }, false)
+    const missing = await diff(['--list'])
+    expect(missing.exitCode).toBe(1)
+    expect(missing.stderr).toContain(
+      'dta diff: "/checkout" is not in dist.\n  Fix: run `npm run build` first, or fix the path in diff.stories.',
+    )
+  })
+
+  it('rejects a page that does not start with "/"', async () => {
+    site({ diff: { outDir: 'dist', stories: ['pricing'] } }, false)
+    const { exitCode, stderr } = await diff(['--list'])
+    expect(exitCode).not.toBe(0)
+    expect(stderr).toContain('a page path starts with "/"')
   })
 
   it('reports an invalid manifest', async () => {
@@ -386,9 +411,10 @@ describe('dta diff --list', () => {
         },
       }),
     )
-    expect((await diff(['--list'])).stderr).toContain(
-      'no Storybook index at storybook-static/index.json; run `npm run build-storybook` first',
-    )
+    const { stderr } = await diff(['--list'])
+    expect(stderr).toContain('dta diff: no Storybook index at storybook-static/index.json.')
+    expect(stderr).toContain('  Fix: run `npm run build-storybook` first;')
+    expect(stderr).toContain('  Docs: ')
   })
 
   it('rejects an invalid diff section with exit code 2', async () => {
@@ -406,5 +432,108 @@ describe('dta diff --list', () => {
     const { exitCode, stdout } = await diff(['--format', 'json'])
     expect(exitCode).toBe(0)
     expect(JSON.parse(stdout).base).toBe('tokens-base')
+  })
+})
+
+describe('dta diff --check (TICKET-130)', () => {
+  const env = { ...process.env }
+  afterEach(() => {
+    process.env = { ...env }
+  })
+  const setup = (config: unknown) =>
+    fs.writeFileSync(path.join(dir, 'dta.config.json'), JSON.stringify(config))
+  const page = (file: string) => {
+    fs.mkdirSync(path.dirname(path.join(dir, 'dist', file)), { recursive: true })
+    fs.writeFileSync(path.join(dir, 'dist', file), '<h1>x</h1>')
+  }
+  const repo = () => {
+    git('init', '-q', '-b', 'main')
+    writeTokens('#0000ff')
+    git('add', '.')
+    git('commit', '-q', '-m', 'tokens')
+  }
+
+  it('passes every check on a ready project, one line each', async () => {
+    process.env.DTA_BROWSER_PATH = process.execPath
+    repo()
+    setup({ tokens: { dir: 'tokens' }, diff: { outDir: 'dist', stories: ['/'] } })
+    page('index.html')
+    const { exitCode, stdout } = await diff(['--check'])
+    expect(exitCode).toBe(0)
+    expect(stdout).toMatch(/✓ config\s+diff section: outDir dist/)
+    expect(stdout).toMatch(/✓ browser\s+DTA_BROWSER_PATH/)
+    expect(stdout).toMatch(/✓ git history\s+full history/)
+    expect(stdout).toMatch(/✓ base\s+merge base with main/)
+    expect(stdout).toMatch(/✓ stories\s+1 story in dist/)
+    expect(stdout).toContain('Ready for dta diff.')
+  })
+
+  it('names the fix for each failing check and exits 1', async () => {
+    process.env.DTA_BROWSER_PATH = path.join(dir, 'no-chrome')
+    setup({ tokens: { dir: 'tokens' } })
+    const { exitCode, stdout } = await diff(['--check'])
+    expect(exitCode).toBe(1)
+    expect(stdout).toMatch(/✗ config\s+no diff section\n\s+Fix: run `dta init`/)
+    expect(stdout).toMatch(/✗ browser\s+DTA_BROWSER_PATH points at .*no-chrome/)
+    expect(stdout).toMatch(/✗ git history\s+not a git repository\n\s+Fix: in CI, check out/)
+    expect(stdout).toMatch(/Docs: https:\/\/github\.com\/.*dta-diff-in-pull-requests\.mdx/)
+    expect(stdout).toContain('3 of 3 checks failed.')
+  })
+
+  it('fails the base without a default branch, and the stories before a build', async () => {
+    process.env.DTA_BROWSER_PATH = process.execPath
+    git('init', '-q', '-b', 'trunk')
+    writeTokens('#0000ff')
+    git('add', '.')
+    git('commit', '-q', '-m', 'tokens')
+    setup({
+      tokens: { dir: 'tokens' },
+      diff: { outDir: 'dist', build: 'npm run build', stories: ['/'] },
+    })
+    const { exitCode, stdout } = await diff(['--check'])
+    expect(exitCode).toBe(1)
+    expect(stdout).toMatch(/✗ base\s+no default branch/)
+    expect(stdout).toMatch(/✗ stories\s+.*\n\s+Fix: run `npm run build` first/)
+    expect((await diff(['--check', '--base', 'trunk'])).stdout).toMatch(/✓ base\s+trunk \(/)
+  })
+
+  it('fails the history of a shallow clone', async () => {
+    process.env.DTA_BROWSER_PATH = process.execPath
+    repo()
+    git('commit', '-q', '--allow-empty', '-m', 'two')
+    const clone = path.join(dir, 'clone')
+    git('clone', '-q', '--depth', '1', `file://${dir}`, clone)
+    fs.writeFileSync(
+      path.join(clone, 'dta.config.json'),
+      JSON.stringify({ tokens: { dir: 'tokens' }, diff: { outDir: 'dist' } }),
+    )
+    let stdout = ''
+    await runCli(['diff', '--check'], {
+      cwd: clone,
+      stdout: (text) => (stdout += text),
+      stderr: () => undefined,
+      input: new PassThrough(),
+    })
+    // eslint-disable-next-line no-control-regex
+    stdout = stdout.replace(/\u001b\[[0-9;?]*[A-Za-z]/g, '')
+    expect(stdout).toMatch(/✗ git history\s+a shallow clone/)
+    expect(stdout).toContain('fetch-depth: 0')
+  })
+
+  it('stops with an error in CI when there is no browser, and only warns locally', async () => {
+    process.env.DTA_BROWSER_PATH = path.join(dir, 'no-chrome')
+    repo()
+    git('checkout', '-q', '-b', 'feature')
+    setup({ tokens: { dir: 'tokens' }, diff: { outDir: 'dist', stories: ['/'] } })
+    page('index.html')
+    process.env.CI = 'true'
+    const ci = await diff(['--format', 'markdown'])
+    expect(ci.exitCode).toBe(1)
+    expect(ci.stderr).toContain('dta diff: No browser for screenshots')
+    expect(ci.stderr).toContain('  Fix: `npm i -D playwright-core`')
+    delete process.env.CI
+    const local = await diff(['--format', 'markdown'])
+    expect(local.exitCode).toBe(0)
+    expect(local.stderr).toContain('No browser for screenshots')
   })
 })
