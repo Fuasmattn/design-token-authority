@@ -22,7 +22,8 @@ export interface DiffBase {
   sha?: string
 }
 
-function git(cwd: string, args: string[]): string | null {
+/** A git command's output, or null when it fails (no repository, unknown ref, …). */
+export function gitOutput(cwd: string, args: string[]): string | null {
   try {
     return execFileSync('git', args, {
       cwd,
@@ -35,10 +36,12 @@ function git(cwd: string, args: string[]): string | null {
   }
 }
 
+const git = gitOutput
+
 const shortSha = (sha: string) => sha.slice(0, 7)
 
 /** `origin/HEAD`'s target, else the first of the usual default branch names that exists. */
-function defaultBranch(cwd: string): string | null {
+export function defaultBranch(cwd: string): string | null {
   const head = git(cwd, ['symbolic-ref', '--quiet', '--short', 'refs/remotes/origin/HEAD'])
   if (head?.trim()) return head.trim()
   for (const candidate of ['origin/main', 'main', 'origin/master', 'master']) {
