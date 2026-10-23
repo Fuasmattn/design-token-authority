@@ -252,8 +252,9 @@ describe('dta init --diff (TICKET-131)', () => {
     const { stdout } = await initDiff()
     expect(stdout).toContain('build: pnpm build (set by hand)')
     expect(stdout).not.toContain('stories:')
-    expect(stdout).toContain(
-      "Add or change these keys in its diff section:\n|    workflow: 'split',",
+    // The note box draws | or │, by terminal.
+    expect(stdout).toMatch(
+      /Add or change these keys in its diff section:\n[|│] {4}workflow: 'split',/,
     )
     expect(read('dta.config.ts')).toBe(before)
   })
