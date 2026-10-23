@@ -35,7 +35,11 @@ export function variablesToModel(
   for (const figmaCollection of Object.values(variableCollections)) {
     if (figmaCollection.remote) continue
     const local = Object.values(variables).filter(
-      (variable) => !variable.remote && variable.variableCollectionId === figmaCollection.id,
+      // A variable deleted in Figma but still referenced is not pulled (TICKET-021 review).
+      (variable) =>
+        !variable.remote &&
+        !variable.deletedButReferenced &&
+        variable.variableCollectionId === figmaCollection.id,
     )
     // Like v1: a collection without local variables produces no files.
     if (local.length === 0) continue

@@ -146,6 +146,20 @@ describe('variablesToModel: conversion rules', () => {
     expect(variablesToModel(remoteCollection).model.collections).toEqual([])
   })
 
+  it('ignores variables Figma deleted that are still referenced (TICKET-021)', () => {
+    const deleted = response([modes[0]], {
+      V1: { name: 'spacing/1', resolvedType: 'FLOAT', valuesByMode: { '1:0': 8 } },
+      V2: {
+        name: 'spacing/old',
+        resolvedType: 'FLOAT',
+        valuesByMode: { '1:0': 4 },
+        deletedButReferenced: true,
+      },
+    })
+    const tokens = variablesToModel(deleted).model.collections[0].tokens
+    expect(tokens.map((token) => nameToDot(token.name))).toEqual(['spacing.1'])
+  })
+
   it('maps types, splits names on "/", converts colors to hex and keeps metadata', () => {
     const { model, diagnostics } = variablesToModel(
       response(modes, {

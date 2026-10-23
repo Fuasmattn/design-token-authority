@@ -15,7 +15,10 @@ Requires a Figma **Enterprise** plan (Variables REST API) and a throwaway test f
 4. Change one color in Figma, `dta pull` — only that token changes.
 5. Edit the same token locally, `dta push` — the diff shows one change; confirm; check Figma.
 6. `dta push` again — "nothing to change".
-7. Compare a fresh `GET /v1/files/:key/variables/local` response with
+7. Delete one token from the local files (one nothing else aliases), `dta prune --dry-run` — it lists
+   that variable only; `dta prune`, type the phrase — the variable is gone in Figma; `dta prune`
+   again — "No orphaned variables".
+8. Compare a fresh `GET /v1/files/:key/variables/local` response with
    `test/recordings/brand-ab/variables-local.json`. If the shape differs, update
    `scripts/figma/build-recording.ts` and run `pnpm figma:recording`.
 

@@ -112,6 +112,38 @@ o  Diff computed
 
 `--yes` (or `push: { skipConfirmation: true }` in the config) skips the typed confirmation for CI. `--format markdown` or `json` prints the plan for a pull-request comment.
 
+### Removing variables: dta prune
+
+Since `dta push` never deletes, a token you remove from the files stays in Figma as a variable without a token. `dta prune` (Enterprise only) finds those and deletes them, as a separate step you run on purpose:
+
+```text
+$ dta prune --dry-run
+T   ✂  dta prune
+|
+o  Compared
+|
+o  1 variable in Figma without a token --------+
+|                                              |
+|  Primitives  Colors.Foundation.Old  #3355d4  |
+|                                              |
++----------------------------------------------+
+|
+—  Dry run: nothing was deleted.
+```
+
+Without `--dry-run` it asks you to type `delete variables from figma`; `--force` deletes without asking (CI, on purpose). It is narrow by design:
+
+- only collections that are in your token files, with at least one token, are looked at; a Figma collection you never pulled, that `collections` leaves out, or whose file is empty is left alone, with a note;
+- a collection that would lose more than half of its variables is left alone too (that usually means the files are incomplete); `--allow-bulk` deletes there anyway;
+- an entry the files have but DTA does not read as a token (a `$` name, a value that is neither a token nor a group) stops prune: its variable would look orphaned;
+- library variables, and variables Figma has already deleted but still references, are never deleted;
+- a variable that other variables in Figma still alias is kept and named: run `dta push` first, then prune;
+- with no token files it stops instead of treating every variable as an orphan.
+
+Collection names are matched exactly: with `tokens.stripEmojis`, a Figma collection whose name has an emoji has no match in the files and is left alone.
+
+Figma's REST API does not say which components or frames use a variable, so prune cannot check that: layers that use a deleted variable lose its value. Look at the list before you confirm.
+
 ### What Figma variables can hold
 
 Figma variables hold colours, numbers, text and booleans. Of the DTCG 2025.10 types, `dta push` sends:

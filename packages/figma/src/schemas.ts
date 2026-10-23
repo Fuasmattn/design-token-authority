@@ -33,6 +33,8 @@ export const LocalVariableSchema = z.object({
   resolvedType: z.enum(['BOOLEAN', 'COLOR', 'FLOAT', 'STRING']),
   valuesByMode: z.record(z.string(), VariableValue),
   remote: z.boolean(),
+  /** Deleted in Figma but still referenced (by an instance, say): not a variable any more. */
+  deletedButReferenced: z.boolean().optional(),
   description: z.string(),
   hiddenFromPublishing: z.boolean(),
   scopes: z.array(z.string()),

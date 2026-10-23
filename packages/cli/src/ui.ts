@@ -5,6 +5,7 @@ import pc from 'picocolors'
 type CommandName =
   | 'pull'
   | 'push'
+  | 'prune'
   | 'build'
   | 'analyze'
   | 'graph'
@@ -16,6 +17,7 @@ type CommandName =
 const STYLES: Record<CommandName, { icon: string; paint: (text: string) => string }> = {
   pull: { icon: '⤵', paint: (s) => pc.bgCyan(pc.black(s)) },
   push: { icon: '⤴', paint: (s) => pc.bgMagenta(pc.white(s)) },
+  prune: { icon: '✂', paint: (s) => pc.bgRed(pc.white(s)) },
   build: { icon: '⚒', paint: (s) => pc.bgGreen(pc.black(s)) },
   analyze: { icon: '☉', paint: (s) => pc.bgBlue(pc.white(s)) },
   graph: { icon: '⮕', paint: (s) => pc.bgYellow(pc.black(s)) },
