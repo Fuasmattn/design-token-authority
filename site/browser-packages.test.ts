@@ -102,7 +102,10 @@ async function bundleEngine(outdir: string) {
     logLevel: 'silent',
   })
   const outputs = Object.entries(result.metafile.outputs).filter(([file]) => file.endsWith('.js'))
-  const entry = outputs.find(([, output]) => output.entryPoint)
+  // esbuild marks the chunks of dynamic imports as entry points too: find the engine itself.
+  const entry = outputs.find(([, output]) =>
+    output.entryPoint?.endsWith('browser-packages/engine.ts'),
+  )
   if (!entry) throw new Error('no entry chunk')
   return { metafile: result.metafile, entry, chunks: outputs.filter((o) => o !== entry) }
 }
@@ -165,9 +168,18 @@ describe('@dta packages in a browser bundle', () => {
       const [entryFile, entryOutput] = entry
       const heavy = (input: string) => /style-dictionary|packages\/build\//.test(input)
       expect(Object.keys(entryOutput.inputs).filter(heavy)).toEqual([])
-      // The entry imports the build chunk only dynamically.
-      const lazy = chunks.filter(([, output]) => Object.keys(output.inputs).some(heavy))
+      // The entry imports the build chunk only dynamically. The native outputs (TICKET-011–013)
+      // are chunks of their own that only the build chunk imports, dynamically, when asked for.
+      const lazy = chunks.filter(([, output]) =>
+        Object.keys(output.inputs).some((input) => input.endsWith('packages/build/src/build.ts')),
+      )
       expect(lazy).toHaveLength(1)
+      const native = chunks.filter(([, output]) =>
+        Object.keys(output.inputs).some((input) => input.includes('packages/build/src/native/')),
+      )
+      for (const [file] of native) {
+        expect(entryOutput.imports.map((i) => i.path)).not.toContain(file)
+      }
       expect(entryOutput.imports.filter((i) => i.kind === 'import-statement')).toEqual(
         expect.not.arrayContaining([expect.objectContaining({ path: lazy[0][0] })]),
       )

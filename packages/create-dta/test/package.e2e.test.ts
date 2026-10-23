@@ -30,8 +30,13 @@ const env = {
   GIT_COMMITTER_NAME: 'T',
   GIT_COMMITTER_EMAIL: 't@example.com',
 }
+// CI may force colours: compare the text without its escape codes.
+// eslint-disable-next-line no-control-regex
+const plain = (text: string) => text.replace(/\u001b\[[0-9;?]*[A-Za-z]/g, '')
 const run = (command: string, args: string[], cwd = project) =>
-  execFileSync(command, args, { cwd, env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+  plain(
+    execFileSync(command, args, { cwd, env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }),
+  )
 const npx = (...args: string[]) => run('npx', ['--no-install', ...args])
 
 describe.skipIf(!enabled)('the npm packages, installed from their tarballs', () => {
