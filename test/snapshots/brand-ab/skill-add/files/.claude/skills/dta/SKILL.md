@@ -61,7 +61,7 @@ Work in a loop until it is clean:
 - `dta lint`: Validate token files against linting rules.
 - `dta diff`: Compare the tokens with a base (directory, git ref, or merge base with main).
 - `dta token get`: Show a token: type, collection, value and alias chain per brand or mode, and its names in CSS and Tailwind.
-- `dta token find`: Find the tokens that resolve to a value, aliases (semantic and component tokens) first.
+- `dta token find`: Find the tokens that resolve to a value: at every screen width first, aliases (semantic and component tokens) before primitives.
 - `dta token list`: List tokens with type and collection, sorted by name.
 - `dta skill add`: Write the DTA skill for coding agents (SKILL.md: look tokens up, lint, build, diff, never push).
 - `dta audit`: Find hard-coded colours, lengths and fonts in code that equal a token, and name the token to use.

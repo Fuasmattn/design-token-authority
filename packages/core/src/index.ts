@@ -23,14 +23,18 @@ export type { CollectionStructure, LayerRole, StructureAnalysis } from './struct
 export { checkUniqueNames, resolve } from './resolve.js'
 export { AXIS_SEPARATOR, expandSelection, modeOf } from './modes.js'
 export {
+  breakpointReach,
   describeToken,
   findTokensByValue,
   listTokens,
+  reachRank,
   suggestTokenNames,
   toColor,
   valueMatcher,
 } from './query.js'
 export type {
+  BreakpointCollection,
+  BreakpointReach,
   FindOptions,
   ListFilter,
   TokenDescription,

@@ -58,6 +58,11 @@ export interface ValueMatch {
   value: TokenValue
   /** Number of alias steps to the value: 0 for the token that holds it. */
   depth: number
+  /**
+   * With `breakpoints`, for a token that does not have the value at every breakpoint: `default`
+   * when it has it at the default breakpoint, `other` when only at other breakpoints.
+   */
+  breakpoint?: 'default' | 'other'
 }
 
 export interface ListFilter {
@@ -71,7 +76,66 @@ export interface FindOptions {
   type?: TokenType
   /** Colours: also match colours within a small distance (about 2 % per channel). */
   near?: boolean
+  /** The breakpoint collection: matches that hold only at some screen widths come last. */
+  breakpoints?: BreakpointCollection
 }
+
+/** The collection whose modes are screen widths, and the mode that holds without a media query. */
+export interface BreakpointCollection {
+  collection: string
+  default: string
+}
+
+/** Where a token has a value across the breakpoints: at every one, at the default, or only at others. */
+export type BreakpointReach = 'every' | 'default' | 'other'
+
+/**
+ * Where a token has a value across the breakpoints (TICKET-125). The token is read at every
+ * breakpoint in every combination of the other collections its chain goes through (brands): a
+ * brand value is a fact of the brand, not of the screen width, so each brand is judged on its
+ * own. `every`: each brand that has the value has it at every breakpoint (also when the chain
+ * does not go through the breakpoint collection); `default`: each has it at least at the default
+ * breakpoint; `other`: some brand has it only at other breakpoints.
+ */
+export function breakpointReach(
+  model: TokenModel,
+  name: string,
+  holds: (value: TokenValue, type: TokenType) => boolean,
+  breakpoints: BreakpointCollection,
+): BreakpointReach {
+  const found = locate(model, name)
+  const screens = model.collections.find((c) => c.name === breakpoints.collection)
+  // A default that is not a mode (`dta build` warns about it): no ranking, rather than dropping
+  // every token of the collection.
+  if (!found || !screens || !screens.modes.includes(breakpoints.default)) return 'every'
+  const { token } = found
+  const through = new Set(readings(model, token).flatMap((reading) => Object.keys(reading.modes)))
+  if (!through.has(screens.name)) return 'every'
+  // Every combination of the other collections' modes: [{}] when there are none.
+  let combinations: ModeSelection[] = [{}]
+  for (const collection of model.collections) {
+    if (collection === screens || !through.has(collection.name)) continue
+    combinations = combinations.flatMap((combination) =>
+      collection.modes.map((mode) => ({ ...combination, [collection.name]: mode })),
+    )
+  }
+  let every = true
+  let atDefault = true
+  for (const combination of combinations) {
+    const at = screens.modes.filter((mode) => {
+      const value = read(model, token, { ...combination, [screens.name]: mode }).value
+      return value !== undefined && holds(value, token.type)
+    })
+    if (at.length === 0) continue
+    if (at.length < screens.modes.length) every = false
+    if (!at.includes(breakpoints.default)) atDefault = false
+  }
+  return every ? 'every' : atDefault ? 'default' : 'other'
+}
+
+/** Sort key of a reach: every breakpoint first, the default next, other breakpoints last. */
+export const reachRank = (reach: BreakpointReach | undefined): number =>
+  reach === 'other' ? 2 : reach === 'default' ? 1 : 0
 
 const multiModeCollections = (model: TokenModel) =>
   model.collections.filter((collection) => collection.modes.length > 1)
@@ -301,9 +365,10 @@ export function findTokensByValue(
   const result: ValueMatch[] = []
   for (const collection of model.collections) {
     for (const token of collection.tokens) {
+      const found: ValueMatch[] = []
       for (const reading of readings(model, token)) {
         if (reading.value === undefined || !matches(reading.value, token.type)) continue
-        result.push({
+        found.push({
           name: nameToDot(token.name),
           type: token.type,
           collection: collection.name,
@@ -312,10 +377,19 @@ export function findTokensByValue(
           depth: reading.chain.length - 1,
         })
       }
+      const reach =
+        options.breakpoints && found.length > 0
+          ? breakpointReach(model, nameToDot(token.name), matches, options.breakpoints)
+          : 'every'
+      for (const match of found)
+        result.push(reach === 'every' ? match : { ...match, breakpoint: reach })
     }
   }
   return result.sort(
-    (a, b) => b.depth - a.depth || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
+    (a, b) =>
+      reachRank(a.breakpoint) - reachRank(b.breakpoint) ||
+      b.depth - a.depth ||
+      (a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
   )
 }
 

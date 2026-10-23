@@ -1,12 +1,17 @@
 /**
  * Which token a hard-coded value should be: the token values are resolved once, then every
  * candidate is compared with the tokens of its kind. Tokens the build writes come first, then
- * deeper alias chains (semantic before primitive), as in `dta token find`.
+ * deeper alias chains (semantic before primitive), as in `dta token find`. With `breakpoints`,
+ * tokens that have the value at every breakpoint come before those that have it at the default
+ * one, and tokens that have it only at other breakpoints are never suggested (TICKET-125).
  */
 import {
+  breakpointReach,
   describeToken,
   nameToDot,
+  reachRank,
   valueMatcher,
+  type BreakpointReach,
   type TokenModel,
   type TokenType,
   type TokenValue,
@@ -30,6 +35,8 @@ export interface Suggestion {
 
 export interface TokenIndex {
   entries: Entry[]
+  /** Where a token has a value across the breakpoints (TICKET-125). */
+  reach: (name: string, holds: (value: TokenValue, type: TokenType) => boolean) => BreakpointReach
 }
 
 /** What a number or string token is for: from its Figma scopes, else from its name. */
@@ -97,7 +104,15 @@ export function buildTokenIndex(model: TokenModel, config: Config | null): Token
       entries.push({ name, type: token.type, kinds, values, ...(code ? { code } : {}) })
     }
   }
-  return { entries }
+  const breakpoints = config?.breakpoints
+  const reach: TokenIndex['reach'] = (name, holds) =>
+    breakpoints
+      ? breakpointReach(model, name, holds, {
+          collection: breakpoints.collection,
+          default: breakpoints.default,
+        })
+      : 'every'
+  return { entries, reach }
 }
 
 /** A length in px: `16px` → 16, `1rem` → 16 (16px root). */
@@ -137,23 +152,25 @@ export function suggestToken(
   const px =
     candidate.kind !== 'color' && candidate.kind !== 'font-family' ? toPx(candidate.value) : null
   const family = candidate.kind === 'font-family' ? candidate.value.toLowerCase() : null
-  const matches: Array<{ entry: Entry; depth: number }> = []
+  const holds = (value: TokenValue, type: TokenType) =>
+    colour
+      ? colour(value, type)
+      : px !== null
+        ? tokenPx(value) === px
+        : firstFamily(value) === family
+  const matches: Array<{ entry: Entry; depth: number; reach: BreakpointReach }> = []
   for (const entry of index.entries) {
     if (!entry.kinds.has(candidate.kind)) continue
-    for (const { value, depth } of entry.values) {
-      const hit = colour
-        ? colour(value, entry.type)
-        : px !== null
-          ? tokenPx(value) === px
-          : firstFamily(value) === family
-      if (hit) {
-        matches.push({ entry, depth })
-        break
-      }
-    }
+    const hit = entry.values.find(({ value }) => holds(value, entry.type))
+    if (!hit) continue
+    // Only at other breakpoints: replacing the value would change the page at the default one.
+    const reach = index.reach(entry.name, holds)
+    if (reach === 'other') continue
+    matches.push({ entry, depth: hit.depth, reach })
   }
   matches.sort(
     (a, b) =>
+      reachRank(a.reach) - reachRank(b.reach) ||
       Number(!a.entry.code) - Number(!b.entry.code) ||
       b.depth - a.depth ||
       (a.entry.name < b.entry.name ? -1 : a.entry.name > b.entry.name ? 1 : 0),

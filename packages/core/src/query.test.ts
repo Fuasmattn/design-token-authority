@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  breakpointReach,
   describeToken,
   findTokensByValue,
   listTokens,
@@ -158,6 +159,72 @@ describe('valueMatcher and toColor', () => {
     expect(toColor('#fff')).toEqual({ r: 1, g: 1, b: 1 })
     expect(toColor('rgb(255, 0, 0)')).toEqual({ r: 1, g: 0, b: 0 })
     expect(toColor('red')).toBeNull()
+  })
+})
+
+describe('findTokensByValue: breakpoints (TICKET-125)', () => {
+  const size = (value: number | string) => ({ $type: 'number', $value: value })
+  const { model: screens } = parseTokenFiles([
+    file('Primitives.Value.json', { space: { 2: size(8), 4: size(16) } }),
+    file('Brand.BrandA.json', { inset: size('{space.4}') }),
+    file('Brand.BrandB.json', { inset: size('{space.2}') }),
+    file('Screen.Mobile.json', { gap: size('{space.2}'), pad: size('{space.4}') }),
+    file('Screen.Desktop.json', { gap: size('{space.4}'), pad: size('{space.4}') }),
+    file('Screen.Tablet.json', { gap: size('{space.2}'), pad: size('{space.2}') }),
+  ])
+  const breakpoints = { collection: 'Screen', default: 'Mobile' }
+  const order = (options = {}) =>
+    findTokensByValue(screens, '16', options).map((m) => [m.name, m.modes, m.breakpoint])
+
+  it('ranks by where the value holds: every breakpoint, the default, then other breakpoints', () => {
+    expect(order({ breakpoints })).toEqual([
+      // A brand-only value counts as everywhere: brands are not screen widths.
+      ['inset', { Brand: 'BrandA' }, undefined],
+      ['space.4', {}, undefined],
+      ['pad', { Screen: 'Desktop' }, 'default'],
+      ['pad', { Screen: 'Mobile' }, 'default'],
+      ['gap', { Screen: 'Desktop' }, 'other'],
+    ])
+  })
+
+  it('without breakpoints, ranks as before', () => {
+    expect(order()).toEqual([
+      ['gap', { Screen: 'Desktop' }, undefined],
+      ['inset', { Brand: 'BrandA' }, undefined],
+      ['pad', { Screen: 'Desktop' }, undefined],
+      ['pad', { Screen: 'Mobile' }, undefined],
+      ['space.4', {}, undefined],
+    ])
+  })
+
+  it('breakpointReach: a collection or default mode that is not there, or a token outside it, is everywhere', () => {
+    const is16 = (value: unknown) => value === 16
+    expect(breakpointReach(screens, 'pad', is16, breakpoints)).toBe('default')
+    expect(breakpointReach(screens, 'space.4', is16, breakpoints)).toBe('every')
+    expect(breakpointReach(screens, 'gap', is16, breakpoints)).toBe('other')
+    expect(breakpointReach(screens, 'gap', is16, { collection: 'Viewport', default: 'S' })).toBe(
+      'every',
+    )
+    expect(breakpointReach(screens, 'gap', is16, { collection: 'Screen', default: 'Phone' })).toBe(
+      'every',
+    )
+  })
+
+  it('judges each brand on its own: one brand at every width does not cover another', () => {
+    const { model: mixed } = parseTokenFiles([
+      file('Primitives.Value.json', { space: { 2: size(8), 4: size(16) } }),
+      file('Brand.BrandA.json', { inset: size('{space.4}') }),
+      file('Brand.BrandB.json', { inset: size('{space.2}') }),
+      // BrandA: 16 at every width. BrandB: 16 only on tablets.
+      file('Screen.Mobile.json', { mix: size('{inset}') }),
+      file('Screen.Desktop.json', { mix: size('{inset}') }),
+      file('Screen.Tablet.json', { mix: size('{space.4}') }),
+    ])
+    const is16 = (value: unknown) => value === 16
+    expect(breakpointReach(mixed, 'mix', is16, breakpoints)).toBe('other')
+    const is8 = (value: unknown) => value === 8
+    // 8 only for BrandB, at the default (Mobile) and Desktop: not every width.
+    expect(breakpointReach(mixed, 'mix', is8, breakpoints)).toBe('default')
   })
 })
 

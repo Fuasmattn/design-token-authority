@@ -79,3 +79,32 @@ describe('suggestToken: DTCG 2025.10 tokens', () => {
     expect(suggestToken(dtcgIndex, at('color', '#4ba3f7'))?.token).toBe('sky')
   })
 })
+
+describe('suggestToken with breakpoints (TICKET-125)', () => {
+  const gap = { 'com.figma': { scopes: ['GAP'] } }
+  const size = (value: number | string) => ({ $type: 'number', $value: value, $extensions: gap })
+  const { model: screens } = parseTokenFiles([
+    file('Primitives.Value.json', { space: { 2: size(8), 4: size(16) } }),
+    // "a.gap" sorts before "pad": without the ranking it would win both lookups below.
+    file('Screen.Mobile.json', { a: { gap: size('{space.2}') }, pad: size('{space.4}') }),
+    file('Screen.Desktop.json', { a: { gap: size('{space.4}') }, pad: size('{space.4}') }),
+  ])
+  const config = {
+    tokens: { dir: 'tokens' },
+    breakpoints: {
+      collection: 'Screen',
+      default: 'Mobile',
+      modes: { Desktop: '(min-width: 1024px)' },
+    },
+  } as unknown as Config
+  const index = buildTokenIndex(screens, config)
+
+  it('never suggests a token that has the value only at other breakpoints', () => {
+    // a.gap is 16 only from 1024px up; pad is 16 at every width.
+    expect(suggestToken(index, at('spacing', '16px'))?.token).toBe('pad')
+  })
+
+  it('ranks a token that has the value only at the default breakpoint after one that has it everywhere', () => {
+    expect(suggestToken(index, at('spacing', '8px'))?.token).toBe('space.2')
+  })
+})

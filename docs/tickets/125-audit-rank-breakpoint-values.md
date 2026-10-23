@@ -4,7 +4,7 @@
 **Priority:** Low
 **Effort:** S
 **Blocked by:** 091
-**Status:** open
+**Status:** in review
 
 ## Problem
 
@@ -22,7 +22,15 @@ Within each group the existing ranking applies. Brand modes are not affected (a 
 
 ## Acceptance criteria
 
-- [ ] Ranking as above in `@dta/core` (the breakpoint collection and default mode come from the `breakpoints` config, passed in as options; core stays config-free)
-- [ ] `brand-ab`: `16px` suggests `Dimensions.spacing.4` again; `dta token find 16px` lists `Spacing.Gap` last with its media query; `audit*` and `token-find*` snapshots re-recorded by name and reviewed
-- [ ] Without `breakpoints` in the config, output is unchanged
+- [x] Ranking as above in `@dta/core` (the breakpoint collection and default mode come from the `breakpoints` config, passed in as options; core stays config-free)
+- [x] `brand-ab`: `16px` suggests `Dimensions.spacing.4` again; `dta token find 16px` lists `Spacing.Gap` last with its media query; `audit*` and `token-find*` snapshots re-recorded by name and reviewed
+- [x] Without `breakpoints` in the config, output is unchanged
 - [ ] Docs (Commands reference via `--help` text, the agents guide if it shows audit output) updated with real output; all gates pass, and the GitHub run is green
+
+## Outcome
+
+- `@dta/core`: `breakpointReach(model, name, holds, { collection, default })` reads the token at every breakpoint in every combination of the other collections its chain goes through, so each brand is judged on its own (a value one brand has at every width does not cover another brand that has it only on tablets; found in review). `every`: each brand that has the value has it at every breakpoint, also when the chain does not go through the breakpoint collection; `default`: each has it at least at the default; `other`: otherwise. A `default` that is not a mode of the collection turns the ranking off (`dta build` already warns about it) instead of dropping every match. `findTokensByValue(model, query, { breakpoints })` ranks by it before the alias depth and marks the matches with `breakpoint: 'default' | 'other'`. Core reads no config: the CLI passes `breakpoints.collection` and `breakpoints.default`.
+- `dta token find`: the same ranking before "built first"; a mode with a media query is shown with it (`Desktop (min-width: 1024px)`), and the note under the list gives the order and says why those come last. JSON: the optional `breakpoint` field, in the published schema.
+- `dta audit` (`audit/match.ts`): never suggests an `other` token, ranks `default` after `every`. On `brand-ab`, `16px` → `Dimensions.spacing.4` again.
+- Snapshots re-recorded by name and reviewed: `brand-ab/token-find-json`, `audit`, `audit-json`, `audit-baseline` (the ranking) and `skill-add` (the skill copies the `dta token find` help text). Without `breakpoints` nothing changes: core test "without breakpoints, ranks as before", and the other fixtures' snapshots are unchanged.
+- Docs: the `dta token find` section in Reference → Token queries, with real output from `brand-ab`; the help text (Commands reference). The audit outputs in the CI and coding-agents guides already showed `Dimensions.spacing.4` (they predate 091).

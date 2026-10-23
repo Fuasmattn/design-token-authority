@@ -1,6 +1,7 @@
 import {
   describeToken,
   findTokensByValue,
+  reachRank,
   formatDiagnostic,
   hasErrors,
   listTokens,
@@ -200,10 +201,22 @@ export function runTokenFind(context: CommandContext): Promise<number> {
     const model = loadModel(context)
     if (typeof model === 'number') return model
     const query = context.args[0] ?? ''
+    const breakpoints = context.config?.breakpoints
     const matches = findTokensByValue(model, query, {
       ...(tokenType ? { type: tokenType } : {}),
       near: Boolean(context.options.near),
+      ...(breakpoints
+        ? { breakpoints: { collection: breakpoints.collection, default: breakpoints.default } }
+        : {}),
     })
+    // A breakpoint other than the default holds at the screen widths of its media query.
+    const label = (modes: Record<string, string>) =>
+      Object.entries(modes)
+        .map(([collection, mode]) => {
+          const media = collection === breakpoints?.collection ? breakpoints.modes[mode] : undefined
+          return media ? `${mode} ${media}` : mode
+        })
+        .join(' · ') || 'every mode'
     const extensions = new Map(
       model.collections.flatMap((c) =>
         c.tokens.map((t) => [nameToDot(t.name), t.extensions] as const),
@@ -227,8 +240,11 @@ export function runTokenFind(context: CommandContext): Promise<number> {
     }
     // One line per token; the modes it has the value in are listed together.
     const rows = new Map<string, { modes: string[]; value: string; css: string; alias: boolean }>()
-    // Tokens the build writes first: only those can be used in code.
-    const usable = [...withCode].sort((a, b) => Number(!a.code) - Number(!b.code))
+    // Tokens the build writes first (only those can be used in code), within where they hold.
+    const usable = [...withCode].sort(
+      (a, b) =>
+        reachRank(a.breakpoint) - reachRank(b.breakpoint) || Number(!a.code) - Number(!b.code),
+    )
     for (const match of usable) {
       const row = rows.get(match.name) ?? {
         modes: [],
@@ -236,7 +252,7 @@ export function runTokenFind(context: CommandContext): Promise<number> {
         css: match.code ? `var(${match.code.css})` : '(not in the build output)',
         alias: match.depth > 0,
       }
-      row.modes.push(modeLabel(match.modes))
+      row.modes.push(label(match.modes))
       rows.set(match.name, row)
     }
     const nameWidth = Math.max(...[...rows.keys()].map((name) => name.length))
@@ -249,7 +265,13 @@ export function runTokenFind(context: CommandContext): Promise<number> {
       )
     }
     const aliases = [...rows.values()].some((row) => row.alias)
-    if (aliases)
+    if (matches.some((match) => match.breakpoint))
+      lines.push(
+        '',
+        'Tokens that have the value at every screen width come first, then tokens the build writes, aliases (semantic tokens) before primitives: use the first that fits.',
+        'A token with a media query has the value only at those widths: in code it changes the page at the others.',
+      )
+    else if (aliases)
       lines.push(
         '',
         'Tokens the build writes come first, aliases (semantic tokens) before primitives: use the first that fits.',

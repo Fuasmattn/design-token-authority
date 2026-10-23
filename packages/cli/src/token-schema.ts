@@ -121,7 +121,7 @@ export function tokenJsonSchema(): Record<string, unknown> {
           matches: {
             type: 'array',
             description:
-              'Deepest alias chain first: component and semantic tokens before primitives',
+              'Tokens that have the value at every breakpoint first, then deepest alias chain first: component and semantic tokens before primitives',
             items: {
               type: 'object',
               required: ['name', 'type', 'collection', 'modes', 'value', 'depth'],
@@ -133,6 +133,11 @@ export function tokenJsonSchema(): Record<string, unknown> {
                 modes,
                 value,
                 depth: { type: 'integer', description: 'Alias steps to the value; 0 holds it' },
+                breakpoint: {
+                  enum: ['default', 'other'],
+                  description:
+                    'With `breakpoints` in the config, a token without the value at every breakpoint: `default` has it at the default breakpoint, `other` only at others. Listed after the tokens that have it at every breakpoint.',
+                },
                 code,
               },
             },

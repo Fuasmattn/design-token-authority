@@ -117,6 +117,31 @@ describe('dta token find', () => {
   it('exits 2 for an unknown type', async () => {
     expect((await token('find', '#fff', '--type', 'colour')).exitCode).toBe(2)
   })
+
+  it('lists tokens that hold only at some screen widths last, with the media query (TICKET-125)', async () => {
+    fs.writeFileSync(
+      path.join(dir, 'dta.config.json'),
+      JSON.stringify({
+        tokens: { dir: 'tokens' },
+        brands: ['BrandA', 'BrandB'],
+        breakpoints: {
+          collection: 'ScreenType',
+          default: 'Mobile',
+          modes: { Tablet: '(min-width: 768px)', Desktop: '(min-width: 1024px)' },
+        },
+      }),
+    )
+    const { stdout } = await token('find', '16px')
+    const names = [...stdout.matchAll(/^ {2}(\S+)/gm)].map((match) => match[1])
+    expect(names.indexOf('Dimensions.spacing.4')).toBeLessThan(names.indexOf('Spacing.Gap'))
+    expect(stdout).toMatch(/Spacing\.Gap\s+Desktop \(min-width: 1024px\)\s/)
+    expect(stdout).toContain('has the value only at those widths')
+    const json = await token('find', '16px', '--format', 'json')
+    const parsed = JSON.parse(json.stdout)
+    expect(new Ajv2020({ strict: false }).compile(tokenJsonSchema())(parsed)).toBe(true)
+    expect(parsed.matches.at(-1)).toMatchObject({ breakpoint: 'other' })
+    expect(parsed.matches[0].breakpoint).toBeUndefined()
+  })
 })
 
 describe('dta token list', () => {

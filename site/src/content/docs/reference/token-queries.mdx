@@ -28,7 +28,7 @@ Colors.Brand.Primary  color · Brand(Alias)
 
 ## dta token find
 
-Every token that resolves to a value. Tokens the build writes come first, and among them aliases (semantic and component tokens) before the primitive that holds the value: the first line is usually the one to use.
+Every token that resolves to a value. Tokens the build writes come first, and among them aliases (semantic and component tokens) before the primitive that holds the value: the first line is usually the one to use. With breakpoints, where the value holds counts before that (below).
 
 ```text
 $ dta token find '#003f8a'
@@ -41,6 +41,24 @@ Tokens the build writes come first, aliases (semantic tokens) before primitives:
 ```
 
 Colours match in any case and as `rgb(…)`, in any colour space (`#4ba3f7` finds `oklch(0.7 0.15 250)`); `--near` also matches colours within about 2 % per channel. Numbers match with or without `px`; dimensions and durations with their unit (`0.2s` finds `200ms`), font weights as number or keyword, font families by their first name, other values by their text (`cubic-bezier(0.5, 0, 1, 1)`). `--type` limits the search to one token type. No match exits with 1.
+
+With [`breakpoints`](/reference/configuration/) in the config, where a token has the value counts first, for each brand on its own. Tokens that have it at every screen width come first, then those that have it at the default breakpoint, and last those that have it only at other breakpoints, with their media query. In code, one of those would change the page at the other widths. Brand modes do not count: a brand value is the same at every width.
+
+```text
+$ dta token find 16px
+5 tokens resolve to 16px:
+
+  Dimensions.spacing.4    every mode                                              var(--dimensions-spacing-4)
+  Typography.FontSize.md  every mode                                              var(--typography-fontsize-md)
+  Spacing.Gap             Desktop (min-width: 1024px)                             var(--spacing-gap)
+  Spacing.Padding         Tablet (min-width: 768px)                               var(--spacing-padding)
+  Typography.Body.Size    Desktop (min-width: 1024px), Tablet (min-width: 768px)  var(--typography-body-size)
+
+Tokens that have the value at every screen width come first, then tokens the build writes, aliases (semantic tokens) before primitives: use the first that fits.
+A token with a media query has the value only at those widths: in code it changes the page at the others.
+```
+
+`--format json` marks those matches with `"breakpoint": "default"` or `"other"`. [`dta audit`](/reference/commands/) ranks the same way and never suggests a token that has the value only at other breakpoints.
 
 ## dta token list
 

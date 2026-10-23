@@ -225,7 +225,7 @@ export const COMMANDS: readonly CommandDefinition[] = [
     name: 'find',
     parent: 'token',
     description:
-      'Find the tokens that resolve to a value, aliases (semantic and component tokens) first',
+      'Find the tokens that resolve to a value: at every screen width first, aliases (semantic and component tokens) before primitives',
     needsConfig: true,
     run: runTokenFind,
     arguments: [
