@@ -3,6 +3,7 @@
 **Phase:** 1 — Foundation (Housekeeping)
 **Priority:** Low
 **Effort:** XS
+**Status:** done (obsolete, 2026-10-23)
 
 ## Summary
 
@@ -27,3 +28,7 @@ This is a one-line Figma UI change but requires a re-export and a PR to update t
 ## Dependencies
 
 - None (but will be caught automatically once TICKET-010 linting is in place)
+
+## Outcome (2026-10-23)
+
+Nothing left to change in the repository: `meta.Mode1.json` is not in it any more (the v1 `tokens/` folder went with the v1 tree, TICKET-039), and the case this ticket names is caught automatically, as its Notes asked: the lint rule `no-default-mode-names` (TICKET-018) reports a Figma default mode name such as `Mode 1`. The `Mode 1` files in `test/fixtures/brand-ab-problems` and `test/fixtures/daisyui` stay on purpose: the first is the lint rule's test case, the second a real-world export. Renaming the mode in a Figma file is the file owner's step, outside DTA. Removed from "Known tech debt" in CLAUDE.md.
