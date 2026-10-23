@@ -110,6 +110,36 @@ function rules(config: Config | null): string[] {
       lines.push(`- Every name segment in ${code(collection)} matches ${code(pattern)}.`)
     }
   }
+  const caseRule = lint?.['naming-case']
+  if (caseRule && caseRule.severity !== 'off' && caseRule.collections) {
+    for (const [collection, style] of Object.entries(caseRule.collections)) {
+      lines.push(
+        `- Every name segment in ${code(collection)} is ${style} (numbers such as \`700\` too).`,
+      )
+    }
+  }
+  const depth = lint?.['naming-depth']
+  if (depth && depth.severity !== 'off' && depth.collections) {
+    for (const [collection, { min, max }] of Object.entries(depth.collections)) {
+      const range =
+        min !== undefined && max !== undefined
+          ? min === max
+            ? `${min}`
+            : `${min} to ${max}`
+          : min !== undefined
+            ? `at least ${min}`
+            : `at most ${max}`
+      lines.push(`- Token names in ${code(collection)} have ${range} segments.`)
+    }
+  }
+  const spaces = lint?.['no-spaces']
+  if (spaces && spaces.severity !== 'off') {
+    lines.push('- No spaces in token or collection names.')
+  }
+  const collectionPattern = lint?.['collection-pattern']
+  if (collectionPattern && collectionPattern.severity !== 'off' && collectionPattern.pattern) {
+    lines.push(`- Collection names match ${code(collectionPattern.pattern)}.`)
+  }
   const contrast = lint?.['color-contrast']
   if (contrast && contrast.severity !== 'off' && contrast.pairs?.length) {
     const ratio = contrast.minRatio ?? 4.5

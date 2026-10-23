@@ -5,6 +5,10 @@ const Severity = z
   .enum(['error', 'warn', 'off'])
   .describe('`error` fails `dta lint`, `warn` (the default) reports, `off` disables the rule.')
 
+/** The case styles of `naming-case`. */
+export const CASE_STYLES = ['kebab-case', 'camelCase', 'PascalCase', 'snake_case'] as const
+export type CaseStyle = (typeof CASE_STYLES)[number]
+
 const ruleSchemas = {
   'semantic-must-alias': z
     .strictObject({
@@ -26,6 +30,61 @@ const ruleSchemas = {
         .describe('Collection name → regular expression every path segment must match.'),
     })
     .describe('Fails when a path segment does not match the pattern of its collection.'),
+  'naming-case': z
+    .strictObject({
+      severity: Severity.optional(),
+      collections: z
+        .record(z.string(), z.enum(CASE_STYLES))
+        .optional()
+        .describe(
+          'Collection name → the case every path segment uses: `kebab-case`, `camelCase`, `PascalCase` or `snake_case`. Scale steps (`700`, `0-5`, `1.5`, `2xl`) fit every style; `$root` is not checked.',
+        ),
+    })
+    .describe('Fails when a path segment is not in the case style of its collection (TICKET-019).'),
+  'naming-depth': z
+    .strictObject({
+      severity: Severity.optional(),
+      collections: z
+        .record(
+          z.string(),
+          z
+            .strictObject({
+              min: z.number().int().positive().optional(),
+              max: z.number().int().positive().optional(),
+            })
+            .refine(
+              (range) =>
+                range.min === undefined || range.max === undefined || range.min <= range.max,
+              {
+                message: 'min must not be greater than max',
+              },
+            )
+            .refine((range) => range.min !== undefined || range.max !== undefined, {
+              message: 'needs min, max or both',
+            }),
+        )
+        .optional()
+        .describe('Collection name → `{ min, max }`: how many path segments a token name has.'),
+    })
+    .describe(
+      'Fails when a token path has fewer or more segments than its collection allows (TICKET-019).',
+    ),
+  'no-spaces': z
+    .strictObject({ severity: Severity.optional() })
+    .describe(
+      'Reports spaces in collection names and token path segments; some outputs and tools handle them badly (TICKET-019).',
+    ),
+  'collection-pattern': z
+    .strictObject({
+      severity: Severity.optional(),
+      pattern: z
+        .string()
+        .optional()
+        .describe(
+          'Regular expression every collection name must match (not anchored: write `^…$` for the whole name).',
+        ),
+    })
+    .describe('Fails when a collection name does not match the pattern (TICKET-019).'),
   'color-contrast': z
     .strictObject({
       severity: Severity.optional(),

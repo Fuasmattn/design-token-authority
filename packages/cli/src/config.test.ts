@@ -128,8 +128,34 @@ describe('loadConfig: validation and defaults', () => {
     expect(config.outputs).toEqual({
       css: { outDir: 'out/css' },
       tailwind: { outDir: 'out/tw' },
-      ios: { outDir: 'out/ios', lang: 'swift' },
-      android: { outDir: 'out/android', lang: 'xml' },
+      ios: { outDir: 'out/ios' },
+      android: { outDir: 'out/android' },
+    })
+  })
+
+  it('rejects the removed native lang keys and a package that is not a Kotlin package (TICKET-011–013)', async () => {
+    const lang = await invalid({
+      outputs: {
+        ios: { outDir: 'ios', lang: 'swift' },
+        android: { outDir: 'android', lang: 'xml' },
+      },
+    })
+    expect(lang.issues.map((i) => i.path).sort()).toEqual([
+      'outputs.android.lang',
+      'outputs.ios.lang',
+    ])
+    expect(lang.issues[0].message).toMatch(/formats/)
+    const pkg = await invalid({
+      outputs: { android: { outDir: 'android', package: 'com.example-app' } },
+    })
+    expect(pkg.issues[0].path).toBe('outputs.android.package')
+    // The folder has a default: the package alone is enough.
+    write(
+      'dta.config.json',
+      JSON.stringify({ outputs: { android: { package: 'com.example.app' } } }),
+    )
+    expect((await loadConfig({ cwd: dir })).config.outputs?.android).toEqual({
+      package: 'com.example.app',
     })
   })
 
@@ -283,6 +309,17 @@ describe('loadConfig: validation and defaults', () => {
     })
     expect(error.issues[0].path).toBe('lint.rules.naming-pattern.patterns.Brand')
     expect(error.issues[0].message).toMatch(/regular expression/)
+  })
+
+  it('rejects an invalid collection-pattern and an unknown case style (TICKET-019)', async () => {
+    const pattern = await invalid({
+      lint: { rules: { 'collection-pattern': { pattern: '([' } } },
+    })
+    expect(pattern.issues.map((i) => i.path)).toEqual(['lint.rules.collection-pattern.pattern'])
+    const style = await invalid({
+      lint: { rules: { 'naming-case': { collections: { Brand: 'Title Case' } } } },
+    })
+    expect(style.issues.map((i) => i.path)).toEqual(['lint.rules.naming-case.collections.Brand'])
   })
 
   it('rejects malformed color-contrast pairs', async () => {

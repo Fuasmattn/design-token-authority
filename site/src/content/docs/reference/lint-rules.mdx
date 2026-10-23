@@ -91,6 +91,50 @@ Token has a raw value "#ffffff" but should be an alias in collection "Brand(Alia
 warn Token path segment "overlay" does not match pattern /^[A-Z][A-Za-z ]*$/ for collection "Brand(Alias)" [naming-pattern]
 ```
 
+### `naming-case`
+
+`collections` maps a collection name to a case style: `kebab-case`, `camelCase`, `PascalCase` or `snake_case`. Every segment of every token path in that collection must be in it; a scale step (`700`, `0-5`, `1.5`, `2xl`) fits every style, and `$root` is not checked. A token in several modes is reported once. For other conventions, use `naming-pattern`.
+
+```ts
+'naming-case': { collections: { Primitives: 'camelCase' } },
+```
+
+```text
+warn Token path segment "Colors" is not camelCase (collection "Primitives") [naming-case]
+```
+
+### `naming-depth`
+
+`collections` maps a collection name to `{ min, max }` (one of them is enough): how many segments a token path has, without `$root`. `Colors.Brand.Primary` has 3.
+
+```ts
+'naming-depth': { collections: { 'Brand(Alias)': { max: 2 } } },
+```
+
+```text
+warn Token path has 3 segments, expected at most 2 (collection "Brand(Alias)") [naming-depth]
+```
+
+### `no-spaces`
+
+Reports spaces in collection names and token path segments. CSS variable names replace them, but other tools and future outputs may not.
+
+```text
+warn Token path segment "Primary Dark" contains a space [no-spaces]
+```
+
+### `collection-pattern`
+
+`pattern` is a regular expression every collection name must match; it is not anchored, so write `^…$` to match the whole name. A collection's problem is reported on its first mode file. An invalid expression is a config error.
+
+```ts
+'collection-pattern': { pattern: '^[A-Za-z]+$' },
+```
+
+```text
+warn Collection name "Brand(Alias)" does not match pattern /^[A-Za-z]+$/ [collection-pattern]
+```
+
 ### `color-contrast`
 
 For each `[foreground, background]` pair, the WCAG contrast ratio must reach `minRatio` (default 4.5, level AA). Token names are written with dots or slashes. Colours in any DTCG colour space are converted to sRGB first; one outside sRGB is checked clipped to it, with a `contrast-clipped` warning that names the sRGB colour used.

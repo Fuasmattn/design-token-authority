@@ -57,6 +57,28 @@ describe('renderDesignMd', () => {
     expect(text).toContain('`Colors.Text.Default` on `Colors.Surface.Default`')
   })
 
+  it('states the naming rules of the lint config (TICKET-019)', () => {
+    const naming = renderDesignMd(
+      fixture(),
+      {
+        ...config,
+        lint: {
+          rules: {
+            'naming-case': { collections: { Primitives: 'camelCase' } },
+            'naming-depth': { collections: { 'Brand(Alias)': { min: 2, max: 3 } } },
+            'no-spaces': {},
+            'collection-pattern': { pattern: '^[A-Z]', severity: 'off' },
+          },
+        },
+      } as unknown as Config,
+      { version: '1.2.3' },
+    )
+    expect(naming).toContain('- Every name segment in `Primitives` is camelCase')
+    expect(naming).toContain('- Token names in `Brand(Alias)` have 2 to 3 segments.')
+    expect(naming).toContain('- No spaces in token or collection names.')
+    expect(naming).not.toContain('Collection names match')
+  })
+
   it('summarises by group when the tokens do not fit the budget', () => {
     const tokens: Record<string, unknown> = {}
     for (let group = 0; group < 20; group++) {

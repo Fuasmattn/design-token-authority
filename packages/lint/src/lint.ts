@@ -19,7 +19,7 @@ import type {
   TokenModel,
 } from '@dta/core'
 import { readLintConfig } from './config.js'
-import type { LintSeverity, ValidRules } from './config.js'
+import type { CaseStyle, LintSeverity, ValidRules } from './config.js'
 import type { LintResult, LintViolation } from './types.js'
 import type { Diagnostic } from '@dta/core'
 
@@ -130,6 +130,156 @@ function namingPattern(
     })
   }
   return violations
+}
+
+const CASE_PATTERNS: Record<CaseStyle, RegExp> = {
+  'kebab-case': /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/,
+  camelCase: /^[a-z][a-zA-Z0-9]*$/,
+  PascalCase: /^[A-Z][a-zA-Z0-9]*$/,
+  snake_case: /^[a-z][a-z0-9]*(_[a-z0-9]+)*$/,
+}
+/** A scale step (`700`, `0-5`, `1.5`, `2xl`, `3xs`) has no case: it fits every style. */
+const NUMBER_SEGMENT = /^(\d+([-_.]\d+)*|\d+x[sl]|\d+xl)$/i
+
+/**
+ * The name segments the naming rules check: without `$root` (the group's own token, named by
+ * DTCG, not by the project).
+ */
+const namedSegments = (id: string) => segmentsOf(id).filter((part) => part !== '$root')
+
+/**
+ * One node per token, not per mode: a collection with three modes would report each problem
+ * three times. The first mode's file is the one reported.
+ */
+function perToken(graph: GraphAnalysis): GraphAnalysis['nodes'] {
+  const seen = new Set<string>()
+  return graph.nodes.filter((node) => {
+    const key = `${node.collection}\u0000${segmentsOf(node.id).join('/')}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
+function namingCase(
+  graph: GraphAnalysis,
+  options: NonNullable<ValidRules['naming-case']>,
+  severity: 'error' | 'warn',
+): LintViolation[] {
+  const styles = options.collections ?? {}
+  const violations: LintViolation[] = []
+  for (const node of perToken(graph)) {
+    const style = styles[node.collection]
+    if (!style) continue
+    const segment = namedSegments(node.id).find(
+      (part) => !NUMBER_SEGMENT.test(part) && !CASE_PATTERNS[style].test(part),
+    )
+    if (segment === undefined) continue
+    violations.push({
+      rule: 'naming-case',
+      severity,
+      tokenPath: node.id,
+      file: `${node.collection}.${node.mode}.json`,
+      message: `Token path segment "${segment}" is not ${style} (collection "${node.collection}")`,
+    })
+  }
+  return violations
+}
+
+function namingDepth(
+  graph: GraphAnalysis,
+  options: NonNullable<ValidRules['naming-depth']>,
+  severity: 'error' | 'warn',
+): LintViolation[] {
+  const ranges = options.collections ?? {}
+  const violations: LintViolation[] = []
+  for (const node of perToken(graph)) {
+    const range = ranges[node.collection]
+    if (!range) continue
+    const depth = namedSegments(node.id).length
+    const { min, max } = range
+    if ((min === undefined || depth >= min) && (max === undefined || depth <= max)) continue
+    const expected =
+      min !== undefined && max !== undefined
+        ? min === max
+          ? `${min}`
+          : `${min} to ${max}`
+        : min !== undefined
+          ? `at least ${min}`
+          : `at most ${max}`
+    violations.push({
+      rule: 'naming-depth',
+      severity,
+      tokenPath: node.id,
+      file: `${node.collection}.${node.mode}.json`,
+      message: `Token path has ${depth} segment${depth === 1 ? '' : 's'}, expected ${expected} (collection "${node.collection}")`,
+    })
+  }
+  return violations
+}
+
+/** The first mode file of each collection: where a problem of the collection's name is reported. */
+const collectionFiles = (model: TokenModel) =>
+  model.collections.map((collection) => ({
+    name: collection.name,
+    file: `${collection.name}.${collection.modes[0] ?? ''}.json`,
+  }))
+
+function noSpaces(
+  model: TokenModel,
+  graph: GraphAnalysis,
+  severity: 'error' | 'warn',
+): LintViolation[] {
+  const violations: LintViolation[] = collectionFiles(model)
+    .filter((collection) => collection.name.includes(' '))
+    .map((collection) => ({
+      rule: 'no-spaces',
+      severity,
+      tokenPath: collection.name,
+      file: collection.file,
+      message: `Collection name "${collection.name}" contains a space`,
+    }))
+  for (const node of perToken(graph)) {
+    const segment = namedSegments(node.id).find((part) => part.includes(' '))
+    if (segment === undefined) continue
+    violations.push({
+      rule: 'no-spaces',
+      severity,
+      tokenPath: node.id,
+      file: `${node.collection}.${node.mode}.json`,
+      message: `Token path segment "${segment}" contains a space`,
+    })
+  }
+  return violations
+}
+
+function collectionPattern(
+  model: TokenModel,
+  options: NonNullable<ValidRules['collection-pattern']>,
+  severity: 'error' | 'warn',
+  diagnostics: Diagnostic[],
+): LintViolation[] {
+  if (options.pattern === undefined) return []
+  let regex: RegExp
+  try {
+    regex = new RegExp(options.pattern)
+  } catch {
+    diagnostics.push({
+      severity: 'error',
+      code: 'invalid-config',
+      message: `Lint config: rules.collection-pattern.pattern: "${options.pattern}" is not a valid regular expression; rule skipped.`,
+    })
+    return []
+  }
+  return collectionFiles(model)
+    .filter((collection) => !regex.test(collection.name))
+    .map((collection) => ({
+      rule: 'collection-pattern',
+      severity,
+      tokenPath: collection.name,
+      file: collection.file,
+      message: `Collection name "${collection.name}" does not match pattern /${regex.source}/`,
+    }))
 }
 
 /** A pair name as written in the config (dot or slash form) → token name segments. */
@@ -335,6 +485,24 @@ export function lintTokens(model: TokenModel, config?: unknown): LintResult {
   const namingSeverity = naming && activeSeverity(naming.severity)
   if (naming && namingSeverity) {
     violations.push(...namingPattern(graph, naming, namingSeverity, diagnostics))
+  }
+
+  const caseRule = rules['naming-case']
+  const caseSeverity = caseRule && activeSeverity(caseRule.severity)
+  if (caseRule && caseSeverity) violations.push(...namingCase(graph, caseRule, caseSeverity))
+
+  const depth = rules['naming-depth']
+  const depthSeverity = depth && activeSeverity(depth.severity)
+  if (depth && depthSeverity) violations.push(...namingDepth(graph, depth, depthSeverity))
+
+  const spaces = rules['no-spaces']
+  const spacesSeverity = spaces && activeSeverity(spaces.severity)
+  if (spacesSeverity) violations.push(...noSpaces(model, graph, spacesSeverity))
+
+  const collections = rules['collection-pattern']
+  const collectionsSeverity = collections && activeSeverity(collections.severity)
+  if (collections && collectionsSeverity) {
+    violations.push(...collectionPattern(model, collections, collectionsSeverity, diagnostics))
   }
 
   const contrast = rules['color-contrast']

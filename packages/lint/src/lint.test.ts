@@ -465,3 +465,112 @@ describe('lintConfigSchema', () => {
     expect(badOption.error?.issues[0].path).toEqual(['rules', 'no-duplicate-values', 'severity'])
   })
 })
+
+describe('naming rules (TICKET-019)', () => {
+  const model = modelFrom({
+    'Base.Value.json': {
+      blue: { 700: color('#2448b8'), 'light-sky': color('#9ad') },
+      spacing: { '0-5': num(2), 'Extra Large': num(48) },
+      radius: num(4),
+    },
+    'Brand Set.BrandA.json': { action: { bg: color('{blue.700}') } },
+  })
+  const run = (rules: Record<string, unknown>) =>
+    lintTokens(model, { rules }).violations.map((v) => [v.rule, v.tokenPath, v.message])
+
+  it('naming-case: every segment in the collection style, number steps fit every style', () => {
+    expect(run({ 'naming-case': { collections: { Base: 'kebab-case' } } })).toEqual([
+      [
+        'naming-case',
+        'Base.Value/spacing/Extra Large',
+        'Token path segment "Extra Large" is not kebab-case (collection "Base")',
+      ],
+    ])
+    const camel = run({ 'naming-case': { collections: { Base: 'camelCase' } } })
+    expect(camel.map((v) => v[1])).toEqual([
+      'Base.Value/blue/light-sky',
+      'Base.Value/spacing/Extra Large',
+    ])
+  })
+
+  it('naming-depth: fewer or more segments than allowed, with the expected count', () => {
+    expect(run({ 'naming-depth': { collections: { Base: { min: 2, max: 2 } } } })).toEqual([
+      [
+        'naming-depth',
+        'Base.Value/radius',
+        'Token path has 1 segment, expected 2 (collection "Base")',
+      ],
+    ])
+    expect(run({ 'naming-depth': { collections: { 'Brand Set': { max: 1 } } } })[0][2]).toBe(
+      'Token path has 2 segments, expected at most 1 (collection "Brand Set")',
+    )
+  })
+
+  it('no-spaces: collection names and token segments', () => {
+    expect(run({ 'no-spaces': {} })).toEqual([
+      ['no-spaces', 'Brand Set', 'Collection name "Brand Set" contains a space'],
+      [
+        'no-spaces',
+        'Base.Value/spacing/Extra Large',
+        'Token path segment "Extra Large" contains a space',
+      ],
+    ])
+  })
+
+  it('collection-pattern: names that do not match, an invalid pattern as a diagnostic', () => {
+    expect(run({ 'collection-pattern': { pattern: '^[A-Z][a-z]+$' } })).toEqual([
+      [
+        'collection-pattern',
+        'Brand Set',
+        'Collection name "Brand Set" does not match pattern /^[A-Z][a-z]+$/',
+      ],
+    ])
+    const invalid = lintTokens(model, { rules: { 'collection-pattern': { pattern: '(' } } })
+    expect(invalid.violations).toEqual([])
+    expect(invalid.diagnostics[0].message).toContain('rules.collection-pattern.pattern')
+  })
+
+  it('reports a collection problem in the first mode file, as a warning unless configured', () => {
+    const [violation] = lintTokens(model, { rules: { 'no-spaces': {} } }).violations
+    expect(violation).toMatchObject({ file: 'Brand Set.BrandA.json', severity: 'warn' })
+    expect(lintTokens(model, { rules: { 'no-spaces': { severity: 'error' } } }).errorCount).toBe(2)
+    expect(lintTokens(model, { rules: { 'no-spaces': { severity: 'off' } } }).violations).toEqual(
+      [],
+    )
+  })
+
+  it('skips $root, lets scale steps fit every style, and reports a token once, not per mode', () => {
+    const multi = modelFrom({
+      'Screen.Mobile.json': {
+        space: { '1.5': num(6), '2xl': num(48), Extra: num(1) },
+        accent: { $root: color('#000000'), light: color('#ffffff') },
+      },
+      'Screen.Desktop.json': {
+        space: { '1.5': num(6), '2xl': num(48), Extra: num(1) },
+        accent: { $root: color('#000000'), light: color('#ffffff') },
+      },
+    })
+    const found = lintTokens(multi, {
+      rules: {
+        'naming-case': { collections: { Screen: 'camelCase' } },
+        'naming-depth': { collections: { Screen: { max: 2 } } },
+      },
+    }).violations.map((v) => [v.rule, v.tokenPath])
+    expect(found).toEqual([['naming-case', 'Screen.Desktop/space/Extra']])
+  })
+
+  it('rejects an unknown case style and a min above max', () => {
+    const { diagnostics } = lintTokens(model, {
+      rules: {
+        'naming-case': { collections: { Base: 'Title Case' } },
+        'naming-depth': { collections: { Base: { min: 3, max: 2 }, Other: {} } },
+      },
+    })
+    expect(diagnostics.map((d) => d.message)).toEqual([
+      expect.stringContaining('rules.naming-case.collections.Base'),
+      expect.stringMatching(
+        /min must not be greater than max.*needs min, max or both|needs min, max or both.*min must not be greater than max/,
+      ),
+    ])
+  })
+})
