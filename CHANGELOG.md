@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.0.2](https://github.com/Fuasmattn/design-token-authority/compare/v2.0.1...v2.0.2) (2026-10-24)
+
+### Features
+
+* **site:** serve the website at dta.martinprinz.dev (TICKET-075 done) ([e21c575](https://github.com/Fuasmattn/design-token-authority/commit/e21c57501c3eea228f070f99e5eb2413a540ce84))
+
+### Bug Fixes
+
+* **security:** SECURITY.md, dependency audit, Node 24.22.1 (TICKET-140) ([9ebb0d2](https://github.com/Fuasmattn/design-token-authority/commit/9ebb0d2cdf9ab4249c68d862a3c62cadbad07432))
+
+### Documentation
+
+* install DTA from npm (TICKET-090 done) ([accbd4f](https://github.com/Fuasmattn/design-token-authority/commit/accbd4f5646d2fd7550a6696d5b3ce6154bc27ce))
+
 ## [2.0.1](https://github.com/Fuasmattn/design-token-authority/compare/v1.0.0...v2.0.1) (2026-10-24)
 
 ### ⚠ BREAKING CHANGES
