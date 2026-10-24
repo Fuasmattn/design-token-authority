@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Playground on a phone: lint with a detail sheet</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;family=Martian+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2443ac}a:hover{color:#1e3a9e}
+button{font:inherit;color:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; overflow: hidden; box-sizing: border-box; background: #f5f1e8; color: #13213f; font-family: 'Instrument Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.5">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #e2dccd">
+    <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px"><span aria-hidden="true" style="display: inline-block; width: 20px; height: 20px; border-radius: 6px; background: #2443ac"></span>dta</div>
+    <button type="button" aria-label="Menu" style="width: 44px; height: 44px; background: none; border: 0; font-size: 22px">≡</button>
+  </header>
+
+  <div style="padding: 10px 16px; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid #e2dccd; background: #f5f1e8">
+    <div style="display: flex; align-items: center; gap: 8px">
+      <span style="font-weight: 600; font-size: 14px">Example with problems</span>
+      <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 12px; color: #3a465e">6 files</span>
+      <span style="flex: 1 1 auto"></span>
+      <button type="button" style="min-height: 44px; padding: 0 12px; background: #ffffff; border: 2px solid #13213f; border-radius: 10px; font-weight: 600; font-size: 14px">Replace</button>
+    </div>
+    <p style="margin: 0; font-family: 'Martian Mono', ui-monospace, monospace; font-size: 12px; color: #3a465e">3 collections · 2 brands · 1 error · 2 warnings</p>
+    <div role="tablist" aria-label="Views" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 4px; background: #eae4d6; border-radius: 10px">
+      <button type="button" role="tab" aria-selected="false" style="min-height: 44px; background: transparent; border: 2px solid transparent; border-radius: 8px; font-weight: 600; font-size: 13px; color: #3a465e">Structure</button>
+      <button type="button" role="tab" aria-selected="true" style="min-height: 44px; background: #ffffff; border: 2px solid #13213f; border-radius: 8px; font-weight: 600; font-size: 13px">Lint · 3</button>
+      <button type="button" role="tab" aria-selected="false" style="min-height: 44px; background: transparent; border: 2px solid transparent; border-radius: 8px; font-weight: 600; font-size: 13px; color: #3a465e">Graph</button>
+      <button type="button" role="tab" aria-selected="false" style="min-height: 44px; background: transparent; border: 2px solid transparent; border-radius: 8px; font-weight: 600; font-size: 13px; color: #3a465e">Outputs</button>
+    </div>
+  </div>
+
+  <div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 8px">
+    <p style="margin: 0; font-weight: 600">Lint failed. <span style="font-weight: 400; color: #3a465e">1 error, 2 warnings</span></p>
+    <div style="background: #ffffff; border: 1px solid #e2dccd; border-radius: 18px; padding: 4px 14px">
+      <div style="display: flex; align-items: center; gap: 10px; min-height: 52px; border-bottom: 1px solid #e2dccd">
+        <span aria-hidden="true" style="width: 10px; height: 10px; background: #13213f"></span>
+        <span style="flex: 1; font-family: 'Martian Mono', ui-monospace, monospace; font-size: 13px">no-dangling-aliases</span>
+        <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 12px; color: #3a465e">1 error ›</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; min-height: 52px; border-bottom: 1px solid #e2dccd; background: #e3eafb; margin: 0 -14px; padding: 0 14px">
+        <span aria-hidden="true" style="width: 10px; height: 10px; border: 2px solid #1e3a9e; border-radius: 9999px; box-sizing: border-box"></span>
+        <span style="flex: 1; font-family: 'Martian Mono', ui-monospace, monospace; font-size: 13px; color: #1e3a9e">color-contrast</span>
+        <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 12px; color: #1e3a9e">1 warning ›</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; min-height: 52px">
+        <span aria-hidden="true" style="width: 10px; height: 10px; border: 2px solid #13213f; border-radius: 9999px; box-sizing: border-box"></span>
+        <span style="flex: 1; font-family: 'Martian Mono', ui-monospace, monospace; font-size: 13px">semantic-must-alias</span>
+        <span style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 12px; color: #3a465e">1 warning ›</span>
+      </div>
+    </div>
+  </div>
+
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: #13213f; opacity: 0.35"></div>
+
+  <section role="dialog" aria-modal="true" aria-label="Finding details" style="position: absolute; left: 0; right: 0; bottom: 0; background: #ffffff; border-top: 2px solid #13213f; border-radius: 18px 18px 0 0; padding: 8px 16px 24px; display: flex; flex-direction: column; gap: 12px">
+    <div aria-hidden="true" style="align-self: center; width: 40px; height: 4px; border-radius: 9999px; background: #c9c1ae"></div>
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px">
+      <div>
+        <p style="margin: 0; font-family: 'Martian Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.04em; color: #44506c">WARN · color-contrast</p>
+        <h2 style="margin: 2px 0 0; font-size: 18px">Accent on white is hard to read</h2>
+      </div>
+      <button type="button" aria-label="Close" style="width: 44px; height: 44px; flex: none; background: none; border: 1px solid #e2dccd; border-radius: 10px; font-size: 20px">×</button>
+    </div>
+    <p style="margin: 0; font-family: 'Martian Mono', ui-monospace, monospace; font-size: 12.5px; line-height: 1.6">Contrast ratio 3.04:1 between "Colors.Brand.Accent" (#e8731a) and "Colors.Surface.Default" (#ffffff) is below 4.5:1</p>
+    <div style="display: flex; gap: 12px; align-items: center">
+      <span aria-hidden="true" style="width: 56px; height: 40px; border-radius: 6px; background: #ffffff; border: 1px solid #e2dccd; display: flex; align-items: center; justify-content: center; color: #e8731a; font-weight: 700">Aa</span>
+      <span style="font-size: 14px; color: #3a465e">Brand(Alias) · BrandA. Alias chain: Accent → {Colors.Foundation.Orange.500}</span>
+    </div>
+    <div style="display: flex; gap: 8px">
+      <button type="button" style="flex: 1; min-height: 44px; background: #ffffff; border: 2px solid #13213f; border-radius: 10px; font-weight: 600">Show in graph</button>
+      <button type="button" style="flex: 1; min-height: 44px; background: #ffffff; border: 2px solid #13213f; border-radius: 10px; font-weight: 600">Next finding</button>
+    </div>
+    <p style="margin: 0; font-size: 12px; color: #44506c">Illustrative findings for the planned “Example with problems” (TICKET-113).</p>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

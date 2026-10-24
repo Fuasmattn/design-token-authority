@@ -1,0 +1,16 @@
+{
+  "border (width)": {
+    "$type": "number",
+    "$extensions": {
+      "com.figma": {
+        "scopes": [
+          "WIDTH_HEIGHT",
+          "GAP",
+          "STROKE_FLOAT",
+          "EFFECT_FLOAT"
+        ]
+      }
+    },
+    "$value": 1.5
+  }
+}

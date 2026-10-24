@@ -1,0 +1,9 @@
+/*
+ * TokenPath: a path on its own, in mono, in the ink around it. It breaks after a separator
+ * (the <wbr> breakPaths adds); a single segment wider than its box breaks inside as the last
+ * resort.
+ */
+.dta-path {
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}

@@ -1,0 +1,15 @@
+# Only with the GitHub assets branch recipe: removes a pull request's reports when it closes.
+name: dta diff cleanup
+on:
+  pull_request_target:
+    types: [closed]
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4 # the default branch, for the script
+      - run: sh .github/dta-diff-cleanup.sh "${{ github.event.pull_request.number }}"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

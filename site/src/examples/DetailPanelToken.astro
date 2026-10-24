@@ -1,0 +1,24 @@
+---
+// Real output: Colors.Brand.Accent of the "Example with problems" opened from the graph in
+// BrandA · Desktop: every brand as `dta token get` reads it, its names in code, its finding in
+// BrandB, "Show in lint" and "Show BrandB".
+import DetailPanel from '../components/ds/DetailPanel'
+import { analyse } from '../playground/analyse'
+import { PROBLEM_EXAMPLE } from '../playground/example'
+import { buildGraph, tokenDetail } from '../playground/graph'
+import { tokenPanelContent } from '../playground/token-panel'
+
+interface Props {
+  idPrefix?: string
+  presentation?: 'side' | 'sheet'
+  brand?: string
+}
+const { idPrefix = 'detail-token', presentation = 'side', brand = 'BrandA' } = Astro.props
+const result = analyse(PROBLEM_EXAMPLE.files)
+const view = buildGraph(result, { 'Brand(Alias)': brand, ScreenType: 'Desktop' })
+const detail = tokenDetail(result, view, `Brand(Alias).${brand}/Colors/Brand/Accent`)
+if (!detail) throw new Error('the problem example has no Colors.Brand.Accent')
+const content = tokenPanelContent(detail)
+---
+
+<DetailPanel idPrefix={idPrefix} open staticOpen presentation={presentation} {...content} />

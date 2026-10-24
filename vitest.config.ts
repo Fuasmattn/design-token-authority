@@ -2,8 +2,19 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    environment: 'node',
-    globals: true,
-    include: ['src/**/*.test.ts'],
+    projects: [
+      {
+        test: {
+          name: 'guardrails',
+          environment: 'node',
+          include: ['scripts/guardrails/**/*.test.ts'],
+        },
+      },
+      {
+        test: { name: 'actions', environment: 'node', include: ['actions/**/*.test.ts'] },
+      },
+      'packages/*',
+      'site',
+    ],
   },
 })

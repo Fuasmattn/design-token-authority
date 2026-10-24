@@ -1,0 +1,21 @@
+{
+  "surface": {
+    "$type": "color",
+    "base": {
+      "$value": "{color.gray.0}"
+    },
+    "muted": {
+      "$value": "{color.gray.100}"
+    }
+  },
+  "text": {
+    "$type": "color",
+    "default": {
+      "$value": "{color.gray.900}"
+    }
+  },
+  "accent": {
+    "$type": "color",
+    "$value": "{color.blue}"
+  }
+}

@@ -1,0 +1,67 @@
+/*
+ * Starlight's colours and fonts mapped onto the DTA Drafting Table tokens. Only semantic
+ * token variables are used here (no raw values); the values live in site/tokens and are
+ * built by `dta build` into output/css. Our semantic tokens already switch per theme, so one
+ * mapping serves Light and Graphite.
+ */
+:root,
+:root[data-theme='light'],
+:root[data-theme='dark'] {
+  --sl-font: var(--font-sans);
+  --sl-font-mono: var(--font-mono);
+
+  --sl-color-black: var(--bg-canvas);
+  --sl-color-white: var(--fg-default);
+  --sl-color-gray-1: var(--fg-default);
+  --sl-color-gray-2: var(--fg-muted);
+  --sl-color-gray-3: var(--fg-subtle);
+  --sl-color-gray-4: var(--fg-subtle);
+  --sl-color-gray-5: var(--border-default);
+  --sl-color-gray-6: var(--bg-subtle);
+  --sl-color-gray-7: var(--bg-surface);
+
+  --sl-color-accent-low: var(--action-subtle);
+  --sl-color-accent: var(--action-bg);
+  --sl-color-accent-high: var(--action-text);
+  --sl-color-text-accent: var(--action-bg);
+  --sl-color-text-invert: var(--action-fg);
+  --sl-color-bg-accent: var(--action-bg);
+
+  --sl-color-bg: var(--bg-canvas);
+  --sl-color-bg-nav: var(--bg-canvas);
+  --sl-color-bg-sidebar: var(--bg-canvas);
+  --sl-color-bg-inline-code: var(--bg-subtle);
+  --sl-color-hairline: var(--border-default);
+  --sl-color-hairline-light: var(--border-default);
+  --sl-color-hairline-shade: var(--border-default);
+
+  /* Asides and badges: note → action, tip → success, caution → warning, danger → error (the
+     status colours, TICKET-120: text on the tint, the marker as the edge). Never signal, which
+     means "changed". */
+  --sl-color-blue-low: var(--action-subtle);
+  --sl-color-blue: var(--action-bg);
+  --sl-color-blue-high: var(--action-text);
+  --sl-color-purple-low: var(--action-subtle);
+  --sl-color-purple: var(--action-bg);
+  --sl-color-purple-high: var(--action-text);
+  --sl-color-green-low: var(--status-success-subtle);
+  --sl-color-green: var(--status-success-marker);
+  --sl-color-green-high: var(--status-success-text);
+  --sl-color-orange-low: var(--status-warning-subtle);
+  --sl-color-orange: var(--status-warning-marker);
+  --sl-color-orange-high: var(--status-warning-text);
+  --sl-color-red-low: var(--status-error-subtle);
+  --sl-color-red: var(--status-error-marker);
+  --sl-color-red-high: var(--status-error-text);
+
+  /* Borders, not shadows. */
+  --sl-shadow-sm: none;
+  --sl-shadow-md: none;
+  --sl-shadow-lg: none;
+}
+
+/* Focus ring from the design system: 3px, action tint. */
+:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: 2px;
+}

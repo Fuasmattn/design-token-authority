@@ -1,0 +1,351 @@
+---
+/**
+ * Main navigation. On tablets and desktops: the links in a row, then whatever is passed in the
+ * default slot (the theme switch). Below 760px: a burger button that opens a full-screen menu
+ * on grid paper; the sheet wipes down, a redline draws under the header and the links rise one
+ * after another. Closes on Escape, on a link and when the screen gets wide; keeps focus inside
+ * while open.
+ *
+ * The link of the page you are on is marked (`current`): `aria-current="page"` and an underline
+ * in `action-bg` that stays (the row) or under the label (the menu). Links to sections of the
+ * same page (`#…`) are never current; the page decides which link is.
+ */
+interface Link {
+  href: string
+  label: string
+  /** The link leads to the page shown now (never a section of it). */
+  current?: boolean
+}
+interface Props {
+  links: readonly Link[]
+  /** Accessible name of the navigation landmark. */
+  label?: string
+  /** Keeps the menu id unique when a page shows several navs (docs examples). */
+  idPrefix?: string
+  /** Start with the menu open (stories only). */
+  open?: boolean
+}
+const { links, label = 'Main', idPrefix = 'dta-nav', open = false } = Astro.props
+const menuId = `${idPrefix}-menu`
+---
+
+<nav class="dta-nav" aria-label={label} data-dta-nav data-open={open ? '' : undefined}>
+  <button
+    type="button"
+    class="toggle"
+    aria-label="Menu"
+    aria-expanded={open ? 'true' : 'false'}
+    aria-controls={menuId}
+  >
+    <span class="burger" aria-hidden="true"><span></span><span></span><span></span></span>
+  </button>
+  <div class="panel" id={menuId}>
+    <ul class="links">
+      {
+        links.map((link, i) => (
+          <li style={`--i: ${i}`}>
+            <a href={link.href} aria-current={link.current ? 'page' : undefined}>
+              <span class="index" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span class="label">{link.label}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    {
+      Astro.slots.has('default') && (
+        <div class="extra" style={`--i: ${links.length}`}>
+          <slot />
+        </div>
+      )
+    }
+  </div>
+</nav>
+
+<script>
+  const PHONE = '(max-width: 760px)'
+  for (const nav of document.querySelectorAll<HTMLElement>('[data-dta-nav]')) {
+    const toggle = nav.querySelector<HTMLButtonElement>('.toggle')
+    if (!toggle) continue
+    const isOpen = () => nav.hasAttribute('data-open')
+    const setOpen = (open: boolean) => {
+      nav.toggleAttribute('data-open', open)
+      toggle.setAttribute('aria-expanded', String(open))
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Menu')
+      // The full-screen menu owns the screen: the page behind it does not scroll.
+      document.documentElement.toggleAttribute('data-dta-nav-open', open && matchMedia(PHONE).matches)
+      if (open) nav.querySelector<HTMLElement>('.links a')?.focus({ preventScroll: true })
+    }
+    toggle.addEventListener('click', () => setOpen(!isOpen()))
+    nav.addEventListener('keydown', (event) => {
+      if (!isOpen()) return
+      if (event.key === 'Escape') {
+        setOpen(false)
+        toggle.focus()
+        return
+      }
+      // Keep focus inside the open menu: the button, the links and the extra controls.
+      if (event.key === 'Tab' && matchMedia(PHONE).matches) {
+        const focusable = [...nav.querySelectorAll<HTMLElement>('button, a[href]')]
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault()
+          last.focus()
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault()
+          first.focus()
+        }
+      }
+    })
+    for (const link of nav.querySelectorAll('.links a')) {
+      link.addEventListener('click', () => setOpen(false))
+    }
+    // Rotating a phone to a wide screen shows the row again: close the menu.
+    matchMedia(PHONE).addEventListener('change', (event) => {
+      if (!event.matches && isOpen()) setOpen(false)
+    })
+  }
+</script>
+
+<style>
+  .dta-nav {
+    font-family: var(--font-sans);
+    font-size: calc(var(--type-label-size) * 1px);
+    font-weight: var(--type-label-weight);
+    line-height: var(--type-label-line-height);
+  }
+  .panel {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--fg-default);
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0 var(--stroke-redline);
+    background-repeat: no-repeat;
+    background-position: 0 calc(100% - 10px);
+    transition: background-size var(--motion-duration-base) var(--motion-ease-standard);
+  }
+  .links a:hover {
+    background-size: 100% var(--stroke-redline);
+  }
+  /* The page you are on: its underline stays, in the action colour (not the ink of a hover). */
+  .links a[aria-current='page'] {
+    background-image: linear-gradient(var(--action-bg), var(--action-bg));
+    background-size: 100% var(--stroke-ink);
+  }
+  .index {
+    display: none;
+  }
+  .links a:focus-visible,
+  .toggle:focus-visible {
+    outline: none;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+  }
+  .toggle {
+    display: none;
+  }
+
+  /* Phone: a burger, and a full-screen sheet for the links. */
+  @media (max-width: 760px) {
+    .toggle {
+      position: relative;
+      z-index: 21;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border: var(--stroke-ink) solid transparent;
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--fg-default);
+      cursor: pointer;
+      transition: border-color var(--motion-duration-fast) var(--motion-ease-standard);
+    }
+    .toggle:hover,
+    .toggle:focus-visible {
+      border-color: var(--border-strong);
+    }
+    .burger {
+      position: relative;
+      display: block;
+      width: 20px;
+      height: 14px;
+    }
+    .burger span {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: var(--stroke-ink);
+      border-radius: var(--radius-full);
+      background: currentColor;
+      transition:
+        transform var(--motion-duration-slow) var(--motion-ease-standard),
+        opacity var(--motion-duration-base) var(--motion-ease-standard);
+    }
+    .burger span:nth-child(1) {
+      top: 0;
+    }
+    .burger span:nth-child(2) {
+      top: calc(50% - var(--stroke-ink) / 2);
+    }
+    .burger span:nth-child(3) {
+      bottom: 0;
+    }
+    [data-open] .burger span:nth-child(1) {
+      transform: translateY(6px) rotate(45deg);
+    }
+    [data-open] .burger span:nth-child(2) {
+      opacity: 0;
+    }
+    [data-open] .burger span:nth-child(3) {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+
+    /* The sheet: closed it is wiped up and out of reach (visibility after the wipe). */
+    .panel {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding: calc(var(--space-16) + var(--space-8)) var(--space-4) var(--space-8);
+      overflow-y: auto;
+      background-color: var(--bg-canvas);
+      clip-path: inset(0 0 100% 0);
+      visibility: hidden;
+      transition:
+        clip-path var(--motion-duration-base) var(--motion-ease-exit),
+        visibility var(--motion-duration-instant) var(--motion-duration-base);
+    }
+    [data-open] .panel {
+      clip-path: inset(0 0 0 0);
+      visibility: visible;
+      transition:
+        clip-path var(--motion-duration-slow) var(--motion-ease-enter),
+        visibility var(--motion-duration-instant);
+    }
+    /* A redline drawn across the sheet, under the header. */
+    .panel::before {
+      content: '';
+      position: absolute;
+      left: var(--space-4);
+      right: var(--space-4);
+      top: calc(var(--space-16) + var(--space-2));
+      border-top: var(--stroke-redline) solid var(--signal-bg);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform var(--motion-duration-fast) var(--motion-ease-exit);
+    }
+    [data-open] .panel::before {
+      transform: scaleX(1);
+      transition: transform var(--motion-duration-slow) var(--motion-ease-enter) var(--motion-duration-fast);
+    }
+
+    .links {
+      flex-direction: column;
+      flex-wrap: nowrap;
+      gap: 0;
+    }
+    .links li,
+    .extra {
+      opacity: 0;
+      transform: translateY(var(--space-2));
+      transition: opacity var(--motion-duration-fast) var(--motion-ease-exit);
+    }
+    [data-open] .links li,
+    [data-open] .extra {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity var(--motion-duration-base) var(--motion-ease-enter) calc(var(--motion-duration-fast) + var(--i) * var(--motion-stagger)),
+        transform var(--motion-duration-slow) var(--motion-ease-enter) calc(var(--motion-duration-fast) + var(--i) * var(--motion-stagger));
+    }
+    .links li {
+      border-bottom: var(--stroke-hairline) solid var(--border-default);
+    }
+    .links a {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-3);
+      min-height: var(--space-16);
+      padding: var(--space-4) 0;
+      font-size: calc(var(--type-heading-size) * 1px);
+      font-weight: var(--type-heading-weight);
+      font-stretch: 85%;
+      line-height: var(--type-heading-line-height);
+      letter-spacing: -0.02em;
+      background-image: none;
+    }
+    .index {
+      display: inline;
+      font-family: var(--font-mono);
+      font-size: calc(var(--type-meta-size) * 1px);
+      font-weight: var(--type-meta-weight);
+      font-stretch: 100%;
+      letter-spacing: 0;
+      color: var(--action-bg);
+    }
+    /* Hover and focus: the label gets its redline. */
+    .label {
+      background-image: linear-gradient(var(--signal-bg), var(--signal-bg));
+      background-size: 0 var(--stroke-redline);
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+      transition: background-size var(--motion-duration-base) var(--motion-ease-standard);
+    }
+    .links a:hover .label,
+    .links a:focus-visible .label {
+      background-size: 100% var(--stroke-redline);
+    }
+    .links a[aria-current='page'] {
+      background-image: none;
+    }
+    .links a[aria-current='page'] .label {
+      background-image: linear-gradient(var(--action-bg), var(--action-bg));
+      background-size: 100% var(--stroke-ink);
+    }
+    .extra {
+      margin-top: auto;
+      padding-top: var(--space-8);
+    }
+  }
+
+  /* No scrolling behind the open full-screen menu. */
+  :global(html[data-dta-nav-open]) {
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel,
+    .panel::before,
+    .links li,
+    .extra,
+    .burger span,
+    .links a,
+    .label {
+      transition: none !important;
+    }
+  }
+</style>

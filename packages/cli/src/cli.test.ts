@@ -1,0 +1,156 @@
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { COMMAND_NAMES, runCli } from './index.js'
+
+let dir: string
+
+beforeEach(() => {
+  dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'dta-cli-run-')))
+})
+
+afterEach(() => {
+  fs.rmSync(dir, { recursive: true, force: true })
+})
+
+async function run(args: string[]) {
+  let stdout = ''
+  let stderr = ''
+  const exitCode = await runCli(args, {
+    cwd: dir,
+    stdout: (text) => (stdout += text),
+    stderr: (text) => (stderr += text),
+  })
+  return { exitCode, stdout, stderr }
+}
+
+function writeConfig(config: unknown = {}, name = 'dta.config.json'): void {
+  fs.writeFileSync(path.join(dir, name), JSON.stringify(config))
+}
+
+describe('help and usage', () => {
+  it('lists every command', async () => {
+    const { exitCode, stdout } = await run(['--help'])
+    expect(exitCode).toBe(0)
+    for (const name of COMMAND_NAMES) expect(stdout).toContain(name.split(' ')[0])
+  })
+
+  it('offers the v1 commands plus diff, the token queries, the skill, the context, the audit, brief and prune', () => {
+    expect([...COMMAND_NAMES].sort()).toEqual(
+      [
+        'analyze',
+        'audit',
+        'brief',
+        'build',
+        'clean',
+        'context',
+        'diff',
+        'graph',
+        'init',
+        'lint',
+        'prune',
+        'pull',
+        'push',
+        'skill add',
+        'token find',
+        'token get',
+        'token list',
+      ].sort(),
+    )
+  })
+
+  it('lists the token subcommands under dta token', async () => {
+    const { exitCode, stdout } = await run(['token', '--help'])
+    expect(exitCode).toBe(0)
+    for (const name of ['get', 'find', 'list']) expect(stdout).toContain(name)
+  })
+
+  it('shows usage and fails when no command is given', async () => {
+    const { exitCode, stderr } = await run([])
+    expect(exitCode).toBe(1)
+    expect(stderr).toContain('Usage:')
+  })
+
+  it('fails on an unknown command and names it', async () => {
+    const { exitCode, stderr } = await run(['frobnicate'])
+    expect(exitCode).toBe(1)
+    expect(stderr).toContain('frobnicate')
+  })
+
+  it('documents the options of a command', async () => {
+    const { stdout } = await run(['graph', '--help'])
+    expect(stdout).toContain('--format')
+    expect(stdout).toContain('--output')
+    expect(stdout).toContain('--config')
+  })
+})
+
+describe('--version', () => {
+  it('prints the version of package.json', async () => {
+    const { exitCode, stdout } = await run(['--version'])
+    const { version } = JSON.parse(
+      fs.readFileSync(new URL('../../../package.json', import.meta.url), 'utf8'),
+    )
+    expect(exitCode).toBe(0)
+    expect(stdout.trim()).toBe(version)
+  })
+})
+
+describe('removed commands', () => {
+  it('no longer knows test:visual (dta diff replaces it)', async () => {
+    const { exitCode, stderr } = await run(['test:visual'])
+    expect(exitCode).toBe(1)
+    expect(stderr).toContain('test:visual')
+  })
+})
+
+describe('config handling', () => {
+  it('fails with code 1 and explains how to fix a missing config', async () => {
+    const { exitCode, stderr } = await run(['build'])
+    expect(exitCode).toBe(1)
+    expect(stderr).toContain('No config file found')
+    expect(stderr).toContain('--config')
+  })
+
+  it('fails with code 2 when a v1 config still has outputs.docs', async () => {
+    writeConfig({ outputs: { docs: { outDir: 'output/docs' } } })
+    const { exitCode, stderr } = await run(['build'])
+    expect(exitCode).toBe(2)
+    expect(stderr).toContain('outputs.docs')
+    expect(stderr).toContain('removed in v2')
+  })
+
+  it('fails with code 2 when a config still has outputs.css.prefix', async () => {
+    writeConfig({ outputs: { css: { outDir: 'output/css', prefix: '--' } } })
+    const { exitCode, stderr } = await run(['build'])
+    expect(exitCode).toBe(2)
+    expect(stderr).toContain('outputs.css.prefix: was removed')
+    expect(stderr).toContain('Delete this line')
+  })
+
+  it('fails with code 2 when a config still has outputs.tailwind.version', async () => {
+    writeConfig({ outputs: { tailwind: { outDir: 'output/tailwind', version: 4 } } })
+    const { exitCode, stderr } = await run(['build'])
+    expect(exitCode).toBe(2)
+    expect(stderr).toContain('outputs.tailwind.version: was removed')
+    expect(stderr).toContain('`outputs.formats` chooses the Tailwind versions')
+    expect(stderr).toContain('Delete this line')
+  })
+
+  it('fails with code 2 and names each invalid field', async () => {
+    writeConfig({ outputs: { css: { outDir: 1 } }, brands: 'A' })
+    const { exitCode, stderr } = await run(['lint'])
+    expect(exitCode).toBe(2)
+    expect(stderr).toContain('Invalid configuration')
+    expect(stderr).toContain('outputs.css.outDir')
+    expect(stderr).toContain('brands')
+  })
+
+  it('uses the file given with --config', async () => {
+    writeConfig({ brands: 5 }, 'dta.config.json')
+    fs.writeFileSync(path.join(dir, 'other.json'), '{}')
+    const { exitCode } = await run(['clean', '--config', 'other.json'])
+    expect(exitCode).toBe(0)
+  })
+})

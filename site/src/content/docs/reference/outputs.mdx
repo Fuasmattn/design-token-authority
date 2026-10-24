@@ -1,0 +1,252 @@
+---
+title: Outputs
+description: Every file dta build writes, where, and what is in it.
+sidebar:
+  order: 4
+---
+
+`dta build` writes into `output/` by default; `outputs.css.outDir` and `outputs.tailwind.outDir` move the CSS and Tailwind files. The [native outputs](#native-outputs) for iOS and Android are written when `outputs.formats` lists them. The list below is from a build of the `brand-ab` fixture (`brands: ['BrandA', 'BrandB']`). To see them for your own token files without an install, open the [playground](/playground/)'s Outputs view: it builds the same files in your browser.
+
+| File                                         | Content                                                                                     |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `output/css/variables.css`                   | Single-mode collections as custom properties on `:root`; aliases stay `var()` references    |
+| `output/css/base.css`                        | The same properties with resolved values                                                    |
+| `output/css/themes/<brand>.css`              | One brand's tokens on `[data-brand="<brand>"]` (lower-cased), as `var()` references         |
+| `output/js/colorpalette.js`                  | ES module exports with resolved values: `export const ColorsFoundationBlue500 = "#0057b8";` |
+| `output/tailwind/tailwind.css`               | Tailwind v4 `@theme` block for the single-mode collections                                  |
+| `output/tailwind/<brand>/tailwind.css`       | Tailwind v4 `@theme` block for one brand, resolved                                          |
+| `output/tailwind/tailwind.tokens.ts`         | Tailwind v3 `theme.extend` object (`export const tokens`)                                   |
+| `output/tailwind/<brand>/tailwind.tokens.ts` | The same for one brand, resolved                                                            |
+
+With `breakpoints` configured, `variables.css` and `tailwind.css` also hold the breakpoint collection: see [Breakpoint modes](#breakpoint-modes).
+
+## Breakpoint modes
+
+A collection whose modes are screen sizes (`ScreenType` with `Mobile`, `Tablet` and `Desktop`) is written to `variables.css` when the config names it in `breakpoints`: the `default` mode on `:root`, every other mode inside its media query, in the order of `modes`. Aliases stay `var()` references. Without the section such a collection is only read to resolve aliases.
+
+```ts title="dta.config.ts (brand-ab fixture)"
+export default {
+  brands: ['BrandA', 'BrandB'],
+  breakpoints: {
+    collection: 'ScreenType',
+    default: 'Mobile',
+    modes: { Tablet: '(min-width: 768px)', Desktop: '(min-width: 1024px)' },
+  },
+}
+```
+
+```css title="output/css/variables.css (after the :root block of the primitives)"
+/* ScreenType · Mobile (default) */
+:root {
+  --typography-body-size: var(--typography-fontsize-sm);
+  --typography-heading-size: var(--typography-fontsize-lg);
+  --spacing-gap: var(--dimensions-spacing-2);
+  --spacing-padding: var(--dimensions-spacing-2);
+  --radius-card: var(--dimensions-radius-sm);
+}
+
+/* ScreenType · Tablet */
+@media (min-width: 768px) {
+  :root {
+    --typography-body-size: var(--typography-fontsize-md);
+    --typography-heading-size: var(--typography-fontsize-lg);
+    --spacing-gap: var(--dimensions-spacing-2);
+    --spacing-padding: var(--dimensions-spacing-4);
+    --radius-card: var(--dimensions-radius-md);
+  }
+}
+
+/* ScreenType · Desktop */
+@media (min-width: 1024px) {
+  :root {
+    …
+  }
+}
+```
+
+- **Mobile-first or desktop-first is yours.** DTA writes the queries as you give them and does not sort them. With `min-width` queries the default is the smallest screen and the queries go from small to large; with `max-width` queries the default is the largest screen and the queries go from large to small. Where several queries match, the later block wins, as anywhere in CSS.
+- **Media queries only.** A value in `modes` is what follows `@media`; a selector (`[data-screen="tablet"]`) is rejected. Every mode of the collection except the default needs a query: a mode without one is left out with a warning.
+- **Tokens that alias brand tokens** in some breakpoint are written again in every `themes/<brand>.css`, once per breakpoint and inside the same media queries, so a nested `data-brand` element gets its own brand at every width ([Brands and themes](/guides/brands-and-themes/#breakpoint-tokens-and-brands)).
+- **Tailwind v4:** `tailwind.css` gets an `@theme inline` block whose theme variables read the switching custom properties, so `p-spacing-gap` follows the media queries. A single-mode token that aliases a breakpoint token moves to that block too.
+
+  ```css title="output/tailwind/tailwind.css (end)"
+  /* ScreenType: theme variables that switch with the media queries of variables.css */
+  @theme inline {
+    --font-size-typography-body-size: var(--typography-body-size);
+    --font-size-typography-heading-size: var(--typography-heading-size);
+    --spacing-spacing-gap: var(--spacing-gap);
+    --spacing-spacing-padding: var(--spacing-padding);
+    --radius-radius-card: var(--radius-card);
+  }
+  ```
+
+- **Resolved files hold no breakpoints.** `base.css`, the JS palette and the Tailwind v3 object have no media queries: breakpoint tokens are not in them, and a single-mode token that aliases one is resolved through the `default` mode (without `breakpoints`, through the first mode in alphabetical order, as before). The `<brand>/tailwind.*` files are unchanged.
+
+## Single-mode tokens that alias brand tokens
+
+A token of a single-mode collection whose alias chain reaches a brand token is written to `variables.css` on `:root` and again, with the same `var()` reference, to every `themes/<brand>.css`, so a nested `data-brand` element resolves it to its own brand ([Brands and themes](/guides/brands-and-themes/#tokens-that-alias-brand-tokens)). The `<brand>/tailwind.*` files hold the brand collections' tokens only.
+
+`base.css` has no brands: it resolves such a token through the first mode, in alphabetical order, of each multi-mode collection (`BrandA` of `BrandA` and `BrandB`). For the `multi-brand` example with a `Component` tier, `--button-background: var(--action-background)` becomes `--button-background: #1f5fd1;`, BrandA's blue.
+
+## When the build fails
+
+An alias that points at a token that does not exist, or aliases that point at each other in a circle, have no value to write: in CSS they would become `var()` references to themselves or a literal `{Colors.…}`, which the files would show and the browser would drop. So `dta build` treats them as errors, the same ones `dta lint` reports (`no-dangling-aliases`, `no-circular-aliases`): it prints them, writes **no file** and exits with 1. A folder from an earlier build is left as it was, never partly rebuilt. See [Lint rules](/reference/lint-rules/#broken-aliases-fail-the-build) for the output.
+
+## Choosing outputs
+
+By default `dta build` writes the four web outputs. `outputs.formats` lists the ones you want; the others are not written. The native outputs are written only when listed:
+
+```ts title="dta.config.ts"
+export default {
+  brands: ['BrandA', 'BrandB'],
+  outputs: {
+    formats: ['css', 'tailwind-v4'], // also: 'tailwind-v3', 'js', 'ios-swift', 'android-xml', 'android-compose'
+  },
+}
+```
+
+| Format            | Files                                                                            |
+| ----------------- | -------------------------------------------------------------------------------- |
+| `css`             | `variables.css`, `base.css`, `themes/<brand>.css`                                |
+| `tailwind-v4`     | `tailwind.css` and `<brand>/tailwind.css` in the Tailwind folder                 |
+| `tailwind-v3`     | `tailwind.tokens.ts` and `<brand>/tailwind.tokens.ts` in the Tailwind folder     |
+| `js`              | `output/js/colorpalette.js`                                                      |
+| `ios-swift`       | `DesignTokens.swift`, `BrandTokens+<Brand>.swift` in `output/ios`                |
+| `android-xml`     | `main/values/colors.xml`, `dimens.xml` and `<brand>/values/` in `output/android` |
+| `android-compose` | `compose/DesignTokens.kt` in `output/android`                                    |
+
+`dta init` writes this key from your answer to "Which formats should dta generate?", and the playground's output checkboxes write it into the `dta.config.ts` it generates.
+
+## Native outputs
+
+Swift for SwiftUI, Android resource XML and Kotlin for Jetpack Compose, from the same tokens (the design is in the [native outputs spec](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/specs/native-outputs.md)). They are written from the resolved values: native code has no `var()`, so the alias chain is kept as a comment. `outputs.ios.outDir` and `outputs.android.outDir` move them; `outputs.android.package` sets the Kotlin package (default `designtokens`).
+
+```ts title="dta.config.ts"
+export default {
+  brands: ['BrandA', 'BrandB'],
+  outputs: {
+    formats: ['css', 'ios-swift', 'android-xml', 'android-compose'],
+    android: { package: 'com.example.tokens' },
+  },
+}
+```
+
+**Brands are themes.** A token whose alias chain goes through a brand collection (one that has the brands as modes, `Brand(Alias)` in `brand-ab`) is a brand token, written once per brand; every other token is shared. This depends on where a token lives, not on its values, so a token does not move between the files when a value changes. On a build of `brand-ab`:
+
+```swift title="output/ios/DesignTokens.swift (excerpt)"
+public enum DesignTokens {
+    public enum Colors {
+        /// Colors.Foundation.Blue.500
+        public static let foundationBlue500: SwiftUI.Color = SwiftUI.Color(.sRGB, red: 0, green: 0.3412, blue: 0.7216, opacity: 1)
+        …
+public protocol BrandTheme {
+    var colorsBrandPrimary: SwiftUI.Color { get }
+    var colorsBrandPrimaryDark: SwiftUI.Color { get }
+    …
+    var effectsOverlayOpacity: Swift.Double { get }
+    var effectsShadowBlur: CoreGraphics.CGFloat { get }
+}
+```
+
+```swift title="output/ios/BrandTokens+BrandA.swift (excerpt)"
+public struct BrandA: BrandTheme {
+    public init() {}
+
+    /// Colors.Brand.Primary → Colors.Foundation.Blue.500
+    public let colorsBrandPrimary: SwiftUI.Color = SwiftUI.Color(.sRGB, red: 0, green: 0.3412, blue: 0.7216, opacity: 1)
+```
+
+The app picks one (`let theme: BrandTheme = BrandA()`, also through SwiftUI's environment). Types are written in full (`SwiftUI.Color`, `Swift.String`, `androidx.compose.ui.graphics.Color`), so a token group named `Color` or `String` cannot hide them. Compose has the same shape: `object DesignTokens` for the shared tokens, `interface BrandTheme` and one `object` per brand, to provide with a `CompositionLocal`:
+
+```kotlin title="output/android/compose/DesignTokens.kt (excerpt)"
+object DesignTokens {
+    object Colors {
+        /** Colors.Foundation.Blue.500 */
+        val FoundationBlue500: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color(0xFF0057B8)
+        …
+interface BrandTheme {
+    val ColorsBrandPrimary: androidx.compose.ui.graphics.Color
+    …
+    val EffectsShadowBlur: androidx.compose.ui.unit.Dp
+}
+
+/** The BrandA theme. */
+object BrandA : BrandTheme {
+    /** Colors.Brand.Primary → Colors.Foundation.Blue.500 */
+    override val ColorsBrandPrimary: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color(0xFF0057B8)
+```
+
+Android XML puts the shared resources in `main/values/` and each brand's in `<brand>/values/` (the brand in lower case, words joined with `_`: `Brand A` → `brand_a`): use them as product-flavour source sets (`sourceSets["branda"].res.srcDirs("…/branda")`). Every flavour defines the same brand resources, so code in `main` can use them.
+
+```xml title="output/android/branda/values/colors.xml (excerpt)"
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated by dta build; do not edit. -->
+<resources>
+    <!-- Colors.Brand.Primary → Colors.Foundation.Blue.500 -->
+    <color name="colors_brand_primary">#FF0057B8</color>
+    <!-- Colors.Brand.Primary Dark → Colors.Foundation.Blue.700 -->
+    <color name="colors_brand_primary_dark">#FF003F8A</color>
+    …
+</resources>
+```
+
+Resource XML holds colours and dimensions; the other tokens (numbers, strings, booleans, durations) are only in Swift and Compose, and the build says how many.
+
+**Breakpoints:** native apps have no media queries, so the native files use the default breakpoint (`breakpoints.default`) and say which modes they leave out:
+
+```text
+warning [native-breakpoints] The native outputs use the default breakpoint "Mobile" of "ScreenType"; "Desktop", "Tablet" are not in them (native apps have no media queries).
+```
+
+Other multi-mode collections no brand selects (a dark mode, say) are read in their default mode, with a note.
+
+| Token                                                                                             | Swift                                   | Android XML                | Compose                                                                       |
+| ------------------------------------------------------------------------------------------------- | --------------------------------------- | -------------------------- | ----------------------------------------------------------------------------- |
+| `color` (other colour spaces converted to sRGB)                                                   | `Color(.sRGB, red:green:blue:opacity:)` | `<color>#AARRGGBB</color>` | `Color(0xAARRGGBB)`                                                           |
+| length: `dimension` (px; rem × 16) or a `number` whose scopes or name say spacing, radius, size … | `CGFloat`                               | `<dimen>16dp</dimen>`      | `16.dp`                                                                       |
+| font size (scope `FONT_SIZE`, or a name with font size / text size)                               | `CGFloat`                               | `<dimen>16sp</dimen>`      | `16.sp`                                                                       |
+| opacity (scope `OPACITY`: `50` → `0.5`, as in the CSS), line height, other `number`, `fontWeight` | `Double`                                | not written                | `Int` or `Double` (a brand member fractional in one brand is `Double` in all) |
+| `string`, `fontFamily`                                                                            | `String`                                | not written                | `String`                                                                      |
+| `boolean`                                                                                         | `Bool`                                  | not written                | `Boolean`                                                                     |
+| `duration`                                                                                        | `TimeInterval` (seconds)                | not written                | `Long` (ms)                                                                   |
+
+**Names:** the first segment of the path is the group, the rest the name: `DesignTokens.Colors.foundationBlue500` (Swift), `DesignTokens.Colors.FoundationBlue500` (Compose), `colors_foundation_blue_500` (XML); brand tokens are named from the whole path (`colorsBrandPrimary`). Letters of any script stay in Swift and Kotlin (`grün`); XML folds them to ASCII (`grun`). A name that starts with a digit gets `_` (`_700`), a Swift keyword gets backticks. Two tokens that end up with the same name are a warning that names both; the second is left out.
+
+**Never silently:** composite types, values without a native form (`50%`, `1em`), tokens that do not resolve in every brand and colours outside sRGB (written clipped) are each counted in a warning.
+
+Composite types (`shadow`, `typography`, `border`, `gradient`, `transition`, `cubicBezier`, `strokeStyle`) are not in the native files yet. The playground builds the web outputs only; the native files come from `dta build`.
+
+## Names and values
+
+- **Names** are the token path in kebab case: `Colors.Foundation.Blue.500` → `--colors-foundation-blue-500`. Repeated neighbouring words are collapsed (`Colors/Colors Brand/Primary` → `--colors-brand-primary`).
+- **Numbers** become `px` when the Figma scopes say they are lengths (gap, width and height, corner radius, stroke, effects), decimals when the scope is opacity (`50` → `0.5`), and stay plain otherwise (line heights, font weights).
+- **Descriptions** become comments next to the property.
+
+### DTCG 2025.10 types
+
+| Type                                           | CSS                                                                                                                                |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `color`                                        | sRGB (also `hsl`, `hwb`) as hex or `rgba()`; other colour spaces as written: `oklch(0.7 0.15 250)`, `color(display-p3 1 0.2 0)`    |
+| `dimension`, `duration`                        | with their unit: `16px`, `1rem`; durations in seconds: `0.15s`                                                                     |
+| `fontFamily`, `fontWeight`                     | a font stack: `'Helvetica Neue', Arial`; weights as numbers (`semi-bold` → `600`)                                                  |
+| `cubicBezier`                                  | `cubic-bezier(0.5, 0, 1, 1)`                                                                                                       |
+| `shadow`, `border`, `transition`, `typography` | the CSS shorthand (`box-shadow`, `border`, `transition`, `font`); in `variables.css` each part that is a reference stays a `var()` |
+| `gradient`                                     | the colour stops, `var(--color-sky) 0%, var(--color-grass) 100%`: use it as `linear-gradient(to right, var(--gradient-brand))`     |
+| `strokeStyle`                                  | the keyword (`dashed`); a dash pattern becomes `dashed`, since CSS borders have no dash lengths                                    |
+
+A `$root` token is named after its group plus `root` (`color.accent.$root` → `--color-accent-root`). A token that points into another token's value with `$ref` is written resolved. The JS output holds the same text as `base.css`, colours as hex. Tailwind gets theme keys for `fontFamily`, `fontWeight`, `shadow` and `cubicBezier`, and for a `dimension` by the words in its name (`radius`, `spacing`, `gap`, `font-size`, `blur`, `breakpoint`).
+
+```css title="output/css/variables.css (excerpt)"
+:root {
+  --colors-foundation-blue-500: #0057b8;
+  --colors-foundation-blue-700: #003f8a; /** Deep blue */
+  …
+}
+```
+
+## Not built yet
+
+- Breakpoint modes switch by media query only; a mode cannot be mapped to a selector, and container queries are not written.
+- Native outputs: composite types, light and dark (resolver modifiers) as native themes, size classes, `values-night` and asset catalogs are not written. `outputs.ios.lang` and `outputs.android.lang` were removed (`outputs.formats` chooses the native outputs); a config that still sets them fails with a message to delete the line.
+- There is no Tailwind version option: `outputs.formats` chooses `tailwind-v4`, `tailwind-v3` or both. `outputs.tailwind.version` was removed because it never had an effect; a config that still sets it fails with a message to delete the line.
+- There is no prefix option: CSS variable names always start with `--` followed by the token path. `outputs.css.prefix` was removed because it never had an effect; a config that still sets it fails with a message to delete the line.

@@ -1,0 +1,36 @@
+---
+title: Token patterns
+description: Common ways to structure tokens, how they look in DTA, and where large design systems describe them.
+sidebar:
+  order: 2
+---
+
+Each pattern below links to a small example project in the repository. A test runs `dta lint` and `dta build` on each one, so the examples stay correct as DTA changes. Open a folder to see the token files and config.
+
+| Pattern                  | The idea                                                                                                                                                          | In DTA                                                                                  | Example                                                                                                                         |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **Tiers**                | Primitives hold raw values; semantic tokens name roles (`action.background`); component tokens name parts (`button.background`). Each tier aliases the one below. | One collection per tier; `semantic-must-alias` keeps the upper tiers free of raw values | [`tiers`](https://github.com/Fuasmattn/design-token-authority/tree/main/site/learn-examples/tiers/)                             |
+| **Multiple brands**      | One shared palette; the semantic tier has the same names in every brand, with different aliases.                                                                  | A mode per brand, listed in `brands`; one `themes/<brand>.css` each                     | [`multi-brand`](https://github.com/Fuasmattn/design-token-authority/tree/main/site/learn-examples/multi-brand/)                 |
+| **Light and dark**       | The same mechanism, with role names for surfaces and text.                                                                                                        | Modes `Light` and `Dark`, listed in `brands`                                            | [`themes`](https://github.com/Fuasmattn/design-token-authority/tree/main/site/learn-examples/themes/)                           |
+| **Breakpoint overrides** | Sizes that change with the screen.                                                                                                                                | A mode per breakpoint; read, linted and diffed, but not built yet (TICKET-091)          | [`responsive`](https://github.com/Fuasmattn/design-token-authority/tree/main/site/learn-examples/responsive/)                   |
+| **Component overrides**  | One brand changes one component without touching the semantic tier.                                                                                               | A component collection with the brand modes; the brand points one token elsewhere       | [`component-overrides`](https://github.com/Fuasmattn/design-token-authority/tree/main/site/learn-examples/component-overrides/) |
+
+Brands and themes together (brand × theme) need one mode per combination for now; see [Brands and themes](/guides/brands-and-themes/).
+
+:::note[A component tier with several brands]
+A component tier with one mode works with brands: its tokens that alias brand tokens are repeated in each theme file, so a nested `data-brand` section changes them too ([Brands and themes](/guides/brands-and-themes/#tokens-that-alias-brand-tokens)). Give the component tier the brand modes when a brand should point a component token somewhere else, as in the `component-overrides` example.
+:::
+
+## How large design systems do it
+
+The tier names differ, but the structure is the same. Their own documentation is the source for the details:
+
+| System               | Tiers, from raw values up                           | Source                                                                                                                                          |
+| -------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Material Design 3    | reference → system → component                      | [Material Web: theming](https://material-web.dev/theming/material-theming/)                                                                     |
+| GitHub Primer        | base → functional → component/pattern               | [Primer: token names](https://primer.style/product/primitives/token-names/), [color](https://primer.style/foundations/color/overview)           |
+| Adobe Spectrum       | primitive (global) → semantic → component-specific  | [Spectrum: design tokens](https://spectrum.adobe.com/page/design-tokens)                                                                        |
+| Atlassian            | palette → tokens named foundation.property.modifier | [Atlassian: design tokens](https://atlassian.design/foundations/tokens/design-tokens/), [color](https://www.atlassian.design/foundations/color) |
+| Salesforce Lightning | global styling hooks → component styling hooks      | [Salesforce: styling hooks](https://developer.salesforce.com/docs/platform/lwc/guide/create-components-css-custom-properties)                   |
+
+What they share: code uses the decision tier, not raw values, and themes change the decision tier while the palette stays the same.

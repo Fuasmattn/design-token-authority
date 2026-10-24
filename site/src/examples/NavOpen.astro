@@ -1,0 +1,37 @@
+---
+import Nav from '../components/ds/Nav.astro'
+import ThemeSwitch from '../components/ds/ThemeSwitch.astro'
+
+interface Props {
+  idPrefix: string
+}
+const { idPrefix } = Astro.props
+const links = [
+  { href: '#how', label: 'How it works' },
+  { href: '#review', label: 'Review' },
+  { href: '#use', label: 'Use cases' },
+  { href: '/start/', label: 'Docs', current: true },
+]
+---
+
+<div class="frame">
+  <Nav links={links} idPrefix={idPrefix} open>
+    <ThemeSwitch />
+  </Nav>
+</div>
+
+<style>
+  /*
+   * A transform makes the frame the containing block of the fixed full-screen sheet, so the
+   * story shows the open menu inside this frame instead of over the whole page.
+   */
+  .frame {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    min-height: 640px;
+    padding: var(--space-4);
+    overflow: hidden;
+    transform: translateZ(0);
+  }
+</style>

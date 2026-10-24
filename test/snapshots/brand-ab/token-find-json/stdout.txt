@@ -1,0 +1,91 @@
+{
+  "schema": "dta.token/1",
+  "kind": "matches",
+  "query": "16",
+  "matches": [
+    {
+      "name": "Dimensions.spacing.4",
+      "type": "number",
+      "collection": "Primitives",
+      "modes": {},
+      "value": 16,
+      "depth": 0,
+      "code": {
+        "css": "--dimensions-spacing-4",
+        "tailwind": "--spacing-4"
+      }
+    },
+    {
+      "name": "Typography.FontSize.md",
+      "type": "number",
+      "collection": "Primitives",
+      "modes": {},
+      "value": 16,
+      "depth": 0,
+      "code": {
+        "css": "--typography-fontsize-md",
+        "tailwind": "--font-size-typography-fontsize-md"
+      }
+    },
+    {
+      "name": "Spacing.Gap",
+      "type": "number",
+      "collection": "ScreenType",
+      "modes": {
+        "ScreenType": "Desktop"
+      },
+      "value": 16,
+      "depth": 1,
+      "breakpoint": "other",
+      "code": {
+        "css": "--spacing-gap",
+        "tailwind": "--spacing-spacing-gap"
+      }
+    },
+    {
+      "name": "Spacing.Padding",
+      "type": "number",
+      "collection": "ScreenType",
+      "modes": {
+        "ScreenType": "Tablet"
+      },
+      "value": 16,
+      "depth": 1,
+      "breakpoint": "other",
+      "code": {
+        "css": "--spacing-padding",
+        "tailwind": "--spacing-spacing-padding"
+      }
+    },
+    {
+      "name": "Typography.Body.Size",
+      "type": "number",
+      "collection": "ScreenType",
+      "modes": {
+        "ScreenType": "Desktop"
+      },
+      "value": 16,
+      "depth": 1,
+      "breakpoint": "other",
+      "code": {
+        "css": "--typography-body-size",
+        "tailwind": "--font-size-typography-body-size"
+      }
+    },
+    {
+      "name": "Typography.Body.Size",
+      "type": "number",
+      "collection": "ScreenType",
+      "modes": {
+        "ScreenType": "Tablet"
+      },
+      "value": 16,
+      "depth": 1,
+      "breakpoint": "other",
+      "code": {
+        "css": "--typography-body-size",
+        "tailwind": "--font-size-typography-body-size"
+      }
+    }
+  ]
+}

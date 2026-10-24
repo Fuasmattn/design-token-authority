@@ -1,0 +1,144 @@
+{
+  "radius": {
+    "join": {
+      "fieds": {
+        "top-left": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{join-direction.fields.top-left}"
+        },
+        "top-right": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{join-direction.fields.top-right}"
+        },
+        "bot-right": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{join-direction.fields.bot-right}"
+        },
+        "bot-left": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{join-direction.fields.bot-left}"
+        }
+      },
+      "boxes": {
+        "top-left": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{join-direction.boxes.top-left}"
+        },
+        "top-right": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{join-direction.boxes.top-right}"
+        },
+        "bot-right": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{join-direction.boxes.bot-right}"
+        },
+        "bot-left": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{join-direction.boxes.bot-left}"
+        }
+      },
+      "selectors": {
+        "top-left": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{join-direction.selectors.top-left}"
+        },
+        "top-right": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{join-direction.selectors.top-right}"
+        },
+        "bot-right": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{join-direction.selectors.bot-right}"
+        },
+        "bot-left": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "CORNER_RADIUS"
+              ]
+            }
+          },
+          "$value": "{join-direction.selectors.bot-left}"
+        }
+      }
+    }
+  }
+}

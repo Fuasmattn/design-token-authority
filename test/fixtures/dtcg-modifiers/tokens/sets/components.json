@@ -1,0 +1,18 @@
+{
+  "button": {
+    "$type": "color",
+    "background": {
+      "$value": "{accent}"
+    },
+    "text": {
+      "$value": "{surface}"
+    },
+    "radius": {
+      "$type": "dimension",
+      "$value": "{control.radius}"
+    },
+    "focus": {
+      "$value": "{ring}"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "$type": "duration",
+  "instant": {
+    "$value": {
+      "value": 0,
+      "unit": "ms"
+    }
+  },
+  "modal": {
+    "$value": {
+      "$ref": "#/instant/$value"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@dta/build",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Token model to CSS, JS and Tailwind output files for Design Token Authority",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=24.14.1"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@dta/core": "workspace:*",
+    "style-dictionary": "^5.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.2",
+    "typescript": "^5.1.6",
+    "vitest": "^4.1.2"
+  }
+}

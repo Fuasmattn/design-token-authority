@@ -1,0 +1,40 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-ink: rgba(0, 0, 0, 0.5);
+  --color-sky: oklch(0.7 0.15 250);
+  --color-grass: #248f24;
+  --color-vivid: color(display-p3 1 0.2 0);
+  --color-accent-root: oklch(0.7 0.15 250);
+  --color-accent-soft: oklch(0.85 0.07 250);
+  --spacing-s: 4px;
+  --spacing-m: 1rem;
+  --spacing-l: 24px;
+  --radius-card: 8px;
+  --motion-fast: 0.15s;
+  --motion-slow: 0.4s;
+  --motion-ease: cubic-bezier(0.5, 0, 1, 1);
+  --font-body: 'Helvetica Neue', Arial, sans-serif;
+  --font-regular: 400;
+  --font-strong: 650;
+  --font-line: 1.5;
+  --shadow-card: 0px 4px 1rem 0px rgba(0, 0, 0, 0.5);
+  --shadow-stack: 0px 1px 2px 0px rgba(0, 0, 0, 0.5), inset 0px 8px 16px -4px #00000033;
+  --border-focus: 2px solid oklch(0.7 0.15 250);
+  --border-dashed: 1px dashed rgba(0, 0, 0, 0.5);
+  --transition-enter: 0.15s cubic-bezier(0.5, 0, 1, 1) 0ms;
+  --gradient-brand: oklch(0.7 0.15 250) 0%, #248f24 100%;
+  --typography-body: 400 1rem/1.5 'Helvetica Neue', Arial, sans-serif;
+  --legacy-gap: 1rem;
+  --sky-lightness: 0.7;
+  --button-background: oklch(0.7 0.15 250);
+  --button-text: #ffffff;
+  --button-danger-background: #cc1a1a;
+  --button-danger-text: #ffffff;
+  --instant: 0s;
+  --modal: 0s;
+}

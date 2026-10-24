@@ -1,0 +1,31 @@
+{
+  "navbar": {
+    "padding": {
+      "$type": "number",
+      "$extensions": {
+        "com.figma": {
+          "scopes": []
+        }
+      },
+      "$value": "{tailwind.spacing.2 (8)}"
+    },
+    "bg": {
+      "$type": "color",
+      "$extensions": {
+        "com.figma": {
+          "scopes": []
+        }
+      },
+      "$value": "{main.color.base.100}"
+    },
+    "min-height": {
+      "$type": "number",
+      "$extensions": {
+        "com.figma": {
+          "scopes": []
+        }
+      },
+      "$value": "{tailwind.spacing.16 (64)}"
+    }
+  }
+}

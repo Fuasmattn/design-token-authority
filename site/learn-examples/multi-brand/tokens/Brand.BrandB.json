@@ -1,0 +1,8 @@
+{
+  "action": {
+    "background": { "$type": "color", "$value": "{color.green.600}" },
+    "foreground": { "$type": "color", "$value": "{color.neutral.0}" }
+  },
+  "shape": { "control": { "$type": "number", "$value": "{radius.999}" } },
+  "type": { "heading": { "$type": "string", "$value": "{font.serif}" } }
+}

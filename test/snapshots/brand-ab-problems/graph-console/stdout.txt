@@ -1,0 +1,48 @@
+T   ⮕  dta graph 
+|
+o  Graph built
+|
+|  Tokens: 63 | Aliases: 37 (59%) | Max depth: 2 | Issues: 2
+
+Token Dependency Graph
+──────────────────────────────────────────────────
+
+  Total tokens:       63
+  Alias tokens:       37  (59%)
+  Max chain depth:    2
+  Circular refs:      1
+  Dangling aliases:   1  ⚠
+  Orphaned tokens:    4  ℹ
+
+  Tokens by file:
+    Brand(Alias).BrandA: 11
+    Brand(Alias).BrandB: 11
+    Primitives.Mode 1: 26
+    ScreenType.Desktop: 5
+    ScreenType.Mobile: 5
+    ScreenType.Tablet: 5
+
+  Tokens by type:
+    color: 25
+    string: 4
+    number: 34
+
+⚠ Dangling aliases:
+  Brand(Alias).BrandB > Colors/Brand/Accent
+    → {Colors.Foundation.Sky.550} — not found in any token file
+
+⚠ Circular references:
+  Brand(Alias).BrandA/Colors/Surface/Muted → Brand(Alias).BrandA/Colors/Text/Muted → Brand(Alias).BrandA/Colors/Surface/Muted
+
+ℹ Orphaned tokens (4 raw values never referenced by any alias):
+  Primitives.Mode 1/Dimensions/spacing/1
+  Primitives.Mode 1/Dimensions/radius/pill
+  Primitives.Mode 1/Effects/opacity/80
+  Primitives.Mode 1/Effects/blur/sm
+|
+!  1 dangling alias(es) found — these reference tokens that don't exist
+|
+x  1 circular reference(s) detected — these will cause infinite loops during resolution
+|
+—  Done!
+

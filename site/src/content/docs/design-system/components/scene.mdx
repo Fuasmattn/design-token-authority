@@ -1,0 +1,26 @@
+---
+title: Scene
+description: One scene of the landing page's story, with its example beside the copy.
+sidebar:
+  order: 10
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+One scene of the landing page's story: a numbered kicker, a heading, one paragraph, the command as a [command button](/design-system/components/command-button/) and the example in a slot. The example sits on the surface itself: no border, no card chrome.
+
+<Examples component="scene" />
+
+## Guidelines
+
+- The kicker is `number · title` in mono weight 500 and `action-text` (AAA on the canvas in both themes).
+- One heading, one paragraph (`fg-muted`, 44 characters wide at most), one command. Nothing numbered beyond the kicker.
+- The example takes the right column by default (`example="right"`); scenes alternate with `example="left"`. On phones the copy comes first and the example stacks under it.
+- Scenes are `space-36` apart on desktop; the page, not the scene, sets that.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="Scene" />

@@ -1,0 +1,225 @@
+---
+/**
+ * The status colours (TICKET-120) per theme, read from site/tokens through @dta/core: for each
+ * status its text, marker and subtle tokens, the value per theme, and the lowest contrast on the
+ * four grounds it is used on (bg-canvas, bg-surface, bg-subtle, its own subtle), computed here
+ * from the same files `dta build` builds. Swatches use the built CSS variables.
+ */
+import { contrastRatio, parseColor } from '@dta/core'
+import { semanticColors, THEMES, type Theme } from '../../lib/design-tokens'
+
+const STATUSES = [
+  { name: 'success', word: 'passed', marker: 'dot' },
+  { name: 'warning', word: '2 warnings', marker: 'ring' },
+  { name: 'error', word: '3 errors', marker: 'square' },
+] as const
+const ROLES = ['text', 'marker', 'subtle'] as const
+const GROUNDS = ['bg-canvas', 'bg-surface', 'bg-subtle'] as const
+
+const colors = new Map(semanticColors().map((color) => [color.name, color]))
+const valueOf = (name: string, theme: Theme) => {
+  const color = colors.get(name)
+  if (!color) throw new Error(`No semantic colour ${name}`)
+  return color.themes[theme]
+}
+const rgb = (value: string) => {
+  const parsed = parseColor(value)
+  if (!parsed.ok) throw new Error(`Not a colour: ${value}`)
+  return parsed.color
+}
+/** The lowest ratio of a status colour on the grounds it is used on, and which ground. */
+function lowest(status: string, role: 'text' | 'marker', theme: Theme) {
+  const fg = rgb(valueOf(`status-${status}-${role}`, theme).value)
+  return [...GROUNDS, `status-${status}-subtle`]
+    .map((ground) => ({
+      ground,
+      ratio: contrastRatio(fg, rgb(valueOf(ground, theme).value)),
+    }))
+    .sort((a, b) => a.ratio - b.ratio)[0]
+}
+const brand = (theme: string) => theme.toLowerCase()
+---
+
+<div class="not-content pair">
+  {
+    THEMES.map((theme) => (
+      <section class="panel" data-brand={brand(theme)} aria-label={`${theme} theme`}>
+        <span class="theme">{theme}</span>
+        <ul class="statuses">
+          {STATUSES.map((status) => {
+            const text = lowest(status.name, 'text', theme)
+            const marker = lowest(status.name, 'marker', theme)
+            return (
+              <li class="status">
+                <p class="sample" data-status={status.name}>
+                  <span class:list={['marker', status.marker]} aria-hidden="true" />
+                  <span class="word">{status.name}</span>
+                  <span class="chip">{status.word}</span>
+                </p>
+                <dl class="roles">
+                  {ROLES.map((role) => {
+                    const name = `status-${status.name}-${role}`
+                    const value = valueOf(name, theme)
+                    return (
+                      <div class="role">
+                        <dt>
+                          <span class="swatch" style={`background: var(--${name})`} />
+                          <code>{name}</code>
+                        </dt>
+                        <dd>
+                          <code>{value.value}</code> <small>→ {value.chain.join(' → ')}</small>
+                        </dd>
+                        {role !== 'subtle' && (
+                          <dd class="ratio">
+                            {role === 'text' ? 'text' : 'non-text'}, lowest{' '}
+                            {(role === 'text' ? text : marker).ratio.toFixed(2)}:1 on{' '}
+                            <code>{(role === 'text' ? text : marker).ground}</code>
+                          </dd>
+                        )}
+                      </div>
+                    )
+                  })}
+                </dl>
+              </li>
+            )
+          })}
+        </ul>
+      </section>
+    ))
+  }
+</div>
+
+<style>
+  .pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: var(--space-3);
+    margin-block: var(--space-6);
+  }
+  .panel {
+    min-width: 0;
+    padding: var(--space-4);
+    border: var(--stroke-hairline) solid var(--border-default);
+    border-radius: var(--radius-lg);
+    background: var(--bg-canvas);
+    color: var(--fg-default);
+  }
+  .theme {
+    display: block;
+    margin-bottom: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    color: var(--fg-subtle);
+    text-transform: uppercase;
+  }
+  .statuses {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .status {
+    display: grid;
+    gap: var(--space-2);
+    padding-top: var(--space-3);
+    border-top: var(--stroke-hairline) solid var(--border-default);
+  }
+  .sample {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+  }
+  .word {
+    font-weight: 700;
+  }
+  .chip {
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-sm);
+  }
+  .marker {
+    flex: none;
+    box-sizing: border-box;
+    width: 10px;
+    height: 10px;
+  }
+  .dot,
+  .ring {
+    border-radius: var(--radius-full);
+  }
+  [data-status='success'] .word,
+  [data-status='success'] .chip {
+    color: var(--status-success-text);
+  }
+  [data-status='success'] .chip {
+    background: var(--status-success-subtle);
+  }
+  [data-status='success'] .marker {
+    background: var(--status-success-marker);
+  }
+  [data-status='warning'] .word,
+  [data-status='warning'] .chip {
+    color: var(--status-warning-text);
+  }
+  [data-status='warning'] .chip {
+    background: var(--status-warning-subtle);
+  }
+  [data-status='warning'] .marker {
+    border: var(--stroke-ink) solid var(--status-warning-marker);
+  }
+  [data-status='error'] .word,
+  [data-status='error'] .chip {
+    color: var(--status-error-text);
+  }
+  [data-status='error'] .chip {
+    background: var(--status-error-subtle);
+  }
+  [data-status='error'] .marker {
+    background: var(--status-error-marker);
+  }
+  .roles {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .role {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+  dt {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  dd {
+    margin: 0 0 0 calc(20px + var(--space-2));
+    font-size: calc(var(--type-body-sm-size) * 1px);
+    overflow-wrap: anywhere;
+  }
+  dd.ratio {
+    color: var(--fg-muted);
+  }
+  code {
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+  }
+  small {
+    color: var(--fg-subtle);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-redline-size) * 1px);
+  }
+  .swatch {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    border: var(--stroke-hairline) solid var(--border-default);
+    border-radius: var(--radius-sm);
+  }
+</style>

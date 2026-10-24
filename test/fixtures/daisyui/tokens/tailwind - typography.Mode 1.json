@@ -1,0 +1,437 @@
+{
+  "tailwind": {
+    "typography": {
+      "size": {
+        "xs": {
+          "$type": "number",
+          "$description": "fontSize variable for 12",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_SIZE"
+              ]
+            }
+          },
+          "$value": 12
+        },
+        "sm": {
+          "$type": "number",
+          "$description": "fontSize variable for 14",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_SIZE"
+              ]
+            }
+          },
+          "$value": 14
+        },
+        "base": {
+          "$type": "number",
+          "$description": "fontSize variable for 16",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_SIZE"
+              ]
+            }
+          },
+          "$value": 16
+        },
+        "lg": {
+          "$type": "number",
+          "$description": "fontSize variable for 18",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_SIZE"
+              ]
+            }
+          },
+          "$value": 18
+        },
+        "xl": {
+          "$type": "number",
+          "$description": "fontSize variable for 20",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_SIZE"
+              ]
+            }
+          },
+          "$value": 20
+        },
+        "2xl": {
+          "$type": "number",
+          "$description": "fontSize variable for 24",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_SIZE"
+              ]
+            }
+          },
+          "$value": 24
+        },
+        "3xl": {
+          "$type": "number",
+          "$description": "fontSize variable for 30",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_SIZE"
+              ]
+            }
+          },
+          "$value": 30
+        },
+        "4xl": {
+          "$type": "number",
+          "$description": "fontSize variable for 36",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_SIZE"
+              ]
+            }
+          },
+          "$value": 36
+        },
+        "5xl": {
+          "$type": "number",
+          "$description": "fontSize variable for 48",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_SIZE"
+              ]
+            }
+          },
+          "$value": 48
+        },
+        "6xl": {
+          "$type": "number",
+          "$description": "fontSize variable for 60",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_SIZE"
+              ]
+            }
+          },
+          "$value": 60
+        },
+        "7xl": {
+          "$type": "number",
+          "$description": "fontSize variable for 72",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_SIZE"
+              ]
+            }
+          },
+          "$value": 72
+        },
+        "8xl": {
+          "$type": "number",
+          "$description": "fontSize variable for 96",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_SIZE"
+              ]
+            }
+          },
+          "$value": 96
+        },
+        "9xl": {
+          "$type": "number",
+          "$description": "fontSize variable for 96",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_SIZE"
+              ]
+            }
+          },
+          "$value": 128
+        }
+      },
+      "weight": {
+        "normal (400)": {
+          "$type": "number",
+          "$description": "fontWeight variable for regular",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_WEIGHT"
+              ]
+            }
+          },
+          "$value": 400
+        },
+        "bold (700)": {
+          "$type": "number",
+          "$description": "fontWeight variable for bold",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_WEIGHT"
+              ]
+            }
+          },
+          "$value": 700
+        },
+        "black (900)": {
+          "$type": "number",
+          "$description": "fontWeight variable for black",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_WEIGHT"
+              ]
+            }
+          },
+          "$value": 900
+        },
+        "medium (500)": {
+          "$type": "number",
+          "$description": "fontWeight variable for medium",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_WEIGHT"
+              ]
+            }
+          },
+          "$value": 500
+        },
+        "thin (100)": {
+          "$type": "number",
+          "$description": "fontWeight variable for regular",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_WEIGHT"
+              ]
+            }
+          },
+          "$value": 100
+        },
+        "extralight (200)": {
+          "$type": "number",
+          "$description": "fontWeight variable for regular",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_WEIGHT"
+              ]
+            }
+          },
+          "$value": 200
+        },
+        "semibold (600)": {
+          "$type": "number",
+          "$description": "fontWeight variable for regular",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_WEIGHT"
+              ]
+            }
+          },
+          "$value": 600
+        },
+        "extrabold (800)": {
+          "$type": "number",
+          "$description": "fontWeight variable for regular",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_WEIGHT"
+              ]
+            }
+          },
+          "$value": 800
+        },
+        "light (300)": {
+          "$type": "number",
+          "$description": "fontWeight variable for regular",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "FONT_WEIGHT"
+              ]
+            }
+          },
+          "$value": 300
+        }
+      },
+      "lineHeight": {
+        "leading-3": {
+          "$type": "number",
+          "$description": "lineHeight variable for 12",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "LINE_HEIGHT"
+              ]
+            }
+          },
+          "$value": 12
+        },
+        "leading-4": {
+          "$type": "number",
+          "$description": "lineHeight variable for 16",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "LINE_HEIGHT"
+              ]
+            }
+          },
+          "$value": 16
+        },
+        "leading-5": {
+          "$type": "number",
+          "$description": "lineHeight variable for 20",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "LINE_HEIGHT"
+              ]
+            }
+          },
+          "$value": 20
+        },
+        "leading-6": {
+          "$type": "number",
+          "$description": "lineHeight variable for 24",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "LINE_HEIGHT"
+              ]
+            }
+          },
+          "$value": 24
+        },
+        "leading-7": {
+          "$type": "number",
+          "$description": "lineHeight variable for 28",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "LINE_HEIGHT"
+              ]
+            }
+          },
+          "$value": 28
+        },
+        "leading-8": {
+          "$type": "number",
+          "$description": "lineHeight variable for 32",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "LINE_HEIGHT"
+              ]
+            }
+          },
+          "$value": 32
+        },
+        "leading-9": {
+          "$type": "number",
+          "$description": "lineHeight variable for 36",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "LINE_HEIGHT"
+              ]
+            }
+          },
+          "$value": 36
+        },
+        "leading-10": {
+          "$type": "number",
+          "$description": "lineHeight variable for 40",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "LINE_HEIGHT"
+              ]
+            }
+          },
+          "$value": 40
+        },
+        "leading-normal": {
+          "$type": "string",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "150%"
+        },
+        "leading-none": {
+          "$type": "string",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "ALL_SCOPES"
+              ]
+            }
+          },
+          "$value": "100%"
+        },
+        "leading-11": {
+          "$type": "number",
+          "$description": "lineHeight variable for 40",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "TEXT_CONTENT",
+                "LINE_HEIGHT"
+              ]
+            }
+          },
+          "$value": 48
+        }
+      }
+    }
+  }
+}

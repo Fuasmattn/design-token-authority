@@ -1,0 +1,30 @@
+---
+// Roles to review: a small primitives collection and a themed one with few aliases, with the
+// notes `analyzeStructure` writes for them.
+import StructureTable from '../components/ds/StructureTable'
+
+const rows = [
+  {
+    name: 'Base',
+    modes: ['Value'],
+    role: 'primitives',
+    confidence: '0.65',
+    low: true,
+    variables: 6,
+    aliasShare: '0%',
+    notes: ['Only 6 variables — consider reviewing manually'],
+  },
+  {
+    name: 'Theme',
+    modes: ['Light', 'Dark'],
+    role: 'unknown',
+    confidence: '0.40',
+    low: true,
+    variables: 18,
+    aliasShare: '11%',
+    notes: ['Multiple modes with low alias ratio — could be a themed primitives collection'],
+  },
+]
+---
+
+<StructureTable caption="Structure" rows={rows} />

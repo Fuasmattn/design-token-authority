@@ -1,0 +1,140 @@
+---
+/**
+ * The checks of a pull request and the approve action: each check a flat row on bg-surface with
+ * a hairline, its status as a marker and a word; the approve action in the action text colour so
+ * its label reads at 7:1 in both themes.
+ *
+ * Status colours (TICKET-120): passed is the success dot, passed with warnings the warning ring,
+ * failed the error square, each with its word in status-*-text. "Changes to review" is a diff
+ * state, not a problem: it stays signal (a dot in signal-bg, the word in signal-text), and
+ * pending stays in the ink.
+ */
+export interface Check {
+  name: string
+  status: 'passed' | 'warnings' | 'failed' | 'pending' | 'changes'
+  detail?: string
+}
+
+interface Props {
+  checks: Check[]
+  approve?: string
+}
+const { checks, approve } = Astro.props
+const words = {
+  passed: 'passed',
+  warnings: 'passed with warnings',
+  failed: 'failed',
+  pending: 'pending',
+  changes: 'changes to review',
+}
+---
+
+<div class="dta-checks">
+  <ul class="list">
+    {
+      checks.map((check) => (
+        <li class:list={['check', check.status]}>
+          <span class="dot" aria-hidden="true" />
+          <span class="name">{check.name}</span>
+          <span class="status">
+            {words[check.status]}
+            {check.detail && <span class="detail"> · {check.detail}</span>}
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+  {approve && <span class="approve">{approve}</span>}
+</div>
+
+<style>
+  .dta-checks {
+    display: grid;
+    gap: var(--space-4);
+    width: min(100%, 480px);
+    justify-items: start;
+  }
+  .list {
+    display: grid;
+    gap: 10px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .check {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: var(--space-4);
+    border: var(--stroke-hairline) solid var(--border-default);
+    border-radius: 12px;
+    background: var(--bg-surface);
+    color: var(--fg-default);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.3;
+  }
+  .dot {
+    box-sizing: border-box;
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-full);
+    background: var(--fg-subtle);
+  }
+  .passed .dot {
+    background: var(--status-success-marker);
+  }
+  .warnings .dot {
+    border: var(--stroke-ink) solid var(--status-warning-marker);
+    background: none;
+  }
+  .failed .dot {
+    border-radius: 0;
+    background: var(--status-error-marker);
+  }
+  .changes .dot {
+    background: var(--signal-bg);
+  }
+  .name {
+    white-space: nowrap;
+  }
+  .status {
+    color: var(--fg-muted);
+    font-size: calc(var(--type-meta-size) * 1px);
+    white-space: nowrap;
+  }
+  .passed .status {
+    color: var(--status-success-text);
+  }
+  .warnings .status {
+    color: var(--status-warning-text);
+  }
+  .failed .status {
+    color: var(--status-error-text);
+  }
+  .changes .status {
+    color: var(--signal-text);
+  }
+  @media (max-width: 559px) {
+    .check {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+    .status {
+      grid-column: 2;
+      white-space: normal;
+    }
+  }
+  .approve {
+    display: inline-block;
+    padding: 11px var(--space-4);
+    border-radius: 11px;
+    background: var(--action-text);
+    color: var(--action-fg);
+    font-family: var(--font-sans);
+    font-size: calc(var(--type-body-sm-size) * 1px);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+</style>

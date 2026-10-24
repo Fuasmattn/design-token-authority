@@ -1,0 +1,253 @@
+/*
+ * The frame every standalone page shares (SiteLayout.astro: the landing page, the playground) on
+ * the DTA Drafting Table tokens: fonts and their fallbacks, the page surface, the gutter, the
+ * header, the skip link and the footer. Pages add their own file that only places components.
+ * Every size comes from a token (src/landing/styles.test.ts checks). Light and Graphite switch
+ * with [data-brand] like the docs.
+ */
+
+/* Fallbacks sized like the web fonts, so swapping them in does not shift the layout. */
+@font-face {
+  font-family: 'Instrument Sans Fallback';
+  src: local('Arial'), local('Liberation Sans'), local('Helvetica'), local('DejaVu Sans');
+  size-adjust: 106.5%;
+  ascent-override: 91.1%;
+  descent-override: 23.5%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Martian Mono Fallback';
+  src: local('Courier New'), local('Liberation Mono'), local('DejaVu Sans Mono');
+  size-adjust: 116.7%;
+  ascent-override: 85.7%;
+  descent-override: 17.1%;
+  line-gap-override: 0%;
+}
+
+:root {
+  --site-sans: 'Instrument Sans', 'Instrument Sans Fallback', system-ui, sans-serif;
+  --site-mono: 'Martian Mono', 'Martian Mono Fallback', ui-monospace, monospace;
+  /* The ds components read these; on these pages they get the size-adjusted fallbacks too. */
+  --font-sans: var(--site-sans);
+  --font-mono: var(--site-mono);
+  /* Page gutter: the desktop gutter, the phone gutter below 760px. */
+  --gutter: var(--space-8);
+  color-scheme: light;
+}
+:root[data-brand='graphite'] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  background: var(--bg-canvas);
+  color: var(--fg-default);
+  font-family: var(--site-sans);
+  font-size: calc(var(--type-body-size) * 1px);
+  line-height: var(--type-body-line-height);
+  overflow-x: hidden;
+}
+a {
+  color: inherit;
+}
+:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: var(--stroke-ink);
+}
+.skip {
+  position: absolute;
+  left: var(--space-4);
+  top: calc(var(--space-16) * -1);
+  z-index: 10;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--action-bg);
+  color: var(--action-fg);
+}
+.skip:focus {
+  top: var(--space-3);
+}
+
+.wrap {
+  max-width: var(--layout-content);
+  margin: 0 auto;
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+}
+
+/* Header: logo, then the navigation (with the theme switch in it) */
+.site-header {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 5;
+  max-width: var(--layout-content);
+  margin: 0 auto;
+  padding: var(--space-6) max(var(--gutter), env(safe-area-inset-right, 0px)) var(--space-6)
+    max(var(--gutter), env(safe-area-inset-left, 0px));
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Footer */
+.foot {
+  border-top: var(--stroke-hairline) solid var(--border-default);
+}
+.foot-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-top: var(--space-8);
+  padding-bottom: var(--space-8);
+  font-family: var(--site-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  color: var(--fg-muted);
+}
+.foot nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+.foot a {
+  text-decoration: none;
+}
+.foot a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --gutter: var(--space-4);
+  }
+  .site-header {
+    gap: var(--space-2);
+    padding-top: var(--space-4);
+    padding-bottom: var(--space-4);
+  }
+  /* The logo stays above the open full-screen menu. */
+  .site-header .dta-logo {
+    position: relative;
+    z-index: 21;
+  }
+}
+
+/*
+ * Motion (design-system/motion), on the motion tokens. Shared by the pages and their components:
+ * - dta-appear: something that arrives fades in from a little below (stagger with --dta-order);
+ * - View Transitions started with `transition()` (src/components/ds/motion.ts): a new read
+ *   (type dta-read, or none) crossfades the page while named parts move to their new place; a
+ *   change in place (types dta-tabs, dta-outputs) leaves the page live and crossfades only the
+ *   named parts that changed, whose boxes ease to their new size.
+ */
+@keyframes dta-appear {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-2));
+  }
+}
+.dta-appear {
+  animation: dta-appear var(--motion-duration-base) var(--motion-ease-enter) both;
+  animation-delay: calc(var(--motion-stagger) * var(--dta-order, 0));
+}
+
+::view-transition-group(*) {
+  animation-duration: var(--motion-duration-slow);
+  animation-timing-function: var(--motion-ease-standard);
+}
+/*
+ * A new read: the page crossfades (old and new on one curve, so what stays the same stays solid),
+ * parts that move go to their new place, and parts that are new arrive once the moves are mostly
+ * done.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--motion-duration-base);
+  animation-timing-function: var(--motion-ease-standard);
+}
+::view-transition-new(*):only-child {
+  animation-delay: var(--motion-duration-base);
+  animation-timing-function: var(--motion-ease-enter);
+}
+/*
+ * A part that changes size crossfades at its own size inside a box that clips it: a panel's new
+ * content from the top, the drop area collapsing into the source bar around its middle.
+ */
+::view-transition-image-pair(*) {
+  overflow: clip;
+}
+::view-transition-old(*),
+::view-transition-new(*) {
+  height: 100%;
+  object-fit: none;
+  object-position: top;
+}
+::view-transition-old(dta-source),
+::view-transition-new(dta-source) {
+  object-position: center;
+}
+
+/*
+ * A change in place (types dta-tabs, dta-outputs): the page stays live and nothing else fades;
+ * only parts of view-transition-class dta-swap (a tab panel, output groups, the CLI hand-off)
+ * crossfade, while every named part moves and resizes to its new box.
+ */
+:root:active-view-transition-type(dta-tabs, dta-outputs)::view-transition-group(*) {
+  animation-duration: var(--motion-duration-base);
+}
+:root:active-view-transition-type(dta-tabs, dta-outputs)::view-transition-old(*) {
+  display: none;
+}
+:root:active-view-transition-type(dta-tabs, dta-outputs)::view-transition-new(*) {
+  animation: none;
+}
+:root:active-view-transition-type(dta-tabs, dta-outputs)::view-transition-old(*.dta-swap) {
+  display: block;
+  animation: dta-vt-out var(--motion-duration-fast) var(--motion-ease-standard) both;
+}
+:root:active-view-transition-type(dta-tabs, dta-outputs)::view-transition-new(*.dta-swap) {
+  animation: dta-vt-in var(--motion-duration-base) var(--motion-ease-enter) both;
+}
+@keyframes dta-vt-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes dta-vt-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/*
+ * Reduced motion: nothing moves. Animations and transitions are off (changes are instant), View
+ * Transitions are not started (motion.ts) and would not animate. The highlight of a changed value
+ * (Changed) is colour, not movement, and opts back in.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after,
+  *::backdrop {
+    animation: none !important;
+    transition: none !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

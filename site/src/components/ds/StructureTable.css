@@ -1,0 +1,247 @@
+/*
+ * StructureTable: a quiet data table on the surface. Hairline rules between rows, mono for
+ * names, modes and numbers, a mono meta header. Below 640px of container width each row is a
+ * short labelled list. The selected row's tint comes and goes over motion.duration.fast.
+ */
+.dta-structure {
+  container-type: inline-size;
+  min-width: 0;
+  font-family: var(--font-sans);
+  color: var(--fg-default);
+}
+.dta-structure__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: calc(var(--type-body-sm-size) * 1px);
+  line-height: var(--type-body-sm-line-height);
+}
+.dta-structure__caption {
+  margin-bottom: var(--space-4);
+  font-size: calc(var(--type-title-size) * 1px);
+  font-weight: var(--type-title-weight);
+  line-height: var(--type-title-line-height);
+  text-align: left;
+}
+.dta-structure__table thead th {
+  padding: 0 var(--space-4) var(--space-2) 0;
+}
+.dta-structure__table thead th:first-child {
+  padding-left: var(--space-2);
+}
+.dta-structure__table thead th {
+  border-bottom: var(--stroke-ink) solid var(--border-strong);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  font-weight: var(--type-meta-weight);
+  line-height: var(--type-meta-line-height);
+  color: var(--fg-subtle);
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.dta-structure__table tbody th,
+.dta-structure__table tbody td {
+  padding: var(--space-3) var(--space-4) var(--space-3) 0;
+  border-bottom: var(--stroke-hairline) solid var(--border-default);
+  text-align: left;
+  vertical-align: baseline;
+}
+.dta-structure__name {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.dta-structure__modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dta-structure__modes li {
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+}
+.dta-structure__number {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.dta-structure__role {
+  font-weight: var(--type-label-weight);
+}
+.dta-structure__low {
+  color: var(--status-warning-text);
+}
+.dta-structure__caption[data-hidden] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Selectable: the name is a button whose hit area covers the row; the open row is tinted. */
+.dta-structure__row {
+  position: relative;
+}
+.dta-structure__open {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.dta-structure__open::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.dta-structure__open:focus-visible {
+  outline: none;
+}
+.dta-structure__row:has(.dta-structure__open:focus-visible) {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: calc(var(--stroke-focus) * -1);
+}
+.dta-structure__chevron {
+  color: var(--fg-subtle);
+}
+.dta-structure__row:hover .dta-structure__open {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.dta-structure__row > *,
+.dta-structure__notes > * {
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+.dta-structure .dta-structure__row[aria-current='true'] > *,
+.dta-structure .dta-structure__notes[aria-current='true'] > * {
+  background: var(--action-subtle);
+  color: var(--action-text);
+}
+.dta-structure__row[aria-current='true'] .dta-structure__modes li {
+  background: var(--bg-surface);
+}
+.dta-structure__row[aria-current='true'] .dta-structure__chevron,
+.dta-structure__row[aria-current='true'] .dta-structure__low,
+.dta-structure__notes[aria-current='true'] td {
+  color: var(--action-text);
+}
+.dta-structure__table tbody th:first-child,
+.dta-structure__table tbody td:first-child {
+  padding-left: var(--space-2);
+}
+
+/* A note belongs to the row above it: no rule between them. */
+.dta-structure__row:has(+ .dta-structure__notes) > * {
+  border-bottom: 0;
+}
+.dta-structure__notes td {
+  padding-top: 0;
+  color: var(--fg-muted);
+}
+.dta-structure__notes span + span::before {
+  content: ' · ';
+}
+.dta-structure__brands {
+  margin: var(--space-4) 0 0;
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  color: var(--fg-default);
+}
+.dta-structure__brands-label {
+  margin-right: var(--space-2);
+  color: var(--fg-subtle);
+  text-transform: uppercase;
+}
+
+/* Narrow: each collection a labelled list; the header row is read by screen readers only. */
+@container (max-width: 639px) {
+  .dta-structure__table,
+  .dta-structure__table tbody,
+  .dta-structure__table tr,
+  .dta-structure__table caption {
+    display: block;
+  }
+  .dta-structure__table thead {
+    display: block;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .dta-structure__table tbody th:first-child,
+  .dta-structure__table tbody td:first-child {
+    padding-left: 0;
+  }
+  .dta-structure__row,
+  .dta-structure__notes {
+    padding-inline: var(--space-2);
+  }
+  .dta-structure .dta-structure__row[aria-current='true'],
+  .dta-structure .dta-structure__notes[aria-current='true'] {
+    background: var(--action-subtle);
+  }
+  .dta-structure__row {
+    display: grid;
+    padding-block: var(--space-3);
+    border-bottom: var(--stroke-hairline) solid var(--border-default);
+  }
+  .dta-structure__row:has(+ .dta-structure__notes) {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+  .dta-structure__table tbody th,
+  .dta-structure__table tbody td {
+    display: grid;
+    grid-template-columns: 7rem minmax(0, 1fr);
+    gap: var(--space-3);
+    padding: var(--space-1) 0;
+    border-bottom: 0;
+  }
+  .dta-structure__table tbody [data-label]::before {
+    content: attr(data-label);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    font-weight: var(--type-meta-weight);
+    color: var(--fg-subtle);
+    text-transform: uppercase;
+  }
+  .dta-structure__number {
+    white-space: normal;
+  }
+  .dta-structure__row[aria-current='true'] [data-label]::before {
+    color: var(--action-text);
+  }
+  .dta-structure__notes {
+    padding-bottom: var(--space-3);
+    border-bottom: var(--stroke-hairline) solid var(--border-default);
+  }
+  .dta-structure__table .dta-structure__notes td {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dta-structure__row > *,
+  .dta-structure__notes > * {
+    transition: none;
+  }
+}

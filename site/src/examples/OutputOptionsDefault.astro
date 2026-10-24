@@ -1,0 +1,18 @@
+---
+// The playground's output options: three of four outputs chosen, "Download all" at the end.
+import OutputOptions from '../components/ds/OutputOptions'
+import { OUTPUT_CHOICES } from '../playground/outputs'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'options-default' } = Astro.props
+---
+
+<OutputOptions
+  idPrefix={idPrefix}
+  options={OUTPUT_CHOICES.map((choice) => ({ value: choice.format, label: choice.label }))}
+  selected={['css', 'tailwind-v4', 'js']}
+>
+  <button type="button" class="dta-button primary">Download all (.zip)</button>
+</OutputOptions>

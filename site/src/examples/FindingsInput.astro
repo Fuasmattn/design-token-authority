@@ -1,0 +1,19 @@
+---
+// Real output: the diagnostics `parseTokenFiles` gives for a broken and a misnamed file, worded
+// with `formatDiagnostic` as the CLI prints them.
+import Findings from '../components/ds/Findings'
+import { analyse } from '../playground/analyse'
+
+const result = analyse([
+  { fileName: 'Brand.BrandA.json', content: '{"Colors": ' },
+  { fileName: 'tokens.json', content: '{}' },
+])
+---
+
+<Findings
+  title="Input"
+  groups={result.input.groups}
+  summary="The input could not be read; nothing else runs until it can."
+  outcome="failed"
+  banner
+/>

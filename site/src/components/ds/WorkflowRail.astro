@@ -1,0 +1,284 @@
+---
+/**
+ * The workflow at a glance (landing spec decision 12): two sides meeting in a pull request, not a
+ * ring and not numbered. The change is made on one side (Figma, a token file, an agent), crosses
+ * into the repository with its command on the crossing, and inside the pull request runs through
+ * the steps under a bracket. A return line says where a fix goes; there is no arrow back.
+ *
+ * One row in a container of 960px and more; below that a vertical list, the bracket becomes a
+ * left rule. No motion, no numbers, no card: rules and type on the surface.
+ */
+import CommandButton from './CommandButton.astro'
+
+export interface WorkflowStep {
+  /** One word. */
+  label: string
+  /** One short line. */
+  text: string
+  command?: string
+}
+
+interface Props {
+  /** Read by screen readers as the section's heading; not shown. */
+  title: string
+  /** The design side: where the change is made. */
+  change: WorkflowStep & { side: string }
+  /** The crossing into the repository: its command and a short line. */
+  crossing: { command: string; text: string }
+  /** Label of the bracket: "in the pull request". */
+  pullRequest: string
+  steps: WorkflowStep[]
+  /** Where a fix goes (no arrow back to the start). */
+  back?: { text: string; command?: string; detail?: string }
+  id?: string
+  idPrefix?: string
+}
+const { title, change, crossing, pullRequest, steps, back, id, idPrefix = 'workflow' } = Astro.props
+const headingId = `${idPrefix}-title`
+---
+
+<section class="dta-workflow-frame" id={id} aria-labelledby={headingId}>
+  <h2 class="visually-hidden" id={headingId}>{title}</h2>
+  <div class="dta-workflow">
+    <div class="side design">
+      <span class="side-label">{change.side}</span>
+      <div class="bracket" aria-hidden="true"></div>
+      <div class="step">
+        <strong class="label">{change.label}</strong>
+        <p class="text">{change.text}</p>
+        {change.command && <CommandButton command={change.command} />}
+      </div>
+    </div>
+
+    <div class="crossing">
+      <svg class="arrow" viewBox="0 0 24 12" aria-hidden="true">
+        <path d="M1 6h21M17 1.5 22 6l-5 4.5"></path>
+      </svg>
+      <CommandButton command={crossing.command} />
+      <p class="text">{crossing.text}</p>
+    </div>
+
+    <div class="side pr">
+      <span class="side-label">{pullRequest}</span>
+      <div class="bracket" aria-hidden="true"></div>
+      <ol class="steps" style={`--steps: ${steps.length}`}>
+        {
+          steps.map((step, index) => (
+            <li class="step">
+              {index > 0 && (
+                <svg class="arrow" viewBox="0 0 24 12" aria-hidden="true">
+                  <path d="M1 6h21M17 1.5 22 6l-5 4.5" />
+                </svg>
+              )}
+              <strong class="label">{step.label}</strong>
+              <p class="text">{step.text}</p>
+              {step.command && <CommandButton command={step.command} />}
+            </li>
+          ))
+        }
+      </ol>
+      {
+        back && (
+          <p class="back">
+            <span>{back.text}</span>
+            {back.command && (
+              <span class="back-command">
+                <CommandButton command={back.command} />
+                {back.detail && <span class="detail">{back.detail}</span>}
+              </span>
+            )}
+          </p>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .dta-workflow-frame {
+    container-type: inline-size;
+    color: var(--fg-default);
+    font-family: var(--font-sans);
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Phone first: a vertical list; the pull request is a left rule. */
+  .dta-workflow {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .side-label {
+    display: block;
+    margin-bottom: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    line-height: var(--type-meta-line-height);
+    letter-spacing: var(--type-meta-letter-spacing);
+    color: var(--fg-muted);
+  }
+  .bracket {
+    display: none;
+  }
+  .step {
+    position: relative;
+    min-width: 0;
+  }
+  .label {
+    display: block;
+    font-size: calc(var(--type-title-size) * 1px);
+    font-weight: var(--type-title-weight);
+    line-height: var(--type-title-line-height);
+    letter-spacing: -0.01em;
+  }
+  .text {
+    margin: var(--space-1) 0 0;
+    max-width: 30ch;
+    font-size: calc(var(--type-body-sm-size) * 1px);
+    line-height: var(--type-body-sm-line-height);
+    color: var(--fg-muted);
+  }
+  .step > :global(.dta-command),
+  .crossing > :global(.dta-command) {
+    margin-top: var(--space-3);
+  }
+  .design {
+    padding-left: var(--space-4);
+    border-left: var(--stroke-ink) dashed var(--rail);
+  }
+  .crossing {
+    padding-left: var(--space-4);
+  }
+  .crossing .arrow {
+    display: block;
+    transform: rotate(90deg);
+  }
+  .crossing .text {
+    margin-top: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    line-height: var(--type-meta-line-height);
+  }
+  .arrow {
+    width: var(--space-6);
+    height: var(--space-3);
+    fill: none;
+    stroke: var(--fg-subtle);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .pr {
+    padding-left: var(--space-4);
+    border-left: var(--stroke-ink) solid var(--border-strong);
+  }
+  .steps {
+    display: grid;
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .steps .arrow {
+    display: none;
+  }
+  .back {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    align-items: center;
+    margin: var(--space-6) 0 0;
+    font-size: calc(var(--type-body-sm-size) * 1px);
+    line-height: var(--type-body-sm-line-height);
+    color: var(--fg-muted);
+  }
+  .back-command {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: center;
+  }
+  .detail {
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+  }
+
+  /* One row: the change, the crossing, and the pull request under its bracket. */
+  @container (min-width: 960px) {
+    .dta-workflow {
+      /*
+       * The change side gets a third of the free width the pull request gets, so its
+       * label ("where the change is made") stays on one line in a 1176px container (1280 screen).
+       */
+      grid-template-columns: minmax(0, 1fr) auto minmax(min-content, 3fr);
+      gap: var(--space-6);
+      align-items: start;
+    }
+    .side-label {
+      margin-bottom: var(--space-2);
+    }
+    .bracket {
+      display: block;
+      height: var(--space-3);
+      margin-bottom: var(--space-4);
+      border: var(--stroke-ink) solid var(--border-strong);
+      border-bottom: 0;
+    }
+    .design,
+    .pr {
+      padding-left: 0;
+      border-left: 0;
+    }
+    .design .bracket {
+      border-style: dashed;
+      border-color: var(--rail);
+    }
+    .crossing {
+      display: grid;
+      justify-items: center;
+      padding-left: 0;
+      /* level with the step labels: the side label and the bracket above them */
+      padding-top: calc(
+        var(--type-meta-size) * var(--type-meta-line-height) * 1px + var(--space-2) +
+          var(--space-3) + var(--space-4)
+      );
+      text-align: center;
+    }
+    .crossing .arrow {
+      transform: none;
+    }
+    .crossing > :global(.dta-command) {
+      margin-top: var(--space-2);
+    }
+    .steps {
+      /* a column is never narrower than its chip (chips do not wrap) */
+      grid-template-columns: repeat(var(--steps, 4), minmax(min-content, 1fr));
+      gap: var(--space-10);
+    }
+    /* the chips stand on one line, however many lines the text above them takes */
+    .steps .step {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      justify-items: start;
+      align-items: start;
+    }
+    .steps .step > :global(.dta-command) {
+      align-self: end;
+    }
+    .steps .arrow {
+      display: block;
+      position: absolute;
+      top: var(--space-1);
+      left: calc(var(--space-8) * -1);
+    }
+    .text {
+      max-width: 22ch;
+    }
+  }
+</style>

@@ -1,0 +1,20 @@
+---
+/**
+ * Actions: primary (one per view), outline (secondary), quiet (the small action repeated on
+ * every row of a list), link (tertiary). Labels are verbs.
+ * The styles live in Button.css so islands can render the same button (class `dta-button`
+ * plus the variant).
+ */
+import './Button.css'
+
+interface Props {
+  variant?: 'primary' | 'outline' | 'quiet' | 'link'
+  href?: string
+}
+const { variant = 'primary', href } = Astro.props
+const Tag = href ? 'a' : 'button'
+---
+
+<Tag class:list={['dta-button', variant]} href={href} type={href ? undefined : 'button'}>
+  <slot />
+</Tag>

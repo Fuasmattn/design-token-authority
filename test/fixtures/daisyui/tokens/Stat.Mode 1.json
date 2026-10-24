@@ -1,0 +1,31 @@
+{
+  "Stat": {
+    "padding-y": {
+      "$type": "number",
+      "$extensions": {
+        "com.figma": {
+          "scopes": []
+        }
+      },
+      "$value": "{tailwind.spacing.4 (16)}"
+    },
+    "gap": {
+      "$type": "number",
+      "$extensions": {
+        "com.figma": {
+          "scopes": []
+        }
+      },
+      "$value": "{tailwind.spacing.4 (16)}"
+    },
+    "padding-x": {
+      "$type": "number",
+      "$extensions": {
+        "com.figma": {
+          "scopes": []
+        }
+      },
+      "$value": "{tailwind.spacing.6 (24)}"
+    }
+  }
+}

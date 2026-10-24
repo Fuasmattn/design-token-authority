@@ -1,0 +1,15 @@
+---
+// Every status a check can have (TICKET-120): passed, passed with warnings and failed in the
+// status colours, changes to review in signal (a diff state), pending in the ink.
+import Checks from '../components/ds/Checks.astro'
+---
+
+<Checks
+  checks={[
+    { name: 'dta lint', status: 'passed', detail: '0 violations' },
+    { name: 'dta lint', status: 'warnings' },
+    { name: 'dta build', status: 'failed', detail: '2 errors' },
+    { name: 'dta diff', status: 'changes', detail: '2 stories' },
+    { name: 'dta diff', status: 'pending' },
+  ]}
+/>

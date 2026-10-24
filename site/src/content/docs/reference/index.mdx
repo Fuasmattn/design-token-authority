@@ -1,0 +1,29 @@
+---
+title: Reference
+description: Commands, configuration, token files, outputs, lint rules, token queries and exit codes.
+sidebar:
+  order: 0
+---
+
+| Page                                       | What it covers                                                    |
+| ------------------------------------------ | ----------------------------------------------------------------- |
+| [Commands](/reference/commands/)           | Every command and option, from the CLI's own `--help` (generated) |
+| [Configuration](/reference/configuration/) | Every key of `dta.config.ts`, from the config schema (generated)  |
+| [Token files](/reference/token-files/)     | The per-mode DTCG format, its JSON Schema, converted exports      |
+| [Outputs](/reference/outputs/)             | Every file `dta build` writes and what is in it                   |
+| [Lint rules](/reference/lint-rules/)       | Built-in and configurable rules, severities, options              |
+| [Token queries](/reference/token-queries/) | `dta token get`, `find`, `list` and their JSON output             |
+| [Exit codes](/reference/exit-codes/)       | What 0, 1 and 2 mean for each command                             |
+
+## Schemas
+
+| URL                                                                  | Describes                      |
+| -------------------------------------------------------------------- | ------------------------------ |
+| [`/schemas/dta.config.schema.json`](/schemas/dta.config.schema.json) | `dta.config.*` (for `$schema`) |
+| [`/schemas/token-file.schema.json`](/schemas/token-file.schema.json) | One `{Collection}.{Mode}.json` |
+| [`/schemas/dta.token.schema.json`](/schemas/dta.token.schema.json)   | `dta token … --format json`    |
+| [`/schemas/dta.audit.schema.json`](/schemas/dta.audit.schema.json)   | `dta audit --format json`      |
+
+`dta diff`'s `result.json` is documented with its JSON Schema in the repository: [docs/diff/result.md](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/diff/result.md).
+
+For agents: [`/llms.txt`](/llms.txt) lists every page, [`/llms-full.txt`](/llms-full.txt) has their full text.

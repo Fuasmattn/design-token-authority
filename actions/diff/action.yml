@@ -1,0 +1,44 @@
+name: dta diff (run)
+description: >-
+  Runs `dta diff` on a pull request and uploads the report folder as a workflow artifact.
+  Needs no secrets and no write permissions, so it is safe for pull requests from forks.
+  Pair it with `diff-report` in a `workflow_run` workflow for the status check and comment.
+inputs:
+  command:
+    description: How to run DTA (e.g. `npx dta`, `pnpm dta`).
+    default: npx dta
+  args:
+    description: Extra arguments for `dta diff` (e.g. `--base origin/main`).
+    default: ''
+  working-directory:
+    description: Folder with dta.config.* (relative to the repository).
+    default: .
+  report-dir:
+    description: Report folder (relative to working-directory).
+    default: .dta/diff
+  artifact-name:
+    description: Name of the uploaded artifact.
+    default: dta-diff-report
+outputs:
+  verdict:
+    description: pass, review or fail (empty when no stories were rendered)
+    value: ${{ steps.diff.outputs.verdict }}
+runs:
+  using: composite
+  steps:
+    - id: diff
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        DTA: ${{ inputs.command }}
+        ARGS: ${{ inputs.args }}
+        REPORT: ${{ inputs.report-dir }}
+        PR: ${{ github.event.pull_request.number }}
+        SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      run: bash "$GITHUB_ACTION_PATH/../lib/run-diff.sh"
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ inputs.working-directory }}/${{ inputs.report-dir }}
+        retention-days: 14
+        if-no-files-found: error

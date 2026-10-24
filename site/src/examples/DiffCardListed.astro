@@ -1,0 +1,25 @@
+---
+import DiffCard from '../components/ds/DiffCard.astro'
+import { MENU_CANVAS, MENU_MARKS, MENU_SURFACES, ORBIT_TOKENS, orbitMenu } from './orbit-card'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'diff-card-listed' } = Astro.props
+---
+
+<DiffCard
+  story="orbit-menu--default"
+  viewport={1280}
+  ratio="0.71%"
+  base="main · 2ee9b31"
+  head="feature/rounder-cards · 9f3c1a2"
+  canvas={MENU_CANVAS}
+  marks={MENU_MARKS}
+  surfaces={MENU_SURFACES}
+  tokens={ORBIT_TOKENS}
+  idPrefix={idPrefix}
+>
+  <Fragment slot="after" set:html={orbitMenu({ radius: 24, button: '#3d87e8' })} />
+  <Fragment slot="before" set:html={orbitMenu({ radius: 8, button: '#5aa2ff' })} />
+</DiffCard>

@@ -1,0 +1,28 @@
+---
+title: Workflow rail
+description: The workflow at a glance, two sides meeting in a pull request, unnumbered.
+sidebar:
+  order: 8
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+The workflow at a glance: a change is made on one side (Figma Variables, a token file or an agent), crosses into the repository, and runs through the steps of the pull request. Two sides meeting in a pull request, not a ring of steps and not numbered. The landing page shows it right below the hero, under the "How it works" anchor.
+
+<Examples component="workflow-rail" />
+
+## Guidelines
+
+- **Two sides, one crossing.** The change on the left under a dashed `rail` bracket labelled where it is made; its command (`dta pull`) on the crossing; the pull request under a solid `border-strong` bracket. Inside it the steps in order, with a thin `fg-subtle` arrow between them.
+- **Each step:** a one-word label (title type), one short line in `fg-muted`, and its command as a [command button](/design-system/components/command-button/). A step without a command (the person deciding) has none; do not invent one.
+- **No arrow back.** The return line under the pull request says where a fix goes ("a fix goes back to whichever side caused it") and may carry a command (`dta audit`). The workflow is not a loop to draw.
+- **Unnumbered.** On the landing page the scene kickers are the only numbers. The steps are an ordered list for screen readers; the section has a visually hidden heading (`title`).
+- **Layout:** one row when the container is 960px or wider; below that a vertical list in which the pull request's bracket becomes a 2px left rule (its label, steps and return line inside it) and the change side's a dashed one. The change side takes one part of the width to the pull request's three (beyond what the chips need), so its label stays on one line on a 1280px screen; between 960 and about 1150px of container the pull request's chips claim the width and the label may wrap. Command chips do not wrap, so the row needs that width; in the side-by-side theme panels of the docs and stories the list is what you see.
+- **Surface:** rules and type only, no card, no shadow, no grid paper, no motion. Text pairs reach AAA (7:1) in both themes.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="WorkflowRail" />

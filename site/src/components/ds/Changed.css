@@ -1,0 +1,38 @@
+/*
+ * Changed: a short inline value that lights up when it changes. The tint (action-subtle ground,
+ * action-text ink, the pair the design system keeps at 7:1) holds for the first third of
+ * motion.duration.highlight, then fades back to the element's own colours. Padding gives the
+ * tint room and the negative margin takes it back, so the text does not move.
+ */
+.dta-changed {
+  padding-inline: var(--space-1);
+  margin-inline: calc(var(--space-1) * -1);
+  border-radius: var(--radius-sm);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.dta-changed[data-changed] {
+  animation: dta-changed var(--motion-duration-highlight) var(--motion-ease-exit) both;
+}
+.dta-changed[data-highlighted] {
+  background-color: var(--action-subtle);
+  color: var(--action-text);
+}
+
+@keyframes dta-changed {
+  0%,
+  35% {
+    background-color: var(--action-subtle);
+    color: var(--action-text);
+  }
+}
+
+/*
+ * The highlight is information, not motion: it stays under reduced motion (only colour changes),
+ * also against the frame's rule that turns other animations off.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .dta-changed[data-changed] {
+    animation: dta-changed var(--motion-duration-highlight) var(--motion-ease-exit) both !important;
+  }
+}

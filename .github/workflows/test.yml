@@ -5,7 +5,75 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
-      - run: npm install
-      - run: npm run prettier:check
-      - run: npm run test
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run prettier:check
+      - run: pnpm run typecheck
+      - run: pnpm run guardrails:boundaries
+      - run: pnpm run test
+      - name: CLI output matches the reference snapshots
+        run: |
+          set +e
+          pnpm run snapshot:check > snapshot-check.log 2>&1
+          code=$?
+          cat snapshot-check.log
+          if [ "$code" -ne 0 ]; then
+            # Job logs may not be readable by every collaborator; surface the start of the diff as an annotation.
+            msg=$(head -c 3500 snapshot-check.log | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+            echo "::error title=snapshot:check failed::$msg"
+          fi
+          exit $code
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build the website (dta build on its tokens, astro build, internal link check)
+        run: pnpm site:build
+      - name: Install Chromium for the rendered contrast audit
+        run: pnpm --filter dta-site exec playwright-core install --with-deps chromium
+      - name: Rendered checks (AAA on the landing page, the playground and every story; motion; playground flow; browser packages)
+        run: pnpm --filter dta-site test:contrast
+  diff-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Chromium for dta diff
+        run: pnpm --filter @dta/cli exec playwright-core install --with-deps chromium
+      - name: dta diff end to end (two commits of a fixture site, real screenshots)
+        run: pnpm vitest run --project @dta/cli packages/cli/test/diff-visual.test.ts packages/cli/test/init-diff-e2e.test.ts
+        env:
+          DTA_E2E: '1'
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: The npm packages from their tarballs (create-dta, build, lint, diff --tokens-only, types)
+        run: pnpm vitest run --project create-dta
+        env:
+          DTA_PACKAGE_E2E: '1'

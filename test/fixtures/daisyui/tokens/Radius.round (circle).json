@@ -1,0 +1,69 @@
+{
+  "radius": {
+    "fields": {
+      "$type": "number",
+      "$extensions": {
+        "com.figma": {
+          "scopes": [
+            "CORNER_RADIUS",
+            "WIDTH_HEIGHT",
+            "EFFECT_FLOAT"
+          ]
+        }
+      },
+      "$value": 1000
+    },
+    "boxes": {
+      "$type": "number",
+      "$extensions": {
+        "com.figma": {
+          "scopes": [
+            "CORNER_RADIUS",
+            "WIDTH_HEIGHT",
+            "EFFECT_FLOAT"
+          ]
+        }
+      },
+      "$value": 1000
+    },
+    "selectors": {
+      "$type": "number",
+      "$extensions": {
+        "com.figma": {
+          "scopes": [
+            "CORNER_RADIUS",
+            "WIDTH_HEIGHT",
+            "EFFECT_FLOAT"
+          ]
+        }
+      },
+      "$value": 1000
+    },
+    "round": {
+      "$type": "number",
+      "$extensions": {
+        "com.figma": {
+          "scopes": [
+            "CORNER_RADIUS",
+            "WIDTH_HEIGHT",
+            "EFFECT_FLOAT"
+          ]
+        }
+      },
+      "$value": 1000
+    },
+    "null": {
+      "$type": "number",
+      "$extensions": {
+        "com.figma": {
+          "scopes": [
+            "CORNER_RADIUS",
+            "WIDTH_HEIGHT",
+            "EFFECT_FLOAT"
+          ]
+        }
+      },
+      "$value": ""
+    }
+  }
+}

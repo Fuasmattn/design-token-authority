@@ -1,0 +1,35 @@
+T   ✔  dta lint 
+|
+o  Linting complete.
+|
+|  Brand(Alias).BrandA.json
+|
+|    warn Token path segment "overlay" does not match pattern /^[A-Z][A-Za-z ]*$/ for collection "Brand(Alias)" [naming-pattern]
+|
+|    warn Token path segment "shadow" does not match pattern /^[A-Z][A-Za-z ]*$/ for collection "Brand(Alias)" [naming-pattern]
+|
+|    warn Contrast ratio 4.39:1 between "Colors.Text.Muted" (#6b7280) and "Colors.Surface.Muted" (#f3f4f6) is below 4.5:1 in BrandA [color-contrast]
+|
+|  Brand(Alias).BrandB.json
+|
+|    warn Token path segment "overlay" does not match pattern /^[A-Z][A-Za-z ]*$/ for collection "Brand(Alias)" [naming-pattern]
+|
+|    warn Token path segment "shadow" does not match pattern /^[A-Z][A-Za-z ]*$/ for collection "Brand(Alias)" [naming-pattern]
+|
+|    warn Contrast ratio 4.39:1 between "Colors.Text.Muted" (#6b7280) and "Colors.Surface.Muted" (#f3f4f6) is below 4.5:1 in BrandB [color-contrast]
+|
+|  Primitives.Value.json
+|
+|    warn Duplicate value "4" — also defined in: Primitives.Value/Dimensions/spacing/1, Primitives.Value/Effects/blur/sm [no-duplicate-values]
+|
+|    warn Duplicate value "4" — also defined in: Primitives.Value/Dimensions/spacing/1, Primitives.Value/Dimensions/radius/sm [no-duplicate-values]
+|
+|    warn Duplicate value "8" — also defined in: Primitives.Value/Dimensions/spacing/2 [no-duplicate-values]
+|
+|    warn Duplicate value "16" — also defined in: Primitives.Value/Dimensions/spacing/4 [no-duplicate-values]
+|
+|
+|  10 warnings found.
+|
+—  Lint passed with warnings.
+

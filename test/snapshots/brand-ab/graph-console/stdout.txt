@@ -1,0 +1,37 @@
+T   ⮕  dta graph 
+|
+o  Graph built
+|
+|  Tokens: 63 | Aliases: 37 (59%) | Max depth: 1 | Issues: 0
+
+Token Dependency Graph
+──────────────────────────────────────────────────
+
+  Total tokens:       63
+  Alias tokens:       37  (59%)
+  Max chain depth:    1
+  Circular refs:      0
+  Dangling aliases:   0
+  Orphaned tokens:    4  ℹ
+
+  Tokens by file:
+    Brand(Alias).BrandA: 11
+    Brand(Alias).BrandB: 11
+    Primitives.Value: 26
+    ScreenType.Desktop: 5
+    ScreenType.Mobile: 5
+    ScreenType.Tablet: 5
+
+  Tokens by type:
+    color: 25
+    string: 4
+    number: 34
+
+ℹ Orphaned tokens (4 raw values never referenced by any alias):
+  Primitives.Value/Dimensions/spacing/1
+  Primitives.Value/Dimensions/radius/pill
+  Primitives.Value/Effects/opacity/80
+  Primitives.Value/Effects/blur/sm
+|
+—  Done!
+

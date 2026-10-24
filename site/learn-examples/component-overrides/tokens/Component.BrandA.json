@@ -1,0 +1,7 @@
+{
+  "button": {
+    "background": { "$type": "color", "$value": "{action.background}" },
+    "label": { "$type": "color", "$value": "{action.foreground}" },
+    "radius": { "$type": "number", "$value": "{shape.control}" }
+  }
+}

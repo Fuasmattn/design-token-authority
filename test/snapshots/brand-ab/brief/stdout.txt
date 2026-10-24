@@ -1,0 +1,63 @@
+# BrandA brief
+
+## Colors
+
+- Primary: `#0057b8` (Colors.Brand.Primary): main actions, links, brand moments
+- Accent: `#3b8fd9` (Colors.Brand.Accent): emphasis, used sparingly
+- Text: `#111827` (Colors.Text.Default), `#6b7280` (Colors.Text.Muted)
+- Surfaces: `#ffffff` (Colors.Surface.Default), `#f3f4f6` (Colors.Surface.Muted)
+- Neutrals, dark to light: `#111827` `#6b7280` `#f3f4f6` `#ffffff`
+
+## Typography
+
+- Fonts: Inter (Typography.Body.Family), Source Serif 4 (Typography.FontFamily.Serif)
+- Sizes: 14, 16, 20, 28 (px)
+
+## Spacing
+
+4, 8, 16, 32 (px)
+
+## Radius
+
+4, 8, 999 (px)
+
+## Breakpoints
+
+Mobile (default), Tablet (min-width: 768px), Desktop (min-width: 1024px)
+
+## Rules
+
+- Use only the values in this brief: no other colours, sizes or fonts.
+
+---
+
+# BrandB brief
+
+## Colors
+
+- Primary: `#3d5a80` (Colors.Brand.Primary): main actions, links, brand moments
+- Accent: `#3b8fd9` (Colors.Brand.Accent): emphasis, used sparingly
+- Text: `#111827` (Colors.Text.Default), `#6b7280` (Colors.Text.Muted)
+- Surfaces: `#ffffff` (Colors.Surface.Default), `#f3f4f6` (Colors.Surface.Muted)
+- Neutrals, dark to light: `#111827` `#6b7280` `#f3f4f6` `#ffffff`
+
+## Typography
+
+- Fonts: Source Serif 4 (Typography.Body.Family), Inter (Typography.FontFamily.Sans)
+- Sizes: 14, 16, 20, 28 (px)
+
+## Spacing
+
+4, 8, 16, 32 (px)
+
+## Radius
+
+4, 8, 999 (px)
+
+## Breakpoints
+
+Mobile (default), Tablet (min-width: 768px), Desktop (min-width: 1024px)
+
+## Rules
+
+- Use only the values in this brief: no other colours, sizes or fonts.

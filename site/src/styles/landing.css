@@ -1,0 +1,151 @@
+/*
+ * The landing page (spec: docs/specs/landing-redesign.md) on the DTA Drafting Table tokens, inside
+ * the shared frame (site.css). One plain surface, no grid: this file places design-system
+ * components (the well, the scenes, the facts, the floating objects) and sets the hero's type;
+ * every size comes from a token (src/landing/styles.test.ts checks).
+ */
+
+/* Hero: the copy sits on the gravity well; the header floats over it */
+.dta-well .grid {
+  max-width: var(--layout-content);
+  margin: 0 auto;
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+  padding-top: calc(var(--space-24) + var(--space-4));
+}
+h1 {
+  margin: 0 0 var(--space-4);
+  max-width: var(--layout-title);
+  font-weight: var(--type-display-xl-weight);
+  font-stretch: 85%;
+  font-size: clamp(
+    calc(var(--type-heading-size) * 1px * 0.92),
+    4.2vw,
+    calc(var(--type-display-xl-size) * 1px * 0.6)
+  );
+  line-height: var(--type-display-xl-line-height);
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+h1 .accent {
+  color: var(--action-bg);
+  font-style: italic;
+}
+.lede {
+  margin: 0 0 var(--space-6);
+  max-width: var(--layout-measure);
+  font-size: calc(var(--type-body-lg-size) * 1px * 0.9);
+  line-height: var(--type-body-lg-line-height);
+  color: var(--fg-muted);
+}
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+/* The workflow at a glance, right below the hero (the "How it works" anchor) */
+.how {
+  padding-top: var(--space-12);
+  scroll-margin-top: var(--space-6);
+}
+
+/* The story: four scenes and the facts, space-36 apart on desktop */
+.story {
+  display: grid;
+  gap: var(--space-20);
+  padding-top: var(--space-16);
+  padding-bottom: var(--space-24);
+}
+.two-states {
+  display: grid;
+  gap: var(--space-6);
+  justify-items: center;
+}
+.pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  align-items: end;
+}
+.shares {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--site-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  color: var(--fg-muted);
+}
+.shares .token {
+  color: var(--fg-default);
+}
+.agent {
+  display: grid;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: var(--layout-measure);
+}
+.caption {
+  margin: 0;
+  font-family: var(--site-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  color: var(--fg-subtle);
+}
+
+/* The end: the final call among the floating objects */
+.final {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-24);
+  padding-bottom: var(--space-24);
+  text-align: center;
+}
+.final h2 {
+  margin: 0;
+  font-size: clamp(
+    calc(var(--type-heading-size) * 1px),
+    6vw,
+    calc(var(--type-display-lg-size) * 1px * 1.2)
+  );
+  font-weight: var(--type-display-lg-weight);
+  line-height: var(--type-display-lg-line-height);
+  letter-spacing: var(--type-display-lg-letter-spacing);
+}
+.final p {
+  margin: 0 0 var(--space-3);
+  max-width: var(--layout-measure);
+  color: var(--fg-muted);
+  line-height: var(--type-body-line-height);
+}
+@media (min-width: 1000px) {
+  .how {
+    padding-top: var(--space-16);
+  }
+  .story {
+    gap: var(--space-36);
+    padding-top: var(--space-24);
+    padding-bottom: var(--space-36);
+  }
+  .final {
+    padding-top: var(--space-36);
+    padding-bottom: var(--space-36);
+  }
+}
+
+@media (max-width: 760px) {
+  .dta-well .grid {
+    padding-top: var(--space-20);
+  }
+  h1 {
+    margin-bottom: var(--space-3);
+  }
+  .lede {
+    margin-bottom: var(--space-4);
+    font-size: calc(var(--type-body-size) * 1px * 0.95);
+  }
+}

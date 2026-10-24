@@ -1,0 +1,58 @@
+---
+title: Motion
+description: The motion rule of DTA Drafting Table - every change a person should notice is transitioned, short and on the motion tokens.
+---
+
+import MotionTokens from '../../../components/docs/MotionTokens.astro'
+
+When something on a screen changes without motion, people miss what changed: a panel is suddenly there, a count is suddenly different, the content under a tab is suddenly other content. This is change blindness, and the page feels jumpy with it. DTA Drafting Table moves things for one reason only: so that a change is seen and understood.
+
+## The rule
+
+**Every state change a person should notice is transitioned, never instant.**
+
+- **Things that appear come from where they come from, and leave back there.** A side panel comes in from the right edge, a bottom sheet slides up from the bottom and back down, the input collapses into the source bar it becomes, new results fade in one after another (`motion.stagger`) instead of all at once.
+- **Content that changes in place crossfades.** The panel of a tab, the text of a source bar after "Replace files", a group of output files that is rebuilt.
+- **A value that changes is briefly highlighted.** It lights up in `action-subtle` with `action-text` ink and fades back over `motion.duration.highlight`: the summary counts, the count on a tab. Use the [Changed](/design-system/components/changed/) component.
+- **Layout changes animate instead of jumping.** When a panel opens beside the view, the view's column narrows with it; when a disclosure opens, its height grows (no script measures it); when a group of files goes away, the ones below move up.
+- **Short and functional.** `fast` for small changes in place, `base` for most transitions, `slow` for larger moves; nothing waits longer than a third of a second. No bounce, no overshoot, no decoration, with one exception: the landing page's [gravity well](/design-system/components/gravity-well/) and its [floating objects](/design-system/components/floating-objects/).
+- **Selection follows.** A selected row's tint and the moving tab indicator come and go over `fast` and `base`; the selection itself is never only in the motion.
+
+## Reduced motion
+
+Under `prefers-reduced-motion: reduce`:
+
+- **Positions do not move.** Nothing slides, grows, turns or parallaxes; panels, sheets and disclosures are there at once, and View Transitions are not started.
+- **Changes become instant.** (A short crossfade would be allowed; instant is what the site does.)
+- **The highlight of a changed value stays.** It is information, not motion: only its colours change. The frame's rule that turns animations off lets it through.
+
+An end-to-end test drives the playground under reduced motion and checks that only colours animate and that the changed counts still light up; another checks that with motion the transitions run on the tokens.
+
+## Do and don't
+
+| Do                                                                                | Don't                                                                                                  |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Slide the sheet up from the bottom edge, and down again on close.                 | Let a panel or sheet appear (or vanish) in one frame.                                                  |
+| Crossfade a tab's panel, and move the tab indicator to the new tab.               | Swap the content under a tab without a transition.                                                     |
+| Highlight a count that changed (`7 output files`) with Changed.                   | Change a number silently, or flash it in `signal` (orange means "changed" in a diff, not "look here"). |
+| Animate a disclosure's height with CSS (`::details-content`, `interpolate-size`). | Measure heights in script to animate them, or let the content below jump.                              |
+| Use `var(--motion-duration-*)` and `var(--motion-ease-*)`.                        | Write `0.2s ease` or `cubic-bezier(…)` in a component (a test fails).                                  |
+| Keep a move under `slow` (320 ms).                                                | Bounce, overshoot, or decorate a state change.                                                         |
+| Turn movement off under reduced motion and keep the highlight.                    | Turn the highlight off with the movement.                                                              |
+| Change a hover at once; transition the state change (a tab, a selection).         | Transition a hover on a property a state also changes: a pointer passing by cuts it short.             |
+
+## Tokens
+
+The tokens are in `site/tokens` and built with `dta build` like the rest ([Motion tokens](/design-system/tokens/motion/)).
+
+<MotionTokens kind="duration" />
+
+<MotionTokens kind="ease" />
+
+## How it is built
+
+- **CSS transitions on the tokens** in each component's stylesheet: the [Detail panel](/design-system/components/detail-panel/) uses `@starting-style` and discrete `display`/`overlay` transitions, so a native `<dialog>` slides in and out; [Findings](/design-system/components/findings/) open a rule's lines with `::details-content` and `interpolate-size`; [Tabs](/design-system/components/tabs/) move one indicator; the [Graph canvas](/design-system/components/graph-canvas/) tints the selected chain over `fast` and scrolls a row revealed from elsewhere into view (smoothly, unless reduced motion).
+- **View Transitions** where the browser has them, through `transition(update, type)` in `src/components/ds/motion.ts` (`document.startViewTransition`; without the API, or under reduced motion, the change happens at once). Parts with a `view-transition-name` move to their new place: the [Token input](/design-system/components/token-input/)'s drop area and the [Source bar](/design-system/components/source-bar/) share `dta-source`, so the input collapses into the bar. A new read (type `dta-read`) crossfades the page; a change in place (`dta-tabs`, `dta-outputs`) leaves the page live and crossfades only the parts of `view-transition-class: dta-swap`. The timing is in the frame (`src/styles/site.css`).
+- **Arrival:** `dta-appear` (in the frame) fades something in from `space-2` below; the playground staggers its parts with `motion.stagger`.
+- **Highlight:** the [Changed](/design-system/components/changed/) component (`useChanged` in `motion.ts` counts changes, so the first render is never highlighted).
+- **Layout:** the playground's view and panel columns transition `grid-template-columns`; a disclosure its block size. Layout shift stays 0 (the tests measure it on the playground and the landing page).

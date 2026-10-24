@@ -1,0 +1,113 @@
+<title>Orbit Loop</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@85,600;85,700;100,400;100,600&family=Martian+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a drawing board the height of the phone; a vertical S-path with seven stations; the ship is the only thing that moves. */
+:root{
+  --bg:#F5F1E8; --surface:#FBF9F4; --grid:rgba(19,33,63,.07); --grid-2:rgba(19,33,63,.09);
+  --ink:#13213F; --ink-2:#22304F; --muted:#5A6480; --faint:#9AA2B4;
+  --blue:#2F55D4; --blue-2:#7590E6; --red:#E8632A; --green:#4F915A;
+  --sh-dark:8px 8px 18px rgba(19,33,63,.16); --sh-light:-6px -6px 14px rgba(255,255,255,.95);
+  --shadow-ink:rgba(19,33,63,1);
+  --sans:'Instrument Sans',system-ui,sans-serif; --mono:'Martian Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1B1A22;--surface:#24232C;--grid:rgba(244,239,230,.06);--grid-2:rgba(244,239,230,.1);--ink:#F4EFE6;--ink-2:#DDD7CB;--muted:#A79FC4;--faint:#6F6B80;--blue:#7590E6;--blue-2:#A9B8F0;--sh-dark:8px 8px 18px rgba(0,0,0,.45);--sh-light:-6px -6px 14px rgba(255,255,255,.05);--shadow-ink:rgba(0,0,0,1);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1B1A22;--surface:#24232C;--grid:rgba(244,239,230,.06);--grid-2:rgba(244,239,230,.1);--ink:#F4EFE6;--ink-2:#DDD7CB;--muted:#A79FC4;--faint:#6F6B80;--blue:#7590E6;--blue-2:#A9B8F0;--sh-dark:8px 8px 18px rgba(0,0,0,.45);--sh-light:-6px -6px 14px rgba(255,255,255,.05);--shadow-ink:rgba(0,0,0,1);color-scheme:dark}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);overflow-x:hidden}
+.board{position:relative;min-height:100%;padding-block:18px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:
+    radial-gradient(ellipse 90% 60% at 30% 10%, rgba(255,255,255,.55), transparent 60%),
+    repeating-linear-gradient(0deg, var(--grid-2) 0 1px, transparent 1px 120px),
+    repeating-linear-gradient(90deg, var(--grid-2) 0 1px, transparent 1px 120px),
+    repeating-linear-gradient(0deg, var(--grid) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px 24px),
+    var(--bg);
+  background-position:center top}
+.head{max-width:360px;margin:0 auto 6px}
+.kicker{font:400 11px/1.4 var(--mono);color:var(--blue);letter-spacing:.02em;margin:0 0 8px}
+h1{font:700 26px/1.05 var(--sans);font-stretch:85%;letter-spacing:-.02em;margin:0 0 8px;text-wrap:balance}
+.lede{margin:0;font-size:14px;line-height:1.5;color:var(--muted);max-width:34ch}
+.stage{position:relative;width:390px;max-width:100%;height:820px;margin:8px auto 0;touch-action:manipulation}
+.stage svg{position:absolute;inset:0;overflow:visible}
+.mono{font-family:var(--mono)}
+.seg{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-dasharray:260;stroke-dashoffset:260;animation:draw 18.0s linear infinite both}
+.seg.red{stroke:var(--red)}
+.seg0{animation-delay:1.17s}.seg1{animation-delay:3.98s}.seg2{animation-delay:6.78s}.seg3{animation-delay:9.58s}.seg4{animation-delay:12.39s}.seg5{animation-delay:15.20s}
+.pad{position:absolute;width:30px;height:30px;border-radius:50%;transform:translate(-50%,-50%);box-shadow:inset 0 0 0 1px var(--grid-2)}
+.dot{position:absolute;width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%)}
+.dot.blue{background:var(--blue)}.dot.ink{background:var(--ink)}.dot.red{background:var(--red)}.dot.green{background:var(--green)}
+.lbl{position:absolute;transform:translateY(-50%);padding:6px 9px;border-radius:999px;font-size:11px;color:var(--ink);white-space:nowrap;background:var(--bg);animation:rise 18.0s ease-out infinite both}
+.lbl.right{text-align:right}
+.pr{position:absolute;transform:translateY(-50%);width:124px;padding:9px 11px;border-radius:10px;background:var(--bg);animation:rise 18.0s ease-out infinite both}
+.pr .t{display:block;font-weight:600;font-size:12px;margin-bottom:3px}
+.pr .s{display:block;font-size:10.5px;color:var(--muted);line-height:1.5;animation:reveal 18.0s linear infinite both}
+.ok{color:var(--green)}.warn{color:var(--red)}.pend{color:var(--blue)}
+.dust{position:absolute;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--red);transform-origin:center;translate:-50% -50%;opacity:0;animation:dust 18.0s ease-out infinite both;pointer-events:none}
+.st0{animation-delay:0.00s}.st1{animation-delay:2.81s}.st2{animation-delay:5.61s}.st3{animation-delay:8.42s}.st4{animation-delay:11.22s}.st5{animation-delay:14.03s}.st6{animation-delay:16.83s}
+.pr.st1 .s,.pr.st3 .s,.pr.st5 .s{animation-name:reveal}
+.pr.st1 .s{animation-delay:2.81s}.pr.st3 .s{animation-delay:8.42s}.pr.st5 .s{animation-delay:14.03s}
+/* the ship */
+.track{position:absolute;left:0;top:0;width:0;height:0;offset-path:path('M 78 96 C 78 152.0, 195 152.0, 195 208 C 195 263.0, 312 263.0, 312 318 C 312 373.0, 195 373.0, 195 428 C 195 483.0, 78 483.0, 78 538 C 78 593.0, 195 593.0, 195 648 C 195 703.0, 312 703.0, 312 758');offset-rotate:auto 90deg;animation:go 18.0s cubic-bezier(.45,0,.2,1) infinite}
+.ghost{position:absolute;left:0;top:0;width:0;height:0;offset-path:path('M 78 96 C 78 152.0, 195 152.0, 195 208 C 195 263.0, 312 263.0, 312 318 C 312 373.0, 195 373.0, 195 428 C 195 483.0, 78 483.0, 78 538 C 78 593.0, 195 593.0, 195 648 C 195 703.0, 312 703.0, 312 758');offset-rotate:auto 90deg;animation:go 18.0s cubic-bezier(.45,0,.2,1) infinite}
+.g1{animation-delay:-.14s}.g2{animation-delay:-.28s}.g3{animation-delay:-.42s}
+.shadow{position:absolute;left:-11px;top:-14px;width:22px;height:28px;border-radius:50%;background:var(--shadow-ink);animation:shade 18.0s cubic-bezier(.45,0,.2,1) infinite}
+.ghost .shadow{animation:shade 18.0s cubic-bezier(.45,0,.2,1) infinite;left:-8px;top:-10px;width:16px;height:20px}.ghost .tw{display:block;animation:trail 18.0s linear infinite}.g1 .tw{--ga:.35;animation-delay:-.18s}.g2 .tw{--ga:.2;animation-delay:-.36s}.g3 .tw{--ga:.1;animation-delay:-.54s}.g1{animation-delay:-.18s}.g2{animation-delay:-.36s}.g3{animation-delay:-.54s}.g1 .shadow{animation-delay:-.18s}.g2 .shadow{animation-delay:-.36s}.g3 .shadow{animation-delay:-.54s}
+.g1 .shadow{opacity:.12}.g2 .shadow{opacity:.08}.g3 .shadow{opacity:.05}
+.ship{display:none;position:absolute;left:-14px;top:-17px;width:28px;height:34px;animation:fly 18.0s cubic-bezier(.45,0,.2,1) infinite;transform-origin:50% 55%}
+.paused *{animation-play-state:paused !important}
+.lane{position:absolute;top:34px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.num{position:absolute;transform:translateY(-50%);font-size:10px;color:var(--muted);width:14px;text-align:center}.caps{position:sticky;bottom:0;max-width:360px;margin:0 auto;height:104px;padding:14px 0 8px;background:linear-gradient(to bottom,transparent,var(--bg) 22%)}.cap{position:absolute;left:0;right:0;margin:0;font:400 14px/1.45 var(--sans);color:var(--ink);opacity:0;animation-name:say;animation-duration:18.0s;animation-timing-function:linear;animation-iteration-count:infinite;animation-fill-mode:both}.cap b{display:block;font:500 10px/1.6 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}.cap code{font-family:var(--mono);font-size:13px}@keyframes say{0%,1%{opacity:0;translate:0 4px}3%,13.5%{opacity:1;translate:0 0}15.5%,100%{opacity:0;translate:0 0}}@media (prefers-reduced-motion:reduce){.cap{animation:none}.cap.st0{opacity:1}}.foot{max-width:360px;margin:10px auto 0;font:400 11px/1.5 var(--mono);color:var(--faint)}
+@keyframes go{0.00%{offset-distance:0.000%}6.50%{offset-distance:0.000%}15.58%{offset-distance:16.667%}22.08%{offset-distance:16.667%}31.17%{offset-distance:33.333%}37.67%{offset-distance:33.333%}46.75%{offset-distance:50.000%}53.25%{offset-distance:50.000%}62.33%{offset-distance:66.667%}68.83%{offset-distance:66.667%}77.92%{offset-distance:83.333%}84.42%{offset-distance:83.333%}93.50%{offset-distance:100.000%}100.00%{offset-distance:100.000%}}@keyframes fly{0.00%,6.50%{transform:translateY(0) scale(1)}9.04%,13.04%{transform:translateY(-16px) scale(1.32)}15.58%,22.08%{transform:translateY(0) scale(1)}24.63%,28.62%{transform:translateY(-16px) scale(1.32)}31.17%,37.67%{transform:translateY(0) scale(1)}40.21%,44.21%{transform:translateY(-16px) scale(1.32)}46.75%,53.25%{transform:translateY(0) scale(1)}55.79%,59.79%{transform:translateY(-16px) scale(1.32)}62.33%,68.83%{transform:translateY(0) scale(1)}71.38%,75.37%{transform:translateY(-16px) scale(1.32)}77.92%,84.42%{transform:translateY(0) scale(1)}86.96%,90.96%{transform:translateY(-16px) scale(1.32)}93.50%,100.00%{transform:translateY(0) scale(1)}}@keyframes shade{0.00%,6.50%{transform:translate(2px,4px) scale(1);filter:blur(1px);opacity:.42}9.04%,13.04%{transform:translate(14px,22px) scale(1.25);filter:blur(5px);opacity:.16}15.58%,22.08%{transform:translate(2px,4px) scale(1);filter:blur(1px);opacity:.42}24.63%,28.62%{transform:translate(14px,22px) scale(1.25);filter:blur(5px);opacity:.16}31.17%,37.67%{transform:translate(2px,4px) scale(1);filter:blur(1px);opacity:.42}40.21%,44.21%{transform:translate(14px,22px) scale(1.25);filter:blur(5px);opacity:.16}46.75%,53.25%{transform:translate(2px,4px) scale(1);filter:blur(1px);opacity:.42}55.79%,59.79%{transform:translate(14px,22px) scale(1.25);filter:blur(5px);opacity:.16}62.33%,68.83%{transform:translate(2px,4px) scale(1);filter:blur(1px);opacity:.42}71.38%,75.37%{transform:translate(14px,22px) scale(1.25);filter:blur(5px);opacity:.16}77.92%,84.42%{transform:translate(2px,4px) scale(1);filter:blur(1px);opacity:.42}86.96%,90.96%{transform:translate(14px,22px) scale(1.25);filter:blur(5px);opacity:.16}93.50%,100.00%{transform:translate(2px,4px) scale(1);filter:blur(1px);opacity:.42}}@keyframes trail{0.00%,6.50%{opacity:0}9.04%,13.04%{opacity:var(--ga,1)}15.58%,22.08%{opacity:0}24.63%,28.62%{opacity:var(--ga,1)}31.17%,37.67%{opacity:0}40.21%,44.21%{opacity:var(--ga,1)}46.75%,53.25%{opacity:0}55.79%,59.79%{opacity:var(--ga,1)}62.33%,68.83%{opacity:0}71.38%,75.37%{opacity:var(--ga,1)}77.92%,84.42%{opacity:0}86.96%,90.96%{opacity:var(--ga,1)}93.50%,100.00%{opacity:0}}@keyframes rise{0%,1%{translate:0 0;box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0)}3%,6.5%{translate:0 -3px;box-shadow:var(--sh-dark),var(--sh-light)}10.0%,100%{translate:0 0;box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0)}}@keyframes reveal{0%,2.5%{opacity:.3}6.5%,100%{opacity:var(--ga,1)}}@keyframes dust{0%,0.8%{transform:scale(.2);opacity:0}1%{opacity:.5}6%{transform:scale(1);opacity:0}100%{transform:scale(1);opacity:0}}@keyframes draw{0%{stroke-dashoffset:260}9.08%,100%{stroke-dashoffset:0}}
+@media (prefers-reduced-motion: reduce){.seg,.lbl,.pr,.pr .s,.dust,.track,.ghost,.shadow,.ship{animation:none}.seg{stroke-dashoffset:0}.ghost{display:none}.track{offset-distance:0%}}
+.stage[data-carrier="ship"] .c-ship,.stage[data-carrier="plane"] .c-plane,.stage[data-carrier="plotter"] .c-plotter,.stage[data-carrier="cube"] .c-cube{display:block}
+.stage[data-carrier="cube"] .shadow{left:-10px;top:-10px;width:20px;height:20px}
+.switch{display:flex;gap:6px;max-width:360px;margin:14px auto 0;flex-wrap:wrap}
+.switch button{font:400 11px var(--mono);color:var(--ink);background:var(--bg);border:0;border-radius:999px;padding:8px 12px;cursor:pointer;box-shadow:inset 0 0 0 1px var(--grid-2)}
+.switch button[aria-pressed="true"]{box-shadow:var(--sh-dark),var(--sh-light);translate:0 -2px}
+.switch button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+</style>
+<main class="board">
+  <header class="head">
+    <p class="kicker">THE LOOP · PROTOTYPE</p>
+    <h1>Design on one lane, product on the other.</h1>
+    <p class="lede">Every change crosses the pull request. A fix flies back to the lane that caused it, and the next pass goes through again.</p>
+  </header>
+  <div class="stage" id="stage" data-carrier="ship" aria-label="A change travels from Figma through the pull request to the product and back">
+    <span class="lane mono" style="left:16px">Design</span><span class="lane mono" style="left:50%;translate:-50% 0">Pull request</span><span class="lane mono" style="right:16px">Product</span><span class="num mono" style="left:50px;top:96px">1</span><span class="num mono" style="left:165px;top:208px">2</span><span class="num mono" style="left:328px;top:318px">3</span><span class="num mono" style="left:165px;top:428px">4</span><span class="num mono" style="left:50px;top:538px">5</span><span class="num mono" style="left:165px;top:648px">6</span><span class="num mono" style="left:328px;top:758px">7</span><svg viewBox="0 0 390 820" width="390" height="820" aria-hidden="true">
+      <path class="seg seg0" d="M 78 96 C 78 152.0, 195 152.0, 195 208"/>
+<path class="seg seg1" d="M 195 208 C 195 263.0, 312 263.0, 312 318"/>
+<path class="seg seg2" d="M 312 318 C 312 373.0, 195 373.0, 195 428"/>
+<path class="seg seg3 red" d="M 195 428 C 195 483.0, 78 483.0, 78 538"/>
+<path class="seg seg4" d="M 78 538 C 78 593.0, 195 593.0, 195 648"/>
+<path class="seg seg5" d="M 195 648 C 195 703.0, 312 703.0, 312 758"/>
+    </svg>
+    <span class="dot blue" style="left:78px;top:96px"></span><span class="pad" style="left:78px;top:96px"></span><span class="dust st st0" style="left:78px;top:96px"></span><span class="lbl mono st st0 left" style="left:92px;top:96px">Figma · Nova 500 → 600</span>
+<div class="pr st st1" style="left:213px;top:208px"><span class="t">PR #482</span><span class="s mono"><span class="ok">lint ✓</span> · diff <span class="pend">●</span></span></div><span class="pad" style="left:195px;top:208px"></span><span class="dust st st1" style="left:195px;top:208px"></span>
+<span class="dot ink" style="left:312px;top:318px"></span><span class="pad" style="left:312px;top:318px"></span><span class="dust st st2" style="left:312px;top:318px"></span><span class="lbl mono st st2 right" style="right:92px;top:318px">story · button darker ✓</span>
+<div class="pr st st3" style="left:213px;top:428px"><span class="t">PR #482</span><span class="s mono"><span class="warn">label changed too</span></span></div><span class="pad" style="left:195px;top:428px"></span><span class="dust st st3" style="left:195px;top:428px"></span>
+<span class="dot red" style="left:78px;top:538px"></span><span class="pad" style="left:78px;top:538px"></span><span class="dust st st4" style="left:78px;top:538px"></span><span class="lbl mono st st4 left" style="left:92px;top:538px">Figma · Text.OnBrand → white</span>
+<div class="pr st st5" style="left:213px;top:648px"><span class="t">PR #482</span><span class="s mono"><span class="ok">approved ✓</span></span></div><span class="pad" style="left:195px;top:648px"></span><span class="dust st st5" style="left:195px;top:648px"></span>
+<span class="dot green" style="left:312px;top:758px"></span><span class="pad" style="left:312px;top:758px"></span><span class="dust st st6" style="left:312px;top:758px"></span><span class="lbl mono st st6 right" style="right:92px;top:758px">product · CSS + Tailwind rebuilt</span>
+    <div class="ghost g3"><span class="tw"><span class="shadow"></span></span></div>
+    <div class="ghost g2"><span class="tw"><span class="shadow"></span></span></div>
+    <div class="ghost g1"><span class="tw"><span class="shadow"></span></span></div>
+    <div class="track" aria-hidden="true">
+      <span class="shadow"></span>
+      <svg class="ship c-ship" viewBox="0 0 28 34"><path d="M14 1 C 20 8, 22 16, 22 24 L 25 30 L 19 28 Q 14 31 9 28 L 3 30 L 6 24 C 6 16, 8 8, 14 1 Z" fill="var(--ink)"/><ellipse cx="14" cy="13" rx="3.2" ry="4" fill="var(--bg)"/><rect x="11" y="19" width="6" height="6" rx="1.2" fill="var(--blue)"/><path d="M10 30 L14 34 L18 30 Z" fill="var(--red)"/></svg>
+      <svg class="ship c-plane" viewBox="0 0 28 34"><path d="M14 1 L26 30 L14 24 Z" fill="var(--ink-2)"/><path d="M14 1 L2 30 L14 24 Z" fill="var(--ink)"/><path d="M14 24 L14 33 L17.5 29 Z" fill="var(--muted)"/><rect x="11.5" y="13" width="5" height="5" rx="1" fill="var(--blue)"/></svg>
+      <svg class="ship c-plotter" viewBox="0 0 28 34"><rect x="3" y="7" width="22" height="20" rx="4" fill="var(--ink)"/><rect x="6" y="10" width="16" height="14" rx="2.5" fill="var(--bg)"/><circle cx="14" cy="17" r="3.2" fill="var(--red)"/><rect x="11" y="27" width="6" height="4" rx="1" fill="var(--blue)"/><rect x="0" y="15" width="3" height="4" rx="1" fill="var(--muted)"/><rect x="25" y="15" width="3" height="4" rx="1" fill="var(--muted)"/></svg>
+      <svg class="ship c-cube" viewBox="0 0 28 34"><g transform="translate(14 17)"><polygon points="0,-10 9,-5 0,0 -9,-5" fill="var(--blue-2)"/><polygon points="-9,-5 0,0 0,10 -9,5" fill="var(--blue)"/><polygon points="0,0 9,-5 9,5 0,10" fill="#2443AC"/></g></svg>
+    </div>
+  </div>
+  <div class="caps" aria-live="polite"><p class="cap st st0"><b>1 · Design</b>A designer darkens the brand colour in Figma. Nova 500 becomes 600.</p><p class="cap st st1"><b>2 · Pull request</b><code>dta pull</code> lands it as a pull request. Lint passes; the visual diff is running.</p><p class="cap st st2"><b>3 · Product</b>The rendered button is darker. That was the point.</p><p class="cap st st3"><b>4 · Pull request</b>The diff found a second difference: the button label darkened too. DTA names the token behind it: Text.OnBrand aliases Nova.</p><p class="cap st st4"><b>5 · Design</b>Back to Figma. Text.OnBrand now points to white.</p><p class="cap st st5"><b>6 · Pull request</b>The next pass has one intended change. Approved.</p><p class="cap st st6"><b>7 · Product</b>CSS, Tailwind and the other outputs are rebuilt from the tokens.</p></div><div class="switch" role="group" aria-label="What carries the change"><button type="button" data-c="ship" aria-pressed="true">ship</button><button type="button" data-c="plane" aria-pressed="false">paper plane</button><button type="button" data-c="plotter" aria-pressed="false">plotter head</button><button type="button" data-c="cube" aria-pressed="false">the token itself</button></div>
+  <p class="foot">Tap the board to pause. One lap is 18 seconds. The carrier lands at each station; what it lands on rises.</p>
+</main>
+<script>
+  const stage=document.getElementById('stage');
+  stage.addEventListener('click',()=>stage.classList.toggle('paused'));
+  const buttons=[...document.querySelectorAll('.switch button')];
+  const setCarrier=(c)=>{stage.dataset.carrier=c;for(const b of buttons)b.setAttribute('aria-pressed',String(b.dataset.c===c));try{localStorage.setItem('orbit-loop-carrier',c)}catch{}};
+  for(const b of buttons)b.addEventListener('click',()=>setCarrier(b.dataset.c));
+  try{const saved=localStorage.getItem('orbit-loop-carrier');if(saved&&buttons.some(b=>b.dataset.c===saved))setCarrier(saved)}catch{}
+</script>

@@ -28,26 +28,34 @@ Token changes (especially color, spacing, typography) have visual consequences t
 **Stack:** Playwright (already handles screenshots + pixel diff) — no additional visual testing library needed.
 
 **Fixture approach:**
+
 ```html
 <!-- test/visual/fixtures/color-palette.html -->
 <!DOCTYPE html>
 <html>
-<head>
-  <link rel="stylesheet" href="../../../build/css/variables.css">
-  <style>
-    .swatch { width: 80px; height: 80px; display: inline-block; }
-    .primary { background: var(--color-brand-primary); }
-    /* ... */
-  </style>
-</head>
-<body>
-  <div class="swatch primary"></div>
-  <!-- ... -->
-</body>
+  <head>
+    <link rel="stylesheet" href="../../../build/css/variables.css" />
+    <style>
+      .swatch {
+        width: 80px;
+        height: 80px;
+        display: inline-block;
+      }
+      .primary {
+        background: var(--color-brand-primary);
+      }
+      /* ... */
+    </style>
+  </head>
+  <body>
+    <div class="swatch primary"></div>
+    <!-- ... -->
+  </body>
 </html>
 ```
 
 **Playwright test:**
+
 ```ts
 test('color palette visual regression', async ({ page }) => {
   await page.goto(`file://${path.resolve('test/visual/fixtures/color-palette.html')}`)

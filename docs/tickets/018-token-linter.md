@@ -11,6 +11,7 @@ Build a `dta lint` command that validates token files against configurable rules
 ## Background
 
 Once the token format is settled, a linter enables enforcing invariants automatically. Examples of rules that should be checked:
+
 - Semantic tokens must alias primitives (not hardcode raw values)
 - No circular alias chains
 - No dangling aliases
@@ -39,6 +40,7 @@ Once the token format is settled, a linter enables enforcing invariants automati
 ## Implementation Notes
 
 **Config example:**
+
 ```ts
 // dta.config.ts
 export default defineConfig({
@@ -56,7 +58,11 @@ export default defineConfig({
       'color-contrast': {
         error: true,
         pairs: [
-          { foreground: 'Colors.Text.Default', background: 'Colors.Background.Default', minRatio: 4.5 },
+          {
+            foreground: 'Colors.Text.Default',
+            background: 'Colors.Background.Default',
+            minRatio: 4.5,
+          },
         ],
       },
     },
@@ -65,6 +71,7 @@ export default defineConfig({
 ```
 
 **Rule engine:**
+
 ```ts
 interface LintRule {
   name: string

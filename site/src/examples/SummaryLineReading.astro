@@ -1,0 +1,9 @@
+---
+// The playground's summary while the input waits for the analysis (TICKET-124): the brand-ab
+// example's six files, chosen before the analysis chunk arrived.
+import SummaryLine from '../components/ds/SummaryLine'
+import { EXAMPLE } from '../playground/example'
+import { plural } from '../playground/shared'
+---
+
+<SummaryLine parts={[]} reading={`Reading ${plural(EXAMPLE.files.length, 'file')}…`} />

@@ -1,0 +1,40 @@
+{
+  "schema": "dta.audit-baseline/1",
+  "findings": [
+    {
+      "file": "src/Button.css",
+      "value": "#0057b8",
+      "kind": "color",
+      "context": "background",
+      "token": "Colors.Brand.Primary"
+    },
+    {
+      "file": "src/Button.css",
+      "value": "16px",
+      "kind": "spacing",
+      "context": "padding",
+      "token": "Dimensions.spacing.4"
+    },
+    {
+      "file": "src/Card.tsx",
+      "value": "#f3f4f6",
+      "kind": "color",
+      "context": "bg-[…]",
+      "token": "Colors.Surface.Muted"
+    },
+    {
+      "file": "src/Card.tsx",
+      "value": "16px",
+      "kind": "spacing",
+      "context": "p-[…]",
+      "token": "Dimensions.spacing.4"
+    },
+    {
+      "file": "src/Card.tsx",
+      "value": "Inter",
+      "kind": "font-family",
+      "context": "fontFamily",
+      "token": "Typography.Body.Family"
+    }
+  ]
+}

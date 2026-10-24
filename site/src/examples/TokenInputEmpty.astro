@@ -1,0 +1,11 @@
+---
+import TokenInput from '../components/ds/TokenInput'
+import { inputExamples } from '../playground/example'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'token-input-empty' } = Astro.props
+---
+
+<TokenInput idPrefix={idPrefix} examples={inputExamples()} />

@@ -1,0 +1,109 @@
+{
+  "depth": {
+    "$type": "boolean",
+    "$extensions": {
+      "com.figma": {
+        "scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "$value": ""
+  },
+  "foreground-shadow": {
+    "$type": "boolean",
+    "$extensions": {
+      "com.figma": {
+        "scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "$value": ""
+  },
+  "foreground-NoShadow": {
+    "$type": "boolean",
+    "$extensions": {
+      "com.figma": {
+        "scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "$value": true
+  },
+  "btn": {
+    "dropShadow": {
+      "01": {
+        "Y": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "EFFECT_FLOAT"
+              ]
+            }
+          },
+          "$value": ""
+        },
+        "blur": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "EFFECT_FLOAT"
+              ]
+            }
+          },
+          "$value": ""
+        },
+        "spread": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "EFFECT_FLOAT"
+              ]
+            }
+          },
+          "$value": ""
+        }
+      },
+      "02": {
+        "Y": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "EFFECT_FLOAT"
+              ]
+            }
+          },
+          "$value": ""
+        },
+        "blur": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "EFFECT_FLOAT"
+              ]
+            }
+          },
+          "$value": ""
+        },
+        "spread": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": [
+                "EFFECT_FLOAT"
+              ]
+            }
+          },
+          "$value": ""
+        }
+      }
+    }
+  }
+}

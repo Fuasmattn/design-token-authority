@@ -1,0 +1,13 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-brand="dark"] {
+  --surface-muted: #1f2937;
+  --surface-base: var(--color-gray-900);
+  --text-default: var(--color-gray-100);
+  --accent: var(--color-blue-light);
+  --button-background: var(--accent);
+  --button-text: var(--surface-base);
+  --button-shadow: 0px var(--size-s) var(--size-m) 0px var(--text-default);
+}

@@ -3,6 +3,7 @@
 **Phase:** 3 — Output Targets
 **Priority:** Low
 **Effort:** M
+**Status:** in review
 
 ## Summary
 
@@ -14,17 +15,18 @@ Jetpack Compose is the current standard for Android UI development. It uses Kotl
 
 ## Acceptance Criteria
 
-- [ ] Output directory: `build/android/compose/`
-- [ ] Generated file: `DesignTokens.kt` with `package` declaration configurable via project config
-- [ ] Color tokens output as `androidx.compose.ui.graphics.Color` with ARGB float values
-- [ ] Dimension tokens output as `Dp` (spacing, radius) or `TextUnit` (font sizes in `sp`)
-- [ ] Namespace: `DesignTokens.Colors.BrandPrimary`, `DesignTokens.Spacing.Spacing4`
-- [ ] Multi-brand: one `object` per brand, or a sealed class hierarchy — document the pattern
-- [ ] Enabled via `outputs.android.lang: 'compose'` in project config (TICKET-008)
+- [x] Output directory: `build/android/compose/`
+- [x] Generated file: `DesignTokens.kt` with `package` declaration configurable via project config
+- [x] Color tokens output as `androidx.compose.ui.graphics.Color` with ARGB float values
+- [x] Dimension tokens output as `Dp` (spacing, radius) or `TextUnit` (font sizes in `sp`)
+- [x] Namespace: `DesignTokens.Colors.BrandPrimary`, `DesignTokens.Spacing.Spacing4`
+- [x] Multi-brand: one `object` per brand, or a sealed class hierarchy — document the pattern
+- [x] Enabled via `outputs.android.lang: 'compose'` in project config (TICKET-008)
 
 ## Implementation Notes
 
 **Example output:**
+
 ```kotlin
 // DesignTokens.kt — auto-generated, do not edit
 package com.example.app.tokens
@@ -51,6 +53,7 @@ object DesignTokens {
 ```
 
 **Custom formatter:**
+
 ```ts
 // src/formatters/android-compose.ts
 export const androidComposeFormatter: Formatter = ({ dictionary }) => {
@@ -74,3 +77,14 @@ export const androidComposeFormatter: Formatter = ({ dictionary }) => {
 - TICKET-002 (SD v4)
 - TICKET-008 (config — `outputs.android.lang: 'compose'` enables this)
 - TICKET-012 (Android XML) — implement after; shares color format logic
+
+## Outcome (2026-10-23)
+
+Built to the [native outputs spec](../specs/native-outputs.md), with 011 and 012.
+
+- `output/android/compose/DesignTokens.kt`, package from `outputs.android.package` (default `designtokens`; checked as a Kotlin package name).
+- Colours as `Color(0xAARRGGBB)` instead of ARGB floats: the usual Compose form, and exact. Lengths `Dp` (`16.dp`), font sizes `TextUnit` (`16.sp`), numbers `Int`/`Double`, `String`, `Boolean`, durations `Long` ms.
+- `DesignTokens.Colors.BrandPrimary`, `DesignTokens.Dimensions.Spacing4`.
+- Multi-brand: `interface BrandTheme` and one `object <Brand> : BrandTheme`, documented in Reference → Outputs (provide one with a `CompositionLocal`).
+- Enabled by `android-compose` in `outputs.formats`.
+- After an independent review (2026-10-23): types written in full (`SwiftUI.Color`, `androidx.compose.ui.graphics.Color`, `Swift.String`, `kotlin.Int`) so a group named `Color` or `String` compiles; brand tokens decided by structure (the chain goes through a brand collection), not by value; one Kotlin type per brand member; Doubles always with a decimal point, numbers never in exponent form; the `OPACITY` scope as a fraction (as the CSS) and line heights as numbers; every token left out counted in a warning; XML comments and brand folder names made valid; letters of any script kept in Swift and Kotlin, folded to ASCII in XML.

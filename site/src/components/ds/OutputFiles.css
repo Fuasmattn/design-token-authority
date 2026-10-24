@@ -1,0 +1,154 @@
+/*
+ * OutputFiles: groups on the canvas (rules and type, no card). A group's head is the title type
+ * with a mono count and the group download (outline) at the end, closed by the ink rule; file
+ * rows are separated by hairlines: the path in mono as an action-text link, the size in mono
+ * fg-muted, then Copy and Download as quiet buttons at the 44 px touch minimum. The open file's
+ * row is tinted action-subtle (over motion.duration.fast). Below 560px of container width the
+ * path has its own line. Each group is a view-transition part (`<idPrefix>-<group>`), so when the
+ * formats change the groups that stay move and the others fade.
+ */
+.dta-outputs {
+  container-type: inline-size;
+  display: grid;
+  gap: var(--space-8);
+  min-width: 0;
+  font-family: var(--font-sans);
+  color: var(--fg-default);
+}
+.dta-outputs__group {
+  display: grid;
+  min-width: 0;
+}
+.dta-outputs__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: var(--stroke-ink) solid var(--border-strong);
+}
+.dta-outputs__name {
+  margin: 0;
+  font-size: calc(var(--type-title-size) * 1px);
+  font-weight: var(--type-title-weight);
+  line-height: var(--type-title-line-height);
+}
+.dta-outputs__count {
+  flex: 1 1 auto;
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  color: var(--fg-muted);
+}
+.dta-outputs .dta-button {
+  min-height: 44px;
+}
+.dta-outputs__zip.dta-button {
+  padding: 0 var(--space-4);
+}
+.dta-outputs__group {
+  view-transition-class: dta-swap;
+}
+.dta-outputs__files {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dta-outputs__file {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-1) var(--space-2);
+  border-bottom: var(--stroke-hairline) solid var(--border-default);
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+.dta-outputs__file[aria-current='true'] {
+  background: var(--action-subtle);
+}
+/* The path and, where the group mixes outputs, which one it is (`Tailwind v4`) after it. */
+.dta-outputs__where {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-3);
+  min-width: 0;
+}
+.dta-outputs__tag {
+  padding: 0 var(--space-2);
+  border: var(--stroke-hairline) solid var(--border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+.dta-outputs__file[aria-current='true'] .dta-outputs__tag {
+  border-color: var(--action-text);
+  color: var(--action-text);
+}
+.dta-outputs__path {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--action-text);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.dta-outputs__path:hover {
+  text-decoration-thickness: var(--stroke-ink);
+}
+.dta-outputs__path:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: var(--stroke-ink);
+}
+.dta-outputs__size {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-muted);
+  text-align: right;
+  white-space: nowrap;
+}
+.dta-outputs__file[aria-current='true'] .dta-outputs__size {
+  color: var(--action-text);
+}
+.dta-outputs__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+.dta-outputs__actions .dta-button {
+  padding: 0 var(--space-3);
+  font-size: calc(var(--type-body-sm-size) * 1px);
+}
+
+@container (max-width: 559px) {
+  .dta-outputs__file {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0 var(--space-3);
+    padding-bottom: var(--space-2);
+  }
+  .dta-outputs__where {
+    grid-column: 1 / -1;
+  }
+  .dta-outputs__size {
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dta-outputs__file {
+    transition: none;
+  }
+}

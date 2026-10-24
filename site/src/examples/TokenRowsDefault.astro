@@ -1,0 +1,12 @@
+---
+import TokenRows from '../components/ds/TokenRows.astro'
+
+// The three Orbit Burger tokens of scene 01: two of them change (site/examples/orbit-burger).
+const rows = [
+  { name: 'Colors.Surface.Default', value: 'Void.900', swatch: { color: '--void-900' } },
+  { name: 'Colors.Brand.Primary', value: '600', from: 'Nova.500', swatch: { color: '--nova-600' } },
+  { name: 'Radius.Card', value: '24', from: '8', swatch: { radius: 'lg' as const } },
+]
+---
+
+<TokenRows rows={rows} />

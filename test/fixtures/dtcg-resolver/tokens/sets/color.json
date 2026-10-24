@@ -1,0 +1,36 @@
+{
+  "color": {
+    "$type": "color",
+    "blue": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.55,
+          0.18,
+          255
+        ]
+      }
+    },
+    "blue-light": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.8,
+          0.1,
+          255
+        ]
+      }
+    },
+    "gray": {
+      "900": {
+        "$value": "#111827"
+      },
+      "100": {
+        "$value": "#f3f4f6"
+      },
+      "0": {
+        "$value": "#ffffff"
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+---
+import Card from '../components/ds/Card.astro'
+---
+
+<div class="cards">
+  <Card>
+    <strong class="title">Surface</strong>
+    <p class="text">One idea per card, with a hairline border.</p>
+  </Card>
+  <Card featured>
+    <strong class="title">Featured</strong>
+    <p class="text">The one card a section recommends.</p>
+  </Card>
+  <Card href="#" grid>
+    <strong class="title">Link on grid paper</strong>
+    <p class="text">The whole card is the link.</p>
+  </Card>
+</div>
+
+<style>
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-6);
+  }
+  .title {
+    font-size: calc(var(--type-title-size) * 1px);
+    line-height: var(--type-title-line-height);
+  }
+  .text {
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: calc(var(--type-body-sm-size) * 1px);
+    line-height: var(--type-body-sm-line-height);
+  }
+</style>

@@ -1,0 +1,138 @@
+<title>Orbit Loop · short</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,700&family=Martian+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F5F1E8; --surface:#FBF9F4; --grid:rgba(19,33,63,.07); --grid-2:rgba(19,33,63,.09);
+  --ink:#13213F; --ink-2:#22304F; --muted:#5A6480; --faint:#9AA2B4;
+  --blue:#2F55D4; --blue-2:#7590E6; --red:#E8632A; --green:#4F915A;
+  --sh-dark:8px 8px 18px rgba(19,33,63,.16); --sh-light:-6px -6px 14px rgba(255,255,255,.95);
+  --shadow-ink:rgba(19,33,63,1);
+  --sans:'Instrument Sans',system-ui,sans-serif; --mono:'Martian Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1B1A22;--surface:#24232C;--grid:rgba(244,239,230,.06);--grid-2:rgba(244,239,230,.1);--ink:#F4EFE6;--ink-2:#DDD7CB;--muted:#A79FC4;--faint:#6F6B80;--blue:#7590E6;--blue-2:#A9B8F0;--sh-dark:8px 8px 18px rgba(0,0,0,.45);--sh-light:-6px -6px 14px rgba(255,255,255,.05);--shadow-ink:rgba(0,0,0,1);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1B1A22;--surface:#24232C;--grid:rgba(244,239,230,.06);--grid-2:rgba(244,239,230,.1);--ink:#F4EFE6;--ink-2:#DDD7CB;--muted:#A79FC4;--faint:#6F6B80;--blue:#7590E6;--blue-2:#A9B8F0;--sh-dark:8px 8px 18px rgba(0,0,0,.45);--sh-light:-6px -6px 14px rgba(255,255,255,.05);--shadow-ink:rgba(0,0,0,1);color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--sans);-webkit-font-smoothing:antialiased;
+ background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+.w{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.mono{font-family:var(--mono)}
+nav{display:flex;justify-content:space-between;align-items:center;padding-block:14px;font-size:13px}nav b{font-weight:600;letter-spacing:-.01em}nav span{color:var(--muted);display:flex;gap:14px}
+.hero{padding-block:44px 40px;text-align:center}
+h1{font:700 34px/1.04 var(--sans);letter-spacing:-.03em;margin:0 0 18px;text-wrap:balance}h1 i{color:var(--blue)}
+.lede{color:var(--muted);font-size:17px;max-width:34ch;margin:0 auto 22px;text-wrap:pretty}
+.ctas{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.btn-p,.btn-o{padding:11px 16px;border-radius:10px;font-size:14px;font-weight:500;text-decoration:none}.btn-p{background:var(--ink);color:var(--bg);font-family:var(--mono);font-size:13px}.btn-o{color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+section{padding-block:40px}
+.kick{display:block;font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin:0 0 12px}
+h2{font:700 26px/1.08 var(--sans);letter-spacing:-.025em;margin:0 0 12px;text-wrap:balance}
+section p{color:var(--ink-2);margin:0 0 10px;max-width:38ch;text-wrap:pretty}section p.muted{color:var(--muted)}
+.cmd{display:inline-block;margin-top:6px;font:500 12px/1 var(--mono);color:var(--muted);padding:6px 9px;border-radius:6px;background:var(--surface)}
+
+/* the loop */
+.stage{position:relative;width:358px;max-width:100%;height:372px;margin:22px auto 0;touch-action:manipulation}
+.stage svg.lp{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.seg{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-linecap:round;pathLength:1;stroke-dasharray:1;stroke-dashoffset:1}
+.seg.red{stroke:var(--red)}
+.seg0{animation:draw0 10.0s linear infinite}.seg1{animation:draw1 10.0s linear infinite}.seg2{animation:draw2 10.0s linear infinite}
+.pad{position:absolute;width:30px;height:30px;border-radius:50%;translate:-50% -50%;box-shadow:inset 0 0 0 1px var(--grid-2)}
+.dot{position:absolute;width:10px;height:10px;border-radius:50%;translate:-50% -50%;background:var(--blue)}.dot.red{background:var(--red)}.dot.ink{background:var(--ink)}
+.lbl{position:absolute;translate:0 -50%;padding:7px 10px;border-radius:999px;font:400 11px/1 var(--mono);color:var(--ink);white-space:nowrap;background:var(--bg);animation-name:rise;animation-duration:10.0s;animation-timing-function:ease-out;animation-iteration-count:infinite;animation-fill-mode:both}
+.lbl.r{translate:-100% -50%}
+.lane{position:absolute;font:500 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.ret{white-space:nowrap;position:absolute;left:50%;top:344px;translate:-50% 0;font:400 10px/1 var(--mono);color:var(--red);background:var(--bg);padding:3px 6px}
+.st0{animation-delay:0.00s}.st1{animation-delay:2.07s}.st2{animation-delay:4.90s}
+.track{position:absolute;left:0;top:0;width:0;height:0;offset-path:path('M 40 64 C 40 108.0, 130 108.0, 130 152 C 130 196.0, 322 196.0, 322 240 C 322 356, 40 356, 40 64');offset-rotate:auto 90deg;animation:go 10.0s cubic-bezier(.45,0,.2,1) infinite}
+.ghost{opacity:.5}.g1{animation-delay:-.16s}.g2{animation-delay:-.32s;opacity:.25}
+.ghost .ship{display:none!important}.ghost .shadow{width:16px;height:20px;left:-8px;top:-10px}
+.shadow{position:absolute;left:-11px;top:-14px;width:22px;height:28px;border-radius:50%;background:var(--shadow-ink);animation:shade 10.0s cubic-bezier(.45,0,.2,1) infinite}
+.g1 .shadow{animation-delay:-.16s}.g2 .shadow{animation-delay:-.32s}
+.ship{display:none;position:absolute;left:-14px;top:-17px;width:28px;height:34px;animation:fly 10.0s cubic-bezier(.45,0,.2,1) infinite;transform-origin:50% 55%}
+.stage[data-carrier="ship"] .c-ship,.stage[data-carrier="plane"] .c-plane,.stage[data-carrier="plotter"] .c-plotter,.stage[data-carrier="cube"] .c-cube{display:block}
+.stage[data-carrier="cube"] .shadow{left:-10px;top:-10px;width:20px;height:20px}
+.paused *{animation-play-state:paused!important}
+@keyframes go{0%,9.00%{offset-distance:0%}20.65%,29.65%{offset-distance:15.96%}49.00%,58.00%{offset-distance:42.47%}100%{offset-distance:100%}}@keyframes fly{0.00%,9.00%{transform:translateY(0) scale(1)}11.20%,18.45%{transform:translateY(-14px) scale(1.28)}20.65%,29.65%{transform:translateY(0) scale(1)}31.85%,46.80%{transform:translateY(-14px) scale(1.28)}49.00%,58.00%{transform:translateY(0) scale(1)}60.20%,97.80%{transform:translateY(-14px) scale(1.28)}100%{transform:translateY(0) scale(1)}}@keyframes shade{0.00%,9.00%{transform:translate(2px,4px) scale(1);filter:blur(1px);opacity:.38}11.20%,18.45%{transform:translate(13px,20px) scale(1.2);filter:blur(5px);opacity:.14}20.65%,29.65%{transform:translate(2px,4px) scale(1);filter:blur(1px);opacity:.38}31.85%,46.80%{transform:translate(13px,20px) scale(1.2);filter:blur(5px);opacity:.14}49.00%,58.00%{transform:translate(2px,4px) scale(1);filter:blur(1px);opacity:.38}60.20%,97.80%{transform:translate(13px,20px) scale(1.2);filter:blur(5px);opacity:.14}100%{transform:translate(2px,4px) scale(1);filter:blur(1px);opacity:.38}}@keyframes rise{0%,.5%{translate:0 0;box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0)}2.5%,9%{translate:0 -3px;box-shadow:var(--sh-dark),var(--sh-light)}12.5%,100%{translate:0 0;box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0)}}@keyframes draw0{0%,0.50%{stroke-dashoffset:1}9.00%,100%{stroke-dashoffset:0}}@keyframes draw1{0%,21.15%{stroke-dashoffset:1}29.65%,100%{stroke-dashoffset:0}}@keyframes draw2{0%,49.50%{stroke-dashoffset:1}58.00%,100%{stroke-dashoffset:0}}
+.switch{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin:14px auto 0;font:400 11px/1 var(--mono);color:var(--faint)}
+.switch button{all:unset;cursor:pointer;padding:5px 8px;border-radius:999px;color:var(--muted)}.switch button[aria-pressed="true"]{color:var(--ink);background:var(--surface)}
+@media (prefers-reduced-motion:reduce){.track,.ship,.shadow,.lbl,.seg{animation:none}.seg{stroke-dashoffset:0}.track{offset-distance:0%}.ghost{display:none}}
+ .ex{--ex-void:#15122b;--ex-star:#f4efe6;--ex-dust:#a79fc4;--ex-500:#ff7a1a;--ex-600:#e0600a;--ex-fg:#1a0f00;--ex-mint:#8fe3c0}
+.trow{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--ex-void);color:var(--ex-star)}
+.trow+.trow{margin-top:6px}.trow .sw{width:20px;height:20px;border-radius:5px}.trow .nm,.trow .val{font-family:var(--mono);font-size:11px}.trow .val{color:var(--ex-dust)}.trow.edited .val{color:var(--ex-500)}
+.sw-radius{background:transparent;border:2px solid var(--ex-500);border-radius:5px 5px 5px 12px;box-sizing:border-box}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pair .cap{display:block;font:500 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}.pair .cap.chg{color:var(--red)}
+.card{position:relative;overflow:hidden;padding:14px 12px 12px;background:var(--ex-void);color:var(--ex-star);display:grid;gap:4px;min-height:150px}
+.card .k{font:500 8px/1 var(--mono);letter-spacing:.08em;color:var(--ex-mint);margin-top:4px}.card .t{font:600 15px/1.1 var(--sans)}.card .m{font-size:10px;color:var(--ex-dust)}
+.card .btn{justify-self:start;margin-top:6px;padding:6px 9px;border-radius:999px;font:600 10px/1 var(--sans);color:var(--ex-fg)}
+.ring{position:absolute;width:120px;height:120px;border-radius:50%;border:2px dashed rgba(167,159,196,.35);right:-50px;top:-50px;pointer-events:none}
+.burger{display:grid;gap:2px;width:52px}.burger span{display:block;height:7px;border-radius:999px}.burger .b1{height:11px;background:#e8a85a;border-radius:999px 999px 4px 4px}.burger .b2{background:var(--ex-mint);height:5px}.burger .b3{background:var(--ex-500);height:4px}.burger .b4{background:#6b3a2a;height:8px}.burger .b5{background:#d9944a;height:8px;border-radius:4px 4px 999px 999px}
+.notes{display:grid;gap:6px;margin-top:14px;font:400 11px/1.4 var(--mono);color:var(--muted)}.notes b{font-weight:500;color:var(--ink)}.notes p{margin:0;padding-left:22px;position:relative}.notes p::before{content:'';position:absolute;left:0;top:.65em;width:14px;border-top:1.5px solid var(--red)}
+
+.more{color:var(--faint);font:400 12px/1.6 var(--mono);padding-block:0 30px}
+.final{text-align:center;padding-block:40px 60px}
+</style>
+
+<div class="w">
+<nav><b>Design Token Authority</b><span>Workflow · Docs</span></nav>
+<header class="hero">
+ <h1>The deterministic backbone for design token workflows, built for humans and <i>agents.</i></h1>
+ <p class="lede">A design change in Figma becomes a pull request: validated, built, visually diffed and approved by the people who care about it.</p>
+ <div class="ctas"><a class="btn-p" href="#">npm create dta</a><a class="btn-o" href="#">Read the quick start</a></div>
+</header>
+
+<section id="workflow">
+ <h2>Design on one lane, product on the other.</h2>
+ <p>Designers see their change in Figma at once. What they cannot see is what it does to the product that already exists: every brand, every state, every place a value was hard-coded.</p>
+ <p class="muted">DTA sits where the two meet, the pull request, and sends each fix back to the side that caused it.</p>
+ <div class="stage" id="stage" data-carrier="ship" aria-label="A change travels from Figma through the pull request to the product; a fix goes back to Figma">
+<span class="lane" style="left:0;top:0">Design</span><span class="lane" style="right:0;top:0">Product</span>
+<svg class="lp" viewBox="0 0 358 372" aria-hidden="true">
+ <path class="seg seg0" pathLength="1" d="M 40 64 C 40 108.0, 130 108.0, 130 152"/><path class="seg seg1" pathLength="1" d="M 130 152 C 130 196.0, 322 196.0, 322 240"/><path class="seg seg2 red" pathLength="1" d="M 322 240 C 322 356, 40 356, 40 64"/>
+</svg>
+<span class="pad" style="left:40px;top:64px"></span><span class="dot" style="left:40px;top:64px"></span>
+<span class="lbl st0" style="left:62px;top:64px">Figma · a token changes</span>
+<span class="pad" style="left:130px;top:152px"></span>
+<span class="lbl st1" style="left:152px;top:152px">pull request · lint · diff</span>
+<span class="pad" style="left:322px;top:240px"></span><span class="dot ink" style="left:322px;top:240px"></span>
+<span class="lbl st2" style="right:58px;top:240px">product · before and after</span>
+<span class="ret">a fix goes back · and around again</span>
+<div class="track" aria-hidden="true">
+      <span class="shadow"></span>
+      <svg class="ship c-ship" viewBox="0 0 28 34"><path d="M14 1 C 20 8, 22 16, 22 24 L 25 30 L 19 28 Q 14 31 9 28 L 3 30 L 6 24 C 6 16, 8 8, 14 1 Z" fill="var(--ink)"/><ellipse cx="14" cy="13" rx="3.2" ry="4" fill="var(--bg)"/><rect x="11" y="19" width="6" height="6" rx="1.2" fill="var(--blue)"/><path d="M10 30 L14 34 L18 30 Z" fill="var(--red)"/></svg>
+      <svg class="ship c-plane" viewBox="0 0 28 34"><path d="M14 1 L26 30 L14 24 Z" fill="var(--ink-2)"/><path d="M14 1 L2 30 L14 24 Z" fill="var(--ink)"/><path d="M14 24 L14 33 L17.5 29 Z" fill="var(--muted)"/><rect x="11.5" y="13" width="5" height="5" rx="1" fill="var(--blue)"/></svg>
+      <svg class="ship c-plotter" viewBox="0 0 28 34"><rect x="3" y="7" width="22" height="20" rx="4" fill="var(--ink)"/><rect x="6" y="10" width="16" height="14" rx="2.5" fill="var(--bg)"/><circle cx="14" cy="17" r="3.2" fill="var(--red)"/><rect x="11" y="27" width="6" height="4" rx="1" fill="var(--blue)"/><rect x="0" y="15" width="3" height="4" rx="1" fill="var(--muted)"/><rect x="25" y="15" width="3" height="4" rx="1" fill="var(--muted)"/></svg>
+      <svg class="ship c-cube" viewBox="0 0 28 34"><g transform="translate(14 17)"><polygon points="0,-10 9,-5 0,0 -9,-5" fill="var(--blue-2)"/><polygon points="-9,-5 0,0 0,10 -9,5" fill="var(--blue)"/><polygon points="0,0 9,-5 9,5 0,10" fill="#2443AC"/></g></svg></div>
+<div class="track ghost g1" aria-hidden="true"><span class="shadow"></span></div>
+<div class="track ghost g2" aria-hidden="true"><span class="shadow"></span></div>
+</div>
+ <div class="switch" role="group" aria-label="Prototype: what carries the change"><button type="button" data-c="ship" aria-pressed="true">ship</button><button type="button" data-c="plane" aria-pressed="false">paper plane</button><button type="button" data-c="plotter" aria-pressed="false">plotter head</button><button type="button" data-c="cube" aria-pressed="false">token</button></div>
+</section>
+
+<section class="ex">
+ <span class="kick">01 · Something changes</span>
+ <h2>A change lands as a pull request.</h2>
+ <p>Made in Figma Variables or in a token file; either way DTA pulls it into the repository as one change.</p>
+ <span class="cmd">dta pull</span>
+ <div style="margin-top:22px">
+  <div class="trow"><span class="sw" style="background:#1f1a3d"></span><span class="nm">Colors.Surface.Default</span><span class="val">Void.900</span></div>
+  <div class="trow edited"><span class="sw" style="background:var(--ex-600)"></span><span class="nm">Colors.Brand.Primary</span><span class="val">Nova.500 → 600</span></div>
+  <div class="trow edited"><span class="sw sw-radius"></span><span class="nm">Radius.Card</span><span class="val">8 → 24</span></div>
+ </div>
+</section>
+
+<section class="ex">
+ <span class="kick">02 · The pull request shows the differences</span>
+ <h2>One change you would see. One you would miss.</h2>
+ <p>There are differences to review. DTA renders the story before and after and knows whether tokens caused them.</p>
+ <span class="cmd">dta diff</span>
+ <div class="pair" style="margin-top:22px"><div><span class="cap">main</span><div class="card" style="border-radius:8px"><span class="ring"></span><span class="burger" aria-hidden="true"><span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span><span class="b5"></span></span><span class="k">ORBIT BURGER · ISS DOCK 3</span><span class="t">Saturn Smash</span><span class="m">Double patty, ring sauce, zero-g pickles</span><span class="btn" style="background:var(--ex-500)">Launch order · 12 min</span></div></div><div><span class="cap chg">this change</span><div class="card" style="border-radius:24px"><span class="ring"></span><span class="burger" aria-hidden="true"><span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span><span class="b5"></span></span><span class="k">ORBIT BURGER · ISS DOCK 3</span><span class="t">Saturn Smash</span><span class="m">Double patty, ring sauce, zero-g pickles</span><span class="btn" style="background:var(--ex-600)">Launch order · 12 min</span></div></div></div>
+ <div class="notes"><p><b>Radius.Card</b> 8 → 24 · the obvious one</p><p><b>Colors.Brand.Primary</b> Nova 500 → 600 · the one you would miss</p></div>
+</section>
+
+<p class="more">03 · A person decides &nbsp;·&nbsp; 04 · Your agent uses the same commands &nbsp;·&nbsp; facts &nbsp;·&nbsp; …</p>
+<section class="final"><h2>Start with one command.</h2><a class="btn-p" href="#">npm create dta</a></section>
+</div>
+<script>
+(function(){var st=document.getElementById('stage'),sw=document.querySelector('.switch');var k='orbit-loop-carrier';try{var v=localStorage.getItem(k);if(v){st.dataset.carrier=v}}catch(e){}
+function sync(){sw.querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.c===st.dataset.carrier))})}sync();
+sw.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;st.dataset.carrier=b.dataset.c;try{localStorage.setItem(k,b.dataset.c)}catch(x){}sync()});
+st.addEventListener('click',function(){st.classList.toggle('paused')});})();
+</script>

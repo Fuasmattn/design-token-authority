@@ -1,0 +1,75 @@
+---
+/**
+ * A small mono label for state and context. State chips carry a marker, so the state is never
+ * colour alone: the dot for changed and pass, the open ring for a warning, the filled square for
+ * an error (the status colours, TICKET-120; changed stays signal). Info and neutral are context,
+ * not state: no marker (neutral: a settled fact beside a state, such as the diff row's "explained").
+ */
+interface Props {
+  tone?: 'info' | 'neutral' | 'changed' | 'pass' | 'warning' | 'error'
+}
+const { tone = 'info' } = Astro.props
+---
+
+<span class:list={['dta-chip', tone]}>
+  {tone !== 'info' && tone !== 'neutral' && <span class="dot" aria-hidden="true" />}
+  <slot />
+</span>
+
+<style>
+  .dta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    line-height: var(--type-meta-line-height);
+  }
+  .info {
+    background: var(--action-subtle);
+    color: var(--action-text);
+  }
+  .neutral {
+    background: var(--bg-subtle);
+    color: var(--fg-muted);
+  }
+  .changed {
+    background: var(--signal-subtle);
+    color: var(--signal-text);
+  }
+  .pass {
+    background: var(--status-success-subtle);
+    color: var(--status-success-text);
+  }
+  .warning {
+    background: var(--status-warning-subtle);
+    color: var(--status-warning-text);
+  }
+  .error {
+    background: var(--status-error-subtle);
+    color: var(--status-error-text);
+  }
+  .dot {
+    box-sizing: border-box;
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: currentColor;
+  }
+  .pass .dot {
+    background: var(--status-success-marker);
+  }
+  .warning .dot {
+    width: 8px;
+    height: 8px;
+    border: var(--stroke-ink) solid var(--status-warning-marker);
+    background: none;
+  }
+  .error .dot {
+    border-radius: 0;
+    background: var(--status-error-marker);
+  }
+</style>

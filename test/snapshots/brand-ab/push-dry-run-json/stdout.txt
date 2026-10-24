@@ -1,0 +1,37 @@
+T   ⤴  dta push 
+|
+!  10 lint warnings found.
+|
+o  Diff computed
+{
+  "summary": {
+    "added": 1,
+    "modified": 2
+  },
+  "collections": [],
+  "modes": [],
+  "changes": [
+    {
+      "action": "added",
+      "path": "Dimensions/radius/pill",
+      "collection": "VariableCollectionId:1:1"
+    },
+    {
+      "action": "modified",
+      "path": "VariableID:1:1",
+      "collection": "",
+      "mode": "1:0",
+      "newValue": "{\"r\":0,\"g\":0.3411764705882353,\"b\":0.7215686274509804}"
+    },
+    {
+      "action": "modified",
+      "path": "VariableID:1:11",
+      "collection": "",
+      "mode": "1:0",
+      "newValue": "8"
+    }
+  ]
+}
+|
+—  Dry run — no changes were applied to Figma.
+

@@ -1,0 +1,16 @@
+T   ✖  dta clean 
+|
+o  Removed ---------------------+
+|                               |
+|  tokens/app.resolver.json     |
+|  tokens/brands/a.json         |
+|  tokens/brands/b.json         |
+|  tokens/sets/components.json  |
+|  tokens/sets/core.json        |
+|  tokens/themes/dark.json      |
+|  tokens/themes/light.json     |
+|                               |
++-------------------------------+
+|
+—  Clean complete!
+

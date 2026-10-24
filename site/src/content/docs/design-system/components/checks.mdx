@@ -1,0 +1,26 @@
+---
+title: Checks
+description: The checks of a pull request and the approve action, flat on the surface.
+sidebar:
+  order: 13
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+The checks of a pull request as flat rows on `bg-surface` with a hairline, and the approve action.
+
+<Examples component="checks" />
+
+## Guidelines
+
+- Each row: a marker, the check's name, its status word with an optional detail. In the [status colours](/design-system/status-colours/): `passed` with the dot in `status-success-marker` and the word in `status-success-text`, `passed with warnings` with the open ring and `status-warning-text`, `failed` with the filled square and `status-error-text`.
+- `changes to review` is a diff state, not a problem: the pull request changed something a person looks at. It stays `signal` (the dot in `signal-bg`, the word in `signal-text`), never a warning (decision, TICKET-120). The `dta diff` report shows its review verdict in `signal` too (TICKET-121, see [Status colours](/design-system/status-colours/#changes-to-review)). `pending` stays in the ink (`fg-subtle` dot, `fg-muted` word).
+- On the landing page the list appears twice: all checks in the strip's order in scene 02 (no approve action: nothing there needs a person), and in scene 03 only the check that waits for a person (`dta diff` · changes to review) with the approve action under it, beside the differences it approves (maintainer decision, 2026-10-19).
+- The approve action is the one blue surface on the landing page: `action-text` with `action-fg`, 9.7:1 in Light and 12:1 in Graphite. It is a label of what the person does, not a working button on the page.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="Checks" />

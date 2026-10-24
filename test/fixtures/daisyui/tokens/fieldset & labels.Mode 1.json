@@ -1,0 +1,133 @@
+{
+  "component": {
+    "fieldset": {
+      "fontSize": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": []
+          }
+        },
+        "$value": "{🌼 daisy.typography.fields.fontSize.sm}"
+      },
+      "padding": {
+        "fieldset-label": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": []
+            }
+          },
+          "$value": "{tailwind.spacing.1,5 (6)}"
+        },
+        "legend": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": []
+            }
+          },
+          "$value": "{tailwind.spacing.2 (8)}"
+        }
+      },
+      "container": {
+        "background": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": []
+            }
+          },
+          "$value": "{main.color.base.200}"
+        },
+        "border": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": []
+            }
+          },
+          "$value": "{main.color.base.300}"
+        },
+        "padding": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": []
+            }
+          },
+          "$value": "{tailwind.spacing.4 (16)}"
+        },
+        "radius": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": []
+            }
+          },
+          "$value": "{radius.boxes}"
+        }
+      },
+      "legend": {
+        "color": {
+          "$type": "color",
+          "$extensions": {
+            "com.figma": {
+              "scopes": []
+            }
+          },
+          "$value": "{main.color.base.content}"
+        }
+      }
+    },
+    "labels": {
+      "fontSize": {
+        "xs": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": []
+            }
+          },
+          "$value": "{🌼 daisy.typography.fields.fontSize.xs}"
+        },
+        "sm": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": []
+            }
+          },
+          "$value": "{🌼 daisy.typography.fields.fontSize.sm}"
+        },
+        "md": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": []
+            }
+          },
+          "$value": "{🌼 daisy.typography.fields.fontSize.md}"
+        },
+        "lg": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": []
+            }
+          },
+          "$value": "{🌼 daisy.typography.fields.fontSize.lg}"
+        },
+        "xl": {
+          "$type": "number",
+          "$extensions": {
+            "com.figma": {
+              "scopes": []
+            }
+          },
+          "$value": "{🌼 daisy.typography.fields.fontSize.xl}"
+        }
+      }
+    }
+  }
+}

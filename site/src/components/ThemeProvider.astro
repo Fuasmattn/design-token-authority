@@ -1,0 +1,20 @@
+---
+/*
+ * Starlight sets data-theme="light" | "dark" on <html>; DTA's theme CSS is selected with
+ * data-brand="light" | "graphite" (the theme modes use DTA's brand layer for now). This keeps
+ * both in step, before first paint and on every theme switch.
+ */
+import Default from '@astrojs/starlight/components/ThemeProvider.astro'
+---
+
+<Default />
+<script is:inline>
+  ;(() => {
+    const root = document.documentElement
+    const sync = () => {
+      root.dataset.brand = root.dataset.theme === 'light' ? 'light' : 'graphite'
+    }
+    sync()
+    new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-theme'] })
+  })()
+</script>

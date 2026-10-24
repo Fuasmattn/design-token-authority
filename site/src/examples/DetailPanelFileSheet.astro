@@ -1,0 +1,11 @@
+---
+// The same preview as the bottom sheet on a phone (in the flow here).
+import DetailPanelFile from './DetailPanelFile.astro'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'detail-file-sheet' } = Astro.props
+---
+
+<DetailPanelFile idPrefix={idPrefix} presentation="sheet" />

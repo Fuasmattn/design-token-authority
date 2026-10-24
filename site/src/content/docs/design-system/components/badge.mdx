@@ -1,0 +1,25 @@
+---
+title: Badge
+description: An upper-case label for example data and things not released yet
+sidebar:
+  order: 12
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+A small upper-case label that qualifies what is next to it: **example** (a hairline outline in `border-strong`, its word in `fg-default`) marks example data, **coming** (`action-subtle`) marks a command or feature that is not released yet, and **note** (same colours) adds a short hint such as "most teams".
+
+<Examples component="badge" />
+
+## Guidelines
+
+- Badges qualify, chips describe: "coming" next to a command is a badge; "changed · 4.2%" is a [chip](/design-system/components/chip/).
+- Every number or command on the site that is not real today carries one (the honesty rule of the landing page).
+- **Example is neutral ink, never `signal` (decision, TICKET-122).** Example content never uses the system colours (signal, success, warning, error), and the label that marks it does not either: an orange "example" would read as "changed". The outline keeps it apart from the filled `coming` and `note` badges. The word is `fg-default` on the surface (7:1 in both themes, no contrast exception), the outline `border-strong` (3:1).
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="Badge" />

@@ -1,0 +1,30 @@
+## dta diff: token changes
+
+Base: `tokens-base` · **3 changed · 1 added · 1 removed · 2 affected**
+
+### Changed (3)
+
+| Token | Collection · mode | Before | After |
+| --- | --- | --- | --- |
+| `Colors.Brand.Accent` | Brand(Alias) · BrandB | `{Colors.Foundation.Navy.700}` → `#2c4466` | `{Colors.Foundation.Sky.500}` → `#3b8fd9` |
+| `Colors.Foundation.Blue.500` | Primitives · Value | `#0047a0` | `#0057b8` |
+| `Dimensions.spacing.8` | Primitives · Value | `28` | `32` |
+
+### Added (1)
+
+| Token | Collection · mode | Value |
+| --- | --- | --- |
+| `Dimensions.radius.pill` | Primitives · Value | `999` |
+
+### Removed (1)
+
+| Token | Collection · mode | Was |
+| --- | --- | --- |
+| `Colors.Foundation.Steel.500` | Primitives · Value | `#7d8ea3` |
+
+### Affected through aliases (2)
+
+| Token | Collection · mode | Before | After | Because of |
+| --- | --- | --- | --- | --- |
+| `Colors.Brand.Primary` | Brand(Alias) · BrandA | `#0047a0` | `#0057b8` | `Colors.Foundation.Blue.500` |
+| `Spacing.Padding` | ScreenType · Desktop | `28` | `32` | `Dimensions.spacing.8` |

@@ -1,0 +1,10 @@
+T   ⚒  dta build 
+|
+x  error [dangling-alias] Alias {Colors.Foundation.Sky.550} references non-existent token "Colors.Foundation.Sky.550". See site/src/content/docs/reference/lint-rules.mdx. (Brand(Alias).BrandB.json)
+|
+x  error [circular-alias] Circular alias chain: Brand(Alias).BrandA/Colors/Surface/Muted → Brand(Alias).BrandA/Colors/Text/Muted → Brand(Alias).BrandA/Colors/Surface/Muted. See site/src/content/docs/reference/lint-rules.mdx. (Brand(Alias).BrandA.json)
+|
+|  Nothing was written: fix the errors above and build again.
+|
+—  Build failed.
+

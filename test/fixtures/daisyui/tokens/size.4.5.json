@@ -1,0 +1,234 @@
+{
+  "fields": {
+    "size": {
+      "xs": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ]
+          }
+        },
+        "$value": 27
+      },
+      "sm": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ]
+          }
+        },
+        "$value": 36
+      },
+      "md": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ]
+          }
+        },
+        "$value": 45
+      },
+      "lg": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ]
+          }
+        },
+        "$value": 54
+      },
+      "xl": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ]
+          }
+        },
+        "$value": 63
+      }
+    },
+    "padding": {
+      "xs": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "GAP"
+            ]
+          }
+        },
+        "$value": 8
+      },
+      "sm": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "GAP"
+            ]
+          }
+        },
+        "$value": 12
+      },
+      "md": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "GAP"
+            ]
+          }
+        },
+        "$value": 16
+      },
+      "lg": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "GAP"
+            ]
+          }
+        },
+        "$value": 20
+      },
+      "xl": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "GAP"
+            ]
+          }
+        },
+        "$value": 24
+      }
+    }
+  },
+  "selectors": {
+    "size": {
+      "xl": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ]
+          }
+        },
+        "$value": 36
+      },
+      "lg": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ]
+          }
+        },
+        "$value": 32
+      },
+      "md": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ]
+          }
+        },
+        "$value": 27
+      },
+      "sm": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ]
+          }
+        },
+        "$value": 23
+      },
+      "xs": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ]
+          }
+        },
+        "$value": 18
+      }
+    },
+    "padding": {
+      "xl": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "GAP"
+            ]
+          }
+        },
+        "$value": 16
+      },
+      "lg": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "GAP"
+            ]
+          }
+        },
+        "$value": 14
+      },
+      "md": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "GAP"
+            ]
+          }
+        },
+        "$value": 12
+      },
+      "sm": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "GAP"
+            ]
+          }
+        },
+        "$value": 10
+      },
+      "xs": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "GAP"
+            ]
+          }
+        },
+        "$value": 8
+      }
+    }
+  }
+}

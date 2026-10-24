@@ -1,0 +1,86 @@
+---
+title: dta diff with Storybook
+description: Screenshot every story of a static Storybook build and explain the changes by token, without writing a stories manifest.
+---
+
+`dta diff` needs to know which pages to screenshot. A site lists them (`stories: ['/', '/pricing']`); a Storybook build already has the list: `index.json`. `dta init` finds your Storybook and writes the configuration below for you ([Before you start](/guides/dta-diff-in-pull-requests/#before-you-start)); this page explains what it means. Point `dta diff` at the build and it renders each story on its own, through Storybook's `iframe.html` (the story without the Storybook interface).
+
+## Configure
+
+```ts title="dta.config.ts"
+export default {
+  // …tokens, outputs
+  diff: {
+    // Build your tokens, then Storybook, at the base and at the head.
+    build: 'npx dta build && npm run build-storybook',
+    outDir: 'storybook-static',
+    stories: { type: 'storybook' },
+    viewports: [1280, 390],
+  },
+}
+```
+
+The base is built in a fresh checkout. `dta diff` prepares it on its own: with the same lockfile as your branch it reuses your installed packages, otherwise it runs the lockfile's clean install (`npm ci`, `pnpm install --frozen-lockfile`, `yarn install --immutable`, `bun install --frozen-lockfile`). Set `diff.setup` only when that does not fit; it then runs instead.
+
+Check what it would render, after one build:
+
+```sh
+npx dta diff --list
+```
+
+`dta diff` reads `index.json` of Storybook 7 and later (v4 and v5); `stories.json` of Storybook 6 is not supported.
+
+## Which stories
+
+- Only stories are rendered. Docs pages (MDX, autodocs) are left out.
+- A story tagged **`skip-dta-diff`** is left out. Use another tag with `excludeTags`.
+- `exclude` takes regular expressions matched against story ids.
+
+```ts
+stories: {
+  type: 'storybook',
+  index: 'index.json',              // inside outDir (the default)
+  excludeTags: ['skip-dta-diff', 'experimental'],
+  exclude: ['^internal-'],          // story ids
+},
+```
+
+```js title="Button.stories.js"
+export const Playground = { tags: ['skip-dta-diff'] } // interactive only, not for screenshots
+```
+
+Each story is captured once Storybook has rendered it (the iframe's body gets `sb-show-main`), after network idle, with animations off. The viewports apply to every story.
+
+## How changes are explained
+
+The explanation works by reverting each changed token in the rendered page, so it needs your stories to use the tokens as CSS custom properties: import the CSS `dta build` writes in `.storybook/preview.js`.
+
+```js title=".storybook/preview.js"
+import '../output/css/variables.css'
+import '../output/css/themes/branda.css' // one theme per brand, selected with [data-brand]
+```
+
+The variables do not have to stay where `dta build` declares them. Each token is put back under the build's selector (`:root`, `[data-brand="…"]`) and under every rule in the page's stylesheets that declares its custom property, with the same selector, inside the same `@media`, `@layer`, `@supports`, `@container`, `@scope` or CSS nesting. So a theme re-scoped to a wrapper or a component is explained too:
+
+```css
+/* your CSS: the brand shown inside a preview frame */
+.preview[data-state='after'] {
+  --action-bg: var(--blueprint-700);
+}
+```
+
+With several brands, a re-scoped rule counts for the brand whose value it declares (as `dta build` writes it); a rule whose value two brands share is left alone, so one brand is never put back to another brand's value.
+
+Values your build bakes in as literals (a Tailwind config with resolved colors, JavaScript reading token values), variables set in inline `style` attributes, and stylesheets from another origin that the page may not read cannot be reverted: the pixels they change stay **unexplained**. Everything else (the report, the pull-request comment, the status check) works as described in [dta diff in pull requests](/guides/dta-diff-in-pull-requests/).
+
+## Tried on a small Storybook
+
+A Storybook 10 project with two Button stories and a Card, at two commits: `space` 8 → 12 px and the Card's corner radius 12 → 28 px (a literal in the story).
+
+```text
+changed   components-button--primary@600  0.13% explained by space
+changed   components-button--outline@600  0.10% explained by space
+changed   components-card--default@600    0.09% unexplained: 436 px
+```
+
+The same commit against itself renders all three stories identically.

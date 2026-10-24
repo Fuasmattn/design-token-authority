@@ -1,0 +1,439 @@
+{
+  "tailwind": {
+    "spacing": {
+      "0 (0)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "CORNER_RADIUS",
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": ""
+      },
+      "1 (4)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 4
+      },
+      "2 (8)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 8
+      },
+      "3 (12)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 12
+      },
+      "4 (16)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 16
+      },
+      "5 (20)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 20
+      },
+      "6 (24)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 24
+      },
+      "7 (28)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 28
+      },
+      "8 (32)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 32
+      },
+      "9 (36)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 36
+      },
+      "10 (40)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 40
+      },
+      "11 (44)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 44
+      },
+      "12 (48)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 48
+      },
+      "14 (56)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 56
+      },
+      "16 (64)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 64
+      },
+      "20 (80)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 80
+      },
+      "24 (96)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 96
+      },
+      "28 (112)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 112
+      },
+      "32 (128)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 128
+      },
+      "36 (144)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 144
+      },
+      "40 (160)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 160
+      },
+      "44 (176)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 176
+      },
+      "48 (192)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 192
+      },
+      "52 (208)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 208
+      },
+      "56 (224)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 224
+      },
+      "60 (240)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 240
+      },
+      "64 (256)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 256
+      },
+      "72 (288)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 288
+      },
+      "80 (320)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 320
+      },
+      "96 (384)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 384
+      },
+      "3,5 (14)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 14
+      },
+      "2,5 (10)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 10
+      },
+      "1,5 (6)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 6
+      },
+      "0,5 (2)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 2
+      },
+      "px": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "GAP",
+              "STROKE_FLOAT"
+            ]
+          }
+        },
+        "$value": 1
+      },
+      "18 (72)": {
+        "$type": "number",
+        "$extensions": {
+          "com.figma": {
+            "scopes": [
+              "WIDTH_HEIGHT",
+              "GAP"
+            ]
+          }
+        },
+        "$value": 72
+      }
+    }
+  }
+}

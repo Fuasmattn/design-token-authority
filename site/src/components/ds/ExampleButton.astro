@@ -1,0 +1,57 @@
+---
+/**
+ * The Orbit Burger "Launch order" button in one of its two states: `main` (Nova 500, radius 8)
+ * or `change` (Nova 600, radius 24). It reads only the example's own variables, built with DTA
+ * from site/examples/orbit-burger into output/css/examples/orbit-burger.css, so it looks like a
+ * customer's component, never like part of the page. Large text (19 px bold): the brand blue
+ * carries its label at 4.5:1 in both states, which is AAA for large text.
+ */
+interface Props {
+  state: 'main' | 'change'
+  /** Shown above the button: "main" in muted, "this change" in the action colour. */
+  label?: string
+  text?: string
+}
+const { state, label, text = 'Launch order · 12 min' } = Astro.props
+---
+
+<div class="dta-example-button" data-example="orbit-burger" data-state={state}>
+  {label && <span class:list={['label', state]}>{label}</span>}
+  <span class="button" role="img" aria-label={`${text}, ${state === 'main' ? 'on main' : 'with this change'}`}>
+    {text}
+  </span>
+</div>
+
+<style>
+  .dta-example-button {
+    display: inline-grid;
+    gap: 10px;
+    justify-items: start;
+  }
+  .label {
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    line-height: var(--type-meta-line-height);
+    color: var(--fg-muted);
+  }
+  .label.change {
+    color: var(--action-text);
+  }
+  .button {
+    display: inline-block;
+    padding: 15px var(--space-6);
+    border-radius: var(--radius-card);
+    background: var(--colors-brand-primary);
+    color: var(--colors-text-on-primary);
+    font-family: var(--font-sans);
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  @media (max-width: 559px) {
+    .button {
+      padding: 14px 20px;
+    }
+  }
+</style>

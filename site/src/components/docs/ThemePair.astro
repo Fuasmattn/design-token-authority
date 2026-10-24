@@ -1,0 +1,50 @@
+---
+/** One example, rendered side by side in Light and Graphite (each panel selects its theme). */
+import type { Example } from '../../examples/registry'
+
+interface Props {
+  example: Example
+  idPrefix: string
+}
+const { example, idPrefix } = Astro.props
+const Render = example.render
+---
+
+<div class="pair not-content">
+  <div class="panel" data-brand="light">
+    <span class="theme">Light</span>
+    <div class="stage"><Render idPrefix={`${idPrefix}-light`} /></div>
+  </div>
+  <div class="panel" data-brand="graphite">
+    <span class="theme">Graphite</span>
+    <div class="stage"><Render idPrefix={`${idPrefix}-graphite`} /></div>
+  </div>
+</div>
+
+<style>
+  .pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: var(--space-3);
+  }
+  .panel {
+    min-width: 0;
+    padding: var(--space-4);
+    border: var(--stroke-hairline) solid var(--border-default);
+    border-radius: var(--radius-lg);
+    background: var(--bg-canvas);
+    color: var(--fg-default);
+  }
+  .theme {
+    display: block;
+    margin-bottom: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    color: var(--fg-subtle);
+    text-transform: uppercase;
+  }
+  .stage {
+    min-width: 0;
+    overflow-x: auto;
+  }
+</style>

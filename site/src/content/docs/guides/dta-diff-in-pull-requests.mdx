@@ -1,0 +1,255 @@
+---
+title: dta diff in pull requests
+description: A status check and one comment per pull request, with screenshots explained by token, hosted wherever you publish.
+---
+
+import { Code, Steps } from '@astrojs/starlight/components'
+import runWorkflow from '../../../../../actions/examples/dta-diff.yml?raw'
+import reportWorkflow from '../../../../../actions/examples/dta-diff-report.yml?raw'
+import approveWorkflow from '../../../../../actions/examples/dta-diff-approve.yml?raw'
+import singleWorkflow from '../../../../../actions/examples/dta-diff-single.yml?raw'
+import cleanupWorkflow from '../../../../../actions/examples/dta-diff-cleanup.yml?raw'
+import vercel from '../../../../../actions/recipes/vercel.sh?raw'
+import assets from '../../../../../actions/recipes/github-assets-branch.sh?raw'
+import assetsCleanup from '../../../../../actions/recipes/github-assets-branch-cleanup.sh?raw'
+import staticServer from '../../../../../actions/recipes/static-server.sh?raw'
+import template from '../../../../../actions/recipes/template.sh?raw'
+
+`dta diff` renders your stories at the base and at the head of a pull request, compares them and explains each change by the token that caused it. In GitHub it shows up in two places:
+
+- **A status check, "dta diff"**: green when nothing needs a look, pending with _changes to review_, red with _unexplained changes_ above your threshold.
+- **One comment** that updates on every push: the changes grouped by token, a table per story and viewport, and a link to the full report (each changed story with the change outlined and named; see [Reading the report](#reading-the-report)).
+
+A change is explained when putting the token back to its base value in the rendered page makes it go away, wherever your CSS declares the variable (see [How changes are explained](/guides/dta-diff-with-storybook/#how-changes-are-explained)).
+
+Everything is rendered in your CI. Nothing is stored between runs: the baseline is built from the base commit in the same run. Where the report is hosted is up to you: DTA runs a **publish hook** you write, and this page has three recipes.
+
+## Before you start
+
+One command sets it up: `npx dta init`. In a project that already has a `dta.config.ts` it goes straight to this step; in a new one it is the wizard's last question (`--diff` runs only this step, also in a new config). It detects your Storybook, package manager, Node version and default branch, asks only what it cannot find (which pages to check without Storybook; whether people outside your team open pull requests), and writes:
+
+- the `diff` section of `dta.config.ts` (the build command, the output folder and which pages to render),
+- the GitHub workflow: [one file or three](#one-workflow-or-three),
+- `playwright-core` as a dev dependency, and Chromium if you say so.
+
+`--yes` answers with what it detected and safe defaults, for CI and coding agents. Then check the setup and render a report locally before you open a pull request:
+
+```sh
+npx dta diff --check   # config, browser, git history, base, stories
+npx dta diff           # report in .dta/diff/index.html
+```
+
+### Which pages it renders
+
+`diff.stories` says what `dta diff` screenshots, in three forms:
+
+- **A list of pages**, the simplest form for a site: each path is rendered from `diff.outDir` as it is, no manifest needed. A page the base does not have yet counts as added.
+
+  ```ts title="dta.config.ts"
+  diff: {
+    build: 'npm run build',
+    outDir: 'dist',
+    stories: ['/', '/pricing', '/checkout'],
+  }
+  ```
+
+- **A Storybook build:** `stories: { type: 'storybook' }` renders every story of `storybook-static/index.json` on its own; see [dta diff with Storybook](/guides/dta-diff-with-storybook/).
+- **A stories manifest (advanced):** a site that builds its own story pages can list them in a `dta.stories/1` manifest inside the output (`stories: { manifest: 'stories/manifest.json' }`), with an id, a title and optional widths per page:
+
+  ```json title="dist/stories/manifest.json"
+  {
+    "schema": "dta.stories/1",
+    "stories": [
+      {
+        "id": "button--variants",
+        "title": "Buttons",
+        "url": "/stories/button/",
+        "viewports": [1280, 390]
+      }
+    ]
+  }
+  ```
+
+`npx dta diff --list` prints what it found.
+
+## Change your setup later
+
+Run `npx dta init` again. It detects the project again, compares with what is there, lists what it would change (after a switch to pnpm: `build: npx dta build && … → pnpm exec dta build && …` and `.github/workflows/dta-diff.yml (updated)`; after adding Storybook: `stories: pages / → Storybook`) and asks once; with no changes it says so and writes nothing:
+
+```text
+$ dta init --diff
+T   ✨  dta init
+|
+o  Found
+|
+|  Storybook        build-storybook → storybook-static, from the "build-storybook" script in package.json
+|  Package manager  npm, from package-lock.json
+|  Node             22, from .nvmrc
+|  Build            npm run build-storybook, from the "build-storybook" script in package.json
+|  Git host         GitHub, from the origin remote
+|  Default branch   main, from the local branches
+|
+*  Up to date: nothing to change.
+|
+—  dta diff is set up.
+```
+
+It only touches what it wrote: a key you changed in the `diff` section is kept and listed as kept, keys you added stay, and a workflow file you edited is not overwritten (init names it). A `diff` section you wrote yourself in a TypeScript or JavaScript config is not edited: init prints the keys to add to it instead (`dta.config.json` gets them merged in, your keys kept). A `diff.publish` hook in the config goes into the report workflow; add the secrets it needs as `env` of that step. In a git repository it also adds `.dta/diff/` (the report folder) to `.gitignore`, unless that is already ignored. Everything else is plain config: every key is in the [configuration reference](/reference/configuration/).
+
+## Reading the report
+
+`index.html` in the report folder is one static page (relative links only, no network, works from disk). It opens with the verdict and the counts, then the changes **by token change** (what the token was and is, a sample or two of the stories it explains and a contact sheet of the rest), the **unexplained** stories one by one, **added and removed** stories, every story in a table, and the token changes.
+
+Each changed story is one row:
+
+- **"With this change", the change marked.** The screenshot with your change, cropped a little below the lowest change. Every element a changed token affects is outlined in orange with a dark line, and under it a note names the token and its change: `Colors.Brand.Primary · Nova 500 → 600` (colours as the alias step) or `Radius.Card · 8 → 24` (sizes as numbers). Two tokens on one element stack their notes. A note only sits on the screenshot where it covers nothing but one flat colour; where it would cover part of the story (text, another element, an edge), the element gets a small numbered marker instead (placed next to the outline where it covers nothing either) and its notes are listed under the image with the same number. Elements explained by the same token changes share one entry ("1, 2"), as the light and dark versions of a component usually are. This depends on the width you read at: on a phone the notes are larger relative to the screenshot, so more of them are listed. Below the image, a table lists each token with its value before and with this change, and the elements it outlines; each column names its side's ref and short hash.
+- **Show before.** Swaps the image for the base screenshot in the same place, so a small step is visible by flicking back and forth. Outlines and notes hide while "before" shows; the heading says which side you see: "With this change" or "Before this change", each with its ref and short hash.
+- **Unexplained changes.** When no token accounts for some pixels (a component, content or layout change), the row opens with the **diff overlay** on: the changed pixels in orange over "after", a dashed box around them and the note "unexplained · no token". Turn the overlay off to see the page itself; "Show before" sits next to it. Explained rows have no overlay; their outline already says where.
+- **Whole images.** Every row links the full before, after and diff PNGs.
+
+**Which commits.** "Before" is the base `dta diff` compared with, for example `main · 2ee9b31` (the merge base with your default branch, or what `--base` named). "With this change" is the checkout `dta diff` ran in, for example `feature/x · 9f3c1a2`: the branch and its commit, only the hash on a detached HEAD (as in most pull-request checkouts in CI), and `+ uncommitted changes` when anything in the repository was edited, staged or untracked (and not ignored) at the start of the run, because `dta diff` renders those too. Reports written before this was recorded say "working tree". The intro and `summary.md` (the comment) name both sides the same way; `result.json` has them as `base` and [`head`](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/diff/result.md#head).
+
+Added and removed stories show their one side ("With this change" for a new story, "Before this change" for a removed one). The row is the design system's [Diff card](/design-system/components/diff-card/).
+
+## One workflow or three
+
+**One file** is enough when everyone who opens pull requests can push to the repository (private and team repositories): one job runs `dta diff`, sets the status check and writes the comment, and the same file handles approval. **Three files** are for public repositories: a pull request from a fork must never run with write permissions, so the run, the report and the approval are split. `dta init` asks which one you need and writes it for your package manager and Node version.
+
+### One workflow
+
+<Code code={singleWorkflow} lang="yaml" title=".github/workflows/dta-diff.yml" />
+
+`diff-pr` runs `dta diff`, uploads the report as an artifact, runs your publish hook if you set its `publish` input, and posts the status and the comment. The approval label is created on the first run that needs a review.
+
+### Three workflows
+
+Pull requests from forks run with a read-only token and no secrets, so the work is split. The first workflow runs the diff with no permissions to speak of; the second reports it with the permissions and secrets it needs, without running any code from the pull request; the third handles approval.
+
+<Steps>
+
+1. **Run** on every pull request and upload the report as an artifact.
+
+   <Code code={runWorkflow} lang="yaml" title=".github/workflows/dta-diff.yml" />
+
+2. **Report** when the run finishes: publish (optional), status check, comment.
+
+   This example publishes with the [Vercel recipe](#vercel). Without `diff.publish` in the config, `dta init` writes the report workflow with one step and no checkout, install or secrets; the comment then links the report artifact. With it, init adds the checkout, the install and the hook, and a note where its secrets go.
+
+   <Code code={reportWorkflow} lang="yaml" title=".github/workflows/dta-diff-report.yml" />
+
+3. **Approve** with a label.
+
+   <Code code={approveWorkflow} lang="yaml" title=".github/workflows/dta-diff-approve.yml" />
+
+</Steps>
+
+The actions only wrap `dta diff`: `diff` runs it and uploads the report folder, `diff-report` runs your publish hook with `dta diff --from-report --publish …` and posts the status and the comment, `diff-approve` reacts to the label. The comment is found again by a hidden marker and edited in place.
+
+## Approving changes
+
+Explained changes are reviewed once per token change, not once per screenshot: _"`action.bg` 600 → 700 explains 7 stories"_. When you have looked at them, add the **`dta-diff-approved`** label. The status of the head commit turns green and the comment says who approved it.
+
+An approval belongs to one commit. When you push again, the report workflow removes the label and the new commit needs a new review. Removing the label by hand withdraws the approval.
+
+Thresholds decide what needs a look at all (in the `diff` section, as changed-pixel ratios):
+
+```ts
+diff: {
+  thresholds: { explained: 0, unexplained: 0 }, // the defaults: every change counts
+}
+```
+
+## Publishing the report
+
+Without a hook, the comment has no images and points to the workflow run, where the report folder is an artifact (download it, open `index.html`). With a hook, the comment shows baseline, candidate and diff thumbnails and links the hosted report.
+
+A publish hook is any command. `dta diff` passes it the report folder (as the last argument and as `DTA_REPORT_DIR`) and reads the public URL from the **last line** it prints:
+
+```ts
+diff: {
+  publish: 'sh .github/dta-diff-publish.sh',
+  // or, when the URL is somewhere else in the output:
+  // publish: { command: 'sh publish.sh', url: '$.deployment.url' }, // JSON path, or a regex
+}
+```
+
+`dta diff` then rewrites `summary.md` and `result.json` with absolute links. A failing hook is reported and exits non-zero, but the diff result is still written and printed.
+
+:::caution[Forks]
+A report from a fork is built from untrusted code: its `index.html` can contain anything. The example report workflow therefore publishes only for branches of your own repository and falls back to the artifact for forks.
+:::
+
+### Vercel
+
+A preview deployment of the report folder. Create an empty Vercel project for the reports and turn off Deployment Protection for its previews; otherwise GitHub cannot load the thumbnails into the comment. Add `VERCEL_TOKEN` as a repository secret and set `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` (from the project settings) as environment variables of the report step.
+
+<Code code={vercel} lang="sh" title=".github/dta-diff-publish.sh" />
+
+### GitHub assets branch
+
+No extra service: the report is committed to a branch of the same repository (`dta-diff-assets`, one folder per pull request, replaced on every push). The thumbnails load from `github.com/<repo>/raw/…`. GitHub serves `index.html` from there as text, so to open the HTML report either download the artifact or let GitHub Pages serve the branch and set `DTA_DIFF_PAGES_URL`.
+
+The report workflow needs `contents: write` (add it to its `permissions`) and the token as `GITHUB_TOKEN` in the environment of the step.
+
+<Code code={assets} lang="sh" title=".github/dta-diff-publish.sh" />
+
+Remove a pull request's reports when it closes:
+
+<Code code={cleanupWorkflow} lang="yaml" title=".github/workflows/dta-diff-cleanup.yml" />
+
+<Code code={assetsCleanup} lang="sh" title=".github/dta-diff-cleanup.sh" />
+
+:::note[Private repositories]
+Whether the thumbnails render in pull-request comments of a private repository is not verified yet. Until it is, use the artifact or a host only your team can reach.
+:::
+
+### Static server
+
+For an on-premise host: copy the folder somewhere your web server serves (a mount, or `rsync` over SSH) and print its URL.
+
+<Code code={staticServer} lang="sh" title=".github/dta-diff-publish.sh" />
+
+### Any other host
+
+Any host that serves static files works the same way: its command line uploads a folder and prints where it went. Start from this template:
+
+<Code code={template} lang="sh" title=".github/dta-diff-publish.sh" />
+
+What the host needs to do:
+
+- **Serve the folder as it is.** All links in the report are relative, so any subfolder works.
+- **Be reachable by GitHub**, if you want thumbnails in the comment: GitHub loads the images through its own proxy, so they must be public. Behind a login or VPN, the thumbnails show as broken images; the report link still works for everyone who can reach the host.
+- **Keep one folder per commit or pull request**, and remove old ones when you like. DTA never deletes anything there.
+
+If the upload tool prints the URL somewhere other than the last line, tell DTA where to find it instead of rewriting the output: `publish: { command: 'sh publish.sh', url: '$.deploy_url' }` reads a field of the JSON it prints, and any other value is a regular expression whose first group is the URL.
+
+Try a hook on your last local report before wiring it into CI. Nothing is rendered again:
+
+```sh
+npx dta diff --from-report --publish "sh .github/dta-diff-publish.sh"
+```
+
+## Troubleshooting
+
+Start with `npx dta diff --check`. It checks the setup without building or rendering anything and prints one line per check, with the fix for each one that fails:
+
+```sh
+npx dta diff --check
+```
+
+| Check       | Fails when                                      | Fix                                                                                         |
+| ----------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| config      | there is no `diff` section                      | `dta init`, or add `diff: { outDir: 'dist' }`                                               |
+| browser     | `playwright-core` or Chromium is missing        | `npm i -D playwright-core` and `npx playwright install chromium`, or set `DTA_BROWSER_PATH` |
+| git history | the checkout is shallow or not a git repository | `fetch-depth: 0` on `actions/checkout`, or `--base <ref\|dir>`                              |
+| base        | there is no default branch or merge base        | `--base <ref>` or `diff.base`                                                               |
+| stories     | the built output has no pages or stories        | build first (`diff.build`), then check `diff.outDir` and `diff.stories`                     |
+
+Every error `dta diff` stops with names its fix and the section of these docs that explains it. Two cases are loud on purpose:
+
+- **No browser in CI.** With `CI=true` (GitHub Actions sets it), a missing browser stops the run with an error. Locally `dta diff` warns and shows token changes only; `--tokens-only` asks for that on purpose.
+- **The base does not build.** The run stops with the command and its output instead of counting every story as added.
+
+## Without GitHub
+
+The report folder is plain files with relative links. `dta diff --publish "<command>"` works in any CI, and `--format json` or `summary.md` feed whatever posts your comments. The result format is documented with its JSON Schema in the repository (`docs/diff/result.md`).

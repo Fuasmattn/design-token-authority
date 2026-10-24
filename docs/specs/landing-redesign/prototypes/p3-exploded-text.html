@@ -1,0 +1,93 @@
+<title>Orbit Loop · exploded</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Martian+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F5F1E8; --surface:#FBF9F4; --grid:rgba(19,33,63,.07); --grid-2:rgba(19,33,63,.09);
+  --ink:#13213F; --ink-2:#22304F; --muted:#5A6480; --faint:#9AA2B4;
+  --blue:#2F55D4; --blue-2:#7590E6; --red:#E8632A; --green:#4F915A;
+  --sh-dark:8px 8px 18px rgba(19,33,63,.16); --sh-light:-6px -6px 14px rgba(255,255,255,.95);
+  --shadow-ink:rgba(19,33,63,1);
+  --sans:'Instrument Sans',system-ui,sans-serif; --mono:'Martian Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1B1A22;--surface:#24232C;--grid:rgba(244,239,230,.06);--grid-2:rgba(244,239,230,.1);--ink:#F4EFE6;--ink-2:#DDD7CB;--muted:#A79FC4;--faint:#6F6B80;--blue:#7590E6;--blue-2:#A9B8F0;--sh-dark:8px 8px 18px rgba(0,0,0,.45);--sh-light:-6px -6px 14px rgba(255,255,255,.05);--shadow-ink:rgba(0,0,0,1);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1B1A22;--surface:#24232C;--grid:rgba(244,239,230,.06);--grid-2:rgba(244,239,230,.1);--ink:#F4EFE6;--ink-2:#DDD7CB;--muted:#A79FC4;--faint:#6F6B80;--blue:#7590E6;--blue-2:#A9B8F0;--sh-dark:8px 8px 18px rgba(0,0,0,.45);--sh-light:-6px -6px 14px rgba(255,255,255,.05);--shadow-ink:rgba(0,0,0,1);color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);overflow-x:hidden;min-height:100vh;
+ background-image:linear-gradient(0deg,var(--grid-2) 0 1px,transparent 1px 120px),linear-gradient(90deg,var(--grid-2) 0 1px,transparent 1px 120px),linear-gradient(0deg,var(--grid) 0 1px,transparent 1px 24px),linear-gradient(90deg,var(--grid) 0 1px,transparent 1px 24px);background-size:120px 120px,120px 120px,24px 24px,24px 24px}
+.w{max-width:400px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 40px}
+.mono{font-family:var(--mono)}
+.kicker{font:400 11px/1.4 var(--mono);color:var(--blue);letter-spacing:.02em;margin:0 0 8px}
+h1{font:700 26px/1.05 var(--sans);letter-spacing:-.02em;margin:0 0 8px;text-wrap:balance}
+.lede{margin:0;font-size:14px;line-height:1.5;color:var(--muted);max-width:34ch}
+.stage{position:relative;width:358px;max-width:100%;height:330px;margin:26px auto 0;touch-action:manipulation}
+.lane{position:absolute;top:0;font:500 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.lane.c{left:50%;translate:-50% 0}.lane.r{right:0}
+.rail{position:absolute;left:56px;right:60px;top:176px;border-top:1.5px dashed var(--grid-2)}
+svg.ret{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+svg.ret path{fill:none;stroke:var(--red);stroke-width:1.5;stroke-linecap:butt;stroke-dasharray:1;animation:ret 17.0s linear infinite}
+.pad{position:absolute;width:30px;height:30px;border-radius:50%;translate:-50% -50%;box-shadow:inset 0 0 0 1px var(--grid-2);top:176px}
+.st{position:absolute;top:228px;translate:-50% 0;padding:6px 9px;border-radius:999px;font:400 11px/1 var(--mono);color:var(--ink);white-space:nowrap;background:var(--bg);animation-duration:17.0s;animation-timing-function:ease-out;animation-iteration-count:infinite;animation-fill-mode:both}
+.st.d{left:56px;animation-name:r-d}.st.c{left:179px;animation-name:r-c}.st.p{left:298px;animation-name:r-p}
+/* token */
+.tok{position:absolute;left:0;top:0;width:0;height:0;animation:mv 17.0s cubic-bezier(.5,0,.2,1) infinite,tokop 17.0s linear infinite}
+.tsh{position:absolute;left:-26px;top:-13px;width:52px;height:26px;border-radius:12px;background:var(--shadow-ink);animation:sh 17.0s cubic-bezier(.5,0,.2,1) infinite}
+.lift{position:absolute;left:-26px;top:-13px;width:52px;height:26px;animation:lf 17.0s cubic-bezier(.5,0,.2,1) infinite;transform-origin:50% 50%}
+.chip{width:52px;height:26px;border-radius:8px;background:var(--surface);display:flex;align-items:center;gap:5px;padding:0 6px;box-shadow:inset 0 0 0 1px var(--grid-2)}
+.chip i{width:14px;height:14px;border-radius:4px;background:#e0600a;flex:none}
+.chip b{font:500 7px/1 var(--mono);color:var(--muted);letter-spacing:.02em}
+.flag{position:absolute;right:-8px;top:-8px;width:12px;height:12px;border-radius:50%;background:var(--red);box-shadow:0 0 0 2px var(--bg);animation:flag 17.0s ease-out infinite}
+/* inspection */
+.loupe{position:absolute;left:179px;top:176px;width:124px;height:124px;translate:-50% -50%;border-radius:50%;border:1.5px dashed var(--blue-2);animation:loupe 17.0s cubic-bezier(.2,.8,.2,1) infinite}
+.loupe::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px solid var(--grid-2)}
+.part{position:absolute;left:179px;top:176px;padding:5px 8px;border-radius:6px;background:var(--bg);font:400 10px/1 var(--mono);color:var(--ink);white-space:nowrap;box-shadow:var(--sh-dark),var(--sh-light);animation-duration:17.0s;animation-timing-function:cubic-bezier(.2,.8,.2,1);animation-iteration-count:infinite;animation-fill-mode:both}
+.p-name{animation-name:p-name}.p-val{animation-name:p-val;color:var(--red)}.p-css{animation-name:p-css;color:var(--muted)}.p-tw{animation-name:p-tw;color:var(--muted)}
+.pop{position:absolute;top:176px;padding:6px 9px;border-radius:999px;background:var(--bg);font:400 11px/1 var(--mono);white-space:nowrap;box-shadow:var(--sh-dark),var(--sh-light);animation-duration:17.0s;animation-timing-function:ease-out;animation-iteration-count:infinite;animation-fill-mode:both;opacity:0}
+.ok{color:var(--green)}.bad{color:var(--red)}
+.c-lint{left:179px;animation-name:c-lint}.c-build{left:179px;animation-name:c-build}.c-diff{left:179px;animation-name:c-diff}
+.fix{left:96px;animation-name:fix}.appr{left:179px;animation-name:appr}.ship{left:258px;animation-name:ship}
+.paused *{animation-play-state:paused!important}
+.foot{max-width:360px;margin:12px auto 0;font:400 11px/1.5 var(--mono);color:var(--faint)}
+@media (prefers-reduced-motion:reduce){.stage *{animation:none!important}.tok{translate:179px 176px;opacity:1}.loupe{scale:1;opacity:1}.part{opacity:1}.p-name{translate:calc(-50% - 74px) calc(-50% - 50px)}.p-val{translate:calc(-50% + 70px) calc(-50% - 44px)}.p-css{translate:calc(-50% - 72px) calc(-50% + 34px)}.p-tw{translate:calc(-50% + 74px) calc(-50% + 36px)}.tsh{opacity:.3}svg.ret path{opacity:0}}
+@keyframes mv{0.000%{translate:56px 176px}5.294%{translate:56px 176px}7.353%{translate:56px 176px}12.647%{translate:179px 176px}14.118%{translate:179px 176px}38.824%{translate:179px 176px}40.882%{translate:179px 176px}46.176%{translate:56px 176px}47.647%{translate:56px 176px}57.647%{translate:56px 176px}59.706%{translate:56px 176px}65.000%{translate:179px 176px}66.471%{translate:179px 176px}76.471%{translate:179px 176px}78.529%{translate:179px 176px}83.824%{translate:298px 176px}85.294%{translate:298px 176px}100.000%{translate:298px 176px}}
+@keyframes lf{0.000%{scale:1;translate:0 0}5.294%{scale:1;translate:0 0}7.353%{scale:1.3;translate:0 -14px}12.059%{scale:1.3;translate:0 -14px}14.118%{scale:1;translate:0 0}38.824%{scale:1;translate:0 0}40.882%{scale:1.3;translate:0 -14px}45.588%{scale:1.3;translate:0 -14px}47.647%{scale:1;translate:0 0}57.647%{scale:1;translate:0 0}59.706%{scale:1.3;translate:0 -14px}64.412%{scale:1.3;translate:0 -14px}66.471%{scale:1;translate:0 0}76.471%{scale:1;translate:0 0}78.529%{scale:1.3;translate:0 -14px}83.235%{scale:1.3;translate:0 -14px}85.294%{scale:1;translate:0 0}100.000%{scale:1;translate:0 0}}
+@keyframes sh{0.000%{filter:blur(1px);opacity:.35;scale:1;translate:2px 3px}5.294%{filter:blur(1px);opacity:.35;scale:1;translate:2px 3px}7.353%{filter:blur(5px);opacity:.14;scale:1.25;translate:12px 18px}12.059%{filter:blur(5px);opacity:.14;scale:1.25;translate:12px 18px}14.118%{filter:blur(1px);opacity:.35;scale:1;translate:2px 3px}38.824%{filter:blur(1px);opacity:.35;scale:1;translate:2px 3px}40.882%{filter:blur(5px);opacity:.14;scale:1.25;translate:12px 18px}45.588%{filter:blur(5px);opacity:.14;scale:1.25;translate:12px 18px}47.647%{filter:blur(1px);opacity:.35;scale:1;translate:2px 3px}57.647%{filter:blur(1px);opacity:.35;scale:1;translate:2px 3px}59.706%{filter:blur(5px);opacity:.14;scale:1.25;translate:12px 18px}64.412%{filter:blur(5px);opacity:.14;scale:1.25;translate:12px 18px}66.471%{filter:blur(1px);opacity:.35;scale:1;translate:2px 3px}76.471%{filter:blur(1px);opacity:.35;scale:1;translate:2px 3px}78.529%{filter:blur(5px);opacity:.14;scale:1.25;translate:12px 18px}83.235%{filter:blur(5px);opacity:.14;scale:1.25;translate:12px 18px}85.294%{filter:blur(1px);opacity:.35;scale:1;translate:2px 3px}100.000%{filter:blur(1px);opacity:.35;scale:1;translate:2px 3px}}
+@keyframes tokop{0.000%{opacity:0}2.941%{opacity:1}91.765%{opacity:1}96.471%{opacity:0}100.000%{opacity:0}}
+@keyframes loupe{0.000%{opacity:0;scale:0}15.882%{opacity:0;scale:0}18.824%{opacity:1;scale:1}34.706%{opacity:1;scale:1}37.059%{opacity:0;scale:0}67.647%{opacity:0;scale:0}70.588%{opacity:1;scale:1}74.118%{opacity:1;scale:1}76.471%{opacity:0;scale:0}100.000%{opacity:0;scale:0}}
+@keyframes p-name{0.000%{opacity:0;translate:-50% -50%}17.059%{opacity:0;translate:-50% -50%}20.000%{opacity:1;translate:calc(-50% + -74px) calc(-50% + -50px)}33.529%{opacity:1;translate:calc(-50% + -74px) calc(-50% + -50px)}35.882%{opacity:0;translate:-50% -50%}100.000%{opacity:0;translate:-50% -50%}}
+@keyframes p-val{0.000%{opacity:0;translate:-50% -50%}17.765%{opacity:0;translate:-50% -50%}20.706%{opacity:1;translate:calc(-50% + 70px) calc(-50% + -44px)}33.529%{opacity:1;translate:calc(-50% + 70px) calc(-50% + -44px)}35.882%{opacity:0;translate:-50% -50%}100.000%{opacity:0;translate:-50% -50%}}
+@keyframes p-css{0.000%{opacity:0;translate:-50% -50%}18.471%{opacity:0;translate:-50% -50%}21.412%{opacity:1;translate:calc(-50% + -72px) calc(-50% + 34px)}33.529%{opacity:1;translate:calc(-50% + -72px) calc(-50% + 34px)}35.882%{opacity:0;translate:-50% -50%}100.000%{opacity:0;translate:-50% -50%}}
+@keyframes p-tw{0.000%{opacity:0;translate:-50% -50%}19.176%{opacity:0;translate:-50% -50%}22.118%{opacity:1;translate:calc(-50% + 74px) calc(-50% + 36px)}33.529%{opacity:1;translate:calc(-50% + 74px) calc(-50% + 36px)}35.882%{opacity:0;translate:-50% -50%}100.000%{opacity:0;translate:-50% -50%}}
+@keyframes c-lint{0.000%{opacity:0;translate:-50% calc(-50% + -142px)}22.353%{opacity:0;translate:-50% calc(-50% + -142px)}24.118%{opacity:1;translate:-50% calc(-50% + -150px)}35.294%{opacity:1;translate:-50% calc(-50% + -150px)}37.059%{opacity:0;translate:-50% calc(-50% + -150px)}100.000%{opacity:0;translate:-50% calc(-50% + -150px)}}
+@keyframes c-build{0.000%{opacity:0;translate:-50% calc(-50% + -118px)}24.706%{opacity:0;translate:-50% calc(-50% + -118px)}26.471%{opacity:1;translate:-50% calc(-50% + -126px)}35.294%{opacity:1;translate:-50% calc(-50% + -126px)}37.059%{opacity:0;translate:-50% calc(-50% + -126px)}100.000%{opacity:0;translate:-50% calc(-50% + -126px)}}
+@keyframes c-diff{0.000%{opacity:0;translate:-50% calc(-50% + -92px)}28.235%{opacity:0;translate:-50% calc(-50% + -92px)}30.000%{opacity:1;translate:-50% calc(-50% + -100px)}35.294%{opacity:1;translate:-50% calc(-50% + -100px)}37.059%{opacity:0;translate:-50% calc(-50% + -100px)}100.000%{opacity:0;translate:-50% calc(-50% + -100px)}}
+@keyframes flag{0.000%{opacity:0;scale:.6}34.706%{opacity:0;scale:.6}36.471%{opacity:1;scale:1}50.000%{opacity:1;scale:1}51.765%{opacity:0;scale:.6}100.000%{opacity:0;scale:.6}}
+@keyframes fix{0.000%{opacity:0;translate:-50% calc(-50% + -54px)}49.412%{opacity:0;translate:-50% calc(-50% + -54px)}51.176%{opacity:1;translate:-50% calc(-50% + -62px)}58.235%{opacity:1;translate:-50% calc(-50% + -62px)}60.000%{opacity:0;translate:-50% calc(-50% + -62px)}100.000%{opacity:0;translate:-50% calc(-50% + -62px)}}
+@keyframes appr{0.000%{opacity:0;translate:-50% calc(-50% + -92px)}70.000%{opacity:0;translate:-50% calc(-50% + -92px)}71.765%{opacity:1;translate:-50% calc(-50% + -100px)}75.294%{opacity:1;translate:-50% calc(-50% + -100px)}77.059%{opacity:0;translate:-50% calc(-50% + -100px)}100.000%{opacity:0;translate:-50% calc(-50% + -100px)}}
+@keyframes ship{0.000%{opacity:0;translate:-50% calc(-50% + -54px)}85.882%{opacity:0;translate:-50% calc(-50% + -54px)}87.647%{opacity:1;translate:-50% calc(-50% + -62px)}93.529%{opacity:1;translate:-50% calc(-50% + -62px)}95.294%{opacity:0;translate:-50% calc(-50% + -62px)}100.000%{opacity:0;translate:-50% calc(-50% + -62px)}}
+@keyframes r-d{0.000%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}0.294%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}2.059%{box-shadow:var(--sh-dark),var(--sh-light);transform:translateY(-3px)}5.294%{box-shadow:var(--sh-dark),var(--sh-light);transform:translateY(-3px)}7.647%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}47.647%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}49.412%{box-shadow:var(--sh-dark),var(--sh-light);transform:translateY(-3px)}57.647%{box-shadow:var(--sh-dark),var(--sh-light);transform:translateY(-3px)}60.000%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}100.000%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}}
+@keyframes r-c{0.000%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}14.118%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}15.882%{box-shadow:var(--sh-dark),var(--sh-light);transform:translateY(-3px)}38.824%{box-shadow:var(--sh-dark),var(--sh-light);transform:translateY(-3px)}41.176%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}66.471%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}68.235%{box-shadow:var(--sh-dark),var(--sh-light);transform:translateY(-3px)}76.471%{box-shadow:var(--sh-dark),var(--sh-light);transform:translateY(-3px)}78.824%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}100.000%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}}
+@keyframes r-p{0.000%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}85.294%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}87.059%{box-shadow:var(--sh-dark),var(--sh-light);transform:translateY(-3px)}94.118%{box-shadow:var(--sh-dark),var(--sh-light);transform:translateY(-3px)}96.471%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}100.000%{box-shadow:0 0 0 rgba(19,33,63,0),0 0 0 rgba(255,255,255,0);transform:translateY(0)}}
+@keyframes ret{0.000%{opacity:1;stroke-dashoffset:1}37.647%{opacity:1;stroke-dashoffset:1}44.706%{opacity:1;stroke-dashoffset:0}50.588%{opacity:1;stroke-dashoffset:0}54.118%{opacity:0;stroke-dashoffset:0}100.000%{opacity:0;stroke-dashoffset:0}}
+</style>
+<div class="w">
+ <header>
+  <p class="kicker">THE LOOP · PROTOTYPE 3</p>
+  <h1>Design on one side, product on the other.</h1>
+  <p class="lede">A token leaves Figma, is taken apart in the pull request, goes back once with a finding, and ships.</p>
+ </header>
+ <div class="stage" id="stage" aria-label="A token travels from design to the pull request, is inspected, returns once with a finding, is fixed and ships to the product">
+  <span class="lane">Design</span><span class="lane c">Pull request</span><span class="lane r">Product</span>
+  <span class="rail"></span>
+  <svg class="ret" viewBox="0 0 358 330" aria-hidden="true"><path pathLength="1" d="M 179 166 C 179 106, 56 106, 56 166"/></svg>
+  <span class="pad" style="left:56px"></span><span class="pad" style="left:179px"></span><span class="pad" style="left:298px"></span>
+  <span class="st d">Figma</span><span class="st c">lint · diff</span><span class="st p">CSS · Tailwind</span>
+  <span class="loupe" aria-hidden="true"></span>
+  <span class="part p-name">Colors.Brand.Primary</span><span class="part p-val">Nova.500 → 600</span><span class="part p-css">--color-brand-primary</span><span class="part p-tw">bg-brand-primary</span>
+  <span class="pop c-lint ok">lint ✓</span><span class="pop c-build ok">build ✓</span><span class="pop c-diff bad">diff · label darker</span>
+  <span class="pop fix">Text.OnBrand → white <span class="ok">✓</span></span><span class="pop appr ok">approved ✓</span><span class="pop ship">shipped <span class="ok">✓</span></span>
+  <div class="tok" aria-hidden="true"><span class="tsh"></span><span class="lift"><span class="chip"><i></i><b>Brand.Primary</b></span><span class="flag"></span></span></div>
+ </div>
+ <p class="foot">Tap the board to pause. One lap is 17 seconds: Figma → pull request (taken apart, checked) → back with a finding → fixed → approved → shipped.</p>
+</div>
+<script>document.getElementById('stage').addEventListener('click',function(){this.classList.toggle('paused')})</script>

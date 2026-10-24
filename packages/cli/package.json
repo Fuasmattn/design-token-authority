@@ -1,0 +1,46 @@
+{
+  "name": "@dta/cli",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Command-line interface for Design Token Authority",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24.14.1"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.2.0",
+    "@dta/build": "workspace:*",
+    "@dta/core": "workspace:*",
+    "@dta/figma": "workspace:*",
+    "@dta/lint": "workspace:*",
+    "@dta/visual-diff": "workspace:*",
+    "commander": "^14.0.3",
+    "picocolors": "^1.1.1",
+    "tsx": "^4.21.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@dta/testkit": "workspace:*",
+    "@types/node": "^24.12.2",
+    "ajv": "8.17.1",
+    "playwright-core": "1.59.1",
+    "typescript": "^5.1.6",
+    "vitest": "^4.1.2"
+  },
+  "peerDependencies": {
+    "playwright-core": ">=1.59.0"
+  },
+  "peerDependenciesMeta": {
+    "playwright-core": {
+      "optional": true
+    }
+  }
+}

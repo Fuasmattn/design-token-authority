@@ -1,0 +1,15 @@
+T   ✖  dta clean 
+|
+o  Removed ---------------------+
+|                               |
+|  tokens/app.resolver.json     |
+|  tokens/sets/color.json       |
+|  tokens/sets/components.json  |
+|  tokens/sets/size.tokens      |
+|  tokens/themes/dark.json      |
+|  tokens/themes/light.json     |
+|                               |
++-------------------------------+
+|
+—  Clean complete!
+

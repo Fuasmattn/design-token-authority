@@ -1,0 +1,31 @@
+---
+title: Gravity well
+description: The key visual of the landing page, a polar mesh swirling into a well, with objects in orbit.
+sidebar:
+  order: 15
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+The key visual: a gravity well drawn across the whole section on a canvas, with cubes, spheres and dust orbiting it on two rings. The slot is the copy that sits on it. It is decoration: it labels nothing and tells no story; the copy does. "Everything gravitates towards the token" is what it means.
+
+<Examples component="gravity-well" />
+
+## The physics, in two sentences
+
+The surface is z(r) = −K(1/r − 1/R_far), seen tilted (64° by default) and with perspective (s = F / (F − z)), so it narrows to a vanishing point below the mouth: the tube to infinity is the surface itself. Rings are log-spaced and flow inward at constant speed in log r; the 28 spokes are logarithmic spirals that turn once in 120 s, so the mesh swirls into the hole.
+
+## Guidelines
+
+- Cells of the mesh are painted opaque, back to front, in `bg-canvas`, so the near wall hides the far wall. Lines are `well-line` and darken to `well-throat` toward the mouth; the mouth is `well-mouth` (the other theme's paper) with a `well-glow` rim. Outside the well the view blends back to a flat plane (0.9 R to 2.2 R) before the mesh fades out (0.95 R to 2.6 R); a wash of the page colour fades the top 42 %.
+- The orbit rings are dashed: `border-default` outside, `well-glow` inside. The objects take the `well-object-*` triples (lit, top, shaded face), `well-highlight` for the spheres' specular point and `well-dust` for the motes; the inner ring turns in 60 s, the outer counter-turns in 90 s, the dust in 140 s.
+- Props: `tilt` (40, 52, 64), `size` (S, L), `offset` (x and y, per cent of the section), `position` (A: well right of the copy; B: left). The landing page uses the defaults (64, S, +8 %, 0, A).
+- Motion: a `requestAnimationFrame` loop while the page is visible, a slight parallax on scroll (mesh 0.35, objects 0.18). Under `prefers-reduced-motion`, and with `still`, one frame at t = 0, no spin, no parallax. The canvas is capped at 2× device pixel ratio and is `aria-hidden`. The objects stay hidden until the script has placed the orbits (`data-placed`), so they are first painted where they belong: painted at a default position and then moved, Chromium rasterised them at a scale that depended on timing, and `dta diff` saw a few pixels change between runs.
+- Desktop: copy left, well right; phones: the well above the copy, the section clipped so the x offset never scrolls sideways.
+
+## Tokens used
+
+Read from the component's source (the canvas reads `well-line`, `well-throat`, `well-mouth`, `well-glow`, `bg-canvas` and `border-default` at run time):
+
+<TokensUsed name="GravityWell" />

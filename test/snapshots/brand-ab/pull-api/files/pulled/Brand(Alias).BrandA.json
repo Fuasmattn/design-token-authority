@@ -1,0 +1,174 @@
+{
+  "Colors": {
+    "Brand": {
+      "Primary": {
+        "$type": "color",
+        "$value": "{Colors.Foundation.Blue.500}",
+        "$description": "",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "Primary Dark": {
+        "$type": "color",
+        "$value": "{Colors.Foundation.Blue.700}",
+        "$description": "",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "Accent": {
+        "$type": "color",
+        "$value": "{Colors.Foundation.Sky.500}",
+        "$description": "",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "codeSyntax": {}
+          }
+        }
+      }
+    },
+    "Surface": {
+      "Default": {
+        "$type": "color",
+        "$value": "{Colors.Foundation.White}",
+        "$description": "",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "Muted": {
+        "$type": "color",
+        "$value": "{Colors.Foundation.Gray.100}",
+        "$description": "",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "codeSyntax": {}
+          }
+        }
+      }
+    },
+    "Text": {
+      "Default": {
+        "$type": "color",
+        "$value": "{Colors.Foundation.Gray.900}",
+        "$description": "",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "Muted": {
+        "$type": "color",
+        "$value": "{Colors.Foundation.Gray.500}",
+        "$description": "",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "On Primary": {
+        "$type": "color",
+        "$value": "{Colors.Foundation.White}",
+        "$description": "",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "codeSyntax": {}
+          }
+        }
+      }
+    }
+  },
+  "Typography": {
+    "Body": {
+      "Family": {
+        "$type": "string",
+        "$value": "{Typography.FontFamily.Sans}",
+        "$description": "",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "FONT_FAMILY"
+            ],
+            "codeSyntax": {}
+          }
+        }
+      }
+    }
+  },
+  "Effects": {
+    "overlay": {
+      "Opacity": {
+        "$type": "number",
+        "$value": "{Effects.opacity.50}",
+        "$description": "",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "OPACITY"
+            ],
+            "codeSyntax": {}
+          }
+        }
+      }
+    },
+    "shadow": {
+      "Blur": {
+        "$type": "number",
+        "$value": "{Effects.blur.md}",
+        "$description": "",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": [
+              "EFFECT_FLOAT"
+            ],
+            "codeSyntax": {}
+          }
+        }
+      }
+    }
+  }
+}

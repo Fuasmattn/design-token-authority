@@ -1,0 +1,25 @@
+T   ⤴  dta push 
+|
+!  10 lint warnings found.
+|
+o  Diff computed
+## Design Token Changes
+
+**Summary:** **+1** added, **~2** modified
+
+### Added
+
+| Token | Collection |
+|---|---|
+| `Dimensions/radius/pill` | VariableCollectionId:1:1 |
+
+### Modified
+
+| Token | Detail |
+|---|---|
+| `VariableID:1:1` | {"r":0,"g":0.3411764705882353,"b":0.7215686274509804} 1:0 |
+| `VariableID:1:11` | 8 1:0 |
+
+|
+—  Dry run — no changes were applied to Figma.
+

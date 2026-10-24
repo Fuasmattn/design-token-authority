@@ -1,0 +1,39 @@
+---
+title: Findings
+description: Diagnostics and lint findings in the CLI's words, grouped by file or by rule, with the summary line.
+sidebar:
+  order: 22
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+Findings worded as the CLI prints them: input diagnostics as `error [code] message (file)` (`formatDiagnostic` in `@dta/core`), lint violations as `warn message [rule]` grouped by file, then the summary line `dta lint` ends with (`formatLintSummary` and `LINT_MESSAGES` in `@dta/lint`). In the [playground](/playground/)'s Lint view the same lines are grouped by rule, summaries first: one row per rule with its count (`groupViolationsByRule` and `formatRuleCount` in `@dta/lint`; the built-in rules are listed also when clean), and a rule with findings opens to its lines.
+
+## When to use
+
+- Grouped by file (titled groups) for input diagnostics and a report you read top to bottom, as `dta lint` prints it.
+- Grouped by rule (groups with a `count`) where the overview matters more than every line: a workspace view. With `onSelect` each line opens its details in the [Detail panel](/design-system/components/detail-panel/).
+
+<Examples component="findings" />
+
+## Guidelines
+
+- Mono lines in the page's ink, not a terminal: the findings are read, not run.
+- Severity is the word plus a marker shape, in the [status colours](/design-system/status-colours/): errors a filled square in `status-error-marker`, warnings an open ring in `status-warning-marker`; the word (`error`, `warn`) in `status-*-text`, the rest of the line in the ink, so a long list does not turn into a block of colour. `signal` is never used for errors or warnings.
+- The summary line takes its outcome's colours (failed: the square and `status-error-text`, warnings: the ring and `status-warning-text`); a clean result shows the pass dot in `status-success-marker` and its line in `status-success-text`.
+- **Status banner** (`banner` with an `outcome`): for what stops the work, the input that cannot be read and a build with errors. The whole list sits on the outcome's tint (`status-error-subtle`) inside a complete 2 px outline in its marker colour (`stroke-ink`, `radius-md`; borders are complete or straight), and every line, file name, detail and link reads in its status text (7:1 on the tint). Not for a lint view: findings you work through are a list, not a stop.
+- **Rule rows:** mono, 48 px tall, the rule's marker (its worst severity, in its marker colour; none for a clean rule), the rule id, its count in its status text (`fg-muted` for `no findings`), and a `›` that turns when open. A native disclosure (`details`/`summary`), so it works without script; a rule without findings is a plain row.
+- **Selectable lines:** the whole line is a button (at least 44 px), with the file as a quieter second line. The open one is marked with `aria-current`.
+- **A selected line shows selection and severity at once** (TICKET-121): selection is the `action-subtle` tint with the line's text and its file in `action-text`; severity stays as on any other line, the marker in its status colour and shape (a filled square in `status-error-marker`, an open ring in `status-warning-marker`) and the word in `status-*-text`. On the tint the markers reach at least 3:1 (error 4.67:1 Light, 4.93:1 Graphite; warning 5.23:1 and 8.62:1) and the words at least 7:1 (error 7.78:1 and 8.24:1; warning 7.97:1 and 9.48:1). The file line turns `action-text` (8.09:1 and 9.42:1), because `fg-subtle` stays under 7:1 on the tint (6.68:1 and 5.96:1).
+- **The selected line is never hidden:** when the selection moves into a closed rule (the Detail panel's "Next finding"), that rule opens; the component never closes a rule the visitor opened. With `idPrefix` each line's button gets an id (`findingId(idPrefix, group, line)`), so a page can return focus to the line shown last.
+- The stories show the playground's "Example with problems" (the `brand-ab-problems` fixture): one finding per built-in rule, in the words `dta lint` prints for it.
+- **The page that explains it:** a diagnostic that points to the documentation (the CLI ends its line with "See docs/token-files/input-format.md.", a path in the repository) ends here with "See the [Token files reference](/reference/token-files/)." instead: a link in `action-text`, underlined. The diagnostic carries a doc id (`docs` in `@dta/core`); the CLI renders the repository path, the site its page (`DOC_LINKS` in `src/lib/doc-links.ts`), so the wording stays shared. Not on selectable lines (a link inside a button).
+- Paths in a line (token paths, alias ids, files) break after a `/` or `.` and keep their segments whole ([Token path](/design-system/components/token-path/)); other long words wrap anywhere as a last resort. A list never scrolls sideways on a phone.
+- **Motion:** a rule's lines open and close by animating their height (`::details-content` with `interpolate-size`, `motion.duration.base`; no script measures them, browsers without it open at once), the chevron turns, and a selected line's tint comes and goes over `fast`. Static under reduced motion. See [Motion](/design-system/motion/).
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="Findings" />

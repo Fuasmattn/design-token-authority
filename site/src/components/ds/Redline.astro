@@ -1,0 +1,105 @@
+---
+/**
+ * The signature annotation: an object on grid paper with up to three redlines, each naming a
+ * real token and value. `width` draws a line under the object; `corner` labels its top-left.
+ */
+interface Mark {
+  kind: 'width' | 'corner'
+  label: string
+}
+interface Props {
+  marks: Mark[]
+  description: string
+}
+const { marks, description } = Astro.props
+if (marks.length > 3) throw new Error('Redline: at most three redlines per object')
+---
+
+<figure class="dta-redline" aria-label={description}>
+  <div class="object">
+    <slot />
+    {
+      marks.map((mark) =>
+        mark.kind === 'width' ? (
+          <>
+            <span class="line" aria-hidden="true" />
+            <span class="tag below" data-contrast-exception="redline label">{mark.label}</span>
+          </>
+        ) : (
+          <span class="tag corner" data-contrast-exception="redline label">{mark.label}</span>
+        ),
+      )
+    }
+  </div>
+</figure>
+
+<style>
+  .dta-redline {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    padding: var(--space-12) var(--space-16) var(--space-16);
+    border-radius: var(--radius-lg);
+    background-color: var(--bg-subtle);
+    background-image:
+      linear-gradient(var(--bg-grid) var(--stroke-hairline), transparent var(--stroke-hairline)),
+      linear-gradient(90deg, var(--bg-grid) var(--stroke-hairline), transparent var(--stroke-hairline));
+    background-size: var(--space-4) var(--space-4);
+  }
+  .object {
+    position: relative;
+    width: fit-content;
+  }
+  .line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -20px;
+    border-top: var(--stroke-redline) solid var(--signal-bg);
+    transform-origin: left;
+    animation: draw var(--motion-duration-slow) var(--motion-ease-enter) var(--motion-duration-base) both;
+  }
+  .tag {
+    position: absolute;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--signal-bg);
+    color: var(--signal-fg);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-redline-size) * 1px);
+    line-height: var(--type-redline-line-height);
+    white-space: nowrap;
+    animation: pop var(--motion-duration-base) var(--motion-ease-enter) calc(var(--motion-duration-base) + var(--motion-duration-slow)) both;
+  }
+  .below {
+    left: 50%;
+    bottom: -34px;
+    transform: translateX(-50%);
+  }
+  .corner {
+    left: -26px;
+    top: -26px;
+  }
+  @keyframes draw {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+  @keyframes pop {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .line,
+    .tag {
+      animation: none;
+    }
+  }
+</style>

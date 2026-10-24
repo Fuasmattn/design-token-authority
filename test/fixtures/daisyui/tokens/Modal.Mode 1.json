@@ -1,0 +1,40 @@
+{
+  "modal": {
+    "backrgound": {
+      "$type": "color",
+      "$extensions": {
+        "com.figma": {
+          "scopes": []
+        }
+      },
+      "$value": "{main.color.base.100}"
+    },
+    "radius": {
+      "$type": "number",
+      "$extensions": {
+        "com.figma": {
+          "scopes": []
+        }
+      },
+      "$value": "{main.radius.boxes}"
+    },
+    "padding-around": {
+      "$type": "number",
+      "$extensions": {
+        "com.figma": {
+          "scopes": []
+        }
+      },
+      "$value": "{tailwind.spacing.6 (24)}"
+    },
+    "gap-content": {
+      "$type": "number",
+      "$extensions": {
+        "com.figma": {
+          "scopes": []
+        }
+      },
+      "$value": "{tailwind.spacing.4 (16)}"
+    }
+  }
+}

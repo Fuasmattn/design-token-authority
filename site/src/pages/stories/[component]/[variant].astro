@@ -1,0 +1,18 @@
+---
+import type { GetStaticPaths } from 'astro'
+import ThemePair from '../../../components/docs/ThemePair.astro'
+import { EXAMPLES, storyId, type Example } from '../../../examples/registry'
+import StoryLayout from '../../../layouts/StoryLayout.astro'
+
+export const getStaticPaths = (() =>
+  EXAMPLES.map((example) => ({
+    params: { component: example.component, variant: example.variant },
+    props: { example },
+  }))) satisfies GetStaticPaths
+
+const { example } = Astro.props as { example: Example }
+---
+
+<StoryLayout title={`${example.component} / ${example.title}`}>
+  <ThemePair example={example} idPrefix={storyId(example)} />
+</StoryLayout>

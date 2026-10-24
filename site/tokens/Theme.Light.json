@@ -1,0 +1,588 @@
+{
+  "bg": {
+    "canvas": {
+      "$type": "color",
+      "$value": "{paper.100}",
+      "$description": "Page background.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "surface": {
+      "$type": "color",
+      "$value": "{paper.0}",
+      "$description": "Cards, panels, inputs.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "subtle": {
+      "$type": "color",
+      "$value": "{paper.200}",
+      "$description": "Wells, segmented controls, grid-paper areas.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "grid": {
+      "$type": "color",
+      "$value": "{paper.150}",
+      "$description": "Grid paper lines (16px pitch) on bg-subtle or bg-surface. Decoration only.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "border": {
+    "default": {
+      "$type": "color",
+      "$value": "{paper.300}",
+      "$description": "1px hairlines around surfaces.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "strong": {
+      "$type": "color",
+      "$value": "{ink.900}",
+      "$description": "2px ink outlines on interactive elements and rules.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "fg": {
+    "default": {
+      "$type": "color",
+      "$value": "{ink.900}",
+      "$description": "Body text and headings on bg-canvas and bg-surface.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "muted": {
+      "$type": "color",
+      "$value": "{ink.700}",
+      "$description": "Secondary text on bg-canvas and bg-surface.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "subtle": {
+      "$type": "color",
+      "$value": "{ink.650}",
+      "$description": "Captions, meta, mono labels on bg-canvas and bg-surface (7:1).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "action": {
+    "bg": {
+      "$type": "color",
+      "$value": "{blueprint.700}",
+      "$description": "Primary buttons, links, active workflow station (its text and itself on the canvas at 7:1 or more).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "fg": {
+      "$type": "color",
+      "$value": "{paper.0}",
+      "$description": "Text on action-bg.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "subtle": {
+      "$type": "color",
+      "$value": "{blueprint.100}",
+      "$description": "Info chips, selection, focus ring fill.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "text": {
+      "$type": "color",
+      "$value": "{blueprint.800}",
+      "$description": "Text on action-subtle.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "signal": {
+    "bg": {
+      "$type": "color",
+      "$value": "{redline.500}",
+      "$description": "Redlines, redline labels, diffs, the moving packet. Never for errors.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "fg": {
+      "$type": "color",
+      "$value": "{graphite.950}",
+      "$description": "Text on signal-bg (redline labels).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "subtle": {
+      "$type": "color",
+      "$value": "{redline.100}",
+      "$description": "Changed-state chips, diff highlight fills.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "text": {
+      "$type": "color",
+      "$value": "{redline.900}",
+      "$description": "Text on signal-subtle and on bg-canvas (7:1).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "status": {
+    "success": {
+      "text": {
+        "$type": "color",
+        "$value": "{sage.700}",
+        "$description": "Success words and counts (\"passed\", \"0 findings\"): 7:1 on bg-canvas, bg-surface, bg-subtle and status-success-subtle.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "marker": {
+        "$type": "color",
+        "$value": "{sage.600}",
+        "$description": "The success marker (a dot) and the outline of a success banner: 3:1 on the four grounds. Not for text.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "subtle": {
+        "$type": "color",
+        "$value": "{sage.100}",
+        "$description": "Ground of success chips and banners; text on it is status-success-text.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      }
+    },
+    "warning": {
+      "text": {
+        "$type": "color",
+        "$value": "{ochre.700}",
+        "$description": "Warning words and counts (\"2 warnings\", \"passed with warnings\"): 7:1 on bg-canvas, bg-surface, bg-subtle and status-warning-subtle.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "marker": {
+        "$type": "color",
+        "$value": "{ochre.600}",
+        "$description": "The warning marker (an open ring) and the outline of a warning banner: 3:1 on the four grounds. Not for text.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "subtle": {
+        "$type": "color",
+        "$value": "{ochre.100}",
+        "$description": "Ground of warning chips and banners; text on it is status-warning-text.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      }
+    },
+    "error": {
+      "text": {
+        "$type": "color",
+        "$value": "{crimson.700}",
+        "$description": "Error words and counts (\"failed\", \"3 errors\"): 7:1 on bg-canvas, bg-surface, bg-subtle and status-error-subtle. Never signal for errors.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "marker": {
+        "$type": "color",
+        "$value": "{crimson.600}",
+        "$description": "The error marker (a filled square) and the outline of an error banner: 3:1 on the four grounds. Not for text.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "subtle": {
+        "$type": "color",
+        "$value": "{crimson.100}",
+        "$description": "Ground of error chips and banners; text on it is status-error-text.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      }
+    }
+  },
+  "rail": {
+    "$type": "color",
+    "$value": "{blueprint.300}",
+    "$description": "Dashed workflow rail lines. Decoration only.",
+    "$extensions": {
+      "com.figma": {
+        "hiddenFromPublishing": false,
+        "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+        "codeSyntax": {}
+      }
+    }
+  },
+  "terminal": {
+    "bg": {
+      "$type": "color",
+      "$value": "{ink.900}",
+      "$description": "Terminal and command button background.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "fg": {
+      "$type": "color",
+      "$value": "{paper.100}",
+      "$description": "Text on terminal-bg.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "prompt": {
+      "$type": "color",
+      "$value": "{redline.300}",
+      "$description": "The $ prompt glyph on terminal-bg.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "success": {
+      "$type": "color",
+      "$value": "{sage.300}",
+      "$description": "Passed lines and found values on terminal-bg.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "muted": {
+      "$type": "color",
+      "$value": "{paper.400}",
+      "$description": "Secondary lines on terminal-bg (dim output).",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
+  "well": {
+    "line": {
+      "$type": "color",
+      "$value": "{ink.900}",
+      "$description": "The mesh of the gravity well, at the surface.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "throat": {
+      "$type": "color",
+      "$value": "{ink.950}",
+      "$description": "What the mesh darkens to toward the mouth of the well.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "mouth": {
+      "$type": "color",
+      "$value": "{graphite.900}",
+      "$description": "The ground at the bottom of the well: the other theme's paper.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "glow": {
+      "$type": "color",
+      "$value": "{blueprint.400}",
+      "$description": "The rim of the mouth.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-orange": {
+      "$type": "color",
+      "$value": "{redline.500}",
+      "$description": "Orange objects in the well: the lit face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-orange-light": {
+      "$type": "color",
+      "$value": "{redline.400}",
+      "$description": "Orange objects: the top face and sphere highlight base.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-orange-dark": {
+      "$type": "color",
+      "$value": "{redline.600}",
+      "$description": "Orange objects: the shaded face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-blue": {
+      "$type": "color",
+      "$value": "{blueprint.600}",
+      "$description": "Blue objects: the lit face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-blue-light": {
+      "$type": "color",
+      "$value": "{blueprint.400}",
+      "$description": "Blue objects: the top face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-blue-dark": {
+      "$type": "color",
+      "$value": "{blueprint.800}",
+      "$description": "Blue objects: the shaded face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-ink": {
+      "$type": "color",
+      "$value": "{ink.900}",
+      "$description": "Ink objects: the lit face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-ink-light": {
+      "$type": "color",
+      "$value": "{ink.700}",
+      "$description": "Ink objects: the top face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "object-ink-dark": {
+      "$type": "color",
+      "$value": "{ink.900}",
+      "$description": "Ink objects: the shaded face.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "highlight": {
+      "$type": "color",
+      "$value": "{paper.0}",
+      "$description": "Specular highlight on the spheres.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "dust": {
+      "$type": "color",
+      "$value": "{ink.600}",
+      "$description": "Dust motes between the orbit rings.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  }
+}

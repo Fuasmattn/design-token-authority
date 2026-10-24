@@ -1,0 +1,58 @@
+---
+/**
+ * A command chip: a copyable CLI command on terminal-bg, the same component wherever the site
+ * shows a command. `$` prompt, the command in mono, a copy icon that becomes a tick for a moment
+ * after copying. The large size is the call to action of the landing page's hero and end.
+ * The styles live in CommandButton.css so islands can render the same chip.
+ */
+import './CommandButton.css'
+
+interface Props {
+  command: string
+  size?: 'default' | 'large'
+}
+const { command, size = 'default' } = Astro.props
+---
+
+<button
+  type="button"
+  class:list={['dta-command', size]}
+  data-command={command}
+  aria-label={`Copy: ${command}`}
+  title="Copy command"
+>
+  <span class="dta-command__prompt" aria-hidden="true">$</span>
+  <span class="dta-command__text">{command}</span>
+  <svg class="dta-command__icon dta-command__copy" viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+    <path d="M15 9V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4"></path>
+  </svg>
+  <svg class="dta-command__icon dta-command__tick" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M4 12.5l5 5L20 6.5"></path>
+  </svg>
+  <span class="dta-command__status" aria-live="polite"></span>
+</button>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>('.dta-command')) {
+    let timer: ReturnType<typeof setTimeout> | undefined
+    button.addEventListener('click', async () => {
+      const status = button.querySelector('.dta-command__status')
+      const done = (text: string) => {
+        button.dataset.copied = ''
+        if (status) status.textContent = text
+        clearTimeout(timer)
+        timer = setTimeout(() => {
+          delete button.dataset.copied
+          if (status) status.textContent = ''
+        }, 1600)
+      }
+      try {
+        await navigator.clipboard.writeText(button.dataset.command ?? '')
+        done('copied')
+      } catch {
+        done('select to copy')
+      }
+    })
+  }
+</script>

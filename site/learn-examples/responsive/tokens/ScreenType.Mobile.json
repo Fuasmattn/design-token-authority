@@ -1,0 +1,4 @@
+{
+  "heading": { "size": { "$type": "number", "$value": "{size.24}" } },
+  "layout": { "gutter": { "$type": "number", "$value": "{size.16}" } }
+}

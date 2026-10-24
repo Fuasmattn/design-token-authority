@@ -1,0 +1,11 @@
+/* Hard-coded values for the dta audit scenarios. */
+.button {
+  background: #0057b8;
+  color: var(--colors-text-on-primary);
+  padding: 16px;
+  border-radius: 6px;
+}
+
+.button:hover {
+  background: #003f8a; /* dta-audit-ignore */
+}

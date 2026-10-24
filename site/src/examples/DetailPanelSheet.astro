@@ -1,0 +1,39 @@
+---
+// Real output: the first finding of the "Example with problems" (a dangling alias), as the
+// bottom sheet on a phone shows it (in the flow here), with "Show in graph" (TICKET-078) and the
+// step to the next finding.
+import { h } from 'preact'
+import DetailPanel from '../components/ds/DetailPanel'
+import { analyse, findingChain } from '../playground/analyse'
+import { PROBLEM_EXAMPLE } from '../playground/example'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'detail-sheet' } = Astro.props
+const { model, lint } = analyse(PROBLEM_EXAMPLE.files)
+const findings = lint?.rules.flatMap((rule) => rule.findings) ?? []
+const found = findings.find((f) => f.rule === 'no-dangling-aliases')
+const chain = model && found && findingChain(model, found.tokenPath)
+if (!found || !chain) throw new Error('the problem example has no dangling alias')
+---
+
+<DetailPanel
+  idPrefix={idPrefix}
+  open
+  staticOpen
+  presentation="sheet"
+  kicker={`${found.label} · ${found.rule}`}
+  kickerSeverity={found.severity}
+  title={found.tokenPath.slice(found.tokenPath.indexOf('/') + 1).split('/').join('.')}
+  meta={`In ${found.file}.`}
+  message={found.cli}
+  lines={[chain]}
+  linesLabel="Alias chain"
+  links={h('button', { type: 'button', class: 'dta-button outline' }, 'Show in graph')}
+  next={{
+    label: 'Next finding',
+    position: `${findings.indexOf(found) + 1} of ${findings.length}`,
+    onNext: () => {},
+  }}
+/>

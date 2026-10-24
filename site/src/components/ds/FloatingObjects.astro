@@ -1,0 +1,195 @@
+---
+/**
+ * A few of the well's objects floating free behind the slot (the landing page's final call):
+ * nothing holds them yet. Each drifts on its own loop, cubes tumble, and each slides at its own
+ * depth against the scroll. All still under reduced motion.
+ */
+interface Props {
+  id?: string
+}
+const { id } = Astro.props
+
+// x %, y %, drift dx/dy px, drift seconds, delay, tumble seconds, depth, kind, colour, size
+const objects = [
+  [14, 24, 18, -26, 11, -3, 38, 0.22, 'cube', 'orange', 13],
+  [84, 32, -22, 20, 13, -7, 46, 0.3, 'sphere', 'blue', 12],
+  [76, 80, 14, -18, 12, -1, 52, 0.14, 'cube', 'ink', 9],
+  [20, 76, -16, 14, 14, -9, 0, 0.4, 'sphere', 'orange', 9],
+  [90, 60, -10, 12, 9, -4, 0, 0.18, 'mote', '', 3],
+  [8, 50, 12, -10, 10, -6, 0, 0.34, 'mote', '', 2],
+  [60, 12, -8, 8, 12, -2, 0, 0.26, 'mote', '', 3],
+  [36, 90, 10, -8, 11, -5, 0, 0.12, 'mote', '', 2],
+] as const
+---
+
+<section class="dta-floating" id={id}>
+  {
+    objects.map(([x, y, dx, dy, d, dl, t, p, kind, color, s]) => (
+      <span
+        class="free"
+        aria-hidden="true"
+        style={`--x:${x}%;--y:${y}%;--dx:${dx}px;--dy:${dy}px;--d:${d}s;--dl:${dl}s;--t:${t}s;--p:${p}`}
+      >
+        <span class="tilt">
+          {kind === 'cube' ? (
+            <span class:list={['cube', color]} style={`--s:${s}px`}>
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
+          ) : kind === 'sphere' ? (
+            <span class:list={['sphere', color]} style={`--s:${s}px`} />
+          ) : (
+            <i class="mote" style={`--s:${s}px`} />
+          )}
+        </span>
+      </span>
+    ))
+  }
+  <div class="content"><slot /></div>
+</section>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)')
+  for (const root of document.querySelectorAll<HTMLElement>('.dta-floating')) {
+    const frees = [...root.querySelectorAll<HTMLElement>('.free')]
+    let queued = 0
+    function place() {
+      queued = 0
+      if (reduce.matches) return
+      const r = root.getBoundingClientRect()
+      const d = innerHeight / 2 - (r.top + r.height / 2)
+      for (const el of frees) {
+        const depth = parseFloat(el.style.getPropertyValue('--p'))
+        el.style.transform = `translateY(${(d * depth).toFixed(1)}px)`
+      }
+    }
+    addEventListener('scroll', () => {
+      if (!queued) queued = requestAnimationFrame(place)
+    }, { passive: true })
+    addEventListener('resize', place)
+    place()
+  }
+</script>
+
+<style>
+  .dta-floating {
+    position: relative;
+    overflow: clip;
+  }
+  .content {
+    position: relative;
+    z-index: 1;
+  }
+  .free {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 0;
+    height: 0;
+    z-index: 0;
+    perspective: 500px;
+    animation: drift var(--d) ease-in-out infinite alternate;
+    animation-delay: var(--dl);
+  }
+  .tilt {
+    display: block;
+    transform-style: preserve-3d;
+    transform: rotateX(-24deg) rotateY(0deg);
+    animation: tumble var(--t) linear infinite;
+  }
+  .cube {
+    display: block;
+    position: relative;
+    width: var(--s);
+    height: var(--s);
+    margin: calc(var(--s) * -0.5) 0 0 calc(var(--s) * -0.5);
+    transform-style: preserve-3d;
+    transform: translateZ(calc(var(--s) * 0.5));
+  }
+  .cube i {
+    position: absolute;
+    inset: 0;
+    background: var(--f);
+    border: var(--stroke-hairline) solid color-mix(in srgb, var(--well-throat) 12%, transparent);
+  }
+  .cube i:nth-child(1) {
+    transform: translateZ(calc(var(--s) * 0.5));
+  }
+  .cube i:nth-child(2) {
+    transform: rotateY(180deg) translateZ(calc(var(--s) * 0.5));
+    background: var(--f3);
+  }
+  .cube i:nth-child(3) {
+    transform: rotateY(90deg) translateZ(calc(var(--s) * 0.5));
+    background: var(--f3);
+  }
+  .cube i:nth-child(4) {
+    transform: rotateY(-90deg) translateZ(calc(var(--s) * 0.5));
+    background: var(--f2);
+  }
+  .cube i:nth-child(5) {
+    transform: rotateX(90deg) translateZ(calc(var(--s) * 0.5));
+    background: var(--f2);
+  }
+  .cube i:nth-child(6) {
+    transform: rotateX(-90deg) translateZ(calc(var(--s) * 0.5));
+    background: var(--f3);
+  }
+  .orange {
+    --f: var(--well-object-orange);
+    --f2: var(--well-object-orange-light);
+    --f3: var(--well-object-orange-dark);
+  }
+  .blue {
+    --f: var(--well-object-blue);
+    --f2: var(--well-object-blue-light);
+    --f3: var(--well-object-blue-dark);
+  }
+  .ink {
+    --f: var(--well-object-ink);
+    --f2: var(--well-object-ink-light);
+    --f3: var(--well-object-ink-dark);
+  }
+  .sphere {
+    display: block;
+    width: var(--s);
+    height: var(--s);
+    margin: calc(var(--s) * -0.5) 0 0 calc(var(--s) * -0.5);
+    border-radius: var(--radius-full);
+    background: radial-gradient(
+      circle at 32% 30%,
+      color-mix(in srgb, var(--well-highlight) 60%, var(--f2)) 0,
+      var(--f) 42%,
+      var(--f3) 100%
+    );
+  }
+  .mote {
+    display: block;
+    width: var(--s);
+    height: var(--s);
+    margin: calc(var(--s) * -0.5) 0 0 calc(var(--s) * -0.5);
+    border-radius: var(--radius-full);
+    background: var(--well-dust);
+    opacity: 0.8;
+  }
+  @keyframes drift {
+    to {
+      translate: var(--dx) var(--dy);
+    }
+  }
+  @keyframes tumble {
+    to {
+      transform: rotateX(-24deg) rotateY(360deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .free,
+    .tilt {
+      animation: none;
+    }
+  }
+</style>

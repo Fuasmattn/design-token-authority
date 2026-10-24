@@ -1,0 +1,8 @@
+T   ✔  dta lint 
+|
+o  Linting complete.
+|
+*  No lint violations found.
+|
+—  All clean!
+

@@ -3,6 +3,7 @@
 **Phase:** 7 — AI Interop
 **Priority:** High
 **Effort:** M
+**Status:** deferred ([agent-interop spec](../specs/agent-interop.md), decision 1): rewrite as a thin adapter over the token queries of TICKET-100 when a client without a terminal needs it
 
 ## Summary
 
@@ -44,12 +45,18 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 
 const server = new Server(
   { name: 'design-token-authority', version: '0.x' },
-  { capabilities: { tools: {}, resources: {} } }
+  { capabilities: { tools: {}, resources: {} } },
 )
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
-    { name: 'get_token', description: '...', inputSchema: { /* ... */ } },
+    {
+      name: 'get_token',
+      description: '...',
+      inputSchema: {
+        /* ... */
+      },
+    },
     // ...
   ],
 }))
@@ -78,9 +85,9 @@ await server.connect(new StdioServerTransport())
     "design-tokens": {
       "command": "npx",
       "args": ["-y", "design-token-authority", "mcp"],
-      "cwd": "/path/to/project"
-    }
-  }
+      "cwd": "/path/to/project",
+    },
+  },
 }
 ```
 

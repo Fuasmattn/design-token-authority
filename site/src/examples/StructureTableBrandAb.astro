@@ -1,0 +1,11 @@
+---
+// Real output: the playground's analysis of the brand-ab fixture.
+import StructureTable from '../components/ds/StructureTable'
+import { analyse } from '../playground/analyse'
+import { EXAMPLE_FILES } from '../playground/example'
+
+const structure = analyse(EXAMPLE_FILES).structure
+if (!structure) throw new Error('brand-ab has no structure')
+---
+
+<StructureTable caption="Structure" rows={structure.rows} brands={structure.brands} />

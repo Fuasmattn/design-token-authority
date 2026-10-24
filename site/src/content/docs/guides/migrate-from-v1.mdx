@@ -1,0 +1,49 @@
+---
+title: Migrating from v1
+description: What changes when you upgrade from DTA v1 to v2.
+sidebar:
+  order: 6
+---
+
+v2 is a rewrite of Design Token Authority as `@dta/*` packages behind one CLI. Commands, flags, token files and build outputs are the same as in v1 (proven by snapshot tests on fixture projects), so most projects upgrade without changes. This note lists what does change.
+
+## Requirements
+
+- Node.js 24 or newer (`engines` in `package.json`).
+
+## Config file
+
+Your `dta.config.ts` keeps working. What is new or stricter:
+
+- **Unknown keys are rejected.** v1 ignored keys it did not know; v2 fails with exit code 2 and names the field. A typo such as `outputs.tailwnd` now shows up instead of being skipped silently.
+- **More config formats.** Besides `dta.config.ts`, the CLI finds `dta.config.mts`, `dta.config.js`, `dta.config.mjs` and `dta.config.json` (no TypeScript tooling needed for the JSON variant). `-c <path>` still picks a file explicitly.
+- **`figma` is optional.** v1 required a `figma` object even for file-based imports; v2 defaults it to `{}`.
+- **`lint.rules.naming-pattern.patterns` must be valid regular expressions.** An invalid pattern is a config error at load time instead of a failure during `dta lint`.
+- **`layers` is still accepted** but deprecated; use `collections`.
+- **`outputs.docs` is rejected**: the token docs page is gone (see below).
+- **`outputs.css.prefix` is rejected**: the build does not use it (CSS variable names always start with `--`), so it was removed. Delete the line.
+- **`outputs.tailwind.version` is rejected**: the build does not use it, so it was removed. `outputs.formats` chooses the Tailwind versions (`'tailwind-v4'`, `'tailwind-v3'`); without it both are written. Delete the line.
+- **New: `breakpoints`.** A collection of screen sizes (the v1 `layers.dimension`) can now be written as media queries; see [Breakpoint modes](/reference/outputs/#breakpoint-modes). `layers.dimension` does not do this: name the collection in `breakpoints`.
+
+`defineConfig` is still imported from `design-token-authority`.
+
+## Output and behaviour changes
+
+Each change is a reviewed snapshot diff, listed with its reason in the quirk table of TICKET-039 ([docs/tickets/039-legacy-removal.md](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/tickets/039-legacy-removal.md)).
+
+| Command           | v1                                                                                | v2                                                                                                                          |
+| ----------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `dta build`       | Summary listed `build/js/colorpalette.js`                                         | Lists the path it writes: `output/js/colorpalette.js`                                                                       |
+| `dta pull`        | Token files had no final newline                                                  | New files end with a newline; existing files keep their formatting                                                          |
+| `dta push`        | Printed a debug line `Local variable collections in Figma file: [...]`            | Removed                                                                                                                     |
+| `dta clean`       | Deleted the whole top-level folder of an output dir (`src/styles` removed `src/`) | Deletes only configured output folders and the build defaults, then empty parents; refuses folders outside the project      |
+| `dta --version`   | Always `0.1.0`                                                                    | The version from `package.json`                                                                                             |
+| `dta build`       | Also wrote a token docs page (`output/docs/index.html`)                           | No docs page; `outputs.docs` in a config is an error ("removed in v2"), delete the key. The DTA website replaces it         |
+| `dta init`        | Animated logo, opened `build/docs/index.html`, `.env.example` named old scripts   | Static banner, opens nothing, names `dta pull` / `dta push`                                                                 |
+| `dta clean`       | Treated `output/docs` as a build folder                                           | Only `output/css`, `output/js`, `output/tailwind`, `output/ios`, `output/android` and configured folders                    |
+| `dta test:visual` | Ran the Playwright tests                                                          | Removed (TICKET-088): use `dta diff`, which renders your stories at the base and the head and explains the changes by token |
+
+## Removed
+
+- The `sync-figma-to-tokens` and `sync-tokens-to-figma` npm scripts: use `dta pull` and `dta push`.
+- Repository scripts that only served v1: `npm run build` (use `dta build`), `build:cli`, `prepare`.

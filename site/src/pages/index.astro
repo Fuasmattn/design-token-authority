@@ -1,0 +1,145 @@
+---
+/**
+ * The landing page (spec: docs/specs/landing-redesign.md, revised 2026-10-19): the hero on the
+ * gravity well, the workflow at a glance, one change in four scenes with the Orbit Burger example,
+ * the facts, and the final call with a few objects floating free. One surface, no grid. Everything on it is a design-system
+ * component; this file and landing.css only place them. The frame (fonts, header, nav, theme
+ * switch, footer) is SiteLayout, shared with the playground.
+ */
+import SiteLayout from '../layouts/SiteLayout.astro'
+import '../../output/css/examples/orbit-burger.css'
+import '../styles/landing.css'
+import Button from '../components/ds/Button.astro'
+import Checks from '../components/ds/Checks.astro'
+import CommandButton from '../components/ds/CommandButton.astro'
+import ExampleButton from '../components/ds/ExampleButton.astro'
+import Facts from '../components/ds/Facts.astro'
+import FloatingObjects from '../components/ds/FloatingObjects.astro'
+import GravityWell from '../components/ds/GravityWell.astro'
+import Scene from '../components/ds/Scene.astro'
+import Terminal from '../components/ds/Terminal.astro'
+import TokenRows from '../components/ds/TokenRows.astro'
+import WorkflowRail from '../components/ds/WorkflowRail.astro'
+import {
+  AGENT_RUN,
+  APPROVE,
+  CHECKS,
+  DECISION,
+  COMMANDS,
+  DIFF_SHARES,
+  FACTS,
+  FINAL,
+  HERO,
+  SCENES,
+  TOKEN_ROWS,
+  WORKFLOW,
+} from '../landing/content'
+
+const title = 'Design Token Authority'
+const description = `${HERO.headline} ${HERO.headlineAccent}`
+const [s1, s2, s3, s4] = SCENES
+---
+
+<SiteLayout title={title} description={description}>
+    <main id="main">
+      <GravityWell id="hero">
+        <h1 id="hero-title">
+          {HERO.headline} <i class="accent">{HERO.headlineAccent}</i>
+        </h1>
+        <p class="lede">{HERO.subline}</p>
+        <div class="cta">
+          <CommandButton command={COMMANDS.init.text} size="large" />
+          <Button variant="outline" href={HERO.secondary.href}>{HERO.secondary.label}</Button>
+        </div>
+      </GravityWell>
+
+      <div class="wrap how">
+        <WorkflowRail
+          id="how"
+          idPrefix="how"
+          title={WORKFLOW.title}
+          change={WORKFLOW.change}
+          crossing={{ command: WORKFLOW.crossing.command.text, text: WORKFLOW.crossing.text }}
+          pullRequest={WORKFLOW.pullRequest}
+          steps={WORKFLOW.steps.map((step) => ({ ...step, command: step.command?.text }))}
+          back={{ ...WORKFLOW.back, command: WORKFLOW.back.command.text }}
+        />
+      </div>
+
+      <div class="wrap story" id="story">
+        <Scene
+          number={s1.number}
+          kicker={s1.kicker}
+          heading={s1.heading}
+          text={s1.text}
+          command={s1.command.text}
+          example="right"
+        >
+          <TokenRows rows={TOKEN_ROWS} />
+        </Scene>
+
+        <Scene
+          number={s2.number}
+          kicker={s2.kicker}
+          heading={s2.heading}
+          text={s2.text}
+          command={s2.command.text}
+          example="left"
+        >
+          <Checks checks={CHECKS} />
+        </Scene>
+
+        <Scene
+          number={s3.number}
+          kicker={s3.kicker}
+          heading={s3.heading}
+          text={s3.text}
+          command={s3.command.text}
+          example="right"
+        >
+          <div class="two-states">
+            <div class="pair">
+              <ExampleButton state="main" label="main" />
+              <ExampleButton state="change" label="this change" />
+            </div>
+            <ul class="shares">
+              {
+                DIFF_SHARES.lines.map((line) => (
+                  <li>
+                    <span class="token">{line.token}</span> {line.change} · {line.share}
+                  </li>
+                ))
+              }
+            </ul>
+            <Checks checks={DECISION} approve={APPROVE} />
+          </div>
+        </Scene>
+
+        <Scene
+          number={s4.number}
+          kicker={s4.kicker}
+          heading={s4.heading}
+          text={s4.text}
+          command={s4.command.text}
+          example="left"
+          id="agents"
+        >
+          <div class="agent">
+            <Terminal lines={AGENT_RUN.lines} label={AGENT_RUN.label} />
+            <p class="caption">Real output, from this website's own tokens.</p>
+          </div>
+        </Scene>
+
+        <Facts facts={FACTS} />
+      </div>
+
+      <FloatingObjects id="final">
+        <div class="wrap final">
+          <h2>{FINAL.heading}</h2>
+          <p>{FINAL.text}</p>
+          <CommandButton command={COMMANDS.init.text} size="large" />
+        </div>
+      </FloatingObjects>
+    </main>
+
+</SiteLayout>

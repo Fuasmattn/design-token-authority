@@ -1,0 +1,32 @@
+---
+title: Output options
+description: The choices that shape what is built, as one row of checkboxes with the row's actions at the end.
+sidebar:
+  order: 27
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+The choices that shape what is built, in one row above the result: in the [playground](/playground/)'s Outputs view, which outputs `dta build` writes (CSS, Tailwind v4, Tailwind v3, JS; `outputs.formats` in `dta.config.ts`), with "Download all" at the end. The choices go into the generated config, so the CLI gives the same files.
+
+## When to use
+
+- For a few independent on/off choices that change the result below them at once (no "Apply").
+- Not for choosing a view (that is [Tabs](/design-system/components/tabs/)) or one value of many (a mode is the Detail panel's segmented switch).
+
+<Examples component="output-options" />
+
+## Guidelines
+
+- A named group (`role="group"`, labelled by the mono label in `fg-subtle`) of native checkboxes in `action-bg` (`accent-color`), each label in the `label` type with a 44 px hit area.
+- Rules and type on the canvas, no card: a hairline `border-default` rule closes the row.
+- The row's actions (at most one primary) sit at the end. Below 560 px of container width the choices form two columns and the actions take a full-width line of their own.
+- With nothing chosen, the page says what to do ("Choose at least one output to build.") instead of disabling the boxes.
+- A Preact component; stories render it to static HTML.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="OutputOptions" />

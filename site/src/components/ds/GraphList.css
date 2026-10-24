@@ -1,0 +1,265 @@
+/*
+ * GraphList: layers as disclosures between hairline rules (the Lint view's rule rows), tokens as
+ * full-width rows with their chain on a second line. Status: marker + word in the status
+ * colours; selection: the action tint, the row's ink in action-text, the marker kept.
+ */
+.dta-graph-list {
+  display: grid;
+  min-width: 0;
+  border-top: var(--stroke-hairline) solid var(--border-default);
+  color: var(--fg-default);
+  font-family: var(--font-sans);
+}
+.dta-graph-list__layer {
+  border-bottom: var(--stroke-hairline) solid var(--border-default);
+  interpolate-size: allow-keywords;
+}
+.dta-graph-list__layer::details-content {
+  block-size: 0;
+  overflow-y: clip;
+  transition:
+    block-size var(--motion-duration-base) var(--motion-ease-standard),
+    content-visibility var(--motion-duration-base) allow-discrete;
+}
+.dta-graph-list__layer[open]::details-content {
+  block-size: auto;
+}
+.dta-graph-list__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 52px;
+  padding: var(--space-2);
+  list-style: none;
+  cursor: pointer;
+}
+.dta-graph-list__summary::-webkit-details-marker {
+  display: none;
+}
+.dta-graph-list__summary::after {
+  content: '›';
+  flex: none;
+  color: var(--fg-subtle);
+  transition: transform var(--motion-duration-base) var(--motion-ease-standard);
+}
+.dta-graph-list__layer[open] > .dta-graph-list__summary::after {
+  transform: rotate(90deg);
+}
+.dta-graph-list__summary:hover {
+  background: var(--bg-subtle);
+}
+.dta-graph-list__summary:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: calc(var(--stroke-focus) * -1);
+}
+.dta-graph-list__titles {
+  display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.dta-graph-list__kicker {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  letter-spacing: var(--type-meta-letter-spacing);
+  color: var(--fg-subtle);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.dta-graph-list__title {
+  font-size: calc(var(--type-body-size) * 1px);
+  font-weight: var(--type-title-weight);
+  line-height: var(--type-body-sm-line-height);
+}
+.dta-graph-list__count {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  font-weight: 400;
+  color: var(--fg-muted);
+}
+
+/* Markers and status words (shape + word + colour). */
+.dta-graph-list__marker {
+  flex: none;
+  box-sizing: border-box;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+}
+[data-severity='error'] .dta-graph-list__marker {
+  background: var(--status-error-marker);
+}
+[data-severity='warning'] .dta-graph-list__marker {
+  border: var(--stroke-ink) solid var(--status-warning-marker);
+  border-radius: var(--radius-full);
+}
+.dta-graph-list__status,
+.dta-graph-list__word {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+}
+[data-severity='error'] > .dta-graph-list__status,
+.dta-graph-list__status[data-severity='error'],
+[data-severity='error'] .dta-graph-list__word,
+.dta-graph-list__file[data-severity='error'] {
+  color: var(--status-error-text);
+}
+.dta-graph-list__status[data-severity='warning'],
+[data-severity='warning'] .dta-graph-list__word,
+.dta-graph-list__file[data-severity='warning'] {
+  color: var(--status-warning-text);
+}
+
+/* A file finding under the layer's summary. */
+.dta-graph-list__file {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0 var(--space-2) var(--space-2);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+}
+.dta-graph-list__finding {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  border: var(--stroke-hairline) solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--status-error-subtle);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+[data-severity='warning'] > .dta-graph-list__finding {
+  background: var(--status-warning-subtle);
+}
+.dta-graph-list__finding:hover {
+  border-color: currentColor;
+}
+.dta-graph-list__finding:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: var(--stroke-hairline);
+}
+
+/* Token rows: the name, then its chain and value; the whole row is the button. */
+.dta-graph-list__tokens {
+  margin: 0;
+  padding: 0;
+  border-top: var(--stroke-hairline) solid var(--border-default);
+  list-style: none;
+}
+.dta-graph-list__row {
+  border-bottom: var(--stroke-hairline) solid var(--border-default);
+}
+.dta-graph-list__row:last-child {
+  border-bottom: 0;
+}
+.dta-graph-list__token {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 52px;
+  padding: var(--space-2);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+.dta-graph-list__token::after {
+  content: '›';
+  flex: none;
+  align-self: center;
+  color: var(--fg-subtle);
+}
+/* Hover at once; only a change of selection tints over a duration (as GraphCanvas). */
+.dta-graph-list__token:hover {
+  background: var(--bg-subtle);
+  transition: none;
+}
+.dta-graph-list__token:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: calc(var(--stroke-focus) * -1);
+}
+.dta-graph-list__text {
+  display: grid;
+  flex: 1 1 auto;
+  gap: 2px;
+  min-width: 0;
+}
+.dta-graph-list__name {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px * 1.1);
+  line-height: var(--type-meta-line-height);
+  overflow-wrap: anywhere;
+}
+.dta-graph-list__chain {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  color: var(--fg-muted);
+  overflow-wrap: anywhere;
+}
+.dta-graph-list__value {
+  white-space: nowrap;
+}
+.dta-graph-list__problem {
+  color: var(--status-error-text);
+}
+.dta-graph-list__swatch {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 10px;
+  height: 10px;
+  margin-right: var(--space-2);
+  border: var(--stroke-hairline) solid var(--border-strong);
+  border-radius: 2px;
+  vertical-align: -1px;
+}
+.dta-graph-list__word {
+  align-self: center;
+}
+
+/* The selected row: the action tint and ink; its marker and word keep their status colours. */
+.dta-graph-list__row[aria-current='true'] .dta-graph-list__token {
+  background: var(--action-subtle);
+  color: var(--action-text);
+}
+.dta-graph-list__row[aria-current='true'] .dta-graph-list__chain,
+.dta-graph-list__row[aria-current='true'] .dta-graph-list__token::after {
+  color: var(--action-text);
+}
+
+.dta-graph-list__hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dta-graph-list__layer::details-content,
+  .dta-graph-list__summary::after,
+  .dta-graph-list__token {
+    transition: none;
+  }
+}

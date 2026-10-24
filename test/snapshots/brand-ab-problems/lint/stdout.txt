@@ -1,0 +1,21 @@
+T   ✔  dta lint 
+|
+o  Linting complete.
+|
+|  Brand(Alias).BrandB.json
+|
+|    error Alias {Colors.Foundation.Sky.550} references non-existent token "Colors.Foundation.Sky.550" [no-dangling-aliases]
+|
+|  (unknown file)
+|
+|    error Circular alias chain: Brand(Alias).BrandA/Colors/Surface/Muted → Brand(Alias).BrandA/Colors/Text/Muted → Brand(Alias).BrandA/Colors/Surface/Muted [no-circular-aliases]
+|
+|  Primitives.Mode 1.json
+|
+|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
+|
+|
+|  3 errors found.
+|
+—  Lint failed.
+

@@ -1,0 +1,25 @@
+---
+title: Floating objects
+description: A few of the well's objects drifting free behind the final call.
+sidebar:
+  order: 16
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+A few of the [gravity well](/design-system/components/gravity-well/)'s objects floating free behind the slot: two cubes, two spheres, four motes. Nothing holds them yet. The landing page ends with them around its final call.
+
+<Examples component="floating-objects" />
+
+## Guidelines
+
+- Each object drifts on its own loop (9–14 s, alternating), cubes tumble (38–52 s), and each slides at its own depth (0.12–0.4) against the scroll: `translateY(d × depth)` where d is the section centre's distance from the viewport centre.
+- No orbit rings, no mesh: the point is the contrast with the hero.
+- Same object markup and tokens as the well. All still under `prefers-reduced-motion`.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="FloatingObjects" />

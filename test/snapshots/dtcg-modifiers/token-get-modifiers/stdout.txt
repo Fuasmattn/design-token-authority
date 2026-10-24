@@ -1,0 +1,9 @@
+accent  color · theme × brand
+Brand a in light
+
+  light × a  #2563eb  accent → color.blue.500
+  light × b  #1e3a8a  accent → color.navy.700
+  dark × a   #93c5fd  accent → color.blue.300
+  dark × b   #1e3a8a  accent → color.navy.700
+
+  CSS       var(--accent)

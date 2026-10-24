@@ -1,0 +1,23 @@
+---
+// Copy before and after: the label turns into "Copied" with the pass dot, at the same width.
+import CopyButton from '../components/ds/CopyButton'
+---
+
+<div class="row">
+  <CopyButton text="output/css/base.css" accessibleLabel="Copy output/css/base.css" />
+  <CopyButton
+    text="output/css/base.css"
+    accessibleLabel="Copy output/css/base.css"
+    staticState="copied"
+  />
+  <CopyButton text="dta.config.ts" accessibleLabel="Copy dta.config.ts" variant="outline" />
+</div>
+
+<style>
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+</style>

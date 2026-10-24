@@ -1,0 +1,107 @@
+T   ⮕  dta graph 
+|
+o  Graph built
+digraph TokenDependencies {
+  rankdir=LR;
+  node [shape=box, fontname="Helvetica", fontsize=10];
+  edge [color="#666666"];
+
+  subgraph "cluster_Base_Value" {
+    label="Base.Value";
+    style=filled;
+    color="#e3f2fd";
+    "Base.Value/color/black" [label="color/black"];
+    "Base.Value/color/white" [label="color/white"];
+    "Base.Value/color/ink" [label="color/ink"];
+    "Base.Value/color/sky" [label="color/sky"];
+    "Base.Value/color/grass" [label="color/grass"];
+    "Base.Value/color/vivid" [label="color/vivid"];
+    "Base.Value/color/accent/$root" [label="color/accent/$root"];
+    "Base.Value/color/accent/soft" [label="color/accent/soft"];
+    "Base.Value/spacing/s" [label="spacing/s"];
+    "Base.Value/spacing/m" [label="spacing/m"];
+    "Base.Value/spacing/l" [label="spacing/l"];
+    "Base.Value/radius/card" [label="radius/card"];
+    "Base.Value/motion/fast" [label="motion/fast"];
+    "Base.Value/motion/slow" [label="motion/slow"];
+    "Base.Value/motion/ease" [label="motion/ease"];
+    "Base.Value/font/body" [label="font/body"];
+    "Base.Value/font/regular" [label="font/regular"];
+    "Base.Value/font/strong" [label="font/strong"];
+    "Base.Value/font/line" [label="font/line"];
+    "Base.Value/shadow/card" [label="shadow/card"];
+    "Base.Value/shadow/stack" [label="shadow/stack"];
+    "Base.Value/border/focus" [label="border/focus"];
+    "Base.Value/border/dashed" [label="border/dashed"];
+    "Base.Value/transition/enter" [label="transition/enter"];
+    "Base.Value/gradient/brand" [label="gradient/brand"];
+    "Base.Value/typography/body" [label="typography/body"];
+    "Base.Value/legacy/gap" [label="legacy/gap"];
+    "Base.Value/sky-lightness" [label="sky-lightness"];
+    "Base.Value/button/background" [label="button/background"];
+    "Base.Value/button/text" [label="button/text"];
+    "Base.Value/button-danger/background" [label="button-danger/background"];
+    "Base.Value/button-danger/text" [label="button-danger/text"];
+  }
+
+  subgraph "cluster_Brand_A" {
+    label="Brand.A";
+    style=filled;
+    color="#fce4ec";
+    "Brand.A/brand/primary" [label="brand/primary"];
+    "Brand.A/brand/on-primary" [label="brand/on-primary"];
+    "Brand.A/brand/surface" [label="brand/surface"];
+    "Brand.A/elevation/raised" [label="elevation/raised"];
+  }
+
+  subgraph "cluster_Brand_B" {
+    label="Brand.B";
+    style=filled;
+    color="#e8f5e9";
+    "Brand.B/brand/primary" [label="brand/primary"];
+    "Brand.B/brand/on-primary" [label="brand/on-primary"];
+    "Brand.B/brand/surface" [label="brand/surface"];
+    "Brand.B/elevation/raised" [label="elevation/raised"];
+  }
+
+  subgraph "cluster_motion_Value" {
+    label="motion.Value";
+    style=filled;
+    color="#fff3e0";
+    "motion.Value/instant" [label="instant"];
+    "motion.Value/modal" [label="modal"];
+  }
+
+  "Base.Value/color/accent/$root" -> "Base.Value/color/sky";
+  "Base.Value/shadow/card" -> "Base.Value/color/ink";
+  "Base.Value/shadow/card" -> "Base.Value/spacing/s";
+  "Base.Value/shadow/card" -> "Base.Value/spacing/m";
+  "Base.Value/shadow/stack" -> "Base.Value/color/ink";
+  "Base.Value/border/focus" -> "Base.Value/color/sky";
+  "Base.Value/border/dashed" -> "Base.Value/color/ink";
+  "Base.Value/transition/enter" -> "Base.Value/motion/fast";
+  "Base.Value/transition/enter" -> "Base.Value/motion/ease";
+  "Base.Value/gradient/brand" -> "Base.Value/color/sky";
+  "Base.Value/gradient/brand" -> "Base.Value/color/grass";
+  "Base.Value/typography/body" -> "Base.Value/font/body";
+  "Base.Value/typography/body" -> "Base.Value/spacing/m";
+  "Base.Value/typography/body" -> "Base.Value/font/regular";
+  "Base.Value/typography/body" -> "Base.Value/font/line";
+  "Base.Value/legacy/gap" -> "Base.Value/spacing/m";
+  "Base.Value/sky-lightness" -> "Base.Value/color/sky";
+  "Base.Value/button/background" -> "Base.Value/color/sky";
+  "Base.Value/button/text" -> "Base.Value/color/white";
+  "Base.Value/button-danger/text" -> "Base.Value/color/white";
+  "Brand.A/brand/primary" -> "Base.Value/color/sky";
+  "Brand.A/brand/on-primary" -> "Base.Value/color/white";
+  "Brand.A/brand/surface" -> "Base.Value/color/white";
+  "Brand.A/elevation/raised" -> "Base.Value/shadow/card";
+  "Brand.B/brand/primary" -> "Base.Value/color/grass";
+  "Brand.B/brand/on-primary" -> "Base.Value/color/white";
+  "Brand.B/brand/surface" -> "Base.Value/color/white";
+  "Brand.B/elevation/raised" -> "Base.Value/shadow/stack";
+  "motion.Value/modal" -> "motion.Value/instant";
+}
+|
+—  Done!
+

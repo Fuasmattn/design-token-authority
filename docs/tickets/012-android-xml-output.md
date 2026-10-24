@@ -3,6 +3,7 @@
 **Phase:** 3 — Output Targets
 **Priority:** Medium
 **Effort:** M
+**Status:** in review
 
 ## Summary
 
@@ -14,18 +15,19 @@ Android apps consume design values via XML resource files in `res/values/`. Styl
 
 ## Acceptance Criteria
 
-- [ ] Output directory: `build/android/values/`
-- [ ] Generated files:
+- [x] Output directory: `build/android/values/`
+- [x] Generated files:
   - `colors.xml` — all color tokens as `<color>` resources
   - `dimens.xml` — spacing and size tokens as `<dimen>` resources in `dp`/`sp`
-- [ ] Color format: Android `#AARRGGBB` (not CSS `#RRGGBBAA`)
-- [ ] Multi-brand: separate resource directories per brand (`build/android/{brand}/values/`)
-- [ ] Resource names follow Android naming convention: `color_brand_primary`, `dimen_spacing_4`
-- [ ] Enabled via `outputs.android.lang: 'xml'` in project config (TICKET-008)
+- [x] Color format: Android `#AARRGGBB` (not CSS `#RRGGBBAA`)
+- [x] Multi-brand: separate resource directories per brand (`build/android/{brand}/values/`)
+- [x] Resource names follow Android naming convention: `color_brand_primary`, `dimen_spacing_4`
+- [x] Enabled via `outputs.android.lang: 'xml'` in project config (TICKET-008)
 
 ## Implementation Notes
 
 **Color format transform** — Android uses `#AARRGGBB`, CSS uses `#RRGGBBAA`:
+
 ```ts
 sd.registerTransform({
   name: 'color/android-argb',
@@ -43,6 +45,7 @@ sd.registerTransform({
 ```
 
 **Example output:**
+
 ```xml
 <!-- colors.xml -->
 <?xml version="1.0" encoding="utf-8"?>
@@ -67,3 +70,13 @@ sd.registerTransform({
 
 - TICKET-002 (SD v4)
 - TICKET-008 (config — `outputs.android.lang: 'xml'` enables this)
+
+## Outcome (2026-10-23)
+
+Built to the [native outputs spec](../specs/native-outputs.md), with 011 and 013.
+
+- `output/android/main/values/colors.xml` and `dimens.xml` (shared), `output/android/<brand>/values/` (the brand tokens, brand lower-cased): product-flavour source sets. The criteria's `build/android/values/` and `build/android/{brand}/values/` map onto `main/` and `<brand>/` so that `main` is a source set too.
+- Colours `#AARRGGBB`; lengths in `dp`, font sizes in `sp`.
+- Names: the whole path in snake case, `colors_brand_primary`, `dimensions_spacing_4` (the criteria's `color_brand_primary` would repeat the group for `Colors.…` tokens).
+- Enabled by `android-xml` in `outputs.formats`; `outputs.android.lang` is rejected now.
+- After an independent review (2026-10-23): types written in full (`SwiftUI.Color`, `androidx.compose.ui.graphics.Color`, `Swift.String`, `kotlin.Int`) so a group named `Color` or `String` compiles; brand tokens decided by structure (the chain goes through a brand collection), not by value; one Kotlin type per brand member; Doubles always with a decimal point, numbers never in exponent form; the `OPACITY` scope as a fraction (as the CSS) and line heights as numbers; every token left out counted in a warning; XML comments and brand folder names made valid; letters of any script kept in Swift and Kotlin, folded to ASCII in XML.

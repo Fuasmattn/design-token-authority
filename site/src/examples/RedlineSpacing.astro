@@ -1,0 +1,17 @@
+---
+import Redline from '../components/ds/Redline.astro'
+---
+
+<Redline description="A bar measured with a redline: space.24, 96 pixels" marks={[{ kind: 'width', label: 'space.24 · 96' }]}>
+  <div class="bar"></div>
+</Redline>
+
+<style>
+  .bar {
+    width: var(--space-24);
+    height: var(--space-6);
+    border-radius: var(--radius-sm);
+    background: var(--action-subtle);
+    border: var(--stroke-hairline) solid var(--action-bg);
+  }
+</style>

@@ -1,0 +1,20 @@
+{
+  "brand": {
+    "$type": "color",
+    "primary": {
+      "$value": "{color.grass}"
+    },
+    "on-primary": {
+      "$value": "{color.white}"
+    },
+    "surface": {
+      "$value": "{color.white}"
+    }
+  },
+  "elevation": {
+    "$type": "shadow",
+    "raised": {
+      "$value": "{shadow.stack}"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+---
+// A plugin export: import it into tokens/ first, then build; the config's preview is open.
+import CliHandoff from '../components/ds/CliHandoff'
+import { cliSteps } from '../playground/outputs'
+import { exampleOutputs } from './outputs-example'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'cli-export' } = Astro.props
+const { config } = await exampleOutputs()
+---
+
+<CliHandoff
+  idPrefix={idPrefix}
+  config={config}
+  configOpen
+  steps={cliSteps({ pluginExport: 'tokenhaus-export.json' })}
+/>

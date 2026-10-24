@@ -3,6 +3,7 @@
 **Phase:** 7 — AI Interop
 **Priority:** High
 **Effort:** M
+**Status:** replaced by TICKET-102 ([agent-interop spec](../specs/agent-interop.md)); kept for its background
 
 ## Summary
 
@@ -54,8 +55,8 @@ available in this project and the rules for using them in code.
 **Token table row example:**
 
 ```markdown
-| Semantic | Value | Alias chain | CSS | Tailwind | Swift |
-|---|---|---|---|---|---|
+| Semantic      | Value     | Alias chain                                                                      | CSS                          | Tailwind             | Swift                       |
+| ------------- | --------- | -------------------------------------------------------------------------------- | ---------------------------- | -------------------- | --------------------------- |
 | Brand primary | `#003F8A` | `Colors.Text.Default → Colors.Brand.BrandA.Primary → Colors.Foundation.Blue.700` | `var(--color-brand-primary)` | `text-brand-primary` | `BrandTheme.BrandA.primary` |
 ```
 

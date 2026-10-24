@@ -1,0 +1,46 @@
+{
+  "schema": "dta.audit/1",
+  "findings": [
+    {
+      "file": "src/Card.tsx",
+      "line": 3,
+      "column": 30,
+      "value": "#f3f4f6",
+      "kind": "color",
+      "context": "bg-[…]",
+      "token": "Colors.Surface.Muted",
+      "code": {
+        "css": "--colors-surface-muted",
+        "tailwind": "--color-surface-muted"
+      }
+    },
+    {
+      "file": "src/Card.tsx",
+      "line": 3,
+      "column": 42,
+      "value": "16px",
+      "kind": "spacing",
+      "context": "p-[…]",
+      "token": "Dimensions.spacing.4",
+      "code": {
+        "css": "--dimensions-spacing-4",
+        "tailwind": "--spacing-4"
+      }
+    },
+    {
+      "file": "src/Card.tsx",
+      "line": 3,
+      "column": 71,
+      "value": "Inter",
+      "kind": "font-family",
+      "context": "fontFamily",
+      "token": "Typography.Body.Family",
+      "code": {
+        "css": "--typography-body-family",
+        "tailwind": "--font-typography-body-family"
+      }
+    }
+  ],
+  "baselined": 0,
+  "files": 1
+}

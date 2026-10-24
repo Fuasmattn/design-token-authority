@@ -1,0 +1,30 @@
+T   ⚒  dta build 
+|
+!  warning [css-shorthand-loss] "border.dashed": the border shorthand takes a keyword style, so the dash pattern (dashArray, lineCap) is written as dashed.
+|
+o  Base layer complete
+|
+o  Brand A complete
+|
+o  Brand B complete
+|
+o  Shared outputs complete
+|
+o  Generated files ----------------------+
+|                                        |
+|  output/css/base.css                   |
+|  output/css/themes/a.css               |
+|  output/tailwind/a/tailwind.tokens.ts  |
+|  output/tailwind/a/tailwind.css        |
+|  output/css/themes/b.css               |
+|  output/tailwind/b/tailwind.tokens.ts  |
+|  output/tailwind/b/tailwind.css        |
+|  output/css/variables.css              |
+|  output/js/colorpalette.js             |
+|  output/tailwind/tailwind.tokens.ts    |
+|  output/tailwind/tailwind.css          |
+|                                        |
++----------------------------------------+
+|
+—  Build complete!
+

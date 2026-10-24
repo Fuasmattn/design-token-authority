@@ -1,0 +1,33 @@
+T   ☉  dta analyze 
+|
+o  Found 3 variable collections
+|
+•
+|  Collection Analysis
+|  ──────────────────────────────────────────────────────────────────────────────────────────
+|  Collection                    Vars   Alias%  Modes  Inferred Role   Conf. 
+|  ──────────────────────────────────────────────────────────────────────────────────────────
+|  Primitives                    26     0%      1      primitives      0.90  
+|  Brand(Alias)                  11     100%    2      brand           0.94  
+|  ScreenType                    5      100%    3      dimension       0.92  
+|  ──────────────────────────────────────────────────────────────────────────────────────────
+|
+|  Suggested config:
+|    collections: ['Primitives', 'Brand(Alias)', 'ScreenType']
+|    brands: ['BrandA', 'BrandB']
+|
+|
+o  Discovered collections ---------------+
+|                                        |
+|  Primitives, Brand(Alias), ScreenType  |
+|                                        |
++----------------------------------------+
+|
+o  Detected brands -+
+|                   |
+|  BrandA, BrandB   |
+|                   |
++-------------------+
+|
+—  Analysis complete!
+

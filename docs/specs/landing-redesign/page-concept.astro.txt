@@ -1,0 +1,258 @@
+---
+// THROWAWAY concept, round 6: quiet. No borders, examples embedded in the canvas, four scenes. Not committed.
+import '../../output/css/base.css'
+import '../../output/css/themes/light.css'
+import '../../output/css/themes/graphite.css'
+import '../styles/fonts.css'
+import Button from '../components/ds/Button.astro'
+import CommandButton from '../components/ds/CommandButton.astro'
+import Logo from '../components/ds/Logo.astro'
+import Nav from '../components/ds/Nav.astro'
+import ThemeSwitch from '../components/ds/ThemeSwitch.astro'
+import TokenCycle from '../components/ds/TokenCycle.astro'
+
+const NAV = [
+  { href: '#story', label: 'How it works' },
+  { href: '#agents', label: 'Agents' },
+  { href: '/start/', label: 'Docs' },
+]
+const HEADLINE_TOKENS = [
+  { name: 'font-weight.bold', weight: 700 },
+  { name: 'font-style.italic', weight: 700, italic: true },
+  { name: 'font-weight.regular', weight: 400 },
+]
+---
+
+<html lang="en" data-theme="light" data-brand="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DTA concept 7</title>
+    <style is:global>
+      astro-dev-toolbar { display: none !important; }
+      body { margin: 0; background: var(--bg-canvas); color: var(--fg-default); font-family: var(--font-sans); }
+      .w { max-width: var(--layout-content); margin: 0 auto; padding: 0 var(--space-6); }
+      .hdr { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); padding: var(--space-5, var(--space-4)) var(--space-6); max-width: var(--layout-content); margin: 0 auto; }
+      .mono { font-family: var(--font-mono); font-size: calc(var(--type-meta-size) * 1px); }
+      .muted { color: var(--fg-muted); }
+      h1, h2 { font-weight: var(--type-display-lg-weight); font-stretch: 85%; letter-spacing: -0.02em; margin: 0; }
+      h1 { font-size: clamp(calc(var(--type-heading-size) * 1px), 5.2vw, calc(var(--type-display-lg-size) * 1px * 1.15)); line-height: 1.02; }
+      h2 { font-size: clamp(calc(var(--type-title-size) * 1px), 4vw, calc(var(--type-heading-size) * 1px)); line-height: 1.05; }
+      p { line-height: var(--type-body-lg-line-height); }
+
+      /* Example product palette (fictional BrandA). Mockup literals; would become an Example token collection. */
+      .ex { --ex-void: #15122b; --ex-void-2: #1f1a3d; --ex-star: #f4efe6; --ex-dust: #a79fc4; --ex-500: #ff7a1a; --ex-600: #e0600a; --ex-soft: #3a2a5c; --ex-fg: #1a0f00; --ex-mint: #8fe3c0; }
+      .ex .card { background: var(--ex-void); color: var(--ex-star); }
+      .ex .card .k { color: var(--ex-mint); }
+      .ex .card .m { color: var(--ex-dust); }
+      .ex .card .btn { color: var(--ex-fg); }
+      .ex .trow { background: var(--ex-void); color: var(--ex-star); }
+      .ex .trow .val { color: var(--ex-dust); }
+      .ex .trow.edited .val { color: var(--ex-500); }
+      .ex .sw-radius { background: transparent; border: 2px solid var(--ex-500); border-radius: 8px 8px 8px 24px; }
+      /* a tiny CSS burger */
+      .burger { display: grid; gap: 3px; width: 72px; margin-bottom: var(--space-2); }
+      .burger span { display: block; height: 10px; border-radius: 999px; }
+      .burger .bun-top { height: 16px; background: #e8a85a; border-radius: 999px 999px 6px 6px; position: relative; }
+      .burger .bun-top::after { content: ''; position: absolute; left: 14px; top: 4px; width: 44px; height: 3px; border-radius: 999px; background: rgba(255,255,255,.5); }
+      .burger .lettuce { background: var(--ex-mint); height: 7px; }
+      .burger .patty { background: #6b3a2a; height: 12px; }
+      .burger .cheese { background: var(--ex-500); height: 6px; }
+      .burger .bun-bottom { background: #d9944a; height: 12px; border-radius: 6px 6px 999px 999px; }
+      .ring { position: absolute; width: 150px; height: 150px; border-radius: 50%; border: 2px dashed rgba(167,159,196,.35); pointer-events: none; }
+      .ex .card { position: relative; overflow: hidden; }
+      .ex .card .ring { right: -60px; top: -60px; }
+      .ex .card .ring.two { left: -70px; bottom: -80px; width: 120px; height: 120px; }
+
+      /* Hero */
+      .hero { text-align: center; padding: var(--space-24) 0 var(--space-20); }
+      .hero h1 { max-width: var(--layout-heading); margin: 0 auto var(--space-12); }
+      .hero .lede { max-width: var(--layout-measure); margin: 0 auto var(--space-10); font-size: calc(var(--type-body-lg-size) * 1px); color: var(--fg-muted); }
+      .ctas { display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap; }
+
+      /* Scenes */
+      .scene { padding: var(--space-36) 0; }
+      .scene + .scene { padding-top: 0; }
+      .scene-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: var(--space-24); align-items: center; }
+      .scene:nth-of-type(even) .scene-grid > .copy { order: 2; }
+      .copy .step { display: block; color: var(--action-bg); margin-bottom: var(--space-6); }
+      .copy h2 { margin-bottom: var(--space-6); }
+      .copy p { margin: 0; color: var(--fg-muted); max-width: var(--layout-measure); }
+      .copy .cmd { display: inline-block; margin-top: var(--space-8); color: var(--fg-default); }
+      .copy .cmd::before { content: '$ '; color: var(--signal-text); }
+
+      /* Embedded examples: no borders, a soft surface tint only */
+      .art { position: relative; display: grid; gap: var(--space-8); justify-items: center; }
+      .card { width: min(100%, 360px); padding: var(--space-8); border-radius: var(--radius-lg); background: var(--bg-surface); color: var(--ex-ink); display: grid; gap: var(--space-3); }
+      .card .k { color: var(--ex-600); }
+      .card .t { font-weight: var(--type-title-weight); font-size: calc(var(--type-title-size) * 1px); }
+      .card .m { color: var(--ex-muted); font-size: calc(var(--type-body-sm-size) * 1px); }
+      .card .btn { justify-self: start; margin-top: var(--space-2); padding: var(--space-2) var(--space-5, var(--space-4)); border-radius: var(--radius-md); color: var(--ex-fg); font-size: calc(var(--type-body-sm-size) * 1px); font-weight: var(--type-label-weight); }
+      .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); width: 100%; align-items: start; }
+      .pair .card { width: auto; }
+      .pair .lbl { display: block; margin-bottom: var(--space-3); color: var(--fg-subtle); }
+      .pair .lbl.chg { color: var(--signal-text); }
+      .note { display: flex; align-items: center; gap: var(--space-3); color: var(--fg-muted); justify-self: start; margin: 0; }
+      .note::before { content: ''; width: var(--space-6); border-top: var(--stroke-redline) solid var(--signal-bg); }
+      .note b { color: var(--fg-default); font-weight: inherit; font-family: var(--font-mono); }
+
+      .notes { display: grid; gap: var(--space-3); justify-self: start; }
+      /* Scene 1: Figma-ish token row */
+      .tokenrow { width: min(100%, 420px); display: grid; gap: var(--space-2); }
+      .trow { display: grid; grid-template-columns: var(--space-6) minmax(0, 1fr) auto; gap: var(--space-3); align-items: center; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--bg-surface); }
+      .sw { width: var(--space-6); height: var(--space-6); border-radius: var(--radius-sm); }
+      .trow .nm { font-family: var(--font-mono); font-size: calc(var(--type-meta-size) * 1px); }
+      .trow .val { font-family: var(--font-mono); font-size: calc(var(--type-meta-size) * 1px); color: var(--fg-muted); }
+      .trow.edited .val { color: var(--signal-text); }
+
+      /* Scene 3: checks, as text */
+      .checks { width: min(100%, 420px); display: grid; gap: var(--space-3); font-family: var(--font-mono); font-size: calc(var(--type-meta-size) * 1px); }
+      .chk { display: flex; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--bg-surface); }
+      .dot { display: inline-block; width: var(--space-2); height: var(--space-2); margin-right: var(--space-2); border-radius: var(--radius-full); background: var(--signal-bg); }
+      .dot.ok { background: var(--success-fg); }
+      .approve { justify-self: start; padding: var(--space-2) var(--space-5, var(--space-4)); border-radius: var(--radius-md); background: var(--action-bg); color: var(--action-fg); font-size: calc(var(--type-body-sm-size) * 1px); font-weight: var(--type-label-weight); }
+
+      /* Scene 4: agent */
+      .term { margin: 0; width: 100%; box-sizing: border-box; padding: var(--space-6) var(--space-8); border-radius: var(--radius-lg); background: var(--terminal-bg); color: var(--terminal-fg); font-family: var(--font-mono); font-size: calc(var(--type-code-size) * 1px); line-height: 1.9; white-space: pre-wrap; }
+      .p { color: var(--terminal-prompt); } .ok { color: var(--success-fg); } .dim { opacity: 0.5; }
+      .who { display: inline-block; padding: 0 var(--space-2); border-radius: var(--radius-sm); background: var(--action-bg); color: var(--action-fg); font-size: calc(var(--type-redline-size) * 1px); }
+
+      /* Quiet facts */
+      .facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-10); padding: var(--space-20) 0 var(--space-36); }
+      .fact b { display: block; margin-bottom: var(--space-2); font-weight: var(--type-title-weight); }
+      .fact span { color: var(--fg-muted); font-size: calc(var(--type-body-size) * 1px); }
+
+      /* Final */
+      .final { text-align: center; padding: var(--space-36) 0; }
+      .final h2 { margin-bottom: var(--space-6); font-size: clamp(calc(var(--type-heading-size) * 1px), 6vw, calc(var(--type-display-xl-size) * 1px)); }
+      .final p { color: var(--fg-muted); margin: 0 auto var(--space-10); max-width: var(--layout-measure); }
+      .foot { display: flex; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; padding: var(--space-8) var(--space-6); max-width: var(--layout-content); margin: 0 auto; color: var(--fg-subtle); }
+
+      @media (max-width: 900px) {
+        .scene { padding: var(--space-24) 0; }
+        .scene-grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-12); }
+        .scene:nth-of-type(even) .scene-grid > .copy { order: 0; }
+        .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .hero { padding: var(--space-16) 0; }
+      }
+      @media (max-width: 560px) {
+        .pair { grid-template-columns: minmax(0, 1fr); }
+        .facts { grid-template-columns: minmax(0, 1fr); }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hdr">
+      <Logo />
+      <Nav links={NAV} idPrefix="c7"><ThemeSwitch /></Nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="w">
+          <h1>The deterministic backbone for design token workflows, built for humans and <TokenCycle tokens={HEADLINE_TOKENS} autoplay={false}>agents.</TokenCycle></h1>
+          <p class="lede">A design change in Figma becomes a pull request: validated, built, visually diffed and approved by the people who care about it.</p>
+          <div class="ctas">
+            <CommandButton command="npm create dta" />
+            <Button variant="outline" href="/start/">Read the quick start</Button>
+          </div>
+        </div>
+      </section>
+
+      <div id="story">
+      <section class="scene">
+        <div class="w scene-grid">
+          <div class="copy">
+            <span class="mono step">01 · A designer changes a token</span>
+            <h2>Two tokens, one pull request.</h2>
+            <p>A rounder card and a slightly deeper brand orange. Made in Figma Variables or in a token file; either way DTA pulls them into the repository as one change.</p>
+            <span class="mono cmd">dta pull</span>
+          </div>
+          <div class="art ex">
+            <div class="tokenrow">
+              <div class="trow"><span class="sw" style="background: var(--ex-void-2)"></span><span class="nm">Colors.Surface.Default</span><span class="val">Void.900</span></div>
+              <div class="trow edited"><span class="sw" style="background: var(--ex-600)"></span><span class="nm">Colors.Brand.Primary</span><span class="val">Nova.500 → 600</span></div>
+              <div class="trow edited"><span class="sw sw-radius"></span><span class="nm">Radius.Card</span><span class="val">8 → 24</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="scene">
+        <div class="w scene-grid">
+          <div class="copy">
+            <span class="mono step">02 · The pull request shows what moved</span>
+            <h2>One change you would see. One you would miss.</h2>
+            <p>dta diff renders the story before and after and names the token behind each changed pixel. The rounder card is obvious. The darker button is not, and a reviewer scrolling a hundred screenshots would not catch it.</p>
+            <span class="mono cmd">dta diff</span>
+          </div>
+          <div class="art ex">
+            <div class="pair">
+              <div><span class="mono lbl">main</span><div class="card" style="border-radius: 8px"><span class="ring"></span><span class="ring two"></span><span class="burger" aria-hidden="true"><span class="bun-top"></span><span class="lettuce"></span><span class="cheese"></span><span class="patty"></span><span class="bun-bottom"></span></span><span class="mono k">ORBIT BURGER · ISS DOCK 3</span><span class="t">Saturn Smash</span><span class="m">Double patty, ring sauce, zero-g pickles</span><span class="btn" style="background: var(--ex-500)">Launch order · 12 min</span></div></div>
+              <div><span class="mono lbl chg">this change</span><div class="card" style="border-radius: 24px"><span class="ring"></span><span class="ring two"></span><span class="burger" aria-hidden="true"><span class="bun-top"></span><span class="lettuce"></span><span class="cheese"></span><span class="patty"></span><span class="bun-bottom"></span></span><span class="mono k">ORBIT BURGER · ISS DOCK 3</span><span class="t">Saturn Smash</span><span class="m">Double patty, ring sauce, zero-g pickles</span><span class="btn" style="background: var(--ex-600)">Launch order · 12 min</span></div></div>
+            </div>
+            <div class="notes">
+              <p class="note mono"><b>Radius.Card</b> 8 → 24 · explains 94 % of the changed pixels</p>
+              <p class="note mono"><b>Colors.Brand.Primary</b> Nova 500 → 600 · explains the other 6 %</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="scene">
+        <div class="w scene-grid">
+          <div class="copy">
+            <span class="mono step">03 · A person decides</span>
+            <h2>Approve by token, not by screenshot.</h2>
+            <p>The check stays pending until someone adds the label. Then every output rebuilds: CSS per brand, JavaScript, Tailwind.</p>
+            <span class="mono cmd">dta build</span>
+          </div>
+          <div class="art">
+            <div class="checks">
+              <div class="chk"><span><span class="dot ok"></span>dta lint</span><span class="muted">passed</span></div>
+              <div class="chk"><span><span class="dot"></span>dta diff</span><span class="muted">1 token · 9 stories · changes to review</span></div>
+            </div>
+            <span class="approve">Add label dta-diff-approved</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="agents" class="scene">
+        <div class="w scene-grid">
+          <div class="copy">
+            <span class="mono step">04 · Your agent uses the same commands</span>
+            <h2>It looks the token up before it writes a value.</h2>
+            <p>The skill teaches the loop; the context file lists your tokens. The agent proposes, the checks decide, and nothing reaches Figma without a person.</p>
+            <span class="mono cmd">dta skill add</span>
+          </div>
+          <div class="art">
+            <pre class="term"><span class="who">Agent</span> The button needs the brand blue. Looking it up first.
+<span class="p">$</span> dta token find '#2f55d4'
+  <span class="ok">action.bg</span>      Light       var(--action-bg)
+  <span class="dim">blueprint.600  every mode  var(--blueprint-600)</span>
+<span class="p">$</span> dta audit src
+<span class="ok">No hard-coded token values in 50 files.</span></pre>
+            <p class="note mono">real output, from this website's own tokens</p>
+          </div>
+        </div>
+      </section>
+      </div>
+
+      <section class="w facts">
+        <div class="fact"><b>Open source</b><span>MIT. Runs locally, in CI and in your agent's terminal. No account.</span></div>
+        <div class="fact"><b>Your structure</b><span>Your collections, modes and names, in the open DTCG format.</span></div>
+        <div class="fact"><b>Every Figma plan</b><span>REST API on Enterprise, plugin export everywhere else.</span></div>
+        <div class="fact"><b>Deterministic</b><span>Same input, same result, on every machine.</span></div>
+      </section>
+
+      <section class="final">
+        <div class="w">
+          <h2>Start with one command.</h2>
+          <p>Sets up the config, the token folder, the GitHub workflow and the agent skill.</p>
+          <CommandButton command="npm create dta" />
+        </div>
+      </section>
+    </main>
+    <footer class="foot mono"><span>Design Token Authority · MIT</span><span>Docs · CLI reference · GitHub</span></footer>
+  </body>
+</html>

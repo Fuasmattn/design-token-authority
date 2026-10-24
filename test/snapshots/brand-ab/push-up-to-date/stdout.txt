@@ -1,0 +1,8 @@
+T   ⤴  dta push 
+|
+!  10 lint warnings found.
+|
+o  No changes detected
+|
+—  Tokens are already up to date with the Figma file.
+

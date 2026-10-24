@@ -1,0 +1,20 @@
+---
+title: The DTCG format
+description: DTCG in short, and where DTA's token files differ from it.
+sidebar:
+  order: 1
+---
+
+DTA's token files use the format of the W3C [Design Tokens Community Group](https://www.designtokens.org/) (DTCG). Its first stable version, [2025.10](https://www.designtokens.org/TR/2025.10/), has three modules. The spec is the reference; this page only gives the ideas and says where DTA differs.
+
+| Module                                                        | What it defines                                                                                                                                                         |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Format](https://www.designtokens.org/tr/2025.10/format/)     | Tokens (objects with `$value`) and groups, `$type`, `$description`, `$extensions`, `$deprecated`, aliases (`{group.token}`, `$ref`), `$root`, `$extends`, and the types |
+| [Color](https://www.designtokens.org/tr/2025.10/color/)       | Colour values as objects in any CSS Color 4 space                                                                                                                       |
+| [Resolver](https://www.designtokens.org/tr/2025.10/resolver/) | Themes, brands and other contexts: sets, modifiers and the order in which they apply                                                                                    |
+
+## Where DTA differs
+
+DTA's files are DTCG in the shape of Figma variables: one file per collection and mode (`Brand.BrandA.json`, `Brand.BrandB.json`), or a `.tokens` file for a collection with one mode. It reads every type of 2025.10, group `$type` and `$deprecated`, `$ref`, `$root` and `$extends`, and checks each value against its type; the [Token files](/reference/token-files/) reference has the format. Compared with 2025.10, DTA does **not** yet follow `$extends` from one per-mode file into another (it works within a file, and across the sets of a resolver document). This gap is tracked in the [DTCG 2025.10 spec](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/specs/dtcg-2025-10.md) and its tickets.
+
+A minimal file DTA reads, with all four types and an alias, is [`learn-examples/dtcg-basics/`](https://github.com/Fuasmattn/design-token-authority/tree/main/site/learn-examples/dtcg-basics/). Next: [Token patterns](/learn/patterns/).

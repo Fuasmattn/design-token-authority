@@ -1,0 +1,421 @@
+---
+/**
+ * The key visual: a gravity well drawn across the whole section (canvas, src/scripts/well.ts)
+ * with cubes, spheres and dust orbiting it on two rings. The slot is the copy that sits on it
+ * (the hero's headline, subline and actions): copy left and the well right on desktop, the well
+ * above the copy on phones. Pure decoration: it labels nothing, the copy tells the story.
+ *
+ * Geometry from the accepted prototype: tilt 64°, size S, position A, x offset +8 %, y 0.
+ */
+import { SIZES } from '../../scripts/well'
+
+interface Props {
+  tilt?: 40 | 52 | 64
+  size?: 'S' | 'L'
+  /** The well's centre, as a percentage of the section's width and height, from the stage's centre. */
+  offset?: { x: number; y: number }
+  /** The well on the left of the copy instead of the right (desktop only). */
+  position?: 'A' | 'B'
+  /** Draw a single still frame, whatever the user's motion preference (for stories). */
+  still?: boolean
+  id?: string
+}
+const { tilt = 64, size = 'S', offset = { x: 8, y: 0 }, position = 'A', still = false, id } = Astro.props
+const sz = SIZES[size]
+
+// The objects: orbit ring (inner / outer / dust between), angle on the ring, kind, colour, size.
+const inner = [
+  ['cube', 'orange', 14, -90],
+  ['sphere', 'blue', 12, 40],
+  ['cube', 'ink', 10, 160],
+] as const
+const outer = [
+  ['sphere', 'orange', 16, -150],
+  ['cube', 'blue', 12, -30],
+  ['sphere', 'ink', 8, 75],
+  ['cube', 'orange', 8, 125],
+] as const
+// angle, radius factor between the rings, size; the prototype's seeded set
+const dust = [
+  [117, 0.85, 2], [26, 1.02, 3], [210, 1.18, 2], [13, 0.97, 2], [87, 1.02, 2], [298, 0.83, 2],
+  [227, 1.04, 2], [208, 0.95, 2], [17, 1.16, 3], [151, 1.02, 3], [202, 1.08, 2], [209, 1.06, 3],
+  [35, 1.09, 2], [223, 1.0, 4], [280, 0.98, 4], [130, 0.89, 2], [252, 0.89, 3], [189, 1.17, 4],
+] as const
+const at = (angle: number) =>
+  `--cx:${Math.cos((angle * Math.PI) / 180).toFixed(3)};--cy:${Math.sin((angle * Math.PI) / 180).toFixed(3)}`
+---
+
+<section
+  class:list={['dta-well', `size-${size}`, `pos-${position}`]}
+  id={id}
+  data-tilt={tilt}
+  data-size={size}
+  data-ox={offset.x}
+  data-oy={offset.y}
+  data-still={still ? '' : undefined}
+  style={`--stage-m:${sz.m.w}px;--stage-d:${sz.d.w}px`}
+>
+  <div class="field" aria-hidden="true"><canvas class="flow"></canvas></div>
+  <div class="grid">
+    <div class="copy"><slot /></div>
+    <div class="stage" aria-hidden="true">
+      <span class="pc dust"
+        ><span class="spin">
+          {dust.map(([a, k, s]) => <i class="mote" style={`--a:${a}deg;--k:${k};--s:${s}px`} />)}
+        </span></span
+      >
+      {
+        [
+          ['in', inner],
+          ['out', outer],
+        ].map(([ring, objects]) => (
+          <span class:list={['pc', ring]}>
+            <span class="spin">
+              {(objects as typeof inner | typeof outer).map(([kind, color, s, angle]) =>
+                kind === 'cube' ? (
+                  <span class="part" style={at(angle)}>
+                    <span class:list={['cube', color]} style={`--s:${s}px`}>
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                    </span>
+                  </span>
+                ) : (
+                  <span class="part" style={at(angle)}>
+                    <span class="up">
+                      <span class="bill">
+                        <span class:list={['sphere', color]} style={`--s:${s}px`} />
+                      </span>
+                    </span>
+                  </span>
+                ),
+              )}
+            </span>
+          </span>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  import { SIZES, Well, readWellColors } from '../../scripts/well'
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)')
+
+  for (const root of document.querySelectorAll<HTMLElement>('.dta-well')) {
+    const canvasEl = root.querySelector<HTMLCanvasElement>('canvas.flow')
+    const stageEl = root.querySelector<HTMLElement>('.stage')
+    if (!canvasEl || !stageEl) continue
+    const canvas: HTMLCanvasElement = canvasEl
+    const stage: HTMLElement = stageEl
+    const well = new Well(canvas)
+    const tilt = Number(root.dataset.tilt)
+    const size = (root.dataset.size === 'L' ? 'L' : 'S') as 'S' | 'L'
+    const ox = Number(root.dataset.ox)
+    const oy = Number(root.dataset.oy)
+    const still = () => reduce.matches || 'still' in root.dataset
+    let t0 = performance.now()
+    let running = false
+
+    function layout() {
+      const box = root.getBoundingClientRect()
+      const W = Math.round(box.width)
+      const H = Math.round(box.height)
+      well.size(W, H)
+      stage.style.translate = '0 0'
+      const r = stage.getBoundingClientRect()
+      const dx = (ox * W) / 100
+      const dy = (oy * H) / 100
+      stage.style.translate = `${dx}px ${dy}px`
+      const dims = SIZES[size][W >= 1000 ? 'd' : 'm']
+      well.layout(W, H, r.left - box.left + r.width / 2 + dx, r.top - box.top + r.height / 2 + dy, dims, tilt)
+      // the orbit groups' depth, scale and tilt, for the objects
+      const g = well.geometry
+      const rd = (g.r1 + g.r2) / 2
+      const set = (name: string, value: string) => root.style.setProperty(name, value)
+      for (const [suffix, radius] of [
+        ['1', g.r1],
+        ['2', g.r2],
+        ['d', rd],
+      ] as const) {
+        set(`--dy${suffix}`, `${-well.z(radius) * g.st * well.scale(radius)}px`)
+        set(`--s${suffix}`, String(well.scale(radius)))
+        set(`--r${suffix}`, `${radius}px`)
+      }
+      set('--tilt', `${tilt}deg`)
+      // The objects are first painted where they belong (see .stage below).
+      root.dataset.placed = ''
+    }
+
+    function frame(now: number) {
+      well.draw(still() ? 0 : (now - t0) / 1000)
+      if (!still() && !document.hidden) requestAnimationFrame(frame)
+      else running = false
+    }
+    function start() {
+      if (running) return
+      running = true
+      t0 = performance.now()
+      requestAnimationFrame(frame)
+    }
+    function apply() {
+      well.setColors(readWellColors(root))
+      layout()
+      start()
+    }
+
+    // a slight parallax on scroll: the mesh at 0.35, the objects at 0.18
+    let queued = 0
+    function parallax() {
+      queued = 0
+      const y = still() ? 0 : Math.max(0, -root.getBoundingClientRect().top)
+      canvas.style.transform = `translateY(${y * 0.35}px)`
+      stage.style.transform = `translateY(${y * 0.18}px)`
+    }
+    addEventListener('scroll', () => {
+      if (!queued) queued = requestAnimationFrame(parallax)
+    }, { passive: true })
+
+    addEventListener('resize', apply)
+    if (window.ResizeObserver) new ResizeObserver(() => apply()).observe(root)
+    new MutationObserver(() => apply()).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-brand', 'data-theme'],
+    })
+    reduce.addEventListener('change', apply)
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) start()
+    })
+    if (document.fonts?.ready) document.fonts.ready.then(apply)
+    apply()
+    parallax()
+  }
+</script>
+
+<style>
+  .dta-well {
+    position: relative;
+    overflow: clip;
+    isolation: isolate;
+    container-type: inline-size;
+  }
+  .field {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .flow {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  .grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--space-1);
+    align-items: center;
+    justify-items: center;
+    padding-block: 0 var(--space-6);
+  }
+  .copy {
+    justify-self: stretch;
+    min-width: 0;
+  }
+  .stage {
+    order: -1;
+    position: relative;
+    width: var(--stage-m);
+    height: 210px;
+    max-width: none;
+    overflow: visible;
+    transform-style: preserve-3d;
+  }
+  /* Hidden until the script has placed the orbits: objects painted at a default position and
+     moved by the script were rasterised at a scale that depended on timing (TICKET-111). */
+  .dta-well:not([data-placed]) .stage {
+    visibility: hidden;
+  }
+  .size-L .stage {
+    height: 240px;
+  }
+  @container (min-width: 1000px) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-12);
+      padding-block: var(--space-14) var(--space-12);
+    }
+    .stage {
+      order: 0;
+      width: var(--stage-d);
+      height: var(--stage-d);
+    }
+    .pos-B .grid {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+    .pos-B .stage {
+      order: -1;
+    }
+  }
+
+  /* the objects: two orbit groups (static tilt) with a spinning child inside the plane */
+  .pc {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0;
+    height: 0;
+    transform-style: preserve-3d;
+  }
+  .pc.in {
+    transform: translateY(var(--dy1)) scale(var(--s1)) rotateX(var(--tilt));
+    --r: var(--r1);
+  }
+  .pc.out {
+    transform: translateY(var(--dy2)) scale(var(--s2)) rotateX(var(--tilt));
+    --r: var(--r2);
+  }
+  .pc.dust {
+    transform: translateY(var(--dyd)) scale(var(--sd)) rotateX(var(--tilt));
+    --r: var(--rd);
+  }
+  .spin {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    transform-style: preserve-3d;
+    animation: spin 60s linear infinite;
+  }
+  .pc.out .spin {
+    animation: spin-r 90s linear infinite;
+  }
+  .pc.dust .spin {
+    animation: spin 140s linear infinite;
+  }
+  .part {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform-style: preserve-3d;
+    translate: calc(var(--r) * var(--cx)) calc(var(--r) * var(--cy));
+  }
+  .up {
+    display: block;
+    transform-style: preserve-3d;
+    animation: spin-r 60s linear infinite;
+  }
+  .pc.out .up {
+    animation: spin 90s linear infinite;
+  }
+  .bill {
+    display: block;
+    transform-origin: 50% 100%;
+    transform: rotateX(calc(var(--tilt) * -1));
+  }
+  .cube {
+    display: block;
+    position: relative;
+    width: var(--s);
+    height: var(--s);
+    margin: calc(var(--s) * -0.5) 0 0 calc(var(--s) * -0.5);
+    transform-style: preserve-3d;
+    transform: translateZ(calc(var(--s) * 0.5));
+  }
+  .cube i {
+    position: absolute;
+    inset: 0;
+    background: var(--f);
+    border: var(--stroke-hairline) solid color-mix(in srgb, var(--well-throat) 12%, transparent);
+  }
+  .cube i:nth-child(1) {
+    transform: translateZ(calc(var(--s) * 0.5));
+  }
+  .cube i:nth-child(2) {
+    transform: rotateY(180deg) translateZ(calc(var(--s) * 0.5));
+    background: var(--f3);
+  }
+  .cube i:nth-child(3) {
+    transform: rotateY(90deg) translateZ(calc(var(--s) * 0.5));
+    background: var(--f3);
+  }
+  .cube i:nth-child(4) {
+    transform: rotateY(-90deg) translateZ(calc(var(--s) * 0.5));
+    background: var(--f2);
+  }
+  .cube i:nth-child(5) {
+    transform: rotateX(90deg) translateZ(calc(var(--s) * 0.5));
+    background: var(--f2);
+  }
+  .cube i:nth-child(6) {
+    transform: rotateX(-90deg) translateZ(calc(var(--s) * 0.5));
+    background: var(--f3);
+  }
+  .orange {
+    --f: var(--well-object-orange);
+    --f2: var(--well-object-orange-light);
+    --f3: var(--well-object-orange-dark);
+  }
+  .blue {
+    --f: var(--well-object-blue);
+    --f2: var(--well-object-blue-light);
+    --f3: var(--well-object-blue-dark);
+  }
+  .ink {
+    --f: var(--well-object-ink);
+    --f2: var(--well-object-ink-light);
+    --f3: var(--well-object-ink-dark);
+  }
+  .sphere {
+    display: block;
+    width: var(--s);
+    height: var(--s);
+    margin: calc(var(--s) * -0.5) 0 0 calc(var(--s) * -0.5);
+    border-radius: var(--radius-full);
+    background: radial-gradient(
+      circle at 32% 30%,
+      color-mix(in srgb, var(--well-highlight) 60%, var(--f2)) 0,
+      var(--f) 42%,
+      var(--f3) 100%
+    );
+  }
+  .mote {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--s);
+    height: var(--s);
+    margin: calc(var(--s) * -0.5) 0 0 calc(var(--s) * -0.5);
+    border-radius: var(--radius-full);
+    background: var(--well-dust);
+    opacity: 0.8;
+    translate: calc(var(--r) * var(--k) * cos(var(--a))) calc(var(--r) * var(--k) * sin(var(--a)));
+  }
+  @keyframes spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+  @keyframes spin-r {
+    to {
+      rotate: -360deg;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .spin,
+    .up {
+      animation: none;
+    }
+  }
+  [data-still] .spin,
+  [data-still] .up {
+    animation: none;
+  }
+</style>

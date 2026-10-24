@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Status colours proposal</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;family=Martian+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1280px; box-sizing: border-box; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); font-family: 'Instrument Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.5">
+
+  <section aria-label="Light theme" style="background: #f5f1e8; color: #13213f; padding: 40px; display: flex; flex-direction: column; gap: 20px">
+    <p style="margin: 0; font-family: 'Martian Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.04em; color: #44506c">LIGHT · STATUS TOKENS</p>
+    <h1 style="margin: 0; font-size: 28px; line-height: 1.15">success · warning · error</h1>
+
+    <div style="display: flex; flex-direction: column; border-top: 2px solid #13213f">
+      <div style="display: grid; grid-template-columns: 110px repeat(3, minmax(0, 1fr)); gap: 12px; padding: 12px 0; border-bottom: 1px solid #e2dccd; align-items: center">
+        <span style="font-weight: 700">success</span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #27512f"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">text #27512f<br>8.1 : 1</span></span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #3c7646"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">marker #3c7646<br>4.8 : 1</span></span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #e1eee2; border: 1px solid #e2dccd; box-sizing: border-box"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">subtle #e1eee2<br>text on it 7.6</span></span>
+      </div>
+      <div style="display: grid; grid-template-columns: 110px repeat(3, minmax(0, 1fr)); gap: 12px; padding: 12px 0; border-bottom: 1px solid #e2dccd; align-items: center">
+        <span style="font-weight: 700">warning</span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #5e3f00"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">text #5e3f00<br>8.5 : 1</span></span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #7d5a00"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">marker #7d5a00<br>5.6 : 1</span></span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #faecc8; border: 1px solid #e2dccd; box-sizing: border-box"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">subtle #faecc8<br>text on it 8.2</span></span>
+      </div>
+      <div style="display: grid; grid-template-columns: 110px repeat(3, minmax(0, 1fr)); gap: 12px; padding: 12px 0; border-bottom: 1px solid #e2dccd; align-items: center">
+        <span style="font-weight: 700">error</span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #8c151c"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">text #8c151c<br>8.3 : 1</span></span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #c42b30"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">marker #c42b30<br>5.0 : 1</span></span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #fde4e1; border: 1px solid #e2dccd; box-sizing: border-box"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">subtle #fde4e1<br>text on it 7.8</span></span>
+      </div>
+    </div>
+
+    <p style="margin: 8px 0 0; font-family: 'Martian Mono', monospace; font-size: 12px; letter-spacing: 0.04em; color: #44506c">IN USE</p>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #ffffff; border: 1px solid #e2dccd; border-radius: 10px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 9999px; background: #3c7646"></span><span style="font-family: 'Martian Mono', monospace; font-size: 13px; flex: 1">dta lint</span><span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #27512f">passed · 0 violations</span></div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #ffffff; border: 1px solid #e2dccd; border-radius: 10px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 9999px; border: 2px solid #7d5a00; box-sizing: border-box"></span><span style="font-family: 'Martian Mono', monospace; font-size: 13px; flex: 1">dta lint</span><span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #5e3f00">passed with 2 warnings</span></div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #ffffff; border: 1px solid #e2dccd; border-radius: 10px"><span aria-hidden="true" style="width: 10px; height: 10px; background: #c42b30"></span><span style="font-family: 'Martian Mono', monospace; font-size: 13px; flex: 1">dta build</span><span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #8c151c">failed · 2 errors</span></div>
+    </div>
+    <div style="padding: 12px 14px; background: #fde4e1; border: 2px solid #c42b30; border-radius: 10px; display: flex; gap: 10px; align-items: flex-start">
+      <span aria-hidden="true" style="flex: none; margin-top: 6px; width: 10px; height: 10px; background: #c42b30"></span>
+      <div><p style="margin: 0; font-weight: 600; color: #8c151c">The build has errors: dta build writes no files until they are fixed.</p>
+      <p style="margin: 4px 0 0; font-family: 'Martian Mono', monospace; font-size: 12px; color: #8c151c"><b>error</b> [dangling-alias] Alias {Colors.Foundation.Orange.550} references non-existent token</p></div>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; font-family: 'Martian Mono', monospace; font-size: 12px">
+      <span style="padding: 2px 8px; border-radius: 6px; background: #fde4e1; color: #8c151c">3 errors</span>
+      <span style="padding: 2px 8px; border-radius: 6px; background: #faecc8; color: #5e3f00">2 warnings</span>
+      <span style="padding: 2px 8px; border-radius: 6px; background: #e1eee2; color: #27512f">0 findings</span>
+      <span style="padding: 2px 8px; border-radius: 6px; background: #ffe4d2; color: #7a3210">changed · signal, not status</span>
+    </div>
+  </section>
+
+  <section aria-label="Graphite theme" style="background: #161513; color: #f2ede2; padding: 40px; display: flex; flex-direction: column; gap: 20px">
+    <p style="margin: 0; font-family: 'Martian Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.04em; color: #b0a898">GRAPHITE · STATUS TOKENS</p>
+    <h1 style="margin: 0; font-size: 28px; line-height: 1.15">success · warning · error</h1>
+
+    <div style="display: flex; flex-direction: column; border-top: 2px solid #eae4d6">
+      <div style="display: grid; grid-template-columns: 110px repeat(3, minmax(0, 1fr)); gap: 12px; padding: 12px 0; border-bottom: 1px solid #34312c; align-items: center">
+        <span style="font-weight: 700">success</span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #9ad3a2"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">text #9ad3a2<br>10.6 : 1</span></span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #7fb887"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">marker #7fb887<br>7.9 : 1</span></span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #1c2a1e; border: 1px solid #34312c; box-sizing: border-box"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">subtle #1c2a1e<br>text on it 8.7</span></span>
+      </div>
+      <div style="display: grid; grid-template-columns: 110px repeat(3, minmax(0, 1fr)); gap: 12px; padding: 12px 0; border-bottom: 1px solid #34312c; align-items: center">
+        <span style="font-weight: 700">warning</span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #f2d08a"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">text #f2d08a<br>12.3 : 1</span></span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #f0c64a"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">marker #f0c64a<br>11.2 : 1</span></span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #3a2d10; border: 1px solid #34312c; box-sizing: border-box"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">subtle #3a2d10<br>text on it 9.1</span></span>
+      </div>
+      <div style="display: grid; grid-template-columns: 110px repeat(3, minmax(0, 1fr)); gap: 12px; padding: 12px 0; border-bottom: 1px solid #34312c; align-items: center">
+        <span style="font-weight: 700">error</span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #ffb3ad"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">text #ffb3ad<br>10.7 : 1</span></span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #f0736b"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">marker #f0736b<br>6.4 : 1</span></span>
+        <span style="display: flex; gap: 8px; align-items: center"><span style="width: 28px; height: 28px; border-radius: 6px; background: #3d1b19; border: 1px solid #34312c; box-sizing: border-box"></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px">subtle #3d1b19<br>text on it 9.0</span></span>
+      </div>
+    </div>
+
+    <p style="margin: 8px 0 0; font-family: 'Martian Mono', monospace; font-size: 12px; letter-spacing: 0.04em; color: #b0a898">IN USE</p>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #1f1e1b; border: 1px solid #34312c; border-radius: 10px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 9999px; background: #7fb887"></span><span style="font-family: 'Martian Mono', monospace; font-size: 13px; flex: 1">dta lint</span><span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #9ad3a2">passed · 0 violations</span></div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #1f1e1b; border: 1px solid #34312c; border-radius: 10px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 9999px; border: 2px solid #f0c64a; box-sizing: border-box"></span><span style="font-family: 'Martian Mono', monospace; font-size: 13px; flex: 1">dta lint</span><span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #f2d08a">passed with 2 warnings</span></div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #1f1e1b; border: 1px solid #34312c; border-radius: 10px"><span aria-hidden="true" style="width: 10px; height: 10px; background: #f0736b"></span><span style="font-family: 'Martian Mono', monospace; font-size: 13px; flex: 1">dta build</span><span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #ffb3ad">failed · 2 errors</span></div>
+    </div>
+    <div style="padding: 12px 14px; background: #3d1b19; border: 2px solid #f0736b; border-radius: 10px; display: flex; gap: 10px; align-items: flex-start">
+      <span aria-hidden="true" style="flex: none; margin-top: 6px; width: 10px; height: 10px; background: #f0736b"></span>
+      <div><p style="margin: 0; font-weight: 600; color: #ffb3ad">The build has errors: dta build writes no files until they are fixed.</p>
+      <p style="margin: 4px 0 0; font-family: 'Martian Mono', monospace; font-size: 12px; color: #ffb3ad"><b>error</b> [dangling-alias] Alias {Colors.Foundation.Orange.550} references non-existent token</p></div>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; font-family: 'Martian Mono', monospace; font-size: 12px">
+      <span style="padding: 2px 8px; border-radius: 6px; background: #3d1b19; color: #ffb3ad">3 errors</span>
+      <span style="padding: 2px 8px; border-radius: 6px; background: #3a2d10; color: #f2d08a">2 warnings</span>
+      <span style="padding: 2px 8px; border-radius: 6px; background: #1c2a1e; color: #9ad3a2">0 findings</span>
+      <span style="padding: 2px 8px; border-radius: 6px; background: #3f2414; color: #ffcfb2">changed · signal, not status</span>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

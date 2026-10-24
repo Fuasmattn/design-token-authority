@@ -1,0 +1,11 @@
+---
+// Real output: the same token opened from the phone's list in BrandB, as the bottom sheet.
+import DetailPanelToken from './DetailPanelToken.astro'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'detail-token-sheet' } = Astro.props
+---
+
+<DetailPanelToken idPrefix={idPrefix} presentation="sheet" brand="BrandB" />

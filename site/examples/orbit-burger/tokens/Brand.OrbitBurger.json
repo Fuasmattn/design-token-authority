@@ -1,0 +1,134 @@
+{
+  "Colors": {
+    "Surface": {
+      "Default": {
+        "$type": "color",
+        "$value": "{Void.900}",
+        "$description": "The page.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "Raised": {
+        "$type": "color",
+        "$value": "{Void.800}",
+        "$description": "Cards and the order sheet.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "Line": {
+        "$type": "color",
+        "$value": "{Void.700}",
+        "$description": "Hairlines.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      }
+    },
+    "Text": {
+      "Default": {
+        "$type": "color",
+        "$value": "{Starlight.100}",
+        "$description": "Body and headings.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "Muted": {
+        "$type": "color",
+        "$value": "{Starlight.300}",
+        "$description": "Secondary text.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      },
+      "On Primary": {
+        "$type": "color",
+        "$value": "{Void.900}",
+        "$description": "Text on the brand colour.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      }
+    },
+    "Brand": {
+      "Primary": {
+        "$type": "color",
+        "$value": "{Nova.600}",
+        "$description": "The brand blue: the launch button, prices, the active tab.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      }
+    },
+    "Accent": {
+      "Fresh": {
+        "$type": "color",
+        "$value": "{Ice.300}",
+        "$description": "Ready, open, in orbit.",
+        "$extensions": {
+          "com.figma": {
+            "hiddenFromPublishing": false,
+            "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+            "codeSyntax": {}
+          }
+        }
+      }
+    }
+  },
+  "Radius": {
+    "Card": {
+      "$type": "number",
+      "$value": "{Orbit.radius-lg}",
+      "$description": "Cards and the launch button.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["CORNER_RADIUS"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "Pill": {
+      "$type": "number",
+      "$value": "{Orbit.radius-pill}",
+      "$description": "Chips and status pills.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["CORNER_RADIUS"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  }
+}

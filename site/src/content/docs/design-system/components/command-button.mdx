@@ -1,0 +1,29 @@
+---
+title: Command button
+description: A command chip you can copy, on terminal-bg; the call to action of the site.
+sidebar:
+  order: 2
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+A command chip: a copyable CLI command on `terminal-bg`. The same component wherever the site shows a command, and, in its large size, the call to action of the landing page's hero and end. The chip, not a blue button, is what the page asks you to do.
+
+<Examples component="command-button" />
+
+## Guidelines
+
+- The `$` prompt in `terminal-prompt`, the command in mono weight 500, a copy icon at the end in the text colour at reduced strength; full strength on hover.
+- Clicking copies the command without the `$`; the icon becomes a tick for 1.6 s and "copied" is announced to screen readers. If the clipboard is not available the announcement says "select to copy".
+- Its accessible name is "Copy: …" followed by the command.
+- Two sizes: default (scene commands, 13–14 px) and large (hero and final call, a step more padding and a larger icon).
+- Ink on cream in Light, cream on ink in Graphite: the terminal pair, 14:1.
+- Pair it with one outline Button at most. No blinking caret.
+- **In a Preact island** (the playground): the styles live in `CommandButton.css` (classes `dta-command`, `dta-command__prompt`, `__text`, `__icon`, `__copy`, `__tick`, `__status`, and `large`), so the [CLI hand-off](/design-system/components/cli-handoff/) renders the same chip with the same copy behaviour instead of a look of its own. There a long command may wrap, so it never runs past a phone screen.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="CommandButton" />

@@ -1,0 +1,1038 @@
+---
+/**
+ * One story row of the `dta diff` report (TICKET-109): only "after", each changed box outlined
+ * in signal with a 1 px ink line, the tokens that explain it in notes under it (stacked, joined
+ * by a leader), a token table and the whole images. "Show before" (a toggle button: box, tick,
+ * on/off word, aria-pressed) swaps the image in place; outlines and notes hide but keep their
+ * space. Unexplained rows have the diff overlay on and a dashed box with "unexplained · no token".
+ *
+ * The report (`@dta/visual-diff`, report/html.ts) writes the same row as a static string; this is
+ * its design-system reference. The screenshots are slots (`after`, `before`, `diff`), sized to
+ * `canvas`; boxes are in canvas pixels. In a story, "Whole images" link to the slots (the report
+ * links the PNGs). Screenshots do not follow the theme, so the ink line is
+ * the fixed `ink-900` and the stage the story page's paper.
+ */
+import Chip from './Chip.astro'
+
+interface Box {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+interface Mark extends Box {
+  /** Tokens that change this box: "Colors.Brand.Primary" and "Nova 500 → 600". */
+  notes?: Array<{ token: string; change: string }>
+  /** A box no token explains (dashed). */
+  unexplained?: boolean
+}
+interface TokenRow {
+  token: string
+  before: string
+  after: string
+  /** A colour value shown as a swatch next to the value before or with this change. */
+  beforeSwatch?: string
+  afterSwatch?: string
+  outlined: string
+}
+interface Props {
+  story: string
+  viewport: number
+  /** Changed pixels, e.g. "0.83%". */
+  ratio: string
+  /** "Before" in words: the base ref and short sha ("main · 2ee9b31"), or only the sha. */
+  base: string
+  /**
+   * "With this change" in words: branch and short sha ("feature/x · 9f3c1a2"), "+ uncommitted
+   * changes" when the tree was dirty; "working tree" when the result does not say (older results).
+   */
+  head?: string
+  canvas: { width: number; height: number }
+  marks: Mark[]
+  /**
+   * The flat surfaces of the "after" screenshot, in canvas pixels: each entry one colour, made of
+   * boxes (what the report reads from the PNG). Notes sit on the image only within one surface
+   * (or below the image); elsewhere the box gets a numbered marker and its notes are listed under
+   * the image. Without it every note is listed, as in a report without its images.
+   */
+  surfaces?: Box[][]
+  tokens?: TokenRow[]
+  /** Open with "Show before" pressed. */
+  showBefore?: boolean
+  idPrefix?: string
+}
+const {
+  story,
+  viewport,
+  ratio,
+  base,
+  head = 'working tree',
+  canvas,
+  marks,
+  surfaces,
+  tokens = [],
+  showBefore = false,
+  idPrefix = 'diff-card',
+} = Astro.props
+const unexplained = marks.some((m) => m.unexplained)
+const title = `${idPrefix}-title`
+// The report's flat map (packages/visual-diff/src/report/flat.ts) from the surfaces: cells of
+// 4 px inside one surface's box get its letter, the rest `.`; run-length encoded.
+const CELL = 4
+const flat = surfaces
+  ? (() => {
+      const cols = Math.ceil(canvas.width / CELL)
+      const rows = Math.ceil(canvas.height / CELL)
+      let rle = ''
+      let last = ''
+      let count = 0
+      for (let i = 0; i < cols * rows; i++) {
+        const x = (i % cols) * CELL
+        const y = Math.floor(i / cols) * CELL
+        const w = Math.min(CELL, canvas.width - x)
+        const h = Math.min(CELL, canvas.height - y)
+        const index = surfaces.findIndex((boxes) =>
+          boxes.some((b) => x >= b.x && y >= b.y && x + w <= b.x + b.width && y + h <= b.y + b.height),
+        )
+        const letter = index < 0 ? '.' : String.fromCharCode(65 + index)
+        if (letter !== last && count > 0) {
+          rle += `${last}${count}`
+          count = 0
+        }
+        last = letter
+        count++
+      }
+      return `${CELL};${cols};${rows};${rle}${last}${count}`
+    })()
+  : undefined
+const pct = (n: number, of: number) => `${((n / of) * 100).toFixed(3)}%`
+const markStyle = (m: Box) =>
+  `left:calc(${pct(m.x, canvas.width)} - 3px);top:calc(${pct(m.y, canvas.height)} - 3px);width:calc(${pct(m.width, canvas.width)} + 6px);height:calc(${pct(m.height, canvas.height)} + 6px)`
+const toggles = [
+  ...(unexplained ? [{ kind: 'overlay', label: 'Diff overlay', on: true }] : []),
+  { kind: 'before', label: 'Show before', on: showBefore },
+]
+---
+
+<article class="dta-diff-card" aria-labelledby={title}>
+  <header class="head">
+    <h3 id={title}><code>{story}</code> <span class="dim">{viewport} px · {ratio} changed</span></h3>
+    <div class="chips">
+      <Chip tone="info">changed</Chip>
+      {unexplained ? <Chip tone="error">unexplained</Chip> : <Chip tone="neutral">explained</Chip>}
+    </div>
+  </header>
+  <div class="view" data-overlay={unexplained ? '' : undefined} data-before={showBefore ? '' : undefined}>
+    <div class="bar">
+      <p class="side" aria-live="polite">
+        <span class="swap">
+          <span class="when-after">
+            <strong>With this change</strong>
+            <span class="side-meta">{head}</span>
+          </span>
+          <span class="when-before">
+            <strong>Before this change</strong>
+            <span class="side-meta">{base}</span>
+          </span>
+        </span>
+      </p>
+      <div class="toggles">
+        {
+          toggles.map((t) => (
+            <button
+              type="button"
+              class="toggle"
+              data-toggle={t.kind}
+              aria-pressed={t.on ? 'true' : 'false'}
+              aria-label={t.label}
+              aria-describedby={title}
+            >
+              <span class="box" aria-hidden="true">
+                <svg viewBox="0 0 16 16" width="12" height="12">
+                  <path
+                    d="M3.5 8.5l3 3 6-7"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.25"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+              <span class="word">{t.label}</span>
+              <span class="state">{t.on ? 'on' : 'off'}</span>
+            </button>
+          ))
+        }
+      </div>
+    </div>
+    <div class="stage">
+      <div
+        class="canvas"
+        style={`aspect-ratio:${canvas.width} / ${canvas.height};max-width:${canvas.width}px`}
+        data-w={canvas.width}
+        data-h={canvas.height}
+        data-flat={flat}
+      >
+        <div id={`${idPrefix}-after`} class="shot after" role="img" aria-label={`${story}@${viewport} with this change`}>
+          <slot name="after" />
+        </div>
+        <div id={`${idPrefix}-before`} class="shot before" role="img" aria-label={`${story}@${viewport} before this change`}>
+          <slot name="before" />
+        </div>
+        {
+          unexplained && (
+            <div id={`${idPrefix}-diff`} class="shot overlay" aria-hidden="true">
+              <slot name="diff" />
+            </div>
+          )
+        }
+        <div class="marks" aria-hidden="true">
+          {
+            marks.map((m, i) => (
+              <span class:list={['mark', { unexplained: m.unexplained }]} data-i={i} style={markStyle(m)} />
+            ))
+          }
+          {marks.map((_, i) => <span class="key" data-i={i} data-contrast-exception="redline label" />)}
+        </div>
+      </div>
+      <div class="notes">
+        {
+          marks.map((m, i) => (
+            <span
+              class="cluster"
+              data-i={i}
+              data-set={m.unexplained ? 'unexplained' : [...new Set((m.notes ?? []).map((n) => n.token))].sort().join('|')}
+              data-box={`${m.x},${m.y},${m.width},${m.height}`}
+              data-side={m.unexplained ? '' : undefined}
+            >
+              <span class="leader" aria-hidden="true" />
+              <span class="key" aria-hidden="true" data-contrast-exception="redline label" />
+              <span class="stack">
+                {m.unexplained ? (
+                  <span class="note unexplained">
+                    <span class="note-token">unexplained</span>
+                    <span class="note-sep"> · </span>
+                    <span class="note-change">no token</span>
+                  </span>
+                ) : (
+                  (m.notes ?? []).map((n) => (
+                    <span class="note" data-contrast-exception="redline label">
+                      <span class="note-token">{n.token}</span>
+                      <span class="note-sep"> · </span>
+                      <span class="note-change">{n.change}</span>
+                    </span>
+                  ))
+                )}
+              </span>
+            </span>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+  {
+    tokens.length > 0 && (
+      <table class="tokens">
+        <caption>
+          Explained by {tokens.length} {tokens.length === 1 ? 'token' : 'tokens'}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Explained by</th>
+            <th scope="col">
+              <span class="col-word">Before</span>
+              <span class="col-ref">{base}</span>
+            </th>
+            <th scope="col">
+              <span class="col-word">With this change</span>
+              <span class="col-ref">{head}</span>
+            </th>
+            <th scope="col">Outlined</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tokens.map((t) => (
+            <tr>
+              <th scope="row">
+                <code>{t.token}</code>
+              </th>
+              <td data-label="Before">
+                <span class="value">
+                  {t.beforeSwatch && (
+                    <span class="swatch" style={`background:${t.beforeSwatch}`} />
+                  )}
+                  <code>{t.before}</code>
+                </span>
+              </td>
+              <td data-label="With this change">
+                <span class="value">
+                  {t.afterSwatch && <span class="swatch" style={`background:${t.afterSwatch}`} />}
+                  <code>{t.after}</code>
+                </span>
+              </td>
+              <td data-label="Outlined">
+                <span class="value">
+                  <code>{t.outlined}</code>
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )
+  }
+  {
+    unexplained && (
+      <p class="why">
+        No changed token accounts for these pixels: a component, content or layout change. The
+        dashed box marks where; the overlay shows which pixels.
+      </p>
+    )
+  }
+  <p class="whole">
+    Whole images: <a href={`#${idPrefix}-before`}>before</a>
+    <a href={`#${idPrefix}-after`}>after</a>
+    {unexplained && <a href={`#${idPrefix}-diff`}>diff</a>}
+  </p>
+</article>
+
+<script>
+  // As the report's inline script (packages/visual-diff/src/report/html.ts): the toggles flip
+  // aria-pressed, the word and data-*; notes go under their boxes, per band of boxes that share
+  // rows, in lanes below the band. A stack moves right of its neighbour while its leader still
+  // lands on its box, else it takes the next lane, its leader clear of the notes above.
+  // "unexplained" sits right of its box when it fits. A note stays on the image only where it
+  // covers one flat surface (data-flat) or lies below the image; otherwise its box gets a numbered
+  // marker and its notes are listed under the image (TICKET-123).
+  const GAP = 8
+  const KEY = 20
+  interface Item {
+    el: HTMLElement
+    marker: HTMLElement | null
+    sig: string
+    n: number
+    ring: { l: number; t: number; r: number; b: number }
+    leader: HTMLElement
+    key: HTMLElement
+    stack: HTMLElement
+    side: boolean
+    notSide: boolean
+    l: number
+    t: number
+    r: number
+    b: number
+    w: number
+    h: number
+  }
+  interface Spot {
+    it: Item
+    x: number
+    top: number
+    lx: number
+    side?: boolean
+  }
+  interface Lane {
+    right: number
+    height: number
+    items: Spot[]
+  }
+  interface Flat {
+    cell: number
+    cols: number
+    rows: number
+    cells: string[]
+  }
+  const decode = (map: string | undefined): Flat | null => {
+    if (!map) return null
+    const [cell, cols, rows, rle] = map.split(';')
+    const cells: string[] = []
+    for (const [, ch, n] of rle.matchAll(/([A-Za-z.])(\d+)/g)) {
+      for (let k = 0; k < Number(n); k++) cells.push(ch)
+    }
+    return { cell: Number(cell), cols: Number(cols), rows: Number(rows), cells }
+  }
+  const arrange = (items: Item[], W: number): Spot[] => {
+    const spots: Spot[] = []
+    const below: Item[] = []
+    for (const it of items) {
+      if (it.side && !it.notSide && it.r + GAP + it.w <= W) {
+        spots.push({ it, x: it.r + GAP, top: Math.max(0, (it.t + it.b - it.h) / 2), lx: -9999, side: true })
+      } else below.push(it)
+    }
+    const bands: Array<{ items: Item[]; bottom: number }> = []
+    for (const it of below) {
+      const band = bands[bands.length - 1]
+      if (band && it.t < band.bottom) {
+        band.items.push(it)
+        band.bottom = Math.max(band.bottom, it.b)
+      } else bands.push({ items: [it], bottom: it.b })
+    }
+    // The leftmost point under the box, at least `from`, outside the notes of earlier lanes.
+    const free = (it: Item, from: number, blocked: number[][]) => {
+      let lx = Math.max(from, it.l + 6)
+      for (const [a, b] of blocked.slice().sort((p, q) => p[0] - q[0])) {
+        if (lx >= a - 3 && lx <= b + 3) lx = b + 4
+      }
+      return lx <= it.r - 4 ? lx : null
+    }
+    for (const band of bands) {
+      const lanes: Lane[] = []
+      for (const it of band.items.sort((a, b) => a.l - b.l)) {
+        let spot: { lane: Lane; x: number; lx: number } | null = null
+        for (let k = 0; k <= lanes.length && !spot; k++) {
+          const lane: Lane = lanes[k] ?? { right: -Infinity, height: 0, items: [] }
+          const blocked = lanes.slice(0, k).flatMap((l) => l.items.map((o) => [o.x, o.x + o.it.w]))
+          const lx = free(it, lane.right + GAP + 6, blocked)
+          const fresh = k === lanes.length
+          if (lx === null && !fresh) continue
+          const at = lx ?? it.l + 6
+          const x = Math.max(0, Math.min(at - 6, W - it.w))
+          if (!fresh && x < lane.right + GAP) continue
+          if (fresh) lanes.push(lane)
+          spot = { lane, x, lx: Math.min(Math.max(at, x + 4), x + it.w - 4) }
+        }
+        if (!spot) continue
+        const o: Spot = { it, x: spot.x, lx: spot.lx, top: 0 }
+        spot.lane.right = o.x + it.w
+        spot.lane.height = Math.max(spot.lane.height, it.h)
+        spot.lane.items.push(o)
+        spots.push(o)
+      }
+      let top = band.bottom + GAP
+      for (const lane of lanes) {
+        for (const o of lane.items) o.top = top
+        top += lane.height + 4
+      }
+    }
+    return spots
+  }
+  // Marker placement and list grouping: as PLACEMENT_JS in packages/visual-diff/src/report/
+  // placement.ts (tested there): along the outline's outer edge, outside the box, where flat; then
+  // farther out up to 48 px; boxes with the same set of token changes share one list entry.
+  type Ring = { l: number; t: number; r: number; b: number }
+  const markerSpot = (
+    ring: Ring,
+    size: { w: number; h: number },
+    W: number,
+    H: number,
+    ok: (x: number, y: number, w: number, h: number) => boolean,
+  ) => {
+    const { w, h } = size
+    const g = 2
+    const fits = (x: number, y: number) => x >= 0 && y >= 0 && x + w <= W && y + h <= H
+    const cx = Math.round((ring.l + ring.r - w) / 2)
+    const cy = Math.round((ring.t + ring.b - h) / 2)
+    const above = ring.t - h - g
+    const below = ring.b + g
+    const left = ring.l - w - g
+    const right = ring.r + g
+    const edge = [
+      [ring.l, above], [cx, above], [ring.r - w, above],
+      [right, ring.t], [right, cy], [right, ring.b - h],
+      [ring.l, below], [cx, below], [ring.r - w, below],
+      [left, ring.t], [left, cy], [left, ring.b - h],
+      [left, above], [right, above], [right, below], [left, below],
+    ]
+    for (const [x, y] of edge) if (fits(x, y) && ok(x, y, w, h)) return { x, y, covers: false }
+    for (let d = 4; d <= 48; d += 4) {
+      const spots: number[][] = []
+      for (let x = ring.l - w - g - d; x <= ring.r + g + d; x += 4) spots.push([x, above - d])
+      for (let y = ring.t - h - g - d; y <= ring.b + g + d; y += 4) spots.push([right + d, y])
+      for (let x = ring.l - w - g - d; x <= ring.r + g + d; x += 4) spots.push([x, below + d])
+      for (let y = ring.t - h - g - d; y <= ring.b + g + d; y += 4) spots.push([left - d, y])
+      for (const [x, y] of spots) if (fits(x, y) && ok(x, y, w, h)) return { x, y, covers: false }
+    }
+    const first = edge.find(([x, y]) => fits(x, y)) ?? [
+      Math.max(0, Math.min(ring.l, W - w)),
+      Math.max(0, Math.min(ring.t, H - h)),
+    ]
+    return { x: first[0], y: first[1], covers: true }
+  }
+  const groupKeys = <T extends { n: number; sig: string }>(list: T[]) => {
+    const groups: Array<{ ns: number[]; items: T[] }> = []
+    const bySig = new Map<string, { ns: number[]; items: T[] }>()
+    for (const it of list) {
+      const group = bySig.get(it.sig)
+      if (group) {
+        group.ns.push(it.n)
+        group.items.push(it)
+      } else {
+        const fresh = { ns: [it.n], items: [it] }
+        bySig.set(it.sig, fresh)
+        groups.push(fresh)
+      }
+    }
+    return groups
+  }
+  type Rect = number[]
+  const hits = (a: Rect, list: Rect[]) =>
+    list.some((b) => a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3])
+  // An outline is a ring: something inside the box it outlines (a marker on a nested element) does
+  // not cross it, only something that overlaps the ring's band does.
+  const crosses = (a: Rect, rings: Rect[][]) =>
+    rings.some(
+      ([o, i]) =>
+        hits(a, [o]) && !(a[0] >= i[0] && a[1] >= i[1] && a[2] <= i[2] && a[3] <= i[3]),
+    )
+  const layout = (stage: HTMLElement) => {
+    const canvas = stage.querySelector<HTMLElement>('.canvas')
+    const notes = stage.querySelector<HTMLElement>('.notes')
+    if (!canvas || !notes) return
+    const W = canvas.clientWidth
+    const H = canvas.clientHeight
+    const kx = W / Number(canvas.dataset.w)
+    const ky = H / Number(canvas.dataset.h)
+    const flat = decode(canvas.dataset.flat)
+    const items: Item[] = [...notes.querySelectorAll<HTMLElement>('.cluster')]
+      .map((el) => {
+        const [x, y, w, h] = (el.dataset.box ?? '').split(',').map(Number)
+        const stack = el.querySelector<HTMLElement>('.stack')!
+        const marker = canvas.querySelector<HTMLElement>(`.marks > .key[data-i="${el.dataset.i}"]`)
+        el.classList.remove('keyed', 'merged')
+        marker?.classList.remove('keyed')
+        // Measured at the left edge, so a stack placed near the right is not measured narrow.
+        stack.style.left = '0px'
+        const l = x * kx
+        const t = y * ky
+        const r = (x + w) * kx
+        const b = (y + h) * ky
+        return {
+          el,
+          marker,
+          sig: el.dataset.set ?? '',
+          n: 0,
+          leader: el.querySelector<HTMLElement>('.leader')!,
+          key: el.querySelector<HTMLElement>('.key')!,
+          stack,
+          side: el.hasAttribute('data-side'),
+          notSide: false,
+          l,
+          t,
+          r,
+          b,
+          // The outline's outer edge: 3 px outside the box, its 2 px outline and the ink line.
+          ring: { l: l - 6, t: t - 6, r: r + 6, b: b + 6 },
+          w: Math.min(stack.offsetWidth, W),
+          h: stack.offsetHeight,
+        }
+      })
+      .sort((a, b) => a.t - b.t || a.l - b.l)
+    // Each outline as [outer edge, inner edge] (the mark's border sits 3 px outside the box).
+    const rings = items.map((it) => [
+      [it.ring.l, it.ring.t, it.ring.r, it.ring.b],
+      [it.l - 2, it.t - 2, it.r + 2, it.b + 2],
+    ])
+    // Covers one flat surface of the screenshot (below the image is the stage's paper).
+    const flatAt = (x: number, y: number, w: number, h: number) => {
+      if (!flat) return false
+      const iy1 = Math.min((y + h) / ky, flat.rows * flat.cell)
+      if (y / ky >= iy1) return true
+      const c0 = Math.max(0, Math.floor(x / kx / flat.cell))
+      const c1 = Math.min(flat.cols - 1, Math.ceil((x + w) / kx / flat.cell) - 1)
+      const r0 = Math.max(0, Math.floor(y / ky / flat.cell))
+      const r1 = Math.min(flat.rows - 1, Math.ceil(iy1 / flat.cell) - 1)
+      const first = flat.cells[r0 * flat.cols + c0]
+      if (first === '.') return false
+      for (let r = r0; r <= r1; r++) {
+        for (let c = c0; c <= c1; c++) if (flat.cells[r * flat.cols + c] !== first) return false
+      }
+      return true
+    }
+    const keyed = new Set<Item>(flat ? [] : items)
+    let spots: Spot[] = []
+    let placed: Array<{ it: Item; x: number; y: number; rect: Rect }> = []
+    for (let round = 0; round <= 2 * items.length; round++) {
+      spots = arrange(
+        items.filter((it) => !keyed.has(it)),
+        W,
+      )
+      const noteRects = spots.map((s) => [s.x, s.top, s.x + s.it.w, s.top + s.it.h])
+      // Markers in reading order, each on a flat spot clear of outlines, notes and other markers.
+      placed = []
+      let n = 0
+      for (const it of items) {
+        if (!keyed.has(it) || !it.marker) continue
+        it.n = ++n
+        it.marker.textContent = String(n)
+        const size = { w: Math.max(KEY, it.marker.offsetWidth), h: KEY }
+        const spot = markerSpot(
+          it.ring,
+          size,
+          W,
+          H,
+          (x, y, w, h) =>
+            flatAt(x, y, w, h) &&
+            !crosses([x, y, x + w, y + h], rings) &&
+            !hits([x, y, x + w, y + h], [...noteRects, ...placed.map((p) => p.rect)]),
+        )
+        placed.push({ it, x: spot.x, y: spot.y, rect: [spot.x, spot.y, spot.x + size.w, spot.y + size.h] })
+      }
+      const blocked = placed.map((p) => p.rect)
+      const bad = spots.filter((s) => {
+        const rect = [s.x, s.top, s.x + s.it.w, s.top + s.it.h]
+        return !flatAt(s.x, s.top, s.it.w, s.it.h) || hits(rect, blocked) || crosses(rect, rings)
+      })
+      if (bad.length === 0) break
+      for (const s of bad) {
+        // An "unexplained" note that does not fit beside its box tries under it first.
+        if (s.side) s.it.notSide = true
+        else keyed.add(s.it)
+      }
+    }
+    let lowest = 0
+    for (const { it, x, top, lx } of spots) {
+      it.stack.style.left = `${x}px`
+      it.stack.style.top = `${top}px`
+      it.leader.style.left = `${lx - 2}px`
+      it.leader.style.top = `${it.b}px`
+      it.leader.style.height = `${Math.max(0, top - it.b)}px`
+      lowest = Math.max(lowest, top + it.h)
+    }
+    for (const p of placed) {
+      p.it.marker!.classList.add('keyed')
+      p.it.marker!.style.left = `${p.x}px`
+      p.it.marker!.style.top = `${p.y}px`
+    }
+    // The list under the image: one entry per set of token changes ("1, 2"), its notes once.
+    let top = Math.max(lowest, H) + GAP
+    for (const group of groupKeys(items.filter((it) => keyed.has(it)))) {
+      const [it, ...rest] = group.items
+      for (const other of rest) other.el.classList.add('keyed', 'merged')
+      it.el.classList.add('keyed')
+      it.key.textContent = group.ns.join(', ')
+      const kw = Math.max(KEY, it.key.offsetWidth)
+      it.key.style.left = `${GAP}px`
+      it.key.style.top = `${top}px`
+      it.stack.style.left = `${GAP + kw + GAP}px`
+      it.stack.style.top = `${top}px`
+      top += Math.max(KEY, it.stack.offsetHeight) + GAP
+      lowest = top - GAP
+    }
+    for (const it of items) {
+      it.notSide = false
+      it.n = 0
+    }
+    stage.style.setProperty('--room', `${Math.max(0, Math.ceil(lowest - H + GAP))}px`)
+  }
+  for (const card of document.querySelectorAll<HTMLElement>('.dta-diff-card')) {
+    card.dataset.js = ''
+    const view = card.querySelector<HTMLElement>('.view')!
+    for (const toggle of card.querySelectorAll<HTMLButtonElement>('[data-toggle]')) {
+      toggle.addEventListener('click', () => {
+        const on = toggle.getAttribute('aria-pressed') !== 'true'
+        toggle.setAttribute('aria-pressed', String(on))
+        toggle.querySelector('.state')!.textContent = on ? 'on' : 'off'
+        view.toggleAttribute(toggle.dataset.toggle === 'overlay' ? 'data-overlay' : 'data-before', on)
+      })
+    }
+  }
+  const all = () => {
+    for (const stage of document.querySelectorAll<HTMLElement>('.dta-diff-card .stage')) layout(stage)
+  }
+  all()
+  addEventListener('resize', all)
+  document.fonts?.ready.then(all)
+</script>
+
+<style>
+  .dta-diff-card {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    padding: var(--space-6);
+    border: var(--stroke-hairline) solid var(--border-default);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    color: var(--fg-default);
+    font-family: var(--font-sans);
+    font-size: calc(var(--type-body-sm-size) * 1px);
+  }
+  .dta-diff-card > * {
+    min-width: 0;
+  }
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  h3 {
+    margin: 0;
+    font-size: calc(var(--type-body-size) * 1px);
+    font-weight: 400;
+  }
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+  }
+  .dim,
+  .side-meta {
+    color: var(--fg-subtle);
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .view {
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-height: 44px;
+  }
+  .side {
+    margin: 0;
+  }
+  .swap > span {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--space-3);
+    row-gap: 2px;
+  }
+  .side strong {
+    font-size: calc(var(--type-title-size) * 1px);
+    font-weight: var(--type-title-weight);
+  }
+  .side-meta {
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+  }
+  /* Both headings with their meta in one grid cell: the larger sets the box, nothing moves. */
+  .swap {
+    display: inline-grid;
+  }
+  .swap > * {
+    grid-area: 1 / 1;
+  }
+  .when-before,
+  .view[data-before] .when-after {
+    visibility: hidden;
+  }
+  .view[data-before] .when-before {
+    visibility: visible;
+  }
+  .toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .dta-diff-card:not([data-js]) .toggles {
+    display: none;
+  }
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: var(--stroke-ink) solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    color: var(--fg-default);
+    font: inherit;
+    font-weight: var(--type-label-weight);
+    cursor: pointer;
+  }
+  .toggle:focus-visible {
+    outline: var(--stroke-focus) solid var(--action-bg);
+    outline-offset: 2px;
+  }
+  .toggle[aria-pressed='true'] {
+    background: var(--bg-subtle);
+  }
+  .box {
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border: var(--stroke-ink) solid var(--fg-default);
+    border-radius: 4px;
+  }
+  .box svg {
+    visibility: hidden;
+  }
+  .toggle[aria-pressed='true'] .box {
+    background: var(--fg-default);
+    color: var(--bg-surface);
+  }
+  .toggle[aria-pressed='true'] .box svg {
+    visibility: visible;
+  }
+  .state {
+    display: inline-block;
+    width: 3ch;
+    text-align: left;
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: calc(var(--type-meta-size) * 1px);
+    color: var(--fg-muted);
+  }
+  .stage {
+    position: relative;
+    overflow: hidden;
+    padding-bottom: var(--room, 0px);
+    border: var(--stroke-hairline) solid var(--border-default);
+    border-radius: var(--radius-md);
+    background: var(--paper-100);
+  }
+  .canvas {
+    position: relative;
+    overflow: hidden;
+  }
+  .shot {
+    position: absolute;
+    inset: 0;
+  }
+  .shot :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .shot.before,
+  .shot.overlay {
+    visibility: hidden;
+  }
+  .shot.overlay {
+    mix-blend-mode: multiply;
+  }
+  .view[data-overlay] .shot.overlay,
+  .view[data-before] .shot.before {
+    visibility: visible;
+  }
+  .view[data-before] .shot.after,
+  .view[data-before] .shot.overlay,
+  .view[data-before] .marks,
+  .view[data-before] .notes {
+    visibility: hidden;
+  }
+  .marks {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .mark {
+    position: absolute;
+    box-sizing: border-box;
+    border: var(--stroke-hairline) solid var(--ink-900);
+    outline: var(--stroke-ink) solid var(--signal-bg);
+    border-radius: 2px;
+  }
+  .mark:not(.unexplained) {
+    box-shadow: 0 0 0 3px var(--ink-900);
+  }
+  .mark.unexplained {
+    border-style: dashed;
+    outline-style: dashed;
+  }
+  .notes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: var(--space-2);
+  }
+  .cluster {
+    display: contents;
+  }
+  .leader {
+    display: none;
+  }
+  .stack {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+  }
+  [data-js] .notes {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 0;
+    padding: 0;
+  }
+  [data-js] .leader {
+    display: block;
+    position: absolute;
+    width: 4px;
+    background: var(--signal-bg);
+    border-left: var(--stroke-hairline) solid var(--ink-900);
+    border-right: var(--stroke-hairline) solid var(--ink-900);
+  }
+  [data-js] .stack {
+    position: absolute;
+    max-width: 100%;
+  }
+  .note {
+    display: inline-block;
+    padding: 3px var(--space-2);
+    border: var(--stroke-hairline) solid var(--ink-900);
+    border-radius: 4px;
+    background: var(--signal-bg);
+    color: var(--signal-fg);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    line-height: var(--type-meta-line-height);
+    white-space: nowrap;
+  }
+  /* Numbered marker on a box whose notes are listed under the image, and its key in the list. */
+  .key {
+    display: none;
+    position: absolute;
+    box-sizing: border-box;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border: var(--stroke-hairline) solid var(--ink-900);
+    border-radius: var(--radius-full);
+    background: var(--signal-bg);
+    color: var(--signal-fg);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    line-height: 18px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .marks > .key.keyed,
+  [data-js] .cluster.keyed:not(.merged) > .key {
+    display: block;
+  }
+  [data-js] .cluster.merged > .stack {
+    display: none;
+  }
+  [data-js] .cluster.keyed > .leader {
+    display: none;
+  }
+  .note.unexplained {
+    border-style: dashed;
+    background: var(--paper-0);
+    color: var(--ink-900);
+  }
+  .tokens {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .tokens caption {
+    display: none;
+    text-align: left;
+    padding-bottom: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    color: var(--fg-subtle);
+    text-transform: uppercase;
+  }
+  .tokens th,
+  .tokens td {
+    padding: 10px var(--space-3) 10px 0;
+    text-align: left;
+    border-bottom: var(--stroke-hairline) solid var(--border-default);
+    vertical-align: middle;
+    font-weight: 400;
+  }
+  .tokens thead th {
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    color: var(--fg-subtle);
+    vertical-align: bottom;
+  }
+  /* The side in words, its ref and short hash under it (TICKET-123). */
+  .col-word,
+  .col-ref {
+    display: block;
+  }
+  .col-word {
+    color: var(--fg-default);
+  }
+  .swatch {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
+    vertical-align: middle;
+    border: var(--stroke-hairline) solid var(--border-default);
+    border-radius: 4px;
+  }
+  .why {
+    margin: 0;
+    max-width: 68ch;
+  }
+  .whole {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    color: var(--fg-muted);
+  }
+  .whole a {
+    color: var(--action-text);
+  }
+  @media (max-width: 640px) {
+    .dta-diff-card {
+      padding: var(--space-3);
+    }
+    .bar,
+    .toggles {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .toggle {
+      width: 100%;
+    }
+    .note-sep {
+      display: none;
+    }
+    .note-change {
+      display: block;
+    }
+    .tokens caption {
+      display: block;
+    }
+    .tokens thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .tokens tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      padding: var(--space-3) 0;
+      border-bottom: var(--stroke-hairline) solid var(--border-default);
+    }
+    /* Labels in one column as wide as the widest ("With this change"): a subgrid per cell. */
+    .tokens tbody tr {
+      grid-template-columns: max-content minmax(0, 1fr);
+      column-gap: var(--space-3);
+    }
+    .tokens th,
+    .tokens td {
+      display: grid;
+      grid-template-columns: subgrid;
+      grid-column: 1 / -1;
+      align-items: baseline;
+      padding: 2px 0;
+      border: 0;
+    }
+    .tokens th {
+      display: block;
+    }
+    .tokens td::before {
+      content: attr(data-label);
+      color: var(--fg-subtle);
+      font-family: var(--font-mono);
+      font-size: calc(var(--type-meta-size) * 1px);
+    }
+  }
+</style>

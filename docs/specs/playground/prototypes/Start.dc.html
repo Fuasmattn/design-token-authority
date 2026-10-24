@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Playground, before loading</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;family=Martian+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f5f1e8}
+a{color:#2443ac}a:hover{color:#1e3a9e}
+button{font:inherit;color:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="box-sizing: border-box; min-height: 760px; background: #f5f1e8; color: #13213f; font-family: 'Instrument Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.5">
+  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 40px; border-bottom: 1px solid #e2dccd">
+    <div style="display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px">
+      <span aria-hidden="true" style="display: inline-block; width: 22px; height: 22px; border-radius: 6px; background: #2443ac"></span>dta
+    </div>
+    <nav aria-label="Site" style="display: flex; flex-wrap: wrap; gap: 24px; font-weight: 600">
+      <a href="#" style="color: #13213f; text-decoration: none">How it works</a>
+      <a href="#" style="color: #13213f; text-decoration: none">Agents</a>
+      <a href="#" aria-current="page" style="color: #13213f; text-decoration: none; border-bottom: 2px solid #13213f">Playground</a>
+      <a href="#" style="color: #13213f; text-decoration: none">Docs</a>
+    </nav>
+  </header>
+  <div style="max-width: 880px; margin: 0 auto; padding: 56px 40px; display: flex; flex-direction: column; gap: 20px">
+    <h1 style="margin: 0; font-size: 40px; line-height: 1.1">Playground</h1>
+    <p style="margin: 0; font-size: 18px; color: #3a465e; max-width: 640px">Drop in your token files and see the structure DTA detects, what <code style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 15px">dta lint</code> finds and the files <code style="font-family: 'Martian Mono', ui-monospace, monospace; font-size: 15px">dta build</code> writes. Nothing leaves your browser.</p>
+    <button type="button" style="margin-top: 8px; min-height: 240px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: #ffffff; border: 2px dashed #13213f; border-radius: 18px">
+      <span style="font-size: 22px; font-weight: 700">Drop token files</span>
+      <span style="color: #2443ac; text-decoration: underline; font-weight: 600">or choose files</span>
+      <span style="margin-top: 8px; font-size: 13px; color: #3a465e">Per-mode files ({Collection}.{Mode}.json, several at once) or one plugin export</span>
+    </button>
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+      <button type="button" style="min-height: 44px; padding: 0 16px; background: #ffffff; border: 2px solid #13213f; border-radius: 10px; font-weight: 600">Load example</button>
+      <button type="button" style="min-height: 44px; padding: 0 16px; background: #ffffff; border: 2px solid #13213f; border-radius: 10px; font-weight: 600">Example with problems</button>
+      <span style="flex: 1 1 auto"></span>
+      <button type="button" style="min-height: 44px; padding: 0 12px; background: none; border: 0; color: #2443ac; text-decoration: underline; font-weight: 600">Paste JSON instead</button>
+    </div>
+    <p style="margin: 0; font-size: 13px; color: #44506c">After loading, this area shrinks to one line with the file names and “Replace files”, and the views take the page.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":760}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

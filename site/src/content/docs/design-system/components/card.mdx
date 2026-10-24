@@ -1,0 +1,27 @@
+---
+title: Card
+description: A surface for one idea, optionally a link
+sidebar:
+  order: 13
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+A surface with a hairline border, the large radius and card padding. With `href` the whole card is a link that lifts on hover; `featured` draws it in the action colour; `grid` lays grid paper under the content.
+
+<Examples component="card" />
+
+## Guidelines
+
+- One idea per card; cards in a row have the same structure.
+- At most one featured card per group.
+- A link card has one target: no other links inside it.
+- Borders, not shadows: the card lifts on hover by moving and darkening its border.
+- **Motion:** a link card lifts by `space-1` and its border turns ink over `motion.duration.base` on hover; still under reduced motion.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="Card" />

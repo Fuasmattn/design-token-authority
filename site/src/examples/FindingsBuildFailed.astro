@@ -1,0 +1,29 @@
+---
+// Real output: the build of the playground's "Example with problems" (TICKET-119), its
+// diagnostics worded as the CLI prints them, as the Outputs view shows it: a status banner,
+// because dta build writes no files until the errors are fixed.
+import Findings from '../components/ds/Findings'
+import { analyse, diagnosticGroups } from '../playground/analyse'
+import { PROBLEM_EXAMPLE } from '../playground/example'
+import { ALL_FORMATS } from '../playground/outputs'
+import { buildFiles } from '../playground/outputs-engine'
+
+const { model, structure } = analyse(PROBLEM_EXAMPLE.files)
+if (!model || !structure) throw new Error('the problem example does not read')
+const { diagnostics } = await buildFiles(model, {
+  brands: structure.brands,
+  formats: ALL_FORMATS,
+})
+if (!diagnostics.some((d) => d.severity === 'error')) {
+  throw new Error('the problem example builds without errors')
+}
+---
+
+<Findings
+  title="Build"
+  level={3}
+  groups={diagnosticGroups(diagnostics)}
+  summary="The build has errors: dta build writes no files until they are fixed."
+  outcome="failed"
+  banner
+/>

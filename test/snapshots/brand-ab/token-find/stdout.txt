@@ -1,0 +1,6 @@
+2 tokens resolve to #003f8a:
+
+  Colors.Brand.Primary Dark   BrandA      var(--colors-brand-primary-dark)
+  Colors.Foundation.Blue.700  every mode  var(--colors-foundation-blue-700)
+
+Tokens the build writes come first, aliases (semantic tokens) before primitives: use the first that fits.

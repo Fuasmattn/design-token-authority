@@ -1,0 +1,202 @@
+/*
+ * GraphSwitcher: segmented bg-subtle wells (the selected mode on the surface with a 2px ink
+ * outline) on wide screens, native selects in a 2px ink box on phones (the site's 760 px break,
+ * where the playground shows the graph as a list); a note under them. Option findings: marker +
+ * word in the status colours.
+ */
+.dta-switcher {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  color: var(--fg-default);
+  font-family: var(--font-sans);
+}
+.dta-switcher__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3) var(--space-6);
+}
+.dta-switcher__group {
+  display: grid;
+  min-width: 0;
+}
+/* The label over its segments: the row keeps one line beside the detail panel too. */
+.dta-switcher__wide {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-1);
+}
+.dta-switcher__label {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+  letter-spacing: var(--type-meta-letter-spacing);
+  color: var(--fg-subtle);
+  text-transform: uppercase;
+}
+.dta-switcher__segments {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  max-width: 100%;
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
+  background: var(--bg-subtle);
+}
+.dta-switcher__option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: var(--stroke-ink) solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-muted);
+  font-family: var(--font-sans);
+  font-size: calc(var(--type-label-size) * 1px);
+  font-weight: var(--type-label-weight);
+  line-height: var(--type-label-line-height);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    border-color var(--motion-duration-fast) var(--motion-ease-standard),
+    color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+/* Hover at once; only a change of mode tints over a duration (see Tabs.css). */
+.dta-switcher__option:hover {
+  color: var(--fg-default);
+  transition: none;
+}
+.dta-switcher__option[aria-pressed='true'] {
+  border-color: var(--border-strong);
+  background: var(--bg-surface);
+  color: var(--fg-default);
+}
+.dta-switcher__option:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+  border-color: var(--action-bg);
+}
+
+/* An option's findings: marker + word. */
+.dta-switcher__count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  font-weight: 400;
+}
+.dta-switcher__count[data-severity='error'] {
+  color: var(--status-error-text);
+}
+.dta-switcher__count[data-severity='warning'] {
+  color: var(--status-warning-text);
+}
+.dta-switcher__marker {
+  flex: none;
+  box-sizing: border-box;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+}
+[data-severity='error'] > .dta-switcher__marker {
+  background: var(--status-error-marker);
+}
+[data-severity='warning'] > .dta-switcher__marker {
+  border: var(--stroke-ink) solid var(--status-warning-marker);
+  border-radius: var(--radius-full);
+}
+
+/* The select on narrow containers: the native control over a box that shows its value. */
+.dta-switcher__narrow {
+  position: relative;
+  display: none;
+  gap: 2px;
+  min-height: 52px;
+  padding: var(--space-2) calc(var(--space-6) + var(--space-2)) var(--space-2) var(--space-3);
+  border: var(--stroke-ink) solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+.dta-switcher__narrow::after {
+  content: '▾';
+  position: absolute;
+  top: 50%;
+  right: var(--space-3);
+  transform: translateY(-50%);
+  color: var(--fg-default);
+}
+.dta-switcher__narrow:focus-within {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: var(--stroke-hairline);
+}
+.dta-switcher__shown {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+}
+.dta-switcher__value {
+  font-size: calc(var(--type-label-size) * 1px);
+  font-weight: var(--type-label-weight);
+  line-height: var(--type-label-line-height);
+}
+.dta-switcher__select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.dta-switcher__note {
+  margin: 0;
+  max-width: var(--layout-measure);
+  font-size: calc(var(--type-body-sm-size) * 1px);
+  line-height: var(--type-body-sm-line-height);
+  color: var(--fg-muted);
+}
+.dta-switcher__status[data-severity='error'] {
+  color: var(--status-error-text);
+}
+.dta-switcher__status[data-severity='warning'] {
+  color: var(--status-warning-text);
+}
+.dta-switcher__note--narrow {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .dta-switcher__controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+  .dta-switcher__wide {
+    display: none;
+  }
+  .dta-switcher__narrow {
+    display: grid;
+    align-content: center;
+  }
+  .dta-switcher__note[data-narrow='replaced'] {
+    display: none;
+  }
+  .dta-switcher__note--narrow {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dta-switcher__option {
+    transition: none;
+  }
+}

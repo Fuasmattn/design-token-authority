@@ -1,0 +1,54 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/resolver.json",
+  "version": "2025.10",
+  "name": "App",
+  "description": "A base set, components and a light and dark theme.",
+  "sets": {
+    "core": {
+      "sources": [
+        {
+          "$ref": "sets/color.json"
+        },
+        {
+          "$ref": "sets/size.tokens"
+        }
+      ]
+    },
+    "components": {
+      "sources": [
+        {
+          "$ref": "sets/components.json"
+        }
+      ]
+    }
+  },
+  "modifiers": {
+    "theme": {
+      "description": "Light and dark.",
+      "contexts": {
+        "light": [
+          {
+            "$ref": "themes/light.json"
+          }
+        ],
+        "dark": [
+          {
+            "$ref": "themes/dark.json"
+          }
+        ]
+      },
+      "default": "light"
+    }
+  },
+  "resolutionOrder": [
+    {
+      "$ref": "#/sets/core"
+    },
+    {
+      "$ref": "#/modifiers/theme"
+    },
+    {
+      "$ref": "#/sets/components"
+    }
+  ]
+}

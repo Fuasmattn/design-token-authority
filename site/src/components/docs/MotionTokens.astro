@@ -1,0 +1,99 @@
+---
+/**
+ * Motion tokens from site/tokens: durations as bars to scale, easings as their curves, each with
+ * its value, CSS variable and use.
+ */
+import { motionTokens } from '../../lib/design-tokens'
+
+interface Props {
+  kind: 'duration' | 'ease'
+}
+const { kind } = Astro.props
+const tokens = motionTokens().filter((t) =>
+  kind === 'ease' ? t.kind === 'ease' : t.kind !== 'ease',
+)
+const longest = Math.max(...tokens.map((t) => (kind === 'ease' ? 0 : parseFloat(String(t.value)))))
+/** The easing's curve in a 0–100 box, y up. */
+const curve = ([x1, y1, x2, y2]: [number, number, number, number]) =>
+  `M0 100 C${x1 * 100} ${100 - y1 * 100} ${x2 * 100} ${100 - y2 * 100} 100 0`
+---
+
+<ul class:list={['not-content', 'motion', kind]}>
+  {
+    tokens.map((token) => (
+      <li id={token.name}>
+        <span class="label">
+          <code>{token.name}</code>
+          <small>
+            {token.value} · {token.cssVar}
+          </small>
+        </span>
+        {kind === 'duration' ? (
+          <span
+            class="bar"
+            style={`width: ${(parseFloat(String(token.value)) / longest) * 100}%`}
+          />
+        ) : (
+          token.bezier && (
+            <svg class="curve" viewBox="-4 -4 108 108" aria-hidden="true">
+              <path class="axis" d="M0 0 V100 H100" />
+              <path class="line" d={curve(token.bezier)} />
+            </svg>
+          )
+        )}
+        {token.usage && <span class="usage">{token.usage}</span>}
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .motion {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-4);
+  }
+  li {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) 2fr;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+  }
+  .label {
+    display: grid;
+  }
+  small,
+  .usage {
+    font-size: calc(var(--type-meta-size) * 1px);
+    color: var(--fg-subtle);
+  }
+  small {
+    font-family: var(--font-mono);
+  }
+  .usage {
+    grid-column: 2;
+  }
+  .bar {
+    min-width: var(--stroke-ink);
+    height: var(--space-4);
+    background: var(--action-bg);
+    border-radius: 2px;
+  }
+  .curve {
+    width: var(--space-16);
+    height: var(--space-16);
+    overflow: visible;
+  }
+  .axis {
+    fill: none;
+    stroke: var(--border-default);
+    stroke-width: 2;
+  }
+  .line {
+    fill: none;
+    stroke: var(--action-bg);
+    stroke-width: 3;
+  }
+</style>

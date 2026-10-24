@@ -1,0 +1,13 @@
+T   ✖  dta clean 
+|
+o  Removed ----------------+
+|                          |
+|  tokens/Base.Value.json  |
+|  tokens/Brand.A.json     |
+|  tokens/Brand.B.json     |
+|  tokens/motion.tokens    |
+|                          |
++--------------------------+
+|
+—  Clean complete!
+

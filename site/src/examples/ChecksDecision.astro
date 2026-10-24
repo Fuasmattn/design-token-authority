@@ -1,0 +1,7 @@
+---
+// The landing page's scene 03: the one check that waits for a person, and the approve action.
+import Checks from '../components/ds/Checks.astro'
+import { APPROVE, DECISION } from '../landing/content'
+---
+
+<Checks checks={DECISION} approve={APPROVE} />

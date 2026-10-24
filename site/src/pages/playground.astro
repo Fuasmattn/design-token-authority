@@ -1,0 +1,33 @@
+---
+/**
+ * The playground (spec: docs/specs/playground.md, decisions 12–14): a standalone page on the
+ * site's frame, outside Starlight. Drop or paste token files or a plugin export, or load the
+ * brand-ab example, and see the structure, the lint findings and the dependency graph
+ * (TICKET-078) in a workspace (decision 15, TICKET-115), then preview and download the outputs
+ * with the matching dta.config.ts (TICKET-079). The app is a Preact island, the only one on the site; this file and
+ * playground.css only place it. Its first load is the empty state alone; the analysis loads when the browser is idle
+ * or on the first input, the views' heavier parts with their tabs (TICKET-124, spec decision 9).
+ */
+import SiteLayout from '../layouts/SiteLayout.astro'
+import Playground from '../playground/Playground'
+import '../styles/playground.css'
+
+const title = 'Playground · Design Token Authority'
+const description =
+  'Drop in token files or a plugin export: see the structure DTA detects, what dta lint finds and the dependency graph, and download the CSS, Tailwind and JS that dta build writes. Runs in your browser; nothing is uploaded.'
+---
+
+<SiteLayout title={title} description={description}>
+  <main id="main" class="wrap playground">
+    <div class="intro">
+      <h1>Playground</h1>
+      <p class="lede">
+        Drop in your token files or a plugin export and see the structure DTA detects, what <code
+          >dta lint</code
+        > finds, in the CLI's own words, and how your tokens depend on each other, then take the files <code>dta build</code> writes and the config
+        that gives the same with the CLI. It all runs in your browser: nothing is uploaded or stored.
+      </p>
+    </div>
+    <Playground client:load />
+  </main>
+</SiteLayout>

@@ -1,0 +1,13 @@
+{
+  "action": {
+    "background": { "$type": "color", "$value": "{color.blue.600}" },
+    "background-hover": { "$type": "color", "$value": "{color.blue.700}" },
+    "foreground": { "$type": "color", "$value": "{color.neutral.0}" }
+  },
+  "text": {
+    "default": { "$type": "color", "$value": "{color.neutral.900}" }
+  },
+  "shape": {
+    "control": { "$type": "number", "$value": "{radius.4}" }
+  }
+}

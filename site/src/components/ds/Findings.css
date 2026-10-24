@@ -1,0 +1,319 @@
+/*
+ * Findings: lines on the surface, mono like the terminal they come from but in the page's ink.
+ * The marker carries the severity together with the word: error a filled square, warning an
+ * open ring, a clean summary the pass dot. Status colours (TICKET-120) add to shape and word:
+ * markers in status-*-marker, the words in status-*-text; never colour alone, never signal.
+ * As a banner (`banner`), the whole list sits on its outcome's subtle tint inside a complete
+ * 2px outline in the marker colour, and every line reads in the status text.
+ */
+.dta-findings {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+  font-family: var(--font-sans);
+  color: var(--fg-default);
+}
+.dta-findings__title {
+  margin: 0;
+  font-size: calc(var(--type-title-size) * 1px);
+  font-weight: var(--type-title-weight);
+  line-height: var(--type-title-line-height);
+}
+.dta-findings__summary {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: calc(var(--type-body-sm-size) * 1px);
+  font-weight: var(--type-label-weight);
+  line-height: var(--type-body-sm-line-height);
+}
+.dta-findings__group {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.dta-findings__file {
+  margin: 0;
+  padding-bottom: var(--space-1);
+  border-bottom: var(--stroke-hairline) solid var(--border-default);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  font-weight: 700;
+  line-height: var(--type-meta-line-height);
+  overflow-wrap: anywhere;
+}
+.dta-findings__lines {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dta-findings__line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-code-line-height);
+}
+.dta-findings__text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dta-findings__label {
+  font-weight: 700;
+}
+.dta-findings__line[data-severity='error'] .dta-findings__label {
+  color: var(--status-error-text);
+}
+.dta-findings__line[data-severity='warning'] .dta-findings__label {
+  color: var(--status-warning-text);
+}
+
+/* Markers: 8px, on the first line's baseline. */
+.dta-findings__marker {
+  flex: none;
+  box-sizing: border-box;
+  width: 8px;
+  height: 8px;
+  transform: translateY(-1px);
+}
+.dta-findings__line[data-severity='error'] .dta-findings__marker,
+.dta-findings__summary[data-outcome='failed'] .dta-findings__marker {
+  background: var(--status-error-marker);
+}
+.dta-findings__line[data-severity='warning'] .dta-findings__marker,
+.dta-findings__summary[data-outcome='warnings'] .dta-findings__marker {
+  border: var(--stroke-ink) solid var(--status-warning-marker);
+  border-radius: var(--radius-full);
+}
+.dta-findings__summary[data-outcome='failed'] {
+  color: var(--status-error-text);
+}
+.dta-findings__summary[data-outcome='warnings'] {
+  color: var(--status-warning-text);
+}
+.dta-findings__summary[data-outcome='clean'] {
+  color: var(--status-success-text);
+}
+.dta-findings__summary[data-outcome='clean'] .dta-findings__marker {
+  border-radius: var(--radius-full);
+  background: var(--status-success-marker);
+}
+.dta-findings__summary:not([data-outcome]) .dta-findings__marker {
+  display: none;
+}
+
+.dta-findings__note {
+  margin: 0;
+  max-width: var(--layout-measure);
+  font-size: calc(var(--type-body-sm-size) * 1px);
+  line-height: var(--type-body-sm-line-height);
+  color: var(--fg-muted);
+}
+.dta-findings__detail {
+  display: block;
+  color: var(--fg-subtle);
+}
+/* The page that explains a diagnostic: a link in the action ink, underlined. */
+.dta-findings__link {
+  color: var(--action-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.dta-findings__link:hover {
+  text-decoration-thickness: var(--stroke-ink);
+}
+.dta-findings__link:focus-visible {
+  outline: none;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+}
+
+/* Rule rows: summaries first. A rule with findings is a disclosure; its lines open under it. */
+.dta-findings__rules {
+  display: grid;
+  border-top: var(--stroke-hairline) solid var(--border-default);
+}
+.dta-findings__rule {
+  border-bottom: var(--stroke-hairline) solid var(--border-default);
+  interpolate-size: allow-keywords;
+}
+/* A rule's lines open and close by animating their height (no script measures them). */
+.dta-findings__rule::details-content {
+  block-size: 0;
+  overflow-y: clip;
+  transition:
+    block-size var(--motion-duration-base) var(--motion-ease-standard),
+    content-visibility var(--motion-duration-base) allow-discrete;
+}
+.dta-findings__rule[open]::details-content {
+  block-size: auto;
+}
+.dta-findings__rule-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: 0 var(--space-2);
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta-size) * 1px);
+  line-height: var(--type-meta-line-height);
+}
+summary.dta-findings__rule-row {
+  list-style: none;
+  cursor: pointer;
+}
+summary.dta-findings__rule-row::-webkit-details-marker {
+  display: none;
+}
+summary.dta-findings__rule-row::after {
+  content: '›';
+  flex: none;
+  color: var(--fg-subtle);
+  transition: transform var(--motion-duration-base) var(--motion-ease-standard);
+}
+.dta-findings__rule[open] > summary.dta-findings__rule-row::after {
+  transform: rotate(90deg);
+}
+summary.dta-findings__rule-row:hover {
+  background: var(--bg-subtle);
+}
+summary.dta-findings__rule-row:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: calc(var(--stroke-focus) * -1);
+}
+.dta-findings__rule-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dta-findings__count {
+  flex: none;
+  color: var(--fg-muted);
+}
+.dta-findings__rule-row .dta-findings__marker {
+  transform: none;
+}
+.dta-findings__rule-row .dta-findings__marker:not([data-severity]) {
+  visibility: hidden;
+}
+.dta-findings__rule-row .dta-findings__marker[data-severity='error'] {
+  background: var(--status-error-marker);
+}
+.dta-findings__rule-row .dta-findings__marker[data-severity='warning'] {
+  border: var(--stroke-ink) solid var(--status-warning-marker);
+  border-radius: var(--radius-full);
+}
+.dta-findings__rule-row[data-severity='error'] .dta-findings__count {
+  color: var(--status-error-text);
+}
+.dta-findings__rule-row[data-severity='warning'] .dta-findings__count {
+  color: var(--status-warning-text);
+}
+.dta-findings__rule .dta-findings__lines {
+  gap: 0;
+  padding: 0 0 var(--space-2) var(--space-6);
+}
+
+/* Selectable lines: the whole line is the button; the open one is tinted. */
+.dta-findings__open {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-standard),
+    color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+/* Hover at once; only the selection tints over a duration (see Tabs.css). */
+.dta-findings__open:hover {
+  background: var(--bg-subtle);
+  transition: none;
+}
+.dta-findings__open:focus-visible {
+  outline: var(--stroke-focus) solid var(--action-bg);
+  outline-offset: calc(var(--stroke-focus) * -1);
+}
+/*
+ * The selected line (TICKET-121): selection is the action tint and the line's ink in action-text;
+ * severity stays as it is, the marker in its status colour and shape and the word in its status
+ * text (both hold on action-subtle: markers 3:1, words 7:1). The detail turns action-text, as
+ * fg-subtle is under 7:1 on the tint.
+ */
+.dta-findings__line[aria-current='true'] .dta-findings__open {
+  background: var(--action-subtle);
+  color: var(--action-text);
+}
+.dta-findings__line[aria-current='true'] .dta-findings__detail {
+  color: var(--action-text);
+}
+.dta-findings__line:has(> .dta-findings__open) {
+  display: block;
+}
+
+/*
+ * The status banner: the outcome's subtle tint, a complete 2px outline in its marker colour
+ * (borders are complete or straight), everything in its status text (7:1 on the tint). Links
+ * keep their underline in the same ink.
+ */
+.dta-findings--banner {
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--stroke-ink) solid var(--fg-default);
+  border-radius: var(--radius-md);
+}
+.dta-findings--banner[data-outcome='failed'] {
+  --dta-findings-ink: var(--status-error-text);
+  border-color: var(--status-error-marker);
+  background: var(--status-error-subtle);
+}
+.dta-findings--banner[data-outcome='warnings'] {
+  --dta-findings-ink: var(--status-warning-text);
+  border-color: var(--status-warning-marker);
+  background: var(--status-warning-subtle);
+}
+.dta-findings--banner[data-outcome='clean'] {
+  --dta-findings-ink: var(--status-success-text);
+  border-color: var(--status-success-marker);
+  background: var(--status-success-subtle);
+}
+.dta-findings--banner,
+.dta-findings--banner .dta-findings__summary,
+.dta-findings--banner .dta-findings__note,
+.dta-findings--banner .dta-findings__detail,
+.dta-findings--banner .dta-findings__label,
+.dta-findings--banner .dta-findings__link {
+  color: var(--dta-findings-ink);
+}
+.dta-findings--banner .dta-findings__file {
+  border-bottom-color: currentColor;
+}
+.dta-findings--banner .dta-findings__link:focus-visible {
+  box-shadow: 0 0 0 var(--stroke-focus) var(--action-bg);
+}
+@media (max-width: 559px) {
+  .dta-findings--banner {
+    padding: var(--space-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  summary.dta-findings__rule-row::after,
+  .dta-findings__rule::details-content,
+  .dta-findings__open {
+    transition: none;
+  }
+}

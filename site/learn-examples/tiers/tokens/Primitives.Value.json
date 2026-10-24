@@ -1,0 +1,35 @@
+{
+  "color": {
+    "blue": {
+      "600": {
+        "$type": "color",
+        "$value": "#1f5fd1"
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#174aa6"
+      }
+    },
+    "neutral": {
+      "0": {
+        "$type": "color",
+        "$value": "#ffffff"
+      },
+      "900": {
+        "$type": "color",
+        "$value": "#1b1d22"
+      }
+    }
+  },
+  "radius": {
+    "4": {
+      "$type": "number",
+      "$value": 4,
+      "$extensions": {
+        "com.figma": {
+          "scopes": ["CORNER_RADIUS"]
+        }
+      }
+    }
+  }
+}

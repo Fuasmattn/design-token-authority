@@ -1,0 +1,27 @@
+---
+// Real output: the "Example with problems" in BrandB, where Colors.Brand.Accent aliases
+// Colors.Foundation.Sky.550, which does not exist: its dashed arrow ends in a missing row next to
+// Sky.500. Selected, so the chain runs into the missing row.
+import GraphCanvas from '../components/ds/GraphCanvas'
+import { analyse } from '../playground/analyse'
+import { PROBLEM_EXAMPLE } from '../playground/example'
+import { buildGraph } from '../playground/graph'
+
+interface Props {
+  idPrefix?: string
+}
+const { idPrefix = 'graph-dangling' } = Astro.props
+const view = buildGraph(analyse(PROBLEM_EXAMPLE.files), {
+  'Brand(Alias)': 'BrandB',
+  ScreenType: 'Desktop',
+})
+---
+
+<GraphCanvas
+  idPrefix={idPrefix}
+  label={`Dependency graph, ${view.label}`}
+  data={view.data}
+  selected="Brand(Alias).BrandB/Colors/Brand/Accent"
+  onSelect={() => {}}
+  hideLegend
+/>

@@ -1,0 +1,26 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-theme="dark"] {
+  --surface: var(--color-gray-900);
+  --text: var(--color-gray-100);
+  --button-text: var(--surface);
+  --ring: var(--accent); /** Focus ring */
+  --button-focus: var(--ring);
+}
+
+/* theme × brand: theme · dark */
+[data-theme="dark"] {
+  --accent-dta-theme: var(--color-blue-300);
+  --accent: var(--accent-dta-brand, var(--accent-dta-theme, var(--accent-dta-base)));
+  --button-background: var(--accent);
+}
+
+/* theme × brand: theme · dark tokens again where [data-brand] is set inside */
+@scope ([data-theme="dark"]) {
+  :scope[data-brand], [data-brand] {
+    --ring: var(--accent); /** Focus ring */
+    --button-focus: var(--ring);
+  }
+}

@@ -1,0 +1,20 @@
+---
+// The site's links on the playground: "Playground" is the page shown (aria-current="page").
+import Nav from '../components/ds/Nav.astro'
+import ThemeSwitch from '../components/ds/ThemeSwitch.astro'
+
+interface Props {
+  idPrefix: string
+}
+const { idPrefix } = Astro.props
+const links = [
+  { href: '/#how', label: 'How it works' },
+  { href: '/#agents', label: 'Agents' },
+  { href: '/playground/', label: 'Playground', current: true },
+  { href: '/start/', label: 'Docs' },
+]
+---
+
+<Nav links={links} idPrefix={idPrefix}>
+  <ThemeSwitch />
+</Nav>

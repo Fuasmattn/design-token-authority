@@ -1,0 +1,26 @@
+---
+import GravityWell from '../components/ds/GravityWell.astro'
+---
+
+<GravityWell still>
+  <h2 class="demo-h">The copy sits on the well.</h2>
+  <p class="demo-p">Headline, subline and actions go in the slot; the mesh fades out before anything below starts.</p>
+</GravityWell>
+
+<style>
+  .demo-h {
+    margin: 0 0 var(--space-3);
+    font-family: var(--font-sans);
+    font-size: calc(var(--type-heading-size) * 1px);
+    font-weight: var(--type-heading-weight);
+    line-height: var(--type-heading-line-height);
+    letter-spacing: var(--type-heading-letter-spacing);
+    color: var(--fg-default);
+  }
+  .demo-p {
+    margin: 0;
+    max-width: 40ch;
+    color: var(--fg-muted);
+    line-height: var(--type-body-line-height);
+  }
+</style>

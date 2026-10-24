@@ -1,0 +1,39 @@
+---
+/**
+ * A small upper-case label that qualifies what is next to it: `example` (example data, a neutral
+ * ink outline: example content never uses the system colours, TICKET-122), `coming` (not released
+ * yet) or `note` (a hint such as "most teams"), both in the action colour.
+ */
+interface Props {
+  tone: 'example' | 'coming' | 'note'
+}
+const { tone } = Astro.props
+---
+
+<span class:list={['dta-badge', tone]}><slot /></span>
+
+<style>
+  .dta-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--space-6);
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-redline-size) * 1px);
+    font-weight: var(--type-redline-weight);
+    line-height: var(--type-redline-line-height);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    vertical-align: middle;
+  }
+  .example {
+    border: var(--stroke-hairline) solid var(--border-strong);
+    color: var(--fg-default);
+  }
+  .coming,
+  .note {
+    background: var(--action-subtle);
+    color: var(--action-text);
+  }
+</style>

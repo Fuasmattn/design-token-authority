@@ -1,0 +1,323 @@
+{
+  "color": {
+    "$type": "color",
+    "$description": "Colours in several colour spaces of the Color module.",
+    "black": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0,
+          0,
+          0
+        ],
+        "hex": "#000000"
+      }
+    },
+    "white": {
+      "$value": "#ffffff"
+    },
+    "ink": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0,
+          0,
+          0
+        ],
+        "alpha": 0.5
+      }
+    },
+    "sky": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.7,
+          0.15,
+          250
+        ]
+      }
+    },
+    "grass": {
+      "$value": {
+        "colorSpace": "hsl",
+        "components": [
+          120,
+          60,
+          35
+        ]
+      }
+    },
+    "vivid": {
+      "$value": {
+        "colorSpace": "display-p3",
+        "components": [
+          1,
+          0.2,
+          0
+        ]
+      }
+    },
+    "accent": {
+      "$root": {
+        "$value": "{color.sky}"
+      },
+      "soft": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.85,
+            0.07,
+            250
+          ]
+        }
+      }
+    }
+  },
+  "spacing": {
+    "$type": "dimension",
+    "s": {
+      "$value": {
+        "value": 4,
+        "unit": "px"
+      }
+    },
+    "m": {
+      "$value": {
+        "value": 1,
+        "unit": "rem"
+      }
+    },
+    "l": {
+      "$value": "24px"
+    }
+  },
+  "radius": {
+    "$type": "dimension",
+    "card": {
+      "$value": {
+        "value": 8,
+        "unit": "px"
+      }
+    }
+  },
+  "motion": {
+    "fast": {
+      "$type": "duration",
+      "$value": {
+        "value": 150,
+        "unit": "ms"
+      }
+    },
+    "slow": {
+      "$type": "duration",
+      "$value": "0.4s"
+    },
+    "ease": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.5,
+        0,
+        1,
+        1
+      ]
+    }
+  },
+  "font": {
+    "body": {
+      "$type": "fontFamily",
+      "$value": [
+        "Helvetica Neue",
+        "Arial",
+        "sans-serif"
+      ]
+    },
+    "regular": {
+      "$type": "fontWeight",
+      "$value": "regular"
+    },
+    "strong": {
+      "$type": "fontWeight",
+      "$value": 650
+    },
+    "line": {
+      "$type": "number",
+      "$value": 1.5
+    }
+  },
+  "shadow": {
+    "$type": "shadow",
+    "card": {
+      "$value": {
+        "color": "{color.ink}",
+        "offsetX": {
+          "value": 0,
+          "unit": "px"
+        },
+        "offsetY": "{spacing.s}",
+        "blur": {
+          "$ref": "#/spacing/m/$value"
+        },
+        "spread": {
+          "value": 0,
+          "unit": "px"
+        }
+      }
+    },
+    "stack": {
+      "$value": [
+        {
+          "color": "{color.ink}",
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 1,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 2,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 0,
+            "unit": "px"
+          }
+        },
+        {
+          "color": "#00000033",
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 8,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 16,
+            "unit": "px"
+          },
+          "spread": {
+            "value": -4,
+            "unit": "px"
+          },
+          "inset": true
+        }
+      ]
+    }
+  },
+  "border": {
+    "$type": "border",
+    "focus": {
+      "$value": {
+        "color": "{color.sky}",
+        "width": {
+          "value": 2,
+          "unit": "px"
+        },
+        "style": "solid"
+      }
+    },
+    "dashed": {
+      "$value": {
+        "color": "{color.ink}",
+        "width": {
+          "value": 1,
+          "unit": "px"
+        },
+        "style": {
+          "dashArray": [
+            {
+              "value": 4,
+              "unit": "px"
+            },
+            {
+              "value": 2,
+              "unit": "px"
+            }
+          ],
+          "lineCap": "round"
+        }
+      }
+    }
+  },
+  "transition": {
+    "$type": "transition",
+    "enter": {
+      "$value": {
+        "duration": "{motion.fast}",
+        "delay": {
+          "value": 0,
+          "unit": "ms"
+        },
+        "timingFunction": "{motion.ease}"
+      }
+    }
+  },
+  "gradient": {
+    "$type": "gradient",
+    "brand": {
+      "$value": [
+        {
+          "color": "{color.sky}",
+          "position": 0
+        },
+        {
+          "color": "{color.grass}",
+          "position": 1
+        }
+      ]
+    }
+  },
+  "typography": {
+    "$type": "typography",
+    "body": {
+      "$value": {
+        "fontFamily": "{font.body}",
+        "fontSize": "{spacing.m}",
+        "fontWeight": "{font.regular}",
+        "letterSpacing": {
+          "value": 0,
+          "unit": "px"
+        },
+        "lineHeight": "{font.line}"
+      }
+    }
+  },
+  "legacy": {
+    "$deprecated": "Use spacing.m.",
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.m}"
+    }
+  },
+  "sky-lightness": {
+    "$type": "number",
+    "$value": {
+      "$ref": "#/color/sky/$value/components/0"
+    }
+  },
+  "button": {
+    "$type": "color",
+    "background": {
+      "$value": "{color.sky}"
+    },
+    "text": {
+      "$value": "{color.white}"
+    }
+  },
+  "button-danger": {
+    "$extends": "{button}",
+    "background": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8,
+          0.1,
+          0.1
+        ]
+      }
+    }
+  }
+}

@@ -13,8 +13,15 @@
     "publish": false
   },
   "hooks": {
-    "before:init": ["npm test", "npm run prettier:check"],
-    "after:bump": "npm run build:cli"
+    "before:init": ["pnpm test", "pnpm run prettier:check"],
+    "after:bump": [
+      "pnpm --filter create-dta exec npm version ${version} --no-git-tag-version --allow-same-version",
+      "pnpm package:build"
+    ],
+    "before:git:release": [
+      "pnpm publish --no-git-checks",
+      "pnpm --filter create-dta publish --no-git-checks"
+    ]
   },
   "plugins": {
     "@release-it/conventional-changelog": {

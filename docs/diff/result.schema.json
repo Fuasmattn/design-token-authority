@@ -1,0 +1,790 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "dta.diff/1"
+    },
+    "base": {
+      "type": "string",
+      "description": "How the base was chosen."
+    },
+    "head": {
+      "description": "What was rendered as \"with this change\": the checkout dta diff ran in. Absent outside git and in older results.",
+      "type": "object",
+      "properties": {
+        "ref": {
+          "description": "The branch, without refs/heads/ (absent when detached).",
+          "type": "string"
+        },
+        "sha": {
+          "type": "string",
+          "description": "The commit HEAD pointed at."
+        },
+        "uncommitted": {
+          "type": "boolean",
+          "description": "The repository had uncommitted changes (tracked or untracked, not ignored)."
+        }
+      },
+      "required": [
+        "sha",
+        "uncommitted"
+      ],
+      "additionalProperties": false
+    },
+    "verdict": {
+      "description": "pass: nothing to review; review: explained or new changes; fail: unexplained.",
+      "type": "string",
+      "enum": [
+        "pass",
+        "review",
+        "fail"
+      ]
+    },
+    "review": {
+      "type": "object",
+      "properties": {
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "pass",
+            "review",
+            "fail"
+          ]
+        },
+        "changed": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "explained": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "before": {
+                "type": "object",
+                "properties": {
+                  "raw": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
+                  },
+                  "resolved": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
+                  }
+                },
+                "required": [
+                  "raw"
+                ],
+                "additionalProperties": false
+              },
+              "after": {
+                "type": "object",
+                "properties": {
+                  "raw": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
+                  },
+                  "resolved": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
+                  }
+                },
+                "required": [
+                  "raw"
+                ],
+                "additionalProperties": false
+              },
+              "stories": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "\"story@viewport\" of the stories it explains."
+              },
+              "needsReview": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "stories",
+              "needsReview"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "unexplained": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "story": {
+                "type": "string"
+              },
+              "ratio": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "pixels": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "region": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "y": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "width": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "height": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "width",
+                  "height"
+                ],
+                "additionalProperties": false
+              },
+              "failing": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "story",
+              "ratio",
+              "pixels",
+              "failing"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "added": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "removed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "verdict",
+        "changed",
+        "explained",
+        "tokens",
+        "unexplained",
+        "added",
+        "removed"
+      ],
+      "additionalProperties": false
+    },
+    "publish": {
+      "description": "Set when a publish hook ran; image paths resolve against `url`.",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Base URL of the published report folder."
+        },
+        "report": {
+          "type": "string",
+          "description": "URL of index.html."
+        }
+      },
+      "required": [
+        "url",
+        "report"
+      ],
+      "additionalProperties": false
+    },
+    "tokens": {
+      "type": "object",
+      "properties": {
+        "counts": {
+          "type": "object",
+          "properties": {
+            "changed": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "added": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "removed": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "affected": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "changed",
+            "added",
+            "removed",
+            "affected"
+          ],
+          "additionalProperties": false
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "changed",
+                  "added",
+                  "removed",
+                  "affected"
+                ]
+              },
+              "collection": {
+                "type": "string"
+              },
+              "mode": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string",
+                "description": "Dot path, e.g. \"action.bg\"."
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "color",
+                  "dimension",
+                  "fontFamily",
+                  "fontWeight",
+                  "duration",
+                  "cubicBezier",
+                  "number",
+                  "strokeStyle",
+                  "border",
+                  "transition",
+                  "shadow",
+                  "gradient",
+                  "typography",
+                  "string",
+                  "boolean"
+                ]
+              },
+              "typeBefore": {
+                "type": "string",
+                "enum": [
+                  "color",
+                  "dimension",
+                  "fontFamily",
+                  "fontWeight",
+                  "duration",
+                  "cubicBezier",
+                  "number",
+                  "strokeStyle",
+                  "border",
+                  "transition",
+                  "shadow",
+                  "gradient",
+                  "typography",
+                  "string",
+                  "boolean"
+                ]
+              },
+              "before": {
+                "type": "object",
+                "properties": {
+                  "raw": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
+                  },
+                  "resolved": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
+                  }
+                },
+                "required": [
+                  "raw"
+                ],
+                "additionalProperties": false
+              },
+              "after": {
+                "type": "object",
+                "properties": {
+                  "raw": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
+                  },
+                  "resolved": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {}
+                      }
+                    ],
+                    "description": "A token value as written: a scalar, or a DTCG 2025.10 object or list."
+                  }
+                },
+                "required": [
+                  "raw"
+                ],
+                "additionalProperties": false
+              },
+              "causes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "collection",
+              "mode",
+              "name",
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "counts",
+        "changes"
+      ],
+      "additionalProperties": false
+    },
+    "stories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "viewport": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "unchanged",
+              "changed",
+              "added",
+              "removed"
+            ]
+          },
+          "ratio": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Changed pixels / all pixels."
+          },
+          "changedPixels": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "images": {
+            "type": "object",
+            "properties": {
+              "base": {
+                "type": "string"
+              },
+              "head": {
+                "type": "string"
+              },
+              "diff": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "description": "Paths inside the report folder."
+          },
+          "attribution": {
+            "type": "object",
+            "properties": {
+              "explained": {
+                "type": "boolean",
+                "description": "Every changed pixel traces to a changed token."
+              },
+              "tokens": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "\"name (Collection · Mode)\" of the token change."
+                    },
+                    "dependents": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991,
+                      "description": "Elements whose style or box the token changes."
+                    },
+                    "pixels": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991,
+                      "description": "Changed pixels inside those elements (may overlap)."
+                    },
+                    "elements": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Up to five element labels, e.g. \"button.primary\"."
+                    },
+                    "regions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "y": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "width": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "height": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "x",
+                          "y",
+                          "width",
+                          "height"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Up to five dependent boxes in the head image, largest first."
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "dependents",
+                    "pixels",
+                    "elements",
+                    "regions"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "unexplainedPixels": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "unexplainedRegion": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "y": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "width": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "height": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "width",
+                  "height"
+                ],
+                "additionalProperties": false
+              },
+              "canvas": {
+                "type": "object",
+                "properties": {
+                  "width": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "height": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "width",
+                  "height"
+                ],
+                "additionalProperties": false,
+                "description": "Size of the compared image the regions refer to."
+              },
+              "ms": {
+                "description": "Time the attribution took.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "explained",
+              "tokens",
+              "unexplainedPixels",
+              "canvas"
+            ],
+            "additionalProperties": false,
+            "description": "Present on changed stories."
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "url",
+          "viewport",
+          "status",
+          "ratio",
+          "changedPixels",
+          "images"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "base",
+    "tokens",
+    "stories"
+  ],
+  "additionalProperties": false,
+  "description": "dta diff result: token changes, rendered stories and their attribution."
+}

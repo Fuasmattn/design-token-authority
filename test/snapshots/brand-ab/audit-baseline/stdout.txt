@@ -1,0 +1,1 @@
+Wrote .dta/audit-baseline.json with 5 findings. Later runs report only new ones.

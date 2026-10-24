@@ -1,0 +1,15 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-brand="b"] {
+  --control-radius: var(--radius-full);
+  --button-radius: var(--control-radius);
+}
+
+/* theme × brand: brand · b */
+[data-brand="b"] {
+  --accent-dta-brand: var(--color-navy-700);
+  --accent: var(--accent-dta-brand, var(--accent-dta-theme, var(--accent-dta-base)));
+  --button-background: var(--accent);
+}

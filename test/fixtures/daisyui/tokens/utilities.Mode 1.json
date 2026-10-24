@@ -1,0 +1,32 @@
+{
+  "daisy": {
+    "shadow": {
+      "state": {
+        "focus": {
+          "offset": {
+            "$type": "number",
+            "$extensions": {
+              "com.figma": {
+                "scopes": [
+                  "ALL_SCOPES"
+                ]
+              }
+            },
+            "$value": 3
+          },
+          "shadow": {
+            "$type": "number",
+            "$extensions": {
+              "com.figma": {
+                "scopes": [
+                  "ALL_SCOPES"
+                ]
+              }
+            },
+            "$value": 5
+          }
+        }
+      }
+    }
+  }
+}

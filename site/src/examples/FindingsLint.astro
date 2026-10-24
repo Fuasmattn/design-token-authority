@@ -1,0 +1,27 @@
+---
+// Real output: `dta lint` on the brand-ab fixture with its config (test/snapshots/brand-ab/lint).
+import Findings from '../components/ds/Findings'
+
+const pattern = (segment: string) =>
+  `Token path segment "${segment}" does not match pattern /^[A-Z][A-Za-z ]*$/ for collection "Brand(Alias)" [naming-pattern]`
+const warn = (text: string) => ({ severity: 'warning' as const, label: 'warn', text })
+const groups = [
+  { title: 'Brand(Alias).BrandA.json', lines: [warn(pattern('overlay')), warn(pattern('shadow'))] },
+  {
+    title: 'Primitives.Value.json',
+    lines: [
+      warn(
+        'Duplicate value "8" — also defined in: Primitives.Value/Dimensions/spacing/2 [no-duplicate-values]',
+      ),
+    ],
+  },
+]
+---
+
+<Findings
+  title="Lint"
+  groups={groups}
+  summary="8 warnings found."
+  outcome="warnings"
+  verdict="Lint passed with warnings."
+/>
