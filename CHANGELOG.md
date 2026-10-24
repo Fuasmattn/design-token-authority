@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.0.5](https://github.com/Fuasmattn/design-token-authority/compare/v2.0.4...v2.0.5) (2026-10-24)
+
+### Features
+
+* **diff:** DTA mark in the pull-request comment (TICKET-144) ([ac8dfd8](https://github.com/Fuasmattn/design-token-authority/commit/ac8dfd84f63906d3e686c584aaf3912e1b39610c))
+
+### Documentation
+
+* **tickets:** close TICKET-086 and TICKET-087, add TICKET-143 ([4085a4b](https://github.com/Fuasmattn/design-token-authority/commit/4085a4bfda419886cf9d3eb3fd48adba874c3cfd)), closes [#28](https://github.com/Fuasmattn/design-token-authority/issues/28) [#29](https://github.com/Fuasmattn/design-token-authority/issues/29)
+* **tickets:** close TICKET-140 and TICKET-141 ([059cb97](https://github.com/Fuasmattn/design-token-authority/commit/059cb97a49ac56ca4e5587a7f5cfcb34cab9cdca))
+* **tickets:** close TICKET-143, add TICKET-144 (icon in the dta diff comment) ([73e36cd](https://github.com/Fuasmattn/design-token-authority/commit/73e36cd999d2236e9cdeebec4ee175029cd232ea))
+* **tickets:** close TICKET-144 (checked on PR [#31](https://github.com/Fuasmattn/design-token-authority/issues/31)) ([2027866](https://github.com/Fuasmattn/design-token-authority/commit/2027866c3951274254f638d1f006915d18e6cb04))
+* **tickets:** TICKET-141 released through OIDC, npm token removed ([75d96e3](https://github.com/Fuasmattn/design-token-authority/commit/75d96e34aafbe2b4c83db3aadff9d3a2df201f8b))
+* **tickets:** TICKET-143 CI on main green, Dependabot PRs closed ([747f17e](https://github.com/Fuasmattn/design-token-authority/commit/747f17ec495794cae07db072f60924161b06a816))
+
 ## [2.0.4](https://github.com/Fuasmattn/design-token-authority/compare/v2.0.2...v2.0.4) (2026-10-24)
 
 ## [2.0.2](https://github.com/Fuasmattn/design-token-authority/compare/v2.0.1...v2.0.2) (2026-10-24)
