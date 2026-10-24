@@ -18,16 +18,6 @@ npx design-token-authority diff       # token changes against the merge base wit
 
 Once installed, `dta` is the short name in package scripts and `npx dta` finds it. Never run `npx dta` in a project without DTA installed: the npm name `dta` belongs to an unrelated package.
 
-The npm packages are published from version 2.0.0 on. Before that, run DTA from a clone (pnpm needed):
-
-```sh
-git clone https://github.com/Fuasmattn/design-token-authority.git
-cd design-token-authority && pnpm install
-alias dta="node $PWD/bin/dta.js"
-```
-
-A config written by `dta init` imports `defineConfig` from `design-token-authority`; without the package installed, drop the import and export the object directly.
-
 ## Commands
 
 | Command       | What it does                                                                                                           |

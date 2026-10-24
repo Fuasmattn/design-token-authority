@@ -228,7 +228,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 | #                                             | Ticket                                                                 | Priority | Effort | Blocked by | Status    |
 | --------------------------------------------- | ---------------------------------------------------------------------- | -------- | ------ | ---------- | --------- |
-| [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | —          | In review |
+| [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | —          | Done      |
 | [091](./091-build-breakpoint-modes.md)        | Breakpoint modes in the build output                                   | Medium   | M      | —          | Done      |
 | [092](./092-lint-contrast-per-mode.md)        | `color-contrast` per mode, through aliases                             | Medium   | S      | —          | Done      |
 | [117](./117-css-prefix.md)                    | Make `outputs.css.prefix` work (or remove it)                          | Low      | M      | —          | Done      |

@@ -79,8 +79,8 @@ export interface ConfigChoices {
   brands: readonly string[]
   formats: readonly OutputFormat[]
   /**
-   * Import `defineConfig` from the package (editor support). Only once the package is on npm
-   * (`NPM_RELEASED`): before that the import does not resolve, so the config is a plain object.
+   * Import `defineConfig` from the package (editor support; the site passes `NPM_RELEASED`).
+   * Without it the config is a plain object, which loads without the package installed.
    */
   defineConfig?: boolean
 }

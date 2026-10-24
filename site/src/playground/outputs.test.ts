@@ -170,7 +170,7 @@ describe('playground outputs = dta build', () => {
 })
 
 describe('generateConfig', () => {
-  it('writes a plain object before the npm release, which any project can load', async () => {
+  it('writes a plain object without defineConfig, which any project can load', async () => {
     const config = generateConfig({ brands: ['BrandA', "O'Brand"], formats: ['css', 'js'] })
     expect(config).not.toContain('import')
     expect(config).toContain(`run: ${CLI} build`)
@@ -190,7 +190,7 @@ describe('generateConfig', () => {
     expect(generateConfig({ brands: [], formats: ['js'] })).not.toContain('brands')
   })
 
-  it('uses defineConfig from the package once it is released', async () => {
+  it('uses defineConfig from the package when asked', async () => {
     const config = generateConfig({ brands: [], formats: ALL_FORMATS, defineConfig: true })
     expect(config).toContain("import { defineConfig } from 'design-token-authority'")
     const cwd = project(config, [])

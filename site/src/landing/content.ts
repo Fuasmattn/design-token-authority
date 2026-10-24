@@ -6,11 +6,10 @@
 import DIFF_RUN from './diff-run.json'
 
 /**
- * DTA is not on npm yet (TICKET-090). Until it is, `npm create dta` does not work as written;
- * it is shown unmarked by maintainer decision (TICKET-098). (The npm name `dta` belongs to an
- * unrelated package, so the page never shows `npx dta`.)
+ * DTA is on npm since 2.0.1 (TICKET-090), so `npm create dta` works as written. (The npm name
+ * `dta` belongs to an unrelated package, so the page never shows `npx dta`.)
  */
-export const NPM_RELEASED = false
+export const NPM_RELEASED = true
 
 /** A CLI command the page shows. */
 export interface Command {

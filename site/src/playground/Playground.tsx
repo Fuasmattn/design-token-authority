@@ -966,14 +966,11 @@ export default function Playground() {
                         configOpen={openFile === ui.CONFIG_FILE}
                         steps={ui.cliSteps({ pluginExport: source.pluginExport })}
                         note={
-                          ui.NPM_RELEASED ? undefined : (
-                            <>
-                              DTA is not on npm yet (TICKET-090), so <code>npx</code> cannot find it
-                              until the first release. Until then, run it from a clone of the
-                              repository, as the <a href="/start/quick-start/">Quick start</a>{' '}
-                              shows.
-                            </>
-                          )
+                          <>
+                            The config imports <code>defineConfig</code> from{' '}
+                            <code>design-token-authority</code>: install it in your project first (
+                            <code>npm install --save-dev design-token-authority</code>).
+                          </>
                         }
                         onOpenConfig={(button) =>
                           open({ kind: 'file', path: ui.CONFIG_FILE }, button)

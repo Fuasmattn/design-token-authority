@@ -16,5 +16,5 @@ const { config } = await exampleOutputs()
   intro="The same files on your machine: the generated config carries the choices above."
   config={config}
   steps={cliSteps({})}
-  note="DTA is not on npm yet (TICKET-090), so npx cannot find it until the first release."
+  note="The config imports defineConfig from design-token-authority: install it in your project first (npm install --save-dev design-token-authority)."
 />

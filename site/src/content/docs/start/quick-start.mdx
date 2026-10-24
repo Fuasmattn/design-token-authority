@@ -7,17 +7,8 @@ sidebar:
 
 import { Steps } from '@astrojs/starlight/components'
 
-:::caution[Not on npm yet]
-DTA has no npm release yet (TICKET-090), and `npx dta` would run an unrelated package with that name. Until the first release, run it from a clone of the repository (Node.js 24 or newer, pnpm):
-
-```sh
-git clone https://github.com/Fuasmattn/design-token-authority.git
-cd design-token-authority && pnpm install
-alias dta="node $PWD/bin/dta.js"   # then use dta in your own project folder
-```
-
-The config `dta init` writes imports `defineConfig` from `design-token-authority`, which your project cannot resolve before the release: drop that import and write `export default { … }` instead of `export default defineConfig({ … })`.
-
+:::caution[`npx dta` is another package]
+The npm name `dta` belongs to an unrelated package. Run `npx design-token-authority …` until DTA is installed in your project (`npm create dta` installs it); after that, `dta` works in package scripts and `npx dta` finds it.
 :::
 
 The examples on this page ran on the `brand-ab` fixture of the repository (`test/fixtures/brand-ab`): a Primitives collection, a Brand collection with the modes BrandA and BrandB, and ScreenType with Desktop, Tablet and Mobile. The output is copied from those runs.

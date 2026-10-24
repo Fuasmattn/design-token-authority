@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** M
 **Blocked by:** — (was 132–138, done 2026-10-22: DTCG 2025.10 support ships with the first release, [dtcg-2025-10](../specs/dtcg-2025-10.md))
-**Status:** in review (the first publish needs the maintainer: the `NPM_TOKEN` secret and a run of the Release workflow from `main`)
+**Status:** done (2026-10-24: `design-token-authority` and `create-dta` 2.0.1 on npm)
 
 ## What to build
 
@@ -15,10 +15,10 @@ DTA can be installed and run without a clone: `npm i -D design-token-authority` 
 - [x] A compiled build of `@dta/cli` and the packages it uses (no tsx at runtime for the CLI itself; tsx stays only for loading `.ts` configs), with `bin` names `dta` and `design-token-authority`
 - [x] `npm pack` of the package installs into an empty project and runs `init`, `build`, `lint` and `diff --tokens-only` there (test in CI)
 - [x] `dta init` writes a config whose `defineConfig` import resolves in the installed package
-- [ ] release-it publishes to npm (`npm.publish: true`) from `main`, with provenance
-- [ ] `create-dta` published next to it (name checked free on 2026-10-16): a tiny package whose bin runs `design-token-authority init`, so `npm create dta` (and `pnpm create dta`) start a project without an install; the landing page shows `npm create dta` (TICKET-098)
-- [ ] Website and README: `NPM_RELEASED = true` on the landing page, quick start without the clone, CI guide with `npx design-token-authority`
-- [ ] All gates pass, and the GitHub run is green
+- [x] release-it publishes to npm (`npm.publish: true`) from `main`, with provenance
+- [x] `create-dta` published next to it (name checked free on 2026-10-16): a tiny package whose bin runs `design-token-authority init`, so `npm create dta` (and `pnpm create dta`) start a project without an install; the landing page shows `npm create dta` (TICKET-098)
+- [x] Website and README: `NPM_RELEASED = true` on the landing page, quick start without the clone, CI guide with `npx design-token-authority`
+- [x] All gates pass, and the GitHub run is green
 
 ## Outcome (2026-10-23)
 
@@ -33,7 +33,14 @@ DTA can be installed and run without a clone: `npm i -D design-token-authority` 
 - **README** (it ships in the tarball): the quick start is now `npm create dta` and `npx design-token-authority …`, says the packages are published from 2.0.0 on and keeps the clone route for before that, so it is right on npm and on GitHub before the release.
 - Docs: Contribute (the package, `create-dta`, releases and the package test), Quick start (`dta init --yes`), the Commands reference through `--help`.
 
-Left for the maintainer (then tick the rest):
+Left for the maintainer (done 2026-10-24, see Release below):
 
 1. Merge to `main`, add `NPM_TOKEN`, run Release with `major`.
 2. After the publish: `NPM_RELEASED = true` in `site/src/landing/content.ts`, the website's Quick start without the clone (and without the "drop the defineConfig import" note), the CI guide's workflow with the package instead of the second checkout; the README's clone paragraph can go. Not done now: the website would promise a package that is not on npm yet.
+
+## Release (2026-10-24)
+
+- Three runs of the Release workflow. The first stopped in `before:init`: `pnpm test` in a fresh checkout needs the generated site tokens and reference pages, so the hook now runs `typecheck` (which writes them, as in CI) before the tests. The second published `design-token-authority@2.0.0` and stopped at `create-dta`: npm signs provenance only for a public package, and `create-dta` had no `publishConfig.access`; it has `public` now. A version cannot be published twice, so the third run was `2.0.1`: both packages, tag `v2.0.1`. 2.0.0 stays on npm without a tag in git; `latest` is 2.0.1.
+- Checked from npm in an empty project (Node 24.14.1): `npx design-token-authority@2.0.1 --version` and `--help`; `npm create dta@2.0.1` installed `design-token-authority@^2.0.1` as a dev dependency and started the wizard.
+- Website and README now assume the package: `NPM_RELEASED = true` (the landing page, and the configs of the playground and the CLI handoff story import `defineConfig`, with a note to install the package first), the Quick start without the clone, the CI guide with `npm ci` and `npx design-token-authority`, the README without the clone paragraph.
+- Next: npm trusted publishing (OIDC) for both packages (owner `Fuasmattn`, repository `design-token-authority`, workflow `release.yml`), then `release.yml` without `NPM_TOKEN` and the token deleted. npm restricts publishing with bypass-2FA tokens (the notice in the run).

@@ -3,7 +3,7 @@
  * your own machine. A title, the generated config as a file row (its name opens a preview, with
  * its size, Copy and Download, like an output file), the steps in order, each command as the
  * site's command chip (CommandButton.css: `$`, the command, a copy icon that turns into a tick),
- * and an optional note (the package is not on npm yet).
+ * and an optional note (what the steps assume).
  *
  * Commands are shown as `npx design-token-authority …`, never `npx dta` (that npm name belongs
  * to another package). The component reports; saving the config is the page's (`onDownload`).
