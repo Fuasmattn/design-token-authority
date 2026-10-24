@@ -200,7 +200,7 @@ Remove a pull request's reports when it closes:
 <Code code={assetsCleanup} lang="sh" title=".github/dta-diff-cleanup.sh" />
 
 :::note[Private repositories]
-Whether the thumbnails render in pull-request comments of a private repository is not verified yet. Until it is, use the artifact or a host only your team can reach.
+In a private repository the thumbnails in the comment do not load, not even for members who are signed in: GitHub fetches comment images without a sign-in, and the branch's files need one. The status, the comment and the report link still work. For thumbnails in a private repository, publish to a host GitHub can reach (the [Vercel](#vercel) or [static server](#static-server) recipe); otherwise use the artifact.
 :::
 
 ### Static server
