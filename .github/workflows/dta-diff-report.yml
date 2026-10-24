@@ -15,8 +15,21 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
-      # The comment links the report artifact. To host the report, add a publish hook
-      # (`publish:` and the checkout, install and secrets it needs): see "Publishing the
-      # report" in "dta diff in pull requests".
+      - uses: actions/checkout@v4 # the default branch: your config and publish script
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       - uses: Fuasmattn/design-token-authority/actions/diff-report@main
-# dta init --diff sha256:6b68b119635008ab
+        with:
+          command: pnpm exec dta
+          working-directory: site
+          # Publish only reports of branches in this repository: a fork's report is untrusted HTML.
+          publish: "${{ github.event.workflow_run.head_repository.full_name == github.repository && 'sh scripts/dta-diff-publish.sh' || '' }}"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+# dta init --diff sha256:163be2461be8e317
