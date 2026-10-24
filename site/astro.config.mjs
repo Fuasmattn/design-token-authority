@@ -36,6 +36,11 @@ export default defineConfig({
           label: 'GitHub',
           href: 'https://github.com/Fuasmattn/design-token-authority',
         },
+        {
+          icon: 'npm',
+          label: 'npm',
+          href: 'https://www.npmjs.com/package/design-token-authority',
+        },
       ],
       customCss: [
         './output/css/base.css',

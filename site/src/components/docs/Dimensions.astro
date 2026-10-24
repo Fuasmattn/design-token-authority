@@ -1,9 +1,9 @@
 ---
-/** Spacing, radius and stroke tokens from site/tokens, drawn with their own variables. */
+/** Spacing, radius, stroke, layout and size tokens from site/tokens, drawn with their own variables. */
 import { dimension } from '../../lib/design-tokens'
 
 interface Props {
-  group: 'space' | 'radius' | 'stroke' | 'layout'
+  group: 'space' | 'radius' | 'stroke' | 'layout' | 'size'
 }
 const { group } = Astro.props
 ---
@@ -20,6 +20,9 @@ const { group } = Astro.props
         </span>
         {group === 'space' && <span class="bar" style={`width: var(${token.cssVar})`} />}
         {group === 'radius' && <span class="box" style={`border-radius: var(${token.cssVar})`} />}
+        {group === 'size' && (
+          <span class="square" style={`width: var(${token.cssVar}); height: var(${token.cssVar})`} />
+        )}
         {group === 'stroke' && (
           <span class="rule" style={`border-top-width: var(${token.cssVar})`} />
         )}
@@ -67,6 +70,12 @@ const { group } = Astro.props
     height: 64px;
     border: var(--stroke-ink) solid var(--border-strong);
     background: var(--bg-surface);
+  }
+  .square {
+    box-sizing: border-box;
+    border: var(--stroke-hairline) solid var(--border-strong);
+    border-radius: var(--radius-full);
+    background: var(--bg-hover);
   }
   .rule {
     width: 100%;

@@ -16,7 +16,7 @@ describe('design tokens for the Design system pages', () => {
 
   it('lists every semantic colour with its value and alias chain per theme', () => {
     const colors = semanticColors()
-    expect(colors).toHaveLength(47)
+    expect(colors).toHaveLength(48)
     expect(colors.filter((c) => c.name.startsWith('status-')).map((c) => c.name)).toEqual(
       ['success', 'warning', 'error'].flatMap((s) =>
         ['text', 'marker', 'subtle'].map((role) => `status-${s}-${role}`),
@@ -67,6 +67,10 @@ describe('design tokens for the Design system pages', () => {
       'layout-heading',
       'layout-measure',
       'layout-title',
+    ])
+    expect(dimension('size').map((t) => [t.name, t.value])).toEqual([
+      ['size-target', 44],
+      ['size-icon', 20],
     ])
   })
 

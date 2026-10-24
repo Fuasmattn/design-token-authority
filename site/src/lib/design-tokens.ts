@@ -95,8 +95,10 @@ export function colorScales(): Array<{ scale: string; tokens: PrimitiveToken[] }
   return [...scales].map(([scale, tokens]) => ({ scale, tokens }))
 }
 
-/** Number primitives of one group (`space`, `radius`, `stroke`, `layout`); values are in px. */
-export function dimension(group: 'space' | 'radius' | 'stroke' | 'layout'): PrimitiveToken[] {
+/** Number primitives of one group (`space`, `radius`, `stroke`, `layout`, `size`); values are in px. */
+export function dimension(
+  group: 'space' | 'radius' | 'stroke' | 'layout' | 'size',
+): PrimitiveToken[] {
   return primitives()
     .filter((t) => t.name[0] === group)
     .map(primitive)

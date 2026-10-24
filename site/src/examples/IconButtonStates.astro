@@ -1,0 +1,21 @@
+---
+import IconButton from '../components/ds/IconButton.astro'
+---
+
+<div class="row">
+  <IconButton icon="github" label="GitHub repository" href="#github" />
+  <IconButton icon="github" label="GitHub repository" href="#github" state="hover" />
+  <IconButton icon="github" label="GitHub repository" href="#github" state="focus" />
+  <IconButton icon="npm" label="npm package" href="#npm" />
+  <IconButton icon="npm" label="npm package" href="#npm" state="hover" />
+  <IconButton icon="npm" label="npm package" href="#npm" state="focus" />
+</div>
+
+<style>
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    padding: var(--space-2);
+  }
+</style>

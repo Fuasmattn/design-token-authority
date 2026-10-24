@@ -1067,6 +1067,32 @@
       }
     }
   },
+  "size": {
+    "target": {
+      "$type": "number",
+      "$value": 44,
+      "$description": "Minimum touch target (WCAG 2.5.5): icon buttons, the menu toggle, segmented controls.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["WIDTH_HEIGHT"],
+          "codeSyntax": {}
+        }
+      }
+    },
+    "icon": {
+      "$type": "number",
+      "$value": 20,
+      "$description": "Icon glyph size inside an icon button.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["WIDTH_HEIGHT"],
+          "codeSyntax": {}
+        }
+      }
+    }
+  },
   "font": {
     "sans": {
       "$type": "string",

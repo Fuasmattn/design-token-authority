@@ -1,13 +1,13 @@
 ---
-title: Spacing, radius and stroke
-description: Lengths of DTA Drafting Table in px (spacing, radius, stroke and layout widths).
+title: Spacing, radius, stroke and size
+description: Lengths of DTA Drafting Table in px (spacing, radius, stroke, layout widths and control sizes).
 sidebar:
   order: 3
 ---
 
 import Dimensions from '../../../../components/docs/Dimensions.astro'
 
-A 4px base. Figma scopes on the tokens (`GAP`, `CORNER_RADIUS`, `STROKE_FLOAT`) tell `dta build` to write these in `px`.
+A 4px base. Figma scopes on the tokens (`GAP`, `CORNER_RADIUS`, `STROKE_FLOAT`, `WIDTH_HEIGHT`) tell `dta build` to write these in `px`.
 
 ## Spacing
 
@@ -30,3 +30,9 @@ Hairline for surfaces, redline for measurements, ink for interactive outlines an
 Maximum widths: page content, a section heading, the page title and running text.
 
 <Dimensions group="layout" />
+
+## Size
+
+Controls and icons: the 44px touch target that every icon-only control fills (the [Icon button](/design-system/components/icon-button/), the menu toggle, the theme switch), and the glyph inside it.
+
+<Dimensions group="size" />

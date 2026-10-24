@@ -1,0 +1,42 @@
+/*
+ * Icon button styles, shared by IconButton.astro and the design-system components that render one
+ * in a Preact island (DetailPanel's close button): one look for every icon-only control. Global
+ * classes, prefixed.
+ */
+.dta-icon-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--size-target);
+  height: var(--size-target);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  color: var(--fg-default);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+.dta-icon-button:hover,
+.dta-icon-button:focus-visible,
+.dta-icon-button[data-state] {
+  background-color: var(--bg-hover);
+}
+.dta-icon-button:focus-visible,
+.dta-icon-button[data-state='focus'] {
+  outline: none;
+  box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+}
+.dta-icon-button svg {
+  width: var(--size-icon);
+  height: var(--size-icon);
+  fill: currentColor;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dta-icon-button {
+    transition: none;
+  }
+}

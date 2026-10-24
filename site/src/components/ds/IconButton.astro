@@ -1,0 +1,34 @@
+---
+/**
+ * An action or link shown only as an icon: a `size-target` circle around a `size-icon` glyph.
+ * At rest only the icon shows; hover fills the circle with `bg-hover`, keyboard focus adds the
+ * focus ring. The label is required: it is the accessible name (and the tooltip), the icon is
+ * hidden from assistive tech. The styles live in IconButton.css so islands can render the same
+ * button (class `dta-icon-button`).
+ */
+import { ICONS, type IconName } from './icons'
+import './IconButton.css'
+
+interface Props {
+  icon: IconName
+  /** Accessible name: what the button does or where the link leads ("GitHub repository"). */
+  label: string
+  href?: string
+  /** Show a state without interaction (stories only). */
+  state?: 'hover' | 'focus'
+}
+const { icon, label, href, state } = Astro.props
+const { viewBox, path } = ICONS[icon]
+const Tag = href ? 'a' : 'button'
+---
+
+<Tag
+  class="dta-icon-button"
+  href={href}
+  type={href ? undefined : 'button'}
+  aria-label={label}
+  title={label}
+  data-state={state}
+>
+  <svg viewBox={viewBox} aria-hidden="true" focusable="false"><path d={path}></path></svg>
+</Tag>

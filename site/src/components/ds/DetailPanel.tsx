@@ -28,8 +28,10 @@
 import type { ComponentChildren } from 'preact'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import Changed from './Changed'
+import { ICONS } from './icons'
 import { breakPaths } from './TokenPath'
 import './Button.css'
+import './IconButton.css'
 import './DetailPanel.css'
 
 export interface DetailLine {
@@ -232,11 +234,14 @@ export default function DetailPanel({
         </div>
         <button
           type="button"
-          class="dta-detail__close"
+          class="dta-icon-button dta-detail__close"
           aria-label="Close details"
+          title="Close details"
           onClick={dismiss}
         >
-          <span aria-hidden="true">×</span>
+          <svg viewBox={ICONS.close.viewBox} aria-hidden="true" focusable="false">
+            <path d={ICONS.close.path} />
+          </svg>
         </button>
       </div>
       <div class="dta-detail__body">

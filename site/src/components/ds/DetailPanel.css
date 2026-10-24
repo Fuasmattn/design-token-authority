@@ -175,29 +175,9 @@
   outline: var(--stroke-focus) solid var(--action-bg);
   outline-offset: var(--stroke-ink);
 }
+/* The close button is an Icon button (IconButton.css); it does not shrink in the header row. */
 .dta-detail__close {
-  display: grid;
-  place-items: center;
   flex: none;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: var(--stroke-hairline) solid var(--border-default);
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--fg-default);
-  font: inherit;
-  font-size: calc(var(--type-title-size) * 1px);
-  line-height: 1;
-  cursor: pointer;
-}
-.dta-detail__close:hover {
-  border-color: var(--border-strong);
-}
-.dta-detail__close:focus-visible {
-  outline: none;
-  border-color: var(--action-bg);
-  box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
 }
 
 .dta-detail__body {

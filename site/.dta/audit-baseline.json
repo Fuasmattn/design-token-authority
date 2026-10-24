@@ -2,6 +2,34 @@
   "schema": "dta.audit-baseline/1",
   "findings": [
     {
+      "file": "src/components/docs/StatusTokens.astro",
+      "value": "20px",
+      "kind": "spacing",
+      "context": "margin",
+      "token": "size.icon"
+    },
+    {
+      "file": "src/components/ds/Button.css",
+      "value": "20px",
+      "kind": "spacing",
+      "context": "padding",
+      "token": "size.icon"
+    },
+    {
+      "file": "src/components/ds/ExampleButton.astro",
+      "value": "20px",
+      "kind": "spacing",
+      "context": "padding",
+      "token": "size.icon"
+    },
+    {
+      "file": "src/components/ds/Terminal.astro",
+      "value": "20px",
+      "kind": "spacing",
+      "context": "padding",
+      "token": "size.icon"
+    },
+    {
       "file": "src/landing/content.ts",
       "value": "#2443ac",
       "kind": "color",

@@ -188,6 +188,13 @@ export const STORIES: readonly Story[] = [
   },
   {
     component: 'nav',
+    variant: 'controls',
+    title: 'With icon buttons and the theme switch',
+    example: 'NavControls',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
+    component: 'nav',
     variant: 'current',
     title: 'The page you are on: Playground',
     example: 'NavCurrent',
@@ -198,6 +205,13 @@ export const STORIES: readonly Story[] = [
     variant: 'default',
     title: 'Mark and wordmark',
     example: 'LogoDefault',
+    viewports: [DESKTOP],
+  },
+  {
+    component: 'icon-button',
+    variant: 'states',
+    title: 'GitHub and npm: rest, hover, keyboard focus',
+    example: 'IconButtonStates',
     viewports: [DESKTOP],
   },
   {

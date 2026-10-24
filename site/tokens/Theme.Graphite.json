@@ -36,6 +36,18 @@
         }
       }
     },
+    "hover": {
+      "$type": "color",
+      "$value": "{graphite.700}",
+      "$description": "Hover fill of icon controls (icon button, menu toggle): one step stronger than bg-subtle so it shows on bg-canvas.",
+      "$extensions": {
+        "com.figma": {
+          "hiddenFromPublishing": false,
+          "scopes": ["ALL_FILLS", "STROKE_COLOR", "TEXT_FILL"],
+          "codeSyntax": {}
+        }
+      }
+    },
     "grid": {
       "$type": "color",
       "$value": "{graphite.825}",

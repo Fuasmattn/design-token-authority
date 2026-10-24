@@ -2,7 +2,7 @@
 /**
  * The frame of the site's standalone pages (the landing page, the playground; spec
  * docs/specs/playground.md decision 12): token CSS, both themes, the fonts, the header with the
- * logo, the navigation and the theme switch, and the footer. The page fills the default slot
+ * logo, the navigation, the GitHub and npm icon buttons and the theme switch, and the footer. The page fills the default slot
  * with its `<main id="main">` and imports its own stylesheet after this layout, so the page's
  * file only places components (src/styles/site.css holds the shared frame).
  */
@@ -14,6 +14,7 @@ import '../styles/site.css'
 import sansUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wdth-normal.woff2?url'
 import sansItalicUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wdth-italic.woff2?url'
 import monoUrl from '@fontsource-variable/martian-mono/files/martian-mono-latin-wght-normal.woff2?url'
+import IconButton from '../components/ds/IconButton.astro'
 import Logo from '../components/ds/Logo.astro'
 import Nav from '../components/ds/Nav.astro'
 import ThemeSwitch from '../components/ds/ThemeSwitch.astro'
@@ -24,6 +25,7 @@ interface Props {
 }
 const { title, description } = Astro.props
 const github = 'https://github.com/Fuasmattn/design-token-authority'
+const npm = 'https://www.npmjs.com/package/design-token-authority'
 // The landing page's sections are anchors on the page itself; elsewhere they lead back to it.
 // The link of the page shown is current (Nav); the landing page's sections never are.
 const path = Astro.url.pathname
@@ -67,6 +69,8 @@ const NAV = [
     <header class="site-header">
       <Logo />
       <Nav links={NAV} idPrefix="site">
+        <IconButton icon="github" label="GitHub repository" href={github} />
+        <IconButton icon="npm" label="npm package" href={npm} />
         <ThemeSwitch />
       </Nav>
     </header>
