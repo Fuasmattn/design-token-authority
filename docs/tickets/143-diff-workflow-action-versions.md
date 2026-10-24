@@ -17,7 +17,7 @@ Found while testing TICKET-087 (PRs #28, #29): GitHub warns that `actions/checko
 - [x] One place for the versions in the generator, with a test that every generated workflow uses them
 - [x] `actions/examples/*.yml`, this repository's `.github/workflows/*` (re-run `dta init --diff` in `site/`, keep the hand-added Vercel env) and the docs (`guides/ci.mdx`, the guide page; `llms-full.txt` is generated) use the same versions
 - [x] Re-running `dta init --diff` on a project with old generated files updates them (unchanged hash) and keeps hand-edited ones
-- [ ] Dependabot PRs #25–27 closed or merged as part of this
+- [x] Dependabot PRs #25–27 closed or merged as part of this (closed by Dependabot after `51a60f0`)
 - [ ] A real pull request shows no Node 20 warning; all gates pass
 
 ## Notes
@@ -32,4 +32,5 @@ Found while testing TICKET-087 (PRs #28, #29): GitHub warns that `actions/checko
 - Breaking changes checked: checkout v7 refuses fork PR code in `pull_request_target` / `workflow_run` (the report workflow checks out the default branch, the run workflow is `pull_request`: unaffected; GitHub also backported it to `@v4`). setup-node v5+ caches by itself when `packageManager` is set: bun gets `package-manager-cache: false`. download-artifact v5 extracts downloads by ID without the name folder: the report action downloads by name, unaffected. pnpm/action-setup v6 bootstraps pnpm with npm and still reads `packageManager` and `version`.
 - Found on the way: the example report workflow passed only `VERCEL_TOKEN` to the Vercel hook; it now passes `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` too, as the site's workflow does (without them `vercel deploy` does not know the project).
 - Guide: files init wrote follow a newer DTA; in hand-edited files the versions are bumped by hand. The site's `dta-diff-report.yml` (hand-edited for the Vercel env) was bumped by hand.
-- Left: a real pull request without the Node 20 warning; Dependabot PRs #25–27 close themselves once main has the versions (or close them by hand).
+- CI on main after `51a60f0`: all jobs green, no Node 20 warning left (only GitHub's notice about `ubuntu-latest` moving to Ubuntu 26). Dependabot closed #25–27.
+- Left: the `dta diff` workflows (run, report with download-artifact v8, approve) on a real pull request.
