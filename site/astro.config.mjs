@@ -4,8 +4,11 @@ import starlight from '@astrojs/starlight'
 import { defineConfig } from 'astro/config'
 import starlightLinksValidator from 'starlight-links-validator'
 import { CUSTOM_PAGES } from './custom-pages.mjs'
+import { SITE_URL } from './site-url.mjs'
 
 export default defineConfig({
+  // The sitemap and canonical links (TICKET-075).
+  site: SITE_URL,
   vite: {
     build: {
       rolldownOptions: {

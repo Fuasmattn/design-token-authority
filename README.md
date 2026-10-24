@@ -35,7 +35,7 @@ Once installed, `dta` is the short name in package scripts and `npx dta` finds i
 
 ## Documentation
 
-The website in `site/` holds the docs (`pnpm site:dev`):
+The docs are on the website, **[dta.martinprinz.dev](https://dta.martinprinz.dev)**; its source is in `site/` (`pnpm site:dev`):
 
 - [What DTA is](site/src/content/docs/start/index.mdx), [Quick start](site/src/content/docs/start/quick-start.mdx), [Core concepts](site/src/content/docs/start/concepts.mdx)
 - Guides: [Figma](site/src/content/docs/guides/figma.mdx), [Brands and themes](site/src/content/docs/guides/brands-and-themes.mdx), [Tailwind](site/src/content/docs/guides/tailwind.mdx), [CI](site/src/content/docs/guides/ci.mdx), [dta diff in pull requests](site/src/content/docs/guides/dta-diff-in-pull-requests.mdx), [dta diff with Storybook](site/src/content/docs/guides/dta-diff-with-storybook.mdx), [Migrating from v1](site/src/content/docs/guides/migrate-from-v1.mdx)

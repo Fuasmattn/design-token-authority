@@ -191,7 +191,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [072](./072-site-docs-content.md)        | Docs content (Start, Guides, Reference, Contribute) and a slim README    | High     | M      | 067, 069   | Done   |
 | [073](./073-site-learn.md)               | Learn: DTCG intro and token pattern catalogue                            | Medium   | M      | 069        | Done   |
 | [074](./074-site-generated-reference.md) | Generated reference, published schemas and `llms.txt`                    | Medium   | M      | 069        | Done   |
-| [075](./075-site-deploy.md)              | Deploy the website on Vercel                                             | Medium   | S      | 069        | Open   |
+| [075](./075-site-deploy.md)              | Deploy the website on Vercel                                             | Medium   | S      | 069        | Done   |
 
 **Epic 7b — Playground ([spec](../specs/playground.md))**
 

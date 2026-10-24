@@ -16,7 +16,9 @@ import {
   llmsTxt,
   toMarkdown,
   typeOf,
+  withId,
 } from './scripts/generate-reference.js'
+import { SITE_URL } from './site-url.mjs'
 
 describe('Commands page', async () => {
   const page = await commandsPage()
@@ -77,6 +79,17 @@ describe('Configuration page', () => {
   })
 })
 
+describe('published schemas', () => {
+  it('carry their address as $id, after $schema', () => {
+    const schema = withId(
+      { $schema: 'https://json-schema.org/draft/2020-12/schema', type: 'object' },
+      'dta.config.schema.json',
+    )
+    expect(Object.keys(schema)).toEqual(['$schema', '$id', 'type'])
+    expect(schema).toMatchObject({ $id: `${SITE_URL}/schemas/dta.config.schema.json` })
+  })
+})
+
 describe('llms.txt', () => {
   const pages = docPages()
 
@@ -89,14 +102,16 @@ describe('llms.txt', () => {
     // The generated reference pages may not exist yet in a fresh checkout.
     expect(pages.length).toBeGreaterThanOrEqual(sources.length)
     const index = llmsTxt(pages)
-    for (const page of pages) expect(index).toContain(`- [${page.title}](${page.url})`)
-    expect(index).toContain('- [Token patterns](/learn/patterns/)')
+    for (const page of pages) expect(index).toContain(`- [${page.title}](${SITE_URL}${page.url})`)
+    expect(index).toContain(`- [Token patterns](${SITE_URL}/learn/patterns/)`)
+    expect(index).toContain(`(${SITE_URL}/schemas/dta.config.schema.json)`)
     expect(index).not.toContain('/design-system/')
   })
 
   it('llms-full.txt has the text of every page, without MDX', () => {
     const full = llmsFullTxt(pages)
-    for (const page of pages) expect(full).toContain(`# ${page.title}\n\nURL: ${page.url}`)
+    for (const page of pages)
+      expect(full).toContain(`# ${page.title}\n\nURL: ${SITE_URL}${page.url}`)
     expect(full).not.toMatch(/^import /m)
     expect(full).not.toContain('<Code')
     expect(full).not.toContain('<Steps>')

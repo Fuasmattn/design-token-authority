@@ -39,8 +39,8 @@ One site, not three: landing page, docs and Learn under one navigation, built wi
 
 ## Open questions (need a maintainer call before the tickets start)
 
-1. **Deploy mechanism:** Vercel GitHub integration (recommended: no secrets in the repo, previews out of the box, one manual project setup) or GitHub Actions + Vercel CLI (secrets `VERCEL_TOKEN`, org and project id). (Epic 8's report hosting is independent: it goes through a user-configured publish hook; DTA's own repo will use a Vercel recipe there.)
-2. **Domain:** `*.vercel.app` for now, or a custom (sub)domain?
+1. **Deploy mechanism:** _Answered 2026-10-24: the Vercel GitHub integration (TICKET-075)._ Vercel GitHub integration (recommended: no secrets in the repo, previews out of the box, one manual project setup) or GitHub Actions + Vercel CLI (secrets `VERCEL_TOKEN`, org and project id). (Epic 8's report hosting is independent: it goes through a user-configured publish hook; DTA's own repo will use a Vercel recipe there.)
+2. **Domain:** `*.vercel.app` for now, or a custom (sub)domain? _Answered 2026-10-24: `dta.martinprinz.dev`, with `design-token-authority.vercel.app` serving the same site (TICKET-075)._
 3. **Logo:** the design system has only a working mark (two overlapping rounded squares + "dta"). Use it as is for launch?
 4. **Hero visual:** the canvas has several hero drafts (the J review demo, robot/mascot and isometric workbench explorations). Superseded by [landing-redesign](./landing-redesign.md) (2026-10-17): no hero visual; the loop diagram is the first picture.
 5. **Learn content depth:** the concept wants references to how large public systems structure tokens (Material, Primer, Spectrum, Atlassian, Salesforce Lightning). Write that research into the Learn ticket (recommended), or ship Learn with the DTCG intro and pattern catalogue first?

@@ -14,6 +14,7 @@
  */
 import fs from 'node:fs'
 import path from 'node:path'
+import { SITE_URL } from '../site-url.mjs'
 import {
   auditJsonSchema,
   commandReference,
@@ -277,7 +278,7 @@ export function llmsTxt(pages: DocPage[]): string {
       .filter((page) => page.url.startsWith(`/${dir}/`))
       .map(
         (page) =>
-          `- [${page.title}](${page.url})${page.description ? `: ${page.description}` : ''}`,
+          `- [${page.title}](${SITE_URL}${page.url})${page.description ? `: ${page.description}` : ''}`,
       )
     return `## ${label}\n\n${links.join('\n')}`
   })
@@ -285,17 +286,23 @@ export function llmsTxt(pages: DocPage[]): string {
 
 > The deterministic backbone for design token workflows, built for humans and agents: a CLI that syncs Figma variables with DTCG token files, lints them, builds CSS, JavaScript and Tailwind outputs, and shows token changes and their visual effect in pull requests.
 
-The full text of every page below is in [/llms-full.txt](/llms-full.txt). The config JSON Schema is at [/schemas/dta.config.schema.json](/schemas/dta.config.schema.json), the token-file JSON Schema at [/schemas/token-file.schema.json](/schemas/token-file.schema.json), the JSON output of \`dta token\` at [/schemas/dta.token.schema.json](/schemas/dta.token.schema.json), of \`dta audit\` at [/schemas/dta.audit.schema.json](/schemas/dta.audit.schema.json).
+The full text of every page below is in [/llms-full.txt](${SITE_URL}/llms-full.txt). The config JSON Schema is at [/schemas/dta.config.schema.json](${SITE_URL}/schemas/dta.config.schema.json), the token-file JSON Schema at [/schemas/token-file.schema.json](${SITE_URL}/schemas/token-file.schema.json), the JSON output of \`dta token\` at [/schemas/dta.token.schema.json](${SITE_URL}/schemas/dta.token.schema.json), of \`dta audit\` at [/schemas/dta.audit.schema.json](${SITE_URL}/schemas/dta.audit.schema.json).
 
 ${sections.join('\n\n')}
 `
 }
 
 export function llmsFullTxt(pages: DocPage[]): string {
-  return `${pages.map((page) => `# ${page.title}\n\nURL: ${page.url}\n\n${page.body}`).join('\n\n---\n\n')}\n`
+  return `${pages.map((page) => `# ${page.title}\n\nURL: ${SITE_URL}${page.url}\n\n${page.body}`).join('\n\n---\n\n')}\n`
 }
 
 // ---------------------------------------------------------------------------------------------
+
+/** A published schema with its address as `$id`, after `$schema`. */
+export function withId(schema: object, name: string): object {
+  const { $schema, ...rest } = schema as { $schema?: string }
+  return { ...($schema ? { $schema } : {}), $id: `${SITE_URL}/schemas/${name}`, ...rest }
+}
 
 function write(file: string, content: string) {
   fs.mkdirSync(path.dirname(file), { recursive: true })
@@ -305,19 +312,18 @@ function write(file: string, content: string) {
 export async function generate(): Promise<void> {
   write(path.join(docsDir, 'reference', 'commands.md'), await commandsPage())
   write(path.join(docsDir, 'reference', 'configuration.md'), configurationPage())
-  write(
-    path.join(publicDir, 'schemas', 'dta.config.schema.json'),
-    `${JSON.stringify(configJsonSchema(), null, 2)}\n`,
-  )
-  write(
-    path.join(publicDir, 'schemas', 'dta.audit.schema.json'),
-    `${JSON.stringify(auditJsonSchema(), null, 2)}\n`,
-  )
-  write(
-    path.join(publicDir, 'schemas', 'dta.token.schema.json'),
-    `${JSON.stringify(tokenJsonSchema(), null, 2)}\n`,
-  )
-  fs.copyFileSync(TOKEN_FILE_SCHEMA, path.join(publicDir, 'schemas', 'token-file.schema.json'))
+  const schemas: Array<[string, object]> = [
+    ['dta.config.schema.json', configJsonSchema()],
+    ['dta.audit.schema.json', auditJsonSchema()],
+    ['dta.token.schema.json', tokenJsonSchema()],
+    ['token-file.schema.json', JSON.parse(fs.readFileSync(TOKEN_FILE_SCHEMA, 'utf8'))],
+  ]
+  for (const [name, schema] of schemas) {
+    write(
+      path.join(publicDir, 'schemas', name),
+      `${JSON.stringify(withId(schema, name), null, 2)}\n`,
+    )
+  }
   // After the reference pages, so that they are part of the llms files.
   const pages = docPages()
   write(path.join(publicDir, 'llms.txt'), llmsTxt(pages))

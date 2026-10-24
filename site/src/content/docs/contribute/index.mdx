@@ -67,3 +67,9 @@ A plugin-export adapter is a good first contribution: one file in `packages/figm
 Releases run from `main` with the **Release** workflow (Actions → Release → Run workflow, with `patch`, `minor`, `major` or a version). release-it sets the version of both packages, writes the changelog from the conventional commit messages, builds `dist/`, tags and creates the GitHub release; then pnpm publishes `design-token-authority` and `create-dta` to npm with provenance. The workflow needs the repository secret `NPM_TOKEN`.
 
 Before a release, the CI job `package` installs both packages from their tarballs into an empty project and runs `create-dta --yes`, `build`, `lint`, `diff --tokens-only` and a type check of the config there. Locally: `DTA_PACKAGE_E2E=1 pnpm vitest run --project create-dta`.
+
+## The website
+
+The website deploys with Vercel's GitHub integration: production from `main` at [dta.martinprinz.dev](https://dta.martinprinz.dev) (also `design-token-authority.vercel.app`), a preview for every pull request. Vercel reads the install and build commands and the output folder from `vercel.json`; the project's Node.js version is 24.x. The repository holds no Vercel secret. The address used by the sitemap, the links in `llms.txt` and the `$id` of the published schemas is `SITE_URL` in `site/site-url.mjs`.
+
+One-time setup, done once in the Vercel dashboard: import the repository (Add New → Project, root directory `./`, framework Other), set Node.js to 24.x, add the domain under Settings → Domains, and point it at Vercel with the CNAME record the dashboard shows.
