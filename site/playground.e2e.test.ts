@@ -508,6 +508,11 @@ describe.skipIf(!enabled)('playground on the built site', () => {
       const { context, page, errors } = await open(width, 'light')
       try {
         await page.getByRole('button', { name: 'Load example' }).click()
+        // Loading moves focus to the source bar's status in an effect; focusing the row before
+        // that lands sends Enter to the status, and the panel never opens (TICKET-139).
+        await page.waitForFunction(() =>
+          document.activeElement?.classList.contains('dta-source__status'),
+        )
         const row = page.getByRole('button', { name: /^Brand\(Alias\)/ })
         await row.focus()
         await page.keyboard.press('Enter')

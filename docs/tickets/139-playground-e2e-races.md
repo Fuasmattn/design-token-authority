@@ -31,3 +31,7 @@ Reproduced on purpose: with the hand-over render removed, the graph test fails w
 
 - [x] Both tests wait for or survive the deferred effect, and the graph test passes with the hand-over render removed
 - [ ] The CI job "site" green on the push (and no reruns needed for these two over the next pushes)
+
+## Third case (2026-10-24)
+
+The "site" job failed on `5472d7e` (a docs-only commit): "at %i px the detail panel opens from a row … Escape returns it" timed out waiting for the dialog. Same race as the tab bar test: the test focused the row and pressed Enter while "Load example"'s effect had not yet moved focus to the source bar's status; when it landed, Enter went to the status. The test now waits for the status to have focus before it focuses the row. It was the only test that focuses and types right after "Load example" (the others click).
