@@ -1,5 +1,7 @@
 # Changelog
 
+## [2.0.4](https://github.com/Fuasmattn/design-token-authority/compare/v2.0.2...v2.0.4) (2026-10-24)
+
 ## [2.0.2](https://github.com/Fuasmattn/design-token-authority/compare/v2.0.1...v2.0.2) (2026-10-24)
 
 ### Features
