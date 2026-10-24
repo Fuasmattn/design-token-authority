@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@dta/testkit": "workspace:*",
-    "@types/node": "^24.12.2",
+    "@types/node": "^26.6.5",
     "ajv": "8.17.1",
     "playwright-core": "1.59.1",
     "typescript": "^5.1.6",

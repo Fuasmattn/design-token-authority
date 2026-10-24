@@ -26,7 +26,7 @@
     "@dta/core": "workspace:*",
     "@dta/figma": "workspace:*",
     "@dta/lint": "workspace:*",
-    "@types/node": "^24.12.2",
+    "@types/node": "^26.6.5",
     "astro": "7.3.5",
     "design-token-authority": "workspace:*",
     "esbuild": "0.28.2",
