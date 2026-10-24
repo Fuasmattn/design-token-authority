@@ -70,7 +70,7 @@
     "@dta/visual-diff": "workspace:*",
     "@figma/rest-api-spec": "^0.37.0",
     "@release-it/conventional-changelog": "^10.0.6",
-    "@types/node": "^24.12.2",
+    "@types/node": "^26.6.5",
     "@vitest/coverage-v8": "^4.1.2",
     "esbuild": "0.27.7",
     "prettier": "^3.8.1",
