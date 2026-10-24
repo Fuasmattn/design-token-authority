@@ -4,7 +4,7 @@
 **Priority:** Low
 **Effort:** S
 **Blocked by:** —
-**Status:** open
+**Status:** in review (real PR after the push)
 **Spec:** [visual-diff](../specs/visual-diff.md) (decisions 10–13)
 
 ## What to build
@@ -27,3 +27,10 @@ The status line and the comment author stay GitHub Actions: a custom avatar ther
 - GitHub proxies images in comments (camo); SVG works when served with `image/svg+xml`. Check this first, else ship a PNG at 2× size.
 - `site/public/favicon.svg` is the starting point for the shape.
 - The URL is fixed in the action, not configurable (no new config key, spec: no new features in Phase 11).
+
+## Progress (2026-10-24)
+
+- Maintainer: use the site icon (the favicon). `site/src/lib/brand-mark.ts` draws it from the tokens: the square `blueprint.600`, the outline `border.strong` of the theme (`ink.900` in Light, `paper.200` in Graphite, so it stays visible on GitHub's dark background). Served as `/brand/dta-mark-light.svg` and `/brand/dta-mark-dark.svg`; `/favicon.svg` is now generated from the same drawing (same picture as before, no colour literals left). Logo page: section "The mark as a file".
+- Comment: `headline(verdict)` in `actions/lib/dta-diff.mjs` puts a `<picture>` (dark source, light `<img>`, 20 px, empty alt) before the emoji and the verdict; marker and state line stay first. Tests in `dta-diff.test.ts` and `brand-mark.test.ts`.
+- SVG through GitHub's image proxy: SVG badges load in comments the same way; checked on the real pull request after the push (light, dark, mobile).
+- Guide: one sentence on the mark, one on a GitHub App token for your own name and avatar.

@@ -117,6 +117,7 @@ describe('report', () => {
     expect(db.comments).toHaveLength(1)
     const body = db.comments[0].body
     expect(body.startsWith('<!-- dta-diff -->')).toBe(true)
+    expect(body).toContain(`${lib.headline('review')}\n`)
     expect(body).toContain('🟠 **dta diff: changes to review**')
     expect(body).toContain('Add the `dta-diff-approved` label to approve aaaaaaa.')
     expect(body).toContain("[workflow run's artifacts](https://gh/run/1)")
@@ -127,6 +128,32 @@ describe('report', () => {
     expect(db.comments).toHaveLength(1)
     expect(db.comments[0].body).toContain('✅ **dta diff: pass**')
     expect(db.comments[0].body).not.toContain('Add the')
+  })
+
+  it('opens the headline with the DTA mark for light and dark themes (TICKET-144)', () => {
+    expect(lib.MARK).toEqual({
+      light: 'https://dta.martinprinz.dev/brand/dta-mark-light.svg',
+      dark: 'https://dta.martinprinz.dev/brand/dta-mark-dark.svg',
+    })
+    const icon =
+      '<picture><source media="(prefers-color-scheme: dark)" srcset="https://dta.martinprinz.dev/brand/dta-mark-dark.svg">' +
+      '<img src="https://dta.martinprinz.dev/brand/dta-mark-light.svg" width="20" height="20" alt="" align="top"></picture>'
+    expect(lib.headline('pass')).toBe(`${icon} ✅ **dta diff: pass**`)
+    expect(lib.headline('review')).toBe(`${icon} 🟠 **dta diff: changes to review**`)
+    expect(lib.headline('fail')).toBe(`${icon} 🔴 **dta diff: unexplained changes**`)
+    // Token changes only (no verdict): the mark and the name.
+    expect(lib.headline(undefined)).toBe(`${icon} **dta diff**`)
+    // The marker and the state line stay first, so comments posted before are found again.
+    const body = lib.commentBody({
+      result: { verdict: 'pass' },
+      summary: '',
+      state: { sha: SHA, verdict: 'pass' },
+    })
+    expect(body.split('\n').slice(0, 3)).toEqual([
+      '<!-- dta-diff -->',
+      `<!-- dta-diff-state ${JSON.stringify({ sha: SHA, verdict: 'pass' })} -->`,
+      lib.headline('pass'),
+    ])
   })
 
   it('links the published report instead of the artifact', async () => {

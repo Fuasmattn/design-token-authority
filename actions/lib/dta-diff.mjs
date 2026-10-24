@@ -82,6 +82,27 @@ const HEADLINE = {
   fail: '🔴 **dta diff: unexplained changes**',
 }
 
+/**
+ * The DTA mark, served by the website (TICKET-144; site/src/lib/brand-mark.ts). Comments
+ * already posted load these URLs, so they stay as they are.
+ */
+export const MARK = {
+  light: 'https://dta.martinprinz.dev/brand/dta-mark-light.svg',
+  dark: 'https://dta.martinprinz.dev/brand/dta-mark-dark.svg',
+}
+
+/**
+ * The comment's first line: the mark (GitHub picks the dark file in its dark theme), then the
+ * verdict. The mark is decorative (empty alt); the emoji and the text carry the verdict for
+ * screen readers and e-mail notifications.
+ */
+export function headline(verdict) {
+  const icon =
+    `<picture><source media="(prefers-color-scheme: dark)" srcset="${MARK.dark}">` +
+    `<img src="${MARK.light}" width="20" height="20" alt="" align="top"></picture>`
+  return `${icon} ${HEADLINE[verdict] ?? '**dta diff**'}`
+}
+
 const APPROVAL = /<!-- dta-diff-approval -->[\s\S]*?<!-- \/dta-diff-approval -->/
 
 /** The approval line, between markers so `approve` can replace it. */
@@ -99,7 +120,7 @@ export function approvalBlock(state, label = DEFAULT_LABEL) {
 /** The sticky comment: verdict, approval, where the report is, then summary.md. */
 export function commentBody({ result, summary, state, artifactUrl, label = DEFAULT_LABEL }) {
   const lines = [MARKER, stateLine(state)]
-  lines.push(HEADLINE[result.verdict] ?? '**dta diff**')
+  lines.push(headline(result.verdict))
   lines.push(approvalBlock(state, label))
   if (!result.publish) {
     lines.push(

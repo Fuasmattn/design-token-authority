@@ -143,7 +143,7 @@ Pull requests from forks run with a read-only token and no secrets, so the work 
 
 </Steps>
 
-The actions only wrap `dta diff`: `diff` runs it and uploads the report folder, `diff-report` runs your publish hook with `dta diff --from-report --publish …` and posts the status and the comment, `diff-approve` reacts to the label. The comment is found again by a hidden marker and edited in place.
+The actions only wrap `dta diff`: `diff` runs it and uploads the report folder, `diff-report` runs your publish hook with `dta diff --from-report --publish …` and posts the status and the comment, `diff-approve` reacts to the label. The comment is found again by a hidden marker and edited in place. It opens with the DTA mark, loaded from this website in GitHub's light or dark theme. The status and the comment come from GitHub Actions, with its name and avatar; to show your own, post them with a token of a GitHub App you create (the app's name and avatar appear instead).
 
 ## Approving changes
 
