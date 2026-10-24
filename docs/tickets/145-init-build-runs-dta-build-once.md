@@ -4,7 +4,7 @@
 **Priority:** Low
 **Effort:** XS
 **Blocked by:** —
-**Status:** in review
+**Status:** done (2026-10-24)
 **Spec:** [diff-zero-setup](../specs/diff-zero-setup.md)
 
 ## What to build
@@ -27,3 +27,4 @@ Found in TICKET-142's test repository: the `build` script was `dta build && node
 - `detectProject` sets `buildRunsDta` when the detected build script (or the Storybook build script) runs `dta build` (also through npx, pnpm exec, yarn, bunx, or as `design-token-authority build`); `proposeSection` then proposes the script alone.
 - Tests: the script patterns in `detect.test.ts`; in `init-diff.test.ts` a project whose Storybook script gets `dta build` moves from `npx dta build && npm run build-storybook` to `npm run build-storybook` on a re-run (a key init wrote follows the project).
 - Quick start: one sentence on why `build` starts with `dta build`, and when it does not.
+- CI on `806c0fc` green (test, site, package, audit, diff-e2e).
