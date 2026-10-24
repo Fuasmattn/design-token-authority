@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** S
 **Blocked by:** 090 (both packages exist on npm)
-**Status:** in review (the npm settings, the first release and deleting the token need the maintainer)
+**Status:** in review (all criteria met; ready to close)
 
 ## Problem
 
@@ -14,9 +14,9 @@ The first releases (2.0.0–2.0.2) published with `NPM_TOKEN`, a granular npm to
 
 - [x] `release.yml` publishes without `NPM_TOKEN` (`id-token: write` stays; npm 11.5.1 or newer)
 - [x] The release publishes with `npm publish` (trusted publishing is documented for the npm CLI; pnpm only packs, which applies `publishConfig` and the `workspace:` versions)
-- [ ] Both packages trust `Fuasmattn/design-token-authority`, workflow `release.yml`, with `npm publish` allowed (npmjs.com, maintainer)
-- [ ] A release publishes both packages through OIDC, with provenance (maintainer runs Release)
-- [ ] The npm token deleted on npmjs.com, the `NPM_TOKEN` secret removed, both packages set to "Require two-factor authentication and disallow tokens"
+- [x] Both packages trust `Fuasmattn/design-token-authority`, workflow `release.yml`, with `npm publish` allowed (npmjs.com, maintainer)
+- [x] A release publishes both packages through OIDC, with provenance (maintainer runs Release)
+- [x] The npm token deleted on npmjs.com, the `NPM_TOKEN` secret removed, both packages set to "Require two-factor authentication and disallow tokens"
 - [x] Contribute page: how releases publish
 
 ## Outcome (2026-10-24)
@@ -24,3 +24,7 @@ The first releases (2.0.0–2.0.2) published with `NPM_TOKEN`, a granular npm to
 - `.release-it.json` `before:git:release`: `pnpm pack` of both packages into `.release/` (gitignored), then `npm publish .release/<name>-${version}.tgz --access public` for each. Checked locally: both tarballs pack (create-dta depends on `design-token-authority@^<version>`, has `access: public`), and `npm publish --dry-run` takes them.
 - `release.yml`: no `NODE_AUTH_TOKEN` and no `NPM_CONFIG_PROVENANCE` (npm adds provenance itself for a public package published through trusted publishing); a step installs npm ^11.5.1. `registry-url` and `id-token: write` stay.
 - npm does not check a trusted-publisher configuration when it is saved, and a new one expires unless a publish uses it within 2 days: run the first release soon after setting it up.
+
+## Release through OIDC (2026-10-24)
+
+Both packages trust `release.yml` (with `npm publish` allowed). Release 2.0.4 published `design-token-authority` and `create-dta` without a token; both carry an SLSA provenance attestation (`npm view <package>@2.0.4 dist.attestations`). Then the maintainer deleted the npm token, removed the `NPM_TOKEN` secret and set both packages to "Require two-factor authentication and disallow tokens".
