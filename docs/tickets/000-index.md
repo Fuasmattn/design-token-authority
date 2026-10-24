@@ -239,7 +239,8 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [140](./140-security-baseline.md)             | Security baseline: SECURITY.md, dependency audit, current Node         | High     | S      | —          | Done      |
 | [141](./141-npm-trusted-publishing.md)        | Release with npm trusted publishing (OIDC), without an npm token       | High     | S      | 090        | Done      |
 | [142](./142-diff-assets-branch-private-repo.md) | Assets-branch thumbnails in private repositories (split from 086)      | Low      | S      | 086        | Open      |
-| [143](./143-diff-workflow-action-versions.md) | `dta init` workflows: action versions that run on Node 24              | Medium   | S      | —          | In review |
+| [143](./143-diff-workflow-action-versions.md) | `dta init` workflows: action versions that run on Node 24              | Medium   | S      | —          | Done      |
+| [144](./144-diff-comment-icon.md)             | DTA icon in the `dta diff` pull-request comment                        | Low      | S      | —          | Open      |
 
 **Follow-ups found while writing Learn (073)**
 

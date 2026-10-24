@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** S
 **Blocked by:** —
-**Status:** in review (verified on a real PR after the push)
+**Status:** done (2026-10-24)
 **Spec:** [diff-zero-setup](../specs/diff-zero-setup.md)
 
 ## What to build
@@ -18,7 +18,7 @@ Found while testing TICKET-087 (PRs #28, #29): GitHub warns that `actions/checko
 - [x] `actions/examples/*.yml`, this repository's `.github/workflows/*` (re-run `dta init --diff` in `site/`, keep the hand-added Vercel env) and the docs (`guides/ci.mdx`, the guide page; `llms-full.txt` is generated) use the same versions
 - [x] Re-running `dta init --diff` on a project with old generated files updates them (unchanged hash) and keeps hand-edited ones
 - [x] Dependabot PRs #25–27 closed or merged as part of this (closed by Dependabot after `51a60f0`)
-- [ ] A real pull request shows no Node 20 warning; all gates pass
+- [x] A real pull request shows no Node 20 warning; all gates pass (PR #30)
 
 ## Notes
 
@@ -33,4 +33,4 @@ Found while testing TICKET-087 (PRs #28, #29): GitHub warns that `actions/checko
 - Found on the way: the example report workflow passed only `VERCEL_TOKEN` to the Vercel hook; it now passes `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` too, as the site's workflow does (without them `vercel deploy` does not know the project).
 - Guide: files init wrote follow a newer DTA; in hand-edited files the versions are bumped by hand. The site's `dta-diff-report.yml` (hand-edited for the Vercel env) was bumped by hand.
 - CI on main after `51a60f0`: all jobs green, no Node 20 warning left (only GitHub's notice about `ubuntu-latest` moving to Ubuntu 26). Dependabot closed #25–27.
-- Left: the `dta diff` workflows (run, report with download-artifact v8, approve) on a real pull request.
+- PR #30 (Tabs padding, closed after the check): all jobs green, no Node 20 warning; the report workflow (download-artifact v8, Vercel) posted the comment with thumbnails; the approval label turned the status green.
