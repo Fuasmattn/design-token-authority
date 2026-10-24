@@ -30,6 +30,26 @@ const git = (...args: string[]) =>
   })
 
 describe('detectProject', () => {
+  it('notices a build script that already builds the tokens (TICKET-145)', () => {
+    put('package-lock.json', '{}')
+    for (const [script, runs] of [
+      ['dta build && vite build', true],
+      ['npx dta build && node build.mjs', true],
+      ['pnpm exec dta build; astro build', true],
+      ['design-token-authority build && next build', true],
+      ['vite build', false],
+      ['dta lint && vite build', false],
+      ['node scripts/dta-builder.mjs', false],
+    ] as const) {
+      pkg({ scripts: { build: script } })
+      expect(detectProject(dir).buildRunsDta, script).toBe(runs)
+    }
+    // Storybook: its build script decides.
+    put('.storybook/main.ts')
+    pkg({ scripts: { 'build-storybook': 'dta build && storybook build', build: 'vite build' } })
+    expect(detectProject(dir).buildRunsDta).toBe(true)
+  })
+
   it('reads an npm project with Storybook, naming where each result came from', () => {
     pkg({
       engines: { node: '>=20' },

@@ -211,6 +211,22 @@ describe('dta init --diff (TICKET-131)', () => {
     expect(read('.github/workflows/dta-diff-report.yml')).not.toContain('actions/checkout')
   })
 
+  it('does not build the tokens twice when the build script runs dta build (TICKET-145)', async () => {
+    await initDiff()
+    expect(read('dta.config.ts')).toContain('build: "npx dta build && npm run build-storybook"')
+    put(
+      'package.json',
+      JSON.stringify({
+        scripts: { 'build-storybook': 'dta build && storybook build' },
+        devDependencies: { 'playwright-core': '^1.59.1' },
+      }),
+    )
+    const { stdout } = await initDiff()
+    // A key init wrote follows the project.
+    expect(stdout).toContain('npx dta build && npm run build-storybook → npm run build-storybook')
+    expect(read('dta.config.ts')).toContain('build: "npm run build-storybook"')
+  })
+
   it('moves workflows an older init wrote to the current action versions (TICKET-143)', async () => {
     await initDiff()
     const file = '.github/workflows/dta-diff.yml'

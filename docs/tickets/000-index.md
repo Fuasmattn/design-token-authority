@@ -241,7 +241,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [142](./142-diff-assets-branch-private-repo.md) | Assets-branch thumbnails in private repositories (split from 086)      | Low      | S      | 086        | Done      |
 | [143](./143-diff-workflow-action-versions.md) | `dta init` workflows: action versions that run on Node 24              | Medium   | S      | —          | Done      |
 | [144](./144-diff-comment-icon.md)             | DTA icon in the `dta diff` pull-request comment                        | Low      | S      | —          | Done      |
-| [145](./145-init-build-runs-dta-build-once.md) | `dta init --diff`: no second `dta build` when the build script runs it | Low      | XS     | —          | Open      |
+| [145](./145-init-build-runs-dta-build-once.md) | `dta init --diff`: no second `dta build` when the build script runs it | Low      | XS     | —          | In review |
 
 **Follow-ups found while writing Learn (073)**
 

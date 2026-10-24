@@ -58,6 +58,11 @@ export function proposeSection(
   current: Partial<DiffSection> = {},
 ): DiffSection {
   const manager = detection.packageManager.value ?? 'npm'
+  // The tokens are built first, unless the project's build script does that itself.
+  const withTokens = (command: string) =>
+    detection.buildRunsDta && command === detection.build.value
+      ? command
+      : `${RUN_DTA[manager]} build && ${command}`
   const workflow = current.workflow ?? (answers.outsideContributors === false ? 'single' : 'split')
   const storybook = detection.storybook.value
   // Without a lockfile the script still runs, with npm.
@@ -65,7 +70,7 @@ export function proposeSection(
     detection.build.value ?? (storybook?.script ? runScript(manager, storybook.script) : null)
   if (storybook && storybookBuild) {
     return {
-      build: `${RUN_DTA[manager]} build && ${storybookBuild}`,
+      build: withTokens(storybookBuild),
       outDir: storybook.outDir,
       stories: { type: 'storybook' },
       workflow,
@@ -79,7 +84,7 @@ export function proposeSection(
   const pages = Array.isArray(current.stories) ? current.stories : (answers.pages ?? ['/'])
   const build = detection.build.value ?? answers.build
   return {
-    ...(build ? { build: `${RUN_DTA[manager]} build && ${build}` } : {}),
+    ...(build ? { build: withTokens(build) } : {}),
     outDir: answers.outDir ?? current.outDir ?? 'dist',
     stories: manifest ?? pages,
     workflow,

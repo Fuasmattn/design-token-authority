@@ -18,6 +18,8 @@ export interface ProjectDetection {
   node: Found<string>
   /** The command that builds the static output `dta diff` renders. */
   build: Found<string>
+  /** Whether that build script already runs `dta build` (then init does not add it, TICKET-145). */
+  buildRunsDta: boolean
   /** The command that installs the dependencies exactly as the lockfile pins them. */
   install: Found<string>
   /**
@@ -200,6 +202,10 @@ function detectGit(cwd: string): ProjectDetection['git'] {
   return { host, defaultBranch: defaultBranchFound }
 }
 
+/** `dta build` in a script, also through npx, pnpm, yarn or bunx, or as design-token-authority. */
+const RUNS_DTA_BUILD =
+  /(?:^|&&|;|\|\||\s)(?:npx\s+|pnpm\s+(?:exec\s+)?|yarn\s+|bunx\s+)?(?:dta|design-token-authority)(?:@\S+)?\s+build\b/
+
 /**
  * What `dta init` and `dta diff --check` need to know about a project, read from its files and
  * git metadata only: no network, no installs (TICKET-126).
@@ -215,18 +221,23 @@ export function detectProject(cwd: string): ProjectDetection {
   const scripts = pkg?.scripts ?? {}
 
   let build: Found<string>
+  let buildScript: string | null = null
   if (!manager) build = notFound('no package manager found')
-  else if (storybook.value?.script)
+  else if (storybook.value?.script) {
     build = { value: runScript(manager, storybook.value.script), source: storybook.source }
-  else if (typeof scripts.build === 'string')
+    const script = scripts[storybook.value.script]
+    buildScript = typeof script === 'string' ? script : null
+  } else if (typeof scripts.build === 'string') {
     build = { value: runScript(manager, 'build'), source: 'the "build" script in package.json' }
-  else build = notFound('no Storybook build script and no "build" script')
+    buildScript = scripts.build
+  } else build = notFound('no Storybook build script and no "build" script')
 
   return {
     storybook,
     packageManager,
     node: detectNode(cwd, folders, pkg),
     build,
+    buildRunsDta: buildScript !== null && RUNS_DTA_BUILD.test(buildScript),
     install: manager
       ? {
           value: installCommand(manager, lock ? path.join(cwd, lock.dir) : cwd),
