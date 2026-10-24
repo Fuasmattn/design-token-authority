@@ -380,7 +380,7 @@
     },
     "600": {
       "$type": "color",
-      "$value": "#2f55d4",
+      "$value": "#1e3fae",
       "$description": "Primitive. The blueprint blue: links and accents on paper (7.5:1 only as blueprint-700).",
       "$extensions": {
         "com.figma": {
