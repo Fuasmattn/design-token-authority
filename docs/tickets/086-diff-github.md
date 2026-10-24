@@ -17,7 +17,7 @@ Projects publish the report wherever they want through a hook, and pull requests
 - [x] Without a hook: `summary.md` without images, report uploaded as a workflow artifact, comment says where to find it
 - [x] Composite action that only wraps `npx dta diff` plus status check and sticky comment (marked with an HTML comment, created or updated); minimal permissions; fork PRs handled with the two-workflow pattern (no secrets in untrusted runs)
 - [x] Approval label scoped to the head SHA; a new push needs a new review
-- [ ] Recipes on the website, each tested once: Vercel preview of the report folder, GitHub assets branch (with cleanup on PR close; private-repo rendering verified and documented), generic static server
+- [ ] Recipes on the website, each tested once: Vercel preview of the report folder, GitHub assets branch (with cleanup on PR close), generic static server (private-repo rendering of the assets branch: TICKET-142)
 - [x] Guide page "dta diff in pull requests" on the website
 - [ ] All gates pass, and the GitHub run is green
 
@@ -35,5 +35,5 @@ Projects publish the report wherever they want through a hook, and pull requests
 ### Still open (need the maintainer)
 
 - [ ] Vercel recipe tested once: needs a Vercel project for reports (Deployment Protection off for previews), `VERCEL_TOKEN` as a repository secret, `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID`. Planned together with 087.
-- [ ] Private-repo rendering of assets-branch thumbnails verified and documented: needs a private test repository (the guide says "not verified yet" until then).
-- [ ] The actions on a real pull request of this repository: needs the plan branch merged into main, since the report and approval workflows run from the default branch (see TICKET-087).
+- Private-repo rendering of assets-branch thumbnails: split out into TICKET-142 (needs a private test repository).
+- [ ] The actions on a real pull request of this repository: the plan branch is merged (PR #21) and `dta init --diff` wrote the three workflow files in `site/` (2026-10-24, see TICKET-087). They must be on main before the test pull request, since the report and approval workflows run from the default branch.

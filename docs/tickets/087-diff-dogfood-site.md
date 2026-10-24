@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** S
 **Blocked by:** 086
-**Status:** in progress (blocked on the merge to main and Vercel secrets)
+**Status:** in progress (workflow files written; needs them on main, then Vercel secrets)
 **Spec:** [visual-diff](../specs/visual-diff.md) (decision 12)
 
 ## What to build
@@ -34,6 +34,7 @@ Done:
 
 Left, needs the maintainer:
 
-1. **Merge the plan branch into main.** `workflow_run` (report) and `pull_request_target`/label (approve) workflows run from the default branch, and the generated workflows use `actions/*@main`; main is still v1 without `actions/` or `site/`. The three workflow files are therefore not in the repository yet: after the merge, `cd site && pnpm exec dta init` writes them (split layout, pnpm, `.nvmrc`, install at the root, `working-directory: site`).
-2. **Vercel** (with TICKET-086): a project for the reports, `VERCEL_TOKEN` as a repository secret, `VERCEL_ORG_ID`/`VERCEL_PROJECT_ID`; then add `publish: 'sh .github/dta-diff-publish.sh'` to the site's `diff` section, run `dta init` (it carries the hook into the report workflow), and add `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` as env of the report step (the example `actions/examples/dta-diff-report.yml` shows it).
-3. Two real pull requests (a token change, a component change) and a green run.
+1. ~~**Merge the plan branch into main.**~~ Done (PR #21). On 2026-10-24 `cd site && pnpm exec dta init --diff --yes` wrote `.github/workflows/dta-diff.yml`, `dta-diff-report.yml` and `dta-diff-approve.yml` (split layout, pnpm, `.nvmrc`, install at the root, `working-directory: site`, no publish hook yet: the comment links the artifact). Gates green. Left: commit them to main **before** the first test pull request, because `workflow_run` and `pull_request_target` run from the default branch. Chromium could not be downloaded in the sandbox; CI installs it in the run workflow.
+2. **Vercel values** (2026-10-24): `VERCEL_ORG_ID` = the team ID of "fuasmattn's projects"; `VERCEL_PROJECT_ID` = a new empty project for reports (not the website project, which keeps Deployment Protection); `VERCEL_TOKEN` created by the maintainer.
+3. **Vercel setup** (with TICKET-086): a project for the reports, `VERCEL_TOKEN` as a repository secret, `VERCEL_ORG_ID`/`VERCEL_PROJECT_ID`; then add `publish: 'sh .github/dta-diff-publish.sh'` to the site's `diff` section, run `dta init` (it carries the hook into the report workflow), and add `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` as env of the report step (the example `actions/examples/dta-diff-report.yml` shows it).
+4. Two real pull requests (a token change, a component change) and a green run.

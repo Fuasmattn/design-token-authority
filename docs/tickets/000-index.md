@@ -238,6 +238,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [139](./139-playground-e2e-races.md)          | Two playground e2e tests that fail now and then in CI                  | Medium   | S      | —          | In review |
 | [140](./140-security-baseline.md)             | Security baseline: SECURITY.md, dependency audit, current Node         | High     | S      | —          | Done      |
 | [141](./141-npm-trusted-publishing.md)        | Release with npm trusted publishing (OIDC), without an npm token       | High     | S      | 090        | Done      |
+| [142](./142-diff-assets-branch-private-repo.md) | Assets-branch thumbnails in private repositories (split from 086)      | Low      | S      | 086        | Open      |
 
 **Follow-ups found while writing Learn (073)**
 
