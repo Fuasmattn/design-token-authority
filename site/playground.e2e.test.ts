@@ -965,11 +965,15 @@ describe.skipIf(!enabled)('playground on the built site', () => {
       expect(configFile.name).toBe('dta.config.ts')
       expect(configFile.bytes.toString('utf8')).toBe(config)
 
-      // The command to run, never `npx dta`; the page says the package is not on npm yet
+      // The command to run, never `npx dta`; the config imports defineConfig, so the note says
+      // to install the package first
       expect(await page.locator('.dta-cli .dta-command__text').allTextContents()).toEqual([
         'npx design-token-authority build',
       ])
-      expect(await page.locator('.dta-cli__note').textContent()).toMatch(/not on npm yet/)
+      expect(config).toContain("import { defineConfig } from 'design-token-authority'")
+      expect(await page.locator('.dta-cli__note').textContent()).toContain(
+        'npm install --save-dev design-token-authority',
+      )
 
       // Fewer outputs: the files, the count, the zip and the config follow
       await page.getByRole('checkbox', { name: 'CSS' }).uncheck()

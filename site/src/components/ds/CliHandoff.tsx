@@ -34,7 +34,7 @@ export interface CliHandoffProps {
   /** Whether the config's preview is open (its row is marked). */
   configOpen?: boolean
   steps: readonly CliHandoffStep[]
-  /** A line under the steps, e.g. that the package is not on npm yet. */
+  /** A line under the steps, e.g. what they assume (the package installed). */
   note?: ComponentChildren
   onOpenConfig?: (button: HTMLButtonElement) => void
   onDownload?: () => void

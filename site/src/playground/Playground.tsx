@@ -913,7 +913,7 @@ export default function Playground() {
                         The outputs could not be built: {buildError}
                       </p>
                     ) : !fresh ? (
-                      <p class="pg-hint" role="status">
+                      <p class="pg-hint" role="status" data-building="">
                         Building the outputs with <code>@dta/build</code>, in your browser…
                       </p>
                     ) : failed ? null : (
@@ -950,7 +950,9 @@ export default function Playground() {
                         onDownloadGroup={(id) => void downloadGroup(id)}
                       />
                     )}
-                    {formats.length > 0 && (
+                    {/* Only once the outputs are built: shown earlier, the file list would push it
+                        down when the lazy build arrives (a layout shift, motion.e2e.test.ts). */}
+                    {formats.length > 0 && fresh && (
                       <ui.CliHandoff
                         idPrefix={`${ID}-cli`}
                         intro={

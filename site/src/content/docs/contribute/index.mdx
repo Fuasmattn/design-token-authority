@@ -66,6 +66,8 @@ A plugin-export adapter is a good first contribution: one file in `packages/figm
 
 Releases run from `main` with the **Release** workflow (Actions → Release → Run workflow, with `patch`, `minor`, `major` or a version). release-it sets the version of both packages, writes the changelog from the conventional commit messages, builds `dist/`, tags and creates the GitHub release; then pnpm publishes `design-token-authority` and `create-dta` to npm with provenance. The workflow needs the repository secret `NPM_TOKEN`.
 
+A release stops when `pnpm audit --prod` finds a known vulnerability in what users install; the CI job `audit` runs `pnpm audit` on every push. Fixes for transitive dependencies are overrides in `pnpm-workspace.yaml`. How to report a vulnerability: [SECURITY.md](https://github.com/Fuasmattn/design-token-authority/blob/main/SECURITY.md).
+
 Before a release, the CI job `package` installs both packages from their tarballs into an empty project and runs `create-dta --yes`, `build`, `lint`, `diff --tokens-only` and a type check of the config there. Locally: `DTA_PACKAGE_E2E=1 pnpm vitest run --project create-dta`.
 
 ## The website

@@ -46,9 +46,11 @@
 /*
  * Input given before the analysis arrived (TICKET-124): the source bar and the summary reading
  * it. The footer waits out of sight until the views are there, so it does not jump down when
- * they arrive (a layout shift the visitor did not cause).
+ * they arrive (a layout shift the visitor did not cause). The same while the outputs build: the
+ * files and the CLI handoff arrive after the lazy build, below the options.
  */
-body:has(.pg[data-reading]) .foot {
+body:has(.pg[data-reading]) .foot,
+body:has(.pg [data-building]) .foot {
   visibility: hidden;
 }
 

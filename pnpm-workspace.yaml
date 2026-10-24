@@ -4,3 +4,26 @@ packages:
 
 onlyBuiltDependencies:
   - esbuild
+
+# Security fixes for transitive dependencies (TICKET-140). Each raises a package to the first
+# version without the advisory, inside the major its dependents ask for. Drop an entry once the
+# packages that pull it in require the fixed version themselves.
+overrides:
+  qs@<6.16.1: ^6.16.1 # style-dictionary (shipped)
+  handlebars@<4.7.10: ^4.7.10 # release-it changelog
+  undici@>=6 <6.29.1: ^6.29.1 # release-it
+  lodash@<4.18.1: ^4.18.1 # release-it
+  defu@<6.1.7: ^6.1.7 # release-it
+  basic-ftp@<5.3.1: ^5.3.1 # release-it proxy-agent
+  ip-address@<10.7.4: ^10.7.4 # release-it proxy-agent
+  picomatch@<2.3.2: ^2.3.2 # site build
+  source-map-js@<1.2.2: ^1.2.2 # coverage
+  postcss-selector-parser@<7.1.7: ^7.1.7 # site build
+  fast-uri@<3.1.9: ^3.1.9 # ajv
+
+auditConfig:
+  ignoreGhsas:
+    # basic-ftp Client.list() CPU DoS from a malicious FTP server. Only reached when release-it
+    # loads a PAC proxy file over ftp://, which the Release workflow never configures; get-uri
+    # (release-it > proxy-agent) still requires basic-ftp 5. Drop once release-it moves on.
+    - GHSA-c475-qrg2-pj4r

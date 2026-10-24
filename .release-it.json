@@ -13,7 +13,12 @@
     "publish": false
   },
   "hooks": {
-    "before:init": ["pnpm run prettier:check", "pnpm run typecheck", "pnpm test"],
+    "before:init": [
+      "pnpm audit --prod",
+      "pnpm run prettier:check",
+      "pnpm run typecheck",
+      "pnpm test"
+    ],
     "after:bump": [
       "pnpm --filter create-dta exec npm version ${version} --no-git-tag-version --allow-same-version",
       "pnpm package:build"
