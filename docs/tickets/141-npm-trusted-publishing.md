@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** S
 **Blocked by:** 090 (both packages exist on npm)
-**Status:** in review (all criteria met; ready to close)
+**Status:** done (2026-10-24)
 
 ## Problem
 

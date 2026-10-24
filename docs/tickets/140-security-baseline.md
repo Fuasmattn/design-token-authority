@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** S
 **Blocked by:** —
-**Status:** in review (the GitHub settings and the patch release need the maintainer)
+**Status:** done (2026-10-24)
 
 ## Problem
 
@@ -20,8 +20,8 @@ Found on 2026-10-24, after the first npm release (TICKET-090):
 - [x] `pnpm audit` passes: upgrades where a direct dependency has the fix, `overrides` in `pnpm-workspace.yaml` for transitive ones (each with the package that pulls it in), and any advisory left ignored with its reason
 - [x] CI runs `pnpm audit` as a job of its own; the release stops on `pnpm audit --prod`
 - [x] `.nvmrc` on the latest Node.js 24 (CI, releases and the package test follow it)
-- [ ] Dependabot alerts, Dependabot security updates and private vulnerability reporting switched on (repository settings; the agent's GitHub access may not change them)
-- [ ] A patch release (2.0.2), so the fixed `qs` and `tsx` reach npm users
+- [x] Dependabot alerts, Dependabot security updates and private vulnerability reporting switched on (repository settings; the agent's GitHub access may not change them)
+- [x] A patch release (2.0.2), so the fixed `qs` and `tsx` reach npm users
 - [x] All gates pass, and the GitHub run is green
 
 ## Outcome (2026-10-24)
@@ -43,3 +43,7 @@ Left for the maintainer:
 ## Dependency housekeeping (2026-10-24, after the merge)
 
 Dependabot's version updates failed after the merge ("cannot update to the required version"), and its open pull requests were stale. Done by hand instead: TypeScript ^5.9.3 and Prettier ^3.9.10 in every package (Prettier 3.9 reformats nine source files, formatting only), `@types/node` ^24.19.2 (the Node 24 types, not 26). `dependabot.yml` ignores major updates of `@types/node` (DTA runs on Node 24) and also watches the GitHub Actions, which still run on Node 20 (`actions/checkout@v4` and others; GitHub warns in every run). Pull requests #15, #19, #22, #23 and #24 are closed as superseded.
+
+## Settings (2026-10-24)
+
+Checked through the API after the maintainer changed them: private vulnerability reporting on (the SECURITY.md link works); Dependabot alerts on (the API no longer answers "disabled", but this integration may not read them); Dependabot security updates on (`security_and_analysis.dependabot_security_updates`: enabled).
