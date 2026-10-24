@@ -39,3 +39,7 @@ Left for the maintainer:
 
 1. Repository settings → Code security: **Dependabot alerts** and **Dependabot security updates** on; Settings → Code security → **Private vulnerability reporting** on (SECURITY.md links to it).
 2. After the merge, run Release with `patch` (2.0.2).
+
+## Dependency housekeeping (2026-10-24, after the merge)
+
+Dependabot's version updates failed after the merge ("cannot update to the required version"), and its open pull requests were stale. Done by hand instead: TypeScript ^5.9.3 and Prettier ^3.9.10 in every package (Prettier 3.9 reformats nine source files, formatting only), `@types/node` ^24.19.2 (the Node 24 types, not 26). `dependabot.yml` ignores major updates of `@types/node` (DTA runs on Node 24) and also watches the GitHub Actions, which still run on Node 20 (`actions/checkout@v4` and others; GitHub warns in every run). Pull requests #15, #19, #22, #23 and #24 are closed as superseded.

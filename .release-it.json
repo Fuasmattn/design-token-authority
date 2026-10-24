@@ -24,8 +24,9 @@
       "pnpm package:build"
     ],
     "before:git:release": [
-      "pnpm publish --no-git-checks",
-      "pnpm --filter create-dta publish --no-git-checks"
+      "rm -rf .release && pnpm pack --pack-destination .release && pnpm --filter create-dta pack --pack-destination .release",
+      "npm publish .release/design-token-authority-${version}.tgz --access public",
+      "npm publish .release/create-dta-${version}.tgz --access public"
     ]
   },
   "plugins": {

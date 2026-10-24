@@ -35,8 +35,7 @@ const rendered = () => new Promise<void>((resolve) => setTimeout(resolve, 0))
  */
 export function transition(update: () => void, type?: string): void {
   const doc = (typeof document === 'undefined' ? undefined : document) as
-    | (Document & ViewTransitionDocument)
-    | undefined
+    (Document & ViewTransitionDocument) | undefined
   if (!doc?.startViewTransition || prefersReducedMotion()) {
     update()
     return

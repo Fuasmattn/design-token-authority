@@ -194,8 +194,7 @@ export function readRecord(content: string): Partial<Record<DiffKey, unknown>> |
 }
 
 export type ConfigEdit =
-  | { ok: true; content: string }
-  | { ok: false; reason: string; block: string }
+  { ok: true; content: string } | { ok: false; reason: string; block: string }
 
 /**
  * Brackets in source text, skipping strings, template literals and comments: what a line or a

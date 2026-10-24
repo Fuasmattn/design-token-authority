@@ -139,7 +139,7 @@ export function planPrune(
   // so what it aliases is looked at again, until nothing changes.
   const leaving = new Set(candidates.map((orphan) => orphan.id))
   const aliasedBy = new Map<string, string[]>()
-  for (let changed = true; changed; ) {
+  for (let changed = true; changed;) {
     changed = false
     for (const variable of Object.values(variables)) {
       if (leaving.has(variable.id)) continue

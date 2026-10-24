@@ -120,14 +120,12 @@ export function parseTokenFiles(files: TokenFileInput[], options: ParseOptions =
     diagnostics: [
       ...read.diagnostics,
       ...result.diagnostics,
-      ...unused.map(
-        (f): Diagnostic => ({
-          severity: 'warning',
-          code: 'not-in-resolver',
-          message: `"${f.fileName}" is not part of the resolver document "${chosen.fileName}" and was not read.`,
-          file: f.fileName,
-        }),
-      ),
+      ...unused.map((f): Diagnostic => ({
+        severity: 'warning',
+        code: 'not-in-resolver',
+        message: `"${f.fileName}" is not part of the resolver document "${chosen.fileName}" and was not read.`,
+        file: f.fileName,
+      })),
     ],
   }
 }

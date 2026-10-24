@@ -36,3 +36,6 @@ site/public/llms-full.txt
 
 # python prototype generators
 __pycache__/
+
+# Tarballs of a release (.release-it.json)
+.release/

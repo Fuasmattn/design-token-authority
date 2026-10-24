@@ -237,6 +237,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [125](./125-audit-rank-breakpoint-values.md)  | `dta audit` / `token find` rank breakpoint-only matches lower          | Low      | S      | 091        | In review |
 | [139](./139-playground-e2e-races.md)          | Two playground e2e tests that fail now and then in CI                  | Medium   | S      | —          | In review |
 | [140](./140-security-baseline.md)             | Security baseline: SECURITY.md, dependency audit, current Node         | High     | S      | —          | In review |
+| [141](./141-npm-trusted-publishing.md)        | Release with npm trusted publishing (OIDC), without an npm token       | High     | S      | 090        | In review |
 
 **Follow-ups found while writing Learn (073)**
 

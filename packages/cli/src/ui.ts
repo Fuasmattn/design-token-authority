@@ -3,16 +3,7 @@ import * as p from '@clack/prompts'
 import pc from 'picocolors'
 
 type CommandName =
-  | 'pull'
-  | 'push'
-  | 'prune'
-  | 'build'
-  | 'analyze'
-  | 'graph'
-  | 'clean'
-  | 'lint'
-  | 'init'
-  | 'diff'
+  'pull' | 'push' | 'prune' | 'build' | 'analyze' | 'graph' | 'clean' | 'lint' | 'init' | 'diff'
 
 const STYLES: Record<CommandName, { icon: string; paint: (text: string) => string }> = {
   pull: { icon: '⤵', paint: (s) => pc.bgCyan(pc.black(s)) },

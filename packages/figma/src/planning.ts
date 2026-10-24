@@ -247,7 +247,7 @@ export function planPush(model: TokenModel, figma: LocalVariablesResponse): Push
   for (const collection of model.collections)
     for (const token of collection.tokens)
       if (notPushed(collection, token)) skippedNames.add(nameToDot(token.name))
-  for (let changed = true; changed; ) {
+  for (let changed = true; changed;) {
     changed = false
     for (const collection of model.collections)
       for (const mode of collection.modes)

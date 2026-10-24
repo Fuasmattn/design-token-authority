@@ -165,7 +165,7 @@ export function analyzeGraph(model: TokenModel): GraphAnalysis {
     if (state.has(start.id)) continue
     const walk: string[] = []
     let tail: number
-    for (let id: string | undefined = start.id; ; ) {
+    for (let id: string | undefined = start.id; ;) {
       state.set(id, 1)
       walk.push(id)
       const next = target.get(id)

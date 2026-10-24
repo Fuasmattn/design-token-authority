@@ -1,9 +1,10 @@
 # Releases design-token-authority and create-dta to npm, with provenance (TICKET-090).
 # Run by hand from main (Actions → Release → Run workflow). Both packages are published before
 # the release commit and tag are pushed, so a failed publish leaves nothing behind to clean up.
-# Needs the repository secret NPM_TOKEN: a granular npm access token that may publish (for the
-# first release: create new packages). Once both packages exist, npm trusted publishing (OIDC)
-# can replace it. A protected main must let github-actions push the release commit and tag.
+# Publishes with npm trusted publishing (OIDC, TICKET-141): no npm token. Both packages trust this
+# workflow file of this repository on npmjs.com (Settings → Trusted publisher, with `npm publish`
+# allowed); npm adds provenance itself. A protected main must let github-actions push the release
+# commit and tag.
 name: Release
 on:
   workflow_dispatch:
@@ -16,7 +17,7 @@ on:
         type: string
 permissions:
   contents: write # the release commit, the tag and the GitHub release
-  id-token: write # npm provenance
+  id-token: write # npm trusted publishing (OIDC) and provenance
 jobs:
   release:
     if: github.ref == 'refs/heads/main'
@@ -32,11 +33,11 @@ jobs:
           cache: pnpm
           registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
+      # Trusted publishing needs npm 11.5.1 or newer; pnpm packs, npm publishes (.release-it.json).
+      - run: npm install --global npm@^11.5.1
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - run: pnpm release ${{ inputs.increment }} --ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: 'true'

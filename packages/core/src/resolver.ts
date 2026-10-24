@@ -497,9 +497,10 @@ export function readResolver(
       .map((axis) => [
         ...(modifierStages.find((stage) => stage.name === axis)?.contexts?.keys() ?? []),
       ])
-      .reduce<
-        string[][]
-      >((all, list) => all.flatMap((combo) => list.map((context) => [...combo, context])), [[]])
+      .reduce<string[][]>(
+        (all, list) => all.flatMap((combo) => list.map((context) => [...combo, context])),
+        [[]],
+      )
   for (const [name, group] of combined) {
     for (const combo of combosOf(group.axes)) {
       const entries = flatten(Object.fromEntries(group.axes.map((axis, i) => [axis, combo[i]])))
