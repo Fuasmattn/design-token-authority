@@ -242,6 +242,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [143](./143-diff-workflow-action-versions.md) | `dta init` workflows: action versions that run on Node 24              | Medium   | S      | —          | Done      |
 | [144](./144-diff-comment-icon.md)             | DTA icon in the `dta diff` pull-request comment                        | Low      | S      | —          | Done      |
 | [145](./145-init-build-runs-dta-build-once.md) | `dta init --diff`: no second `dta build` when the build script runs it | Low      | XS     | —          | Done      |
+| [147](./147-audit-width-height-not-spacing.md) | `dta audit`: width/height tokens not suggested for paddings and margins  | Low      | S      | 146        | Open      |
 
 **Follow-ups found while writing Learn (073)**
 
