@@ -23,6 +23,9 @@
   "files": [
     "bin.js"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "design-token-authority": "workspace:^"
   },
