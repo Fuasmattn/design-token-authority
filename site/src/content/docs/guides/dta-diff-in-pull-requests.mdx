@@ -181,7 +181,7 @@ A report from a fork is built from untrusted code: its `index.html` can contain 
 
 ### Vercel
 
-A preview deployment of the report folder. Create an empty Vercel project for the reports and turn off Deployment Protection for its previews; otherwise GitHub cannot load the thumbnails into the comment. Add `VERCEL_TOKEN` as a repository secret and set `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` (from the project settings) as environment variables of the report step.
+A preview deployment of the report folder. Create an empty Vercel project for the reports and turn off Deployment Protection for its previews; otherwise GitHub cannot load the thumbnails into the comment. Add `VERCEL_TOKEN` as a repository secret (a token scoped to that one project is enough) and set `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` (from the project settings) as environment variables of the report step.
 
 <Code code={vercel} lang="sh" title=".github/dta-diff-publish.sh" />
 

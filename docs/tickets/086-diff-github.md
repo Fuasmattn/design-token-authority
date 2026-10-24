@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** M
 **Blocked by:** 085
-**Status:** in progress (two checks need the maintainer, see Notes)
+**Status:** done (2026-10-24; private-repo rendering split into TICKET-142)
 **Spec:** [visual-diff](../specs/visual-diff.md) (decisions 10–13)
 
 ## What to build
@@ -17,9 +17,9 @@ Projects publish the report wherever they want through a hook, and pull requests
 - [x] Without a hook: `summary.md` without images, report uploaded as a workflow artifact, comment says where to find it
 - [x] Composite action that only wraps `npx dta diff` plus status check and sticky comment (marked with an HTML comment, created or updated); minimal permissions; fork PRs handled with the two-workflow pattern (no secrets in untrusted runs)
 - [x] Approval label scoped to the head SHA; a new push needs a new review
-- [ ] Recipes on the website, each tested once: Vercel preview of the report folder, GitHub assets branch (with cleanup on PR close), generic static server (private-repo rendering of the assets branch: TICKET-142)
+- [x] Recipes on the website, each tested once: Vercel preview of the report folder, GitHub assets branch (with cleanup on PR close), generic static server (private-repo rendering of the assets branch: TICKET-142)
 - [x] Guide page "dta diff in pull requests" on the website
-- [ ] All gates pass, and the GitHub run is green
+- [x] All gates pass, and the GitHub run is green (PR #29: all jobs green)
 
 ## Notes
 
@@ -34,6 +34,6 @@ Projects publish the report wherever they want through a hook, and pull requests
 
 ### Still open (need the maintainer)
 
-- [ ] Vercel recipe tested once: needs a Vercel project for reports (Deployment Protection off for previews), `VERCEL_TOKEN` as a repository secret, `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID`. Planned together with 087.
+- [x] Vercel recipe tested once (2026-10-24): project `dta-diff-reports` (Deployment Protection off), a project-scoped `VERCEL_TOKEN`, `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` as secrets; the reports of PRs #28 and #29 deployed, the thumbnails load in the comment.
 - Private-repo rendering of assets-branch thumbnails: split out into TICKET-142 (needs a private test repository).
-- [ ] The actions on a real pull request of this repository: the plan branch is merged (PR #21) and `dta init --diff` wrote the three workflow files in `site/` (2026-10-24, see TICKET-087). They must be on main before the test pull request, since the report and approval workflows run from the default branch.
+- [x] The actions on a real pull request of this repository (PRs #28, #29, closed after the check): status check, sticky comment, report link and the approval label ("Approved by @Fuasmattn") all work. the plan branch is merged (PR #21) and `dta init --diff` wrote the three workflow files in `site/` (2026-10-24, see TICKET-087). They must be on main before the test pull request, since the report and approval workflows run from the default branch.

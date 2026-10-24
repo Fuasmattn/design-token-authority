@@ -219,8 +219,8 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [083](./083-diff-attribution-spike.md)   | Spike: record which CSS variables each element uses | High     | S      | 082        | Done        |
 | [084](./084-diff-attribution.md)         | Explain visual changes by token                     | High     | L      | 083        | Done        |
 | [085](./085-diff-report.md)              | Review report in the Drafting Table design          | High     | M      | 084        | Done        |
-| [086](./086-diff-github.md)              | Publish hook and `dta diff` in pull requests        | High     | M      | 085        | In progress |
-| [087](./087-diff-dogfood-site.md)        | Guard the DTA website with `dta diff`               | Medium   | S      | 086        | In progress |
+| [086](./086-diff-github.md)              | Publish hook and `dta diff` in pull requests        | High     | M      | 085        | Done        |
+| [087](./087-diff-dogfood-site.md)        | Guard the DTA website with `dta diff`               | Medium   | S      | 086        | Done        |
 | [088](./088-diff-retire-test-visual.md)  | Retire `test:visual`                                | Medium   | XS     | 082        | Done        |
 | [089](./089-diff-storybook-adapter.md)   | Storybook adapter for `dta diff`                    | Medium   | M      | 082        | Done        |
 
@@ -239,6 +239,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [140](./140-security-baseline.md)             | Security baseline: SECURITY.md, dependency audit, current Node         | High     | S      | —          | Done      |
 | [141](./141-npm-trusted-publishing.md)        | Release with npm trusted publishing (OIDC), without an npm token       | High     | S      | 090        | Done      |
 | [142](./142-diff-assets-branch-private-repo.md) | Assets-branch thumbnails in private repositories (split from 086)      | Low      | S      | 086        | Open      |
+| [143](./143-diff-workflow-action-versions.md) | `dta init` workflows: action versions that run on Node 24              | Medium   | S      | —          | Open      |
 
 **Follow-ups found while writing Learn (073)**
 

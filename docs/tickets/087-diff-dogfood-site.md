@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** S
 **Blocked by:** 086
-**Status:** in progress (workflow files written; needs them on main, then Vercel secrets)
+**Status:** done (2026-10-24)
 **Spec:** [visual-diff](../specs/visual-diff.md) (decision 12)
 
 ## What to build
@@ -13,9 +13,9 @@ Every pull request that touches the site, its tokens or components runs `dta dif
 
 ## Acceptance criteria
 
-- [ ] Site `diff` config in the repo with the Vercel publish hook (secret scoped to the publish step); workflow enabled for this repo
-- [ ] Verified on a real PR with a token change and one with a component change
-- [ ] All gates pass, and the GitHub run is green
+- [x] Site `diff` config in the repo with the Vercel publish hook (secret scoped to the publish step); workflow enabled for this repo
+- [x] Verified on a real PR with a token change (#28) and one with a component change (#29)
+- [x] All gates pass, and the GitHub run is green (#29; on #28 only the `test` job was red, because site tests pin the value of `blueprint.600`, as intended)
 
 ## Progress (dogfooding `dta init` on `site/`)
 
@@ -38,3 +38,11 @@ Left, needs the maintainer:
 2. **Vercel values** (2026-10-24): `VERCEL_ORG_ID` = the team ID of "fuasmattn's projects"; `VERCEL_PROJECT_ID` = a new empty project for reports (not the website project, which keeps Deployment Protection); `VERCEL_TOKEN` created by the maintainer.
 3. **Vercel setup** (with TICKET-086): a project for the reports, `VERCEL_TOKEN` as a repository secret, `VERCEL_ORG_ID`/`VERCEL_PROJECT_ID`; then add `publish: 'sh .github/dta-diff-publish.sh'` to the site's `diff` section, run `dta init` (it carries the hook into the report workflow), and add `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` as env of the report step (the example `actions/examples/dta-diff-report.yml` shows it).
 4. Two real pull requests (a token change, a component change) and a green run.
+
+## Result (2026-10-24)
+
+- Publish hook: `site/scripts/dta-diff-publish.sh` (the Vercel recipe; it runs in `site/`), `publish:` in `site/dta.config.ts`; the Vercel secrets are env of the report step only. A re-run of `dta init` keeps that hand edit ("edited by hand: not overwritten").
+- #28 (`blueprint.600` `#2f55d4 → #1e3fae`): token table right (1 changed, 3 affected through aliases); `floating-objects` explained by `blueprint.600`; three `gravity-well` stories unexplained (canvas, see above), so the verdict was fail.
+- #29 (tab padding `--space-4 → --space-6`): no token changes, the two Tabs stories unexplained, thumbnails in the comment.
+- The label `dta-diff-approved` turned both statuses green.
+- Follow-up: generated workflows pin actions that target Node 20 (TICKET-143).
