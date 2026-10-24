@@ -6,6 +6,8 @@ import { PassThrough } from 'node:stream'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { parse } from 'yaml'
 import { loadConfig } from '../config/load.js'
+import { stampWorkflow } from '../init/diff-setup.js'
+import { ACTION_VERSIONS } from '../init/diff-workflows.js'
 import { runCli } from '../index.js'
 
 let dir: string
@@ -209,6 +211,21 @@ describe('dta init --diff (TICKET-131)', () => {
     expect(read('.github/workflows/dta-diff-report.yml')).not.toContain('actions/checkout')
   })
 
+  it('moves workflows an older init wrote to the current action versions (TICKET-143)', async () => {
+    await initDiff()
+    const file = '.github/workflows/dta-diff.yml'
+    // As an older DTA wrote it: the same template on v4 of the actions, stamped.
+    const current = read(file).replace(/# dta init --diff sha256:\w+\n$/, '')
+    const old = current
+      .replace(ACTION_VERSIONS.checkout, 'actions/checkout@v4')
+      .replace(ACTION_VERSIONS.setupNode, 'actions/setup-node@v4')
+    expect(old).not.toBe(current)
+    put(file, stampWorkflow(old))
+    const { stdout } = await initDiff()
+    expect(stdout).toContain(`${file} (updated)`)
+    expect(read(file)).toBe(stampWorkflow(current))
+  })
+
   it('asks about outside contributors once, and writes one file for a team', async () => {
     const { exitCode } = await initDiff(
       [],
@@ -271,7 +288,7 @@ describe('dta init --diff (TICKET-131)', () => {
     const { stdout } = await initDiff()
     expect(stdout).toContain('.github/workflows/dta-diff-report.yml (updated)')
     const report = read('.github/workflows/dta-diff-report.yml')
-    expect(report).toContain('actions/checkout@v4')
+    expect(report).toContain(ACTION_VERSIONS.checkout)
     expect(report).toContain("'sh .github/dta-diff-publish.sh'")
     expect(report).toContain("The publish hook's secrets go here as env")
   })

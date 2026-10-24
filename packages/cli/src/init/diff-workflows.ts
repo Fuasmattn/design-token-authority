@@ -9,6 +9,20 @@ export const ACTION_REF = 'main'
 
 const ACTIONS = 'Fuasmattn/design-token-authority/actions'
 
+/**
+ * The versions of the third-party actions in the generated workflows, and in this repository's
+ * composite actions, workflows and docs (a test keeps them equal, TICKET-143). Majors that run
+ * on Node 24: GitHub warns about actions on Node 20.
+ */
+export const ACTION_VERSIONS = {
+  checkout: 'actions/checkout@v7',
+  setupNode: 'actions/setup-node@v7',
+  pnpm: 'pnpm/action-setup@v6',
+  bun: 'oven-sh/setup-bun@v2',
+  uploadArtifact: 'actions/upload-artifact@v7',
+  downloadArtifact: 'actions/download-artifact@v8',
+} as const
+
 export interface WorkflowOptions {
   manager: PackageManager
   /** The install command (detection gives the right one, e.g. Yarn 2+'s `--immutable`). */
@@ -66,7 +80,9 @@ function setupSteps(options: WorkflowOptions, chromium = true): string[] {
     'file' in options.node
       ? `node-version-file: ${options.node.file}`
       : `node-version: ${options.node.version}`
-  const cache = options.manager === 'bun' ? [] : [`cache: ${options.manager}`]
+  // setup-node caches by itself when package.json names a package manager; it has no bun cache.
+  const cache =
+    options.manager === 'bun' ? ['package-manager-cache: false'] : [`cache: ${options.manager}`]
   const cachePath =
     lockDir === '.' || options.manager === 'bun'
       ? []
@@ -75,12 +91,12 @@ function setupSteps(options: WorkflowOptions, chromium = true): string[] {
     options.manager !== 'pnpm'
       ? []
       : options.pnpmVersion
-        ? ['- uses: pnpm/action-setup@v4', '  with:', `    version: ${options.pnpmVersion}`]
-        : ['- uses: pnpm/action-setup@v4']
+        ? [`- uses: ${ACTION_VERSIONS.pnpm}`, '  with:', `    version: ${options.pnpmVersion}`]
+        : [`- uses: ${ACTION_VERSIONS.pnpm}`]
   return [
     ...pnpm,
-    ...(options.manager === 'bun' ? ['- uses: oven-sh/setup-bun@v2'] : []),
-    '- uses: actions/setup-node@v4',
+    ...(options.manager === 'bun' ? [`- uses: ${ACTION_VERSIONS.bun}`] : []),
+    `- uses: ${ACTION_VERSIONS.setupNode}`,
     '  with:',
     ...indent([node, ...cache, ...cachePath], 4),
     `- run: ${options.install}`,
@@ -103,7 +119,7 @@ function actionInputs(options: WorkflowOptions, extra: string[] = []): string[] 
 }
 
 const checkout = [
-  '- uses: actions/checkout@v4',
+  `- uses: ${ACTION_VERSIONS.checkout}`,
   '  with:',
   '    ref: ${{ github.event.pull_request.head.sha }}',
   '    fetch-depth: 0 # the base is built from the merge base with the default branch',
@@ -209,7 +225,7 @@ function split(options: WorkflowOptions, ref: string): WorkflowFile[] {
     '    steps:',
     ...(options.publish
       ? [
-          '      - uses: actions/checkout@v4 # the default branch: your config and publish script',
+          `      - uses: ${ACTION_VERSIONS.checkout} # the default branch: your config and publish script`,
           // Publishing runs DTA, rendering does not happen here: no Chromium.
           ...indent(setupSteps(options, false), 6),
           `      - uses: ${ACTIONS}/diff-report@${ref}`,
@@ -271,7 +287,10 @@ export function exampleWorkflows(): Array<{ name: string; content: string }> {
     manager: 'npm',
     install: 'npm ci',
     node: { version: '24' },
-    publish: { command: 'sh .github/dta-diff-publish.sh', secrets: ['VERCEL_TOKEN'] },
+    publish: {
+      command: 'sh .github/dta-diff-publish.sh',
+      secrets: ['VERCEL_TOKEN', 'VERCEL_ORG_ID', 'VERCEL_PROJECT_ID'],
+    },
   } as const
   const split = renderDiffWorkflows({ ...options, layout: 'split' })
   const [single] = renderDiffWorkflows({ ...options, layout: 'single' })

@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** S
 **Blocked by:** —
-**Status:** open
+**Status:** in review (verified on a real PR after the push)
 **Spec:** [diff-zero-setup](../specs/diff-zero-setup.md)
 
 ## What to build
@@ -13,10 +13,10 @@ Found while testing TICKET-087 (PRs #28, #29): GitHub warns that `actions/checko
 
 ## Acceptance criteria
 
-- [ ] `packages/cli/src/init/diff-workflows.ts` writes current majors (the open Dependabot PRs #25–27 propose `actions/checkout@v7`, `actions/setup-node@v7`, `pnpm/action-setup@v6`; check the releases before choosing)
-- [ ] One place for the versions in the generator, with a test that every generated workflow uses them
-- [ ] `actions/examples/*.yml`, this repository's `.github/workflows/*` (re-run `dta init --diff` in `site/`, keep the hand-added Vercel env) and the docs (`guides/ci.mdx`, the guide page; `llms-full.txt` is generated) use the same versions
-- [ ] Re-running `dta init --diff` on a project with old generated files updates them (unchanged hash) and keeps hand-edited ones
+- [x] `packages/cli/src/init/diff-workflows.ts` writes current majors (the open Dependabot PRs #25–27 propose `actions/checkout@v7`, `actions/setup-node@v7`, `pnpm/action-setup@v6`; check the releases before choosing)
+- [x] One place for the versions in the generator, with a test that every generated workflow uses them
+- [x] `actions/examples/*.yml`, this repository's `.github/workflows/*` (re-run `dta init --diff` in `site/`, keep the hand-added Vercel env) and the docs (`guides/ci.mdx`, the guide page; `llms-full.txt` is generated) use the same versions
+- [x] Re-running `dta init --diff` on a project with old generated files updates them (unchanged hash) and keeps hand-edited ones
 - [ ] Dependabot PRs #25–27 closed or merged as part of this
 - [ ] A real pull request shows no Node 20 warning; all gates pass
 
@@ -24,3 +24,12 @@ Found while testing TICKET-087 (PRs #28, #29): GitHub warns that `actions/checko
 
 - `pnpm/action-setup` with `version:` (from `packageManager`) must keep working in the new major.
 - Breaking changes between the majors (inputs, defaults such as `persist-credentials`) need a look before the bump.
+
+## Done (2026-10-24)
+
+- `ACTION_VERSIONS` in `packages/cli/src/init/diff-workflows.ts`: `actions/checkout@v7`, `actions/setup-node@v7`, `pnpm/action-setup@v6`, `actions/upload-artifact@v7`, `actions/download-artifact@v8` (all on Node 24); `oven-sh/setup-bun@v2` unchanged.
+- Tests: every generated variant (4 package managers × 2 layouts × with/without hook) uses only these versions; the composite actions, this repository's workflows and the docs use the same versions (fails on drift); a workflow an older init wrote on v4 is updated by `dta init --diff`.
+- Breaking changes checked: checkout v7 refuses fork PR code in `pull_request_target` / `workflow_run` (the report workflow checks out the default branch, the run workflow is `pull_request`: unaffected; GitHub also backported it to `@v4`). setup-node v5+ caches by itself when `packageManager` is set: bun gets `package-manager-cache: false`. download-artifact v5 extracts downloads by ID without the name folder: the report action downloads by name, unaffected. pnpm/action-setup v6 bootstraps pnpm with npm and still reads `packageManager` and `version`.
+- Found on the way: the example report workflow passed only `VERCEL_TOKEN` to the Vercel hook; it now passes `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` too, as the site's workflow does (without them `vercel deploy` does not know the project).
+- Guide: files init wrote follow a newer DTA; in hand-edited files the versions are bumped by hand. The site's `dta-diff-report.yml` (hand-edited for the Vercel env) was bumped by hand.
+- Left: a real pull request without the Node 20 warning; Dependabot PRs #25–27 close themselves once main has the versions (or close them by hand).

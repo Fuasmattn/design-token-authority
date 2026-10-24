@@ -19,11 +19,11 @@ jobs:
       group: dta-diff-${{ github.event.pull_request.number }}
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0 # the base is built from the merge base with the default branch
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -34,6 +34,8 @@ jobs:
           publish: 'sh .github/dta-diff-publish.sh'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
   # Adding the dta-diff-approved label turns the status of the head commit green.
   approve:
     if: github.event.label.name == 'dta-diff-approved'

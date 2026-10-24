@@ -2,9 +2,15 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { parse } from 'yaml'
-import { exampleWorkflows, renderDiffWorkflows } from './diff-workflows.js'
+import {
+  ACTION_VERSIONS,
+  exampleWorkflows,
+  renderDiffWorkflows,
+  type WorkflowOptions,
+} from './diff-workflows.js'
 
-const examples = path.resolve(import.meta.dirname, '..', '..', '..', '..', 'actions', 'examples')
+const repo = path.resolve(import.meta.dirname, '..', '..', '..', '..')
+const examples = path.join(repo, 'actions', 'examples')
 
 describe('renderDiffWorkflows (TICKET-129)', () => {
   it('renders one workflow for npm that runs, reports and approves', () => {
@@ -31,12 +37,12 @@ describe('renderDiffWorkflows (TICKET-129)', () => {
     })
     const steps = yaml.jobs.diff.steps
     expect(steps[1]).toEqual({
-      uses: 'actions/setup-node@v4',
+      uses: ACTION_VERSIONS.setupNode,
       with: { 'node-version-file': '.nvmrc', cache: 'npm' },
     })
     expect(steps.map((s: { run?: string; uses?: string }) => s.run ?? s.uses)).toEqual([
-      'actions/checkout@v4',
-      'actions/setup-node@v4',
+      ACTION_VERSIONS.checkout,
+      ACTION_VERSIONS.setupNode,
       'npm ci',
       'npx playwright-core install --with-deps chromium',
       'Fuasmattn/design-token-authority/actions/diff-pr@main',
@@ -63,7 +69,7 @@ describe('renderDiffWorkflows (TICKET-129)', () => {
     const run = parse(files[0].content)
     expect(run.permissions).toEqual({ contents: 'read' })
     const steps = run.jobs.diff.steps
-    expect(steps[1]).toEqual({ uses: 'pnpm/action-setup@v4' })
+    expect(steps[1]).toEqual({ uses: ACTION_VERSIONS.pnpm })
     expect(steps[2].with).toEqual({
       'node-version': 22,
       cache: 'pnpm',
@@ -94,7 +100,7 @@ describe('renderDiffWorkflows (TICKET-129)', () => {
       pnpmVersion: '10',
     })
     const steps = parse(file.content).jobs.diff.steps
-    expect(steps[1]).toEqual({ uses: 'pnpm/action-setup@v4', with: { version: 10 } })
+    expect(steps[1]).toEqual({ uses: ACTION_VERSIONS.pnpm, with: { version: 10 } })
     expect(steps[2].with).toEqual({ 'node-version-file': '.nvmrc', cache: 'pnpm' })
     expect(steps[3]).toEqual({ run: 'pnpm install --frozen-lockfile' })
     expect(steps[4]['working-directory']).toBe('packages/web')
@@ -153,8 +159,47 @@ describe('renderDiffWorkflows (TICKET-129)', () => {
       node: { version: '24' },
       layout: 'single',
     })[0].content
-    expect(bun).toContain('- uses: oven-sh/setup-bun@v2')
-    expect(bun).not.toContain('cache:')
+    expect(bun).toContain(`- uses: ${ACTION_VERSIONS.bun}`)
+    // setup-node caches by itself when package.json names a package manager (since v5); it
+    // knows no bun cache, so it is off.
+    const setupNode = parse(bun).jobs.diff.steps.find(
+      (step: { uses?: string }) => step.uses === ACTION_VERSIONS.setupNode,
+    )
+    expect(setupNode.with).toEqual({ 'node-version': 24, 'package-manager-cache': false })
+  })
+
+  it('uses only the action versions of ACTION_VERSIONS, in every variant (TICKET-143)', () => {
+    const allowed = new Set<string>(Object.values(ACTION_VERSIONS))
+    const variants: WorkflowOptions[] = []
+    for (const manager of ['npm', 'pnpm', 'yarn', 'bun'] as const)
+      for (const layout of ['single', 'split'] as const)
+        for (const publish of [undefined, { command: 'sh publish.sh', secrets: ['TOKEN'] }])
+          variants.push({ manager, install: 'install', node: { version: '24' }, layout, publish })
+    for (const options of variants) {
+      for (const file of renderDiffWorkflows(options)) {
+        for (const uses of thirdPartyUses(file.content)) {
+          expect(allowed, `${options.manager} ${options.layout}: ${uses}`).toContain(uses)
+        }
+      }
+    }
+  })
+
+  it('keeps the actions, workflows and docs of this repository on the same versions', () => {
+    const byName = new Map(
+      Object.values(ACTION_VERSIONS).map((uses) => [uses.split('@')[0], uses] as const),
+    )
+    const files = [
+      ...listFiles(path.join(repo, 'actions'), /\.ya?ml$/),
+      ...listFiles(path.join(repo, '.github', 'workflows'), /\.ya?ml$/),
+      ...listFiles(path.join(repo, 'site', 'src', 'content', 'docs'), /\.mdx?$/),
+    ]
+    expect(files.length).toBeGreaterThan(10)
+    for (const file of files) {
+      for (const uses of thirdPartyUses(fs.readFileSync(file, 'utf8'))) {
+        const expected = byName.get(uses.split('@')[0])
+        if (expected) expect(uses, path.relative(repo, file)).toBe(expected)
+      }
+    }
   })
 
   it('is what actions/examples holds (run `pnpm workflows:generate` after a change)', () => {
@@ -163,3 +208,18 @@ describe('renderDiffWorkflows (TICKET-129)', () => {
     }
   })
 })
+
+/** The `uses:` of actions not from DTA (`owner/name@ref`). */
+function thirdPartyUses(content: string): string[] {
+  return [...content.matchAll(/uses:\s*([\w.-]+\/[\w.-]+@[\w.-]+)/g)]
+    .map((match) => match[1])
+    .filter((uses) => !uses.startsWith('Fuasmattn/'))
+}
+
+function listFiles(dir: string, pattern: RegExp): string[] {
+  return fs
+    .readdirSync(dir, { withFileTypes: true, recursive: true })
+    .flatMap((entry) =>
+      entry.isFile() && pattern.test(entry.name) ? [path.join(entry.parentPath, entry.name)] : [],
+    )
+}
