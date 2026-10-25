@@ -2,10 +2,10 @@
 title: The DTCG format
 description: DTCG in short, and where DTA's token files differ from it.
 sidebar:
-  order: 1
+  order: 2
 ---
 
-DTA's token files use the format of the W3C [Design Tokens Community Group](https://www.designtokens.org/) (DTCG). Its first stable version, [2025.10](https://www.designtokens.org/TR/2025.10/), has three modules. The spec is the reference; this page only gives the ideas and says where DTA differs.
+DTA's token files use the W3C [Design Tokens Community Group](https://www.designtokens.org/) (DTCG) format, version [2025.10](https://www.designtokens.org/TR/2025.10/). This page gives the idea and where DTA differs; the spec has the details.
 
 | Module                                                        | What it defines                                                                                                                                                         |
 | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -15,6 +15,10 @@ DTA's token files use the format of the W3C [Design Tokens Community Group](http
 
 ## Where DTA differs
 
-DTA's files are DTCG in the shape of Figma variables: one file per collection and mode (`Brand.BrandA.json`, `Brand.BrandB.json`), or a `.tokens` file for a collection with one mode. It reads every type of 2025.10, group `$type` and `$deprecated`, `$ref`, `$root` and `$extends`, and checks each value against its type; the [Token files](/reference/token-files/) reference has the format. Compared with 2025.10, DTA does **not** yet follow `$extends` from one per-mode file into another (it works within a file, and across the sets of a resolver document).
+- **One file per collection and mode**, in the shape of Figma variables: `Brand.BrandA.json`, `Brand.BrandB.json`.
+- **Every 2025.10 type and reference** is read and checked against its type.
+- **Not yet:** `$extends` from one per-mode file into another (it works within a file and in resolver documents).
 
-A minimal file DTA reads, with all four types and an alias, is [`learn-examples/dtcg-basics/`](https://github.com/Fuasmattn/design-token-authority/tree/main/site/learn-examples/dtcg-basics/). Next: [Token patterns](/learn/patterns/).
+The full format: [Token files](/reference/token-files/).
+
+A minimal example: [`learn-examples/dtcg-basics/`](https://github.com/Fuasmattn/design-token-authority/tree/main/site/learn-examples/dtcg-basics/). Next: [Token patterns](/learn/patterns/).

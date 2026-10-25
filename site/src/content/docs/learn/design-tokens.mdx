@@ -1,0 +1,42 @@
+---
+title: What design tokens are
+description: Design decisions as named data, shared by design and code, and what that solves.
+sidebar:
+  order: 1
+---
+
+A design token is a design decision with a name: a colour, a spacing, a font size. It is stored as data, so design tools and code read the same value.
+
+```json title="tokens/Primitives.Value.json"
+{ "color": { "blue": { "600": { "$type": "color", "$value": "#2f55d4" } } } }
+```
+
+```css title="what code gets"
+--color-blue-600: #2f55d4;
+```
+
+## What they solve
+
+| Without tokens                                           | With tokens                                           |
+| -------------------------------------------------------- | ----------------------------------------------------- |
+| `#2f55d4` copied into a hundred files                    | One value, changed in one place                       |
+| Figma and code drift apart                               | Both come from one source                             |
+| A hex value says nothing about where it belongs          | A name says what it is for: `action.background`       |
+| Dark mode or a second brand means a second set of styles | Swap the values, keep the code                        |
+| Web, iOS and Android each guess the design               | Every platform gets the same decisions, in its format |
+
+## Names that carry meaning
+
+Most token sets have two kinds of tokens. **Primitives** are the palette: `color.blue.600`. **Semantic tokens** name a role and point at a primitive: `action.background` → `{color.blue.600}`. Code uses the semantic names; a theme or brand changes where they point.
+
+```css
+--action-background: var(--color-blue-600);
+```
+
+How teams structure this: [Token patterns](/learn/patterns/).
+
+## Where DTA fits
+
+Your tokens live in Figma variables or JSON files. DTA turns them into code, checks their structure and shows what a change does before it ships. Start with the [Quick start](/start/quick-start/).
+
+Next: [The DTCG format](/learn/), the file format tokens are written in.
