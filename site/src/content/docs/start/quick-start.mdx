@@ -1,211 +1,42 @@
 ---
 title: Quick start
-description: From token files to CSS in a few commands, with output from a real run.
+description: From Figma variables to built tokens with one command.
 sidebar:
   order: 2
 ---
 
-import { Steps } from '@astrojs/starlight/components'
+You need Node.js 24 or newer and a project with a `package.json`. Not on a Figma Enterprise plan? Export your variables with a plugin first; the wizard asks for the file ([Getting tokens out of Figma](/guides/figma/)).
 
-:::caution[`npx dta` is another package]
-The npm name `dta` belongs to an unrelated package. Run `npx design-token-authority …` until DTA is installed in your project (`npm create dta` installs it); after that, `dta` works in package scripts and `npx dta` finds it.
-:::
+```sh
+npm create dta
+```
 
-The examples on this page ran on the `brand-ab` fixture of the repository (`test/fixtures/brand-ab`): a Primitives collection, a Brand collection with the modes BrandA and BrandB, and ScreenType with Desktop, Tablet and Mobile. The output is copied from those runs.
+Installs DTA in your project, writes `dta.config.ts` and offers to set up review of UI changes in pull requests, pull your tokens and build them.
 
-<Steps>
+## Then
 
-1. **Create a config.** In your project folder, `dta init` asks which Figma plan you have, which collections and brands to build and which outputs you want, and writes a `dta.config.ts` (`dta init --yes` asks nothing: it writes the config for exported token files in `tokens/` with every output format, for CI and coding agents). Your outputs become `outputs.formats`, so `dta build` writes only those; picking CSS and Tailwind v4 gives:
+```sh
+npx dta pull
+```
 
-   ```ts title="dta.config.ts (excerpt, as dta init writes it)"
-     outputs: {
-       formats: ['css', 'tailwind-v4'],
-       css: {
-         outDir: 'build/css',
-       },
-       tailwind: {
-         outDir: 'build/tailwind',
-       },
-     },
-   ```
+Gets the latest variables from Figma ([`dta pull`](/reference/commands/#dta-pull)).
 
-   iOS and Android can be picked too: they become `ios-swift`, `android-xml` and `android-compose` ([Native outputs](/reference/outputs/#native-outputs)). The fixture's config builds all four outputs (no `formats`) and looks like this:
+```sh
+npx dta build
+```
 
-   ```ts title="dta.config.ts"
-   export default {
-     figma: { source: 'file' },
-     tokens: { dir: 'tokens' },
-     brands: ['BrandA', 'BrandB'],
-     breakpoints: {
-       collection: 'ScreenType',
-       default: 'Mobile',
-       modes: { Tablet: '(min-width: 768px)', Desktop: '(min-width: 1024px)' },
-     },
-     outputs: {
-       css: { outDir: 'output/css' },
-       tailwind: { outDir: 'output/tailwind' },
-     },
-   }
-   ```
+Builds CSS, Tailwind, JS or native code from your tokens ([Outputs](/reference/outputs/)).
 
-   `breakpoints` turns the `ScreenType` modes into media queries in `variables.css`; `dta init` does not write it, because the queries are yours to choose ([Breakpoint modes](/reference/outputs/#breakpoint-modes)).
+```sh
+npx dta lint
+```
 
-2. **Get your tokens.** On a Figma Enterprise plan, `dta pull` reads the variables through the REST API. On any other plan, export them with a plugin and import the file; see [Getting tokens out of Figma](/guides/figma/). The result is one JSON file per collection and mode in `tokens/`:
+Checks the structure: broken aliases and the rules you turn on ([Lint rules](/reference/lint-rules/)).
 
-   ```text
-   tokens/
-     Brand(Alias).BrandA.json
-     Brand(Alias).BrandB.json
-     Primitives.Value.json
-     ScreenType.Desktop.json
-     ScreenType.Mobile.json
-     ScreenType.Tablet.json
-   ```
+```sh
+npx dta diff
+```
 
-3. **Build.**
+Shows what changed against your main branch ([dta diff in pull requests](/guides/dta-diff-in-pull-requests/)).
 
-   ```text
-   $ dta build
-   T   ⚒  dta build
-   |
-   o  Base layer complete
-   |
-   o  Brand BrandA complete
-   |
-   o  Brand BrandB complete
-   |
-   o  Shared outputs complete
-   |
-   o  Generated files ---------------------------+
-   |                                             |
-   |  output/css/base.css                        |
-   |  output/css/themes/branda.css               |
-   |  output/tailwind/branda/tailwind.tokens.ts  |
-   |  output/tailwind/branda/tailwind.css        |
-   |  output/css/themes/brandb.css               |
-   |  output/tailwind/brandb/tailwind.tokens.ts  |
-   |  output/tailwind/brandb/tailwind.css        |
-   |  output/css/variables.css                   |
-   |  output/js/colorpalette.js                  |
-   |  output/tailwind/tailwind.tokens.ts         |
-   |  output/tailwind/tailwind.css               |
-   |                                             |
-   +---------------------------------------------+
-   |
-   —  Build complete!
-   ```
-
-   What each file is: [Outputs](/reference/outputs/).
-
-4. **Check the structure.** With no rules configured, `dta lint` still catches dangling and circular aliases and Figma's default mode names. The fixture enables more rules, so it reports warnings:
-
-   ```text
-   $ dta lint
-   …
-   |  Primitives.Value.json
-   |
-   |    warn Duplicate value "8" — also defined in: Primitives.Value/Dimensions/spacing/2 [no-duplicate-values]
-   |
-   |  8 warnings found.
-   |
-   —  Lint passed with warnings.
-   ```
-
-   Warnings exit with 0, errors with 2: [Lint rules](/reference/lint-rules/).
-
-5. **See what changed.** `dta diff` compares your tokens with a base: a folder, a git ref, or by default the merge base with your main branch.
-
-   ```text
-   $ dta diff --tokens-only --base tokens-base
-   T   ◑  dta diff
-   |
-   |  Base: tokens-base
-
-   changed  Colors.Brand.Accent  Brand(Alias) · BrandB
-            {Colors.Foundation.Navy.700} → #2c4466 → {Colors.Foundation.Sky.500} → #3b8fd9
-   changed  Colors.Foundation.Blue.500  Primitives · Value
-            #0047a0 → #0057b8
-   changed  Dimensions.spacing.8  Primitives · Value
-            28 → 32
-   added    Dimensions.radius.pill  Primitives · Value
-            999
-   removed  Colors.Foundation.Steel.500  Primitives · Value
-            #7d8ea3
-   affected Colors.Brand.Primary  Brand(Alias) · BrandA
-            {Colors.Foundation.Blue.500} → #0047a0 → {Colors.Foundation.Blue.500} → #0057b8  (because of Colors.Foundation.Blue.500)
-   affected Spacing.Padding  ScreenType · Desktop
-            {Dimensions.spacing.8} → 28 → {Dimensions.spacing.8} → 32  (because of Dimensions.spacing.8)
-
-   |
-   —  Tokens: 3 changed · 1 added · 1 removed · 2 affected
-   ```
-
-   With a `diff` section in the config it also screenshots your stories at the base and the head and explains each change by token.
-
-6. **Review UI changes in pull requests.** `dta init` sets this up: as the last question of the wizard in a new project, and straight away in a project that already has a config (`dta init --diff` runs only this step). It finds your Storybook (or asks which pages to check), package manager, Node version and default branch, says where each came from, and writes the `diff` section, the GitHub workflow and `playwright-core`. On a project with Storybook (`--yes` takes the detected and default answers):
-
-   ```text
-   $ dta init --diff --yes
-   T   ✨  dta init
-   |
-   o  Found
-   |
-   |  Storybook        build-storybook → storybook-static, from the "build-storybook" script in package.json
-   |  Package manager  npm, from package-lock.json
-   |  Node             22, from .nvmrc
-   |  Build            npm run build-storybook, from the "build-storybook" script in package.json
-   |  Git host         GitHub, from the origin remote
-   |  Default branch   main, from the local branches
-   |
-   o  Will write --------------------------------------------+
-   |                                                         |
-   |  build: npx dta build && npm run build-storybook (new)  |
-   |  outDir: storybook-static (new)                         |
-   |  stories: Storybook (new)                               |
-   |  workflow: split (new)                                  |
-   |  .github/workflows/dta-diff.yml (new)                   |
-   |  .github/workflows/dta-diff-report.yml (new)            |
-   |  .github/workflows/dta-diff-approve.yml (new)           |
-   |                                                         |
-   +---------------------------------------------------------+
-   |
-   *  Wrote the diff section of dta.config.json
-   |
-   *  Wrote .github/workflows/dta-diff.yml
-   |
-   *  Wrote .github/workflows/dta-diff-report.yml
-   |
-   *  Wrote .github/workflows/dta-diff-approve.yml
-   |
-   o  Ran npm install --save-dev playwright-core
-   |
-   o  Next -------------------------------------------+
-   |                                                  |
-   |  npx dta diff --check  checks the setup          |
-   |  npx dta diff          renders a report locally  |
-   |  Then open a pull request.                       |
-   |                                                  |
-   +--------------------------------------------------+
-   |
-   —  dta diff is set up.
-   ```
-
-   The `build` runs `dta build` first, so the tokens are fresh in both builds; when your build script already runs `dta build`, init uses the script alone.
-
-   Then check the setup and open a pull request:
-
-   ```text
-   $ dta diff --check
-   ✓ config       diff section: outDir storybook-static, build `npx dta build && npm run build-storybook`
-   ✓ browser      DTA_BROWSER_PATH (/usr/bin/chromium)
-   ✓ git history  full history
-   ✓ base         merge base with main (c320792)
-   ✓ stories      1 story in storybook-static/index.json
-   Ready for dta diff.
-   ```
-
-   More in [dta diff in pull requests](/guides/dta-diff-in-pull-requests/).
-
-</Steps>
-
-Next: [Core concepts](/start/concepts/).
+Every command: [Commands](/reference/commands/). Every config option: [Configuration](/reference/configuration/). Next: [Core concepts](/start/concepts/).

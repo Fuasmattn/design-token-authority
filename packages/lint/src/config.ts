@@ -40,7 +40,7 @@ const ruleSchemas = {
           'Collection name → the case every path segment uses: `kebab-case`, `camelCase`, `PascalCase` or `snake_case`. Scale steps (`700`, `0-5`, `1.5`, `2xl`) fit every style; `$root` is not checked.',
         ),
     })
-    .describe('Fails when a path segment is not in the case style of its collection (TICKET-019).'),
+    .describe('Fails when a path segment is not in the case style of its collection.'),
   'naming-depth': z
     .strictObject({
       severity: Severity.optional(),
@@ -66,13 +66,11 @@ const ruleSchemas = {
         .optional()
         .describe('Collection name → `{ min, max }`: how many path segments a token name has.'),
     })
-    .describe(
-      'Fails when a token path has fewer or more segments than its collection allows (TICKET-019).',
-    ),
+    .describe('Fails when a token path has fewer or more segments than its collection allows.'),
   'no-spaces': z
     .strictObject({ severity: Severity.optional() })
     .describe(
-      'Reports spaces in collection names and token path segments; some outputs and tools handle them badly (TICKET-019).',
+      'Reports spaces in collection names and token path segments; some outputs and tools handle them badly.',
     ),
   'collection-pattern': z
     .strictObject({
@@ -84,7 +82,7 @@ const ruleSchemas = {
           'Regular expression every collection name must match (not anchored: write `^…$` for the whole name).',
         ),
     })
-    .describe('Fails when a collection name does not match the pattern (TICKET-019).'),
+    .describe('Fails when a collection name does not match the pattern.'),
   'color-contrast': z
     .strictObject({
       severity: Severity.optional(),

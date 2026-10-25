@@ -17,7 +17,7 @@ Lint findings, a failed build, the checks of a pull request and the counts of th
 
 ## The tokens
 
-Each status has three semantic tokens per theme (TICKET-120), built with `dta build` from `site/tokens` like every other token:
+Each status has three semantic tokens per theme, built with `dta build` from `site/tokens` like every other token:
 
 | Token               | For                                                                                                                                        |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -68,7 +68,7 @@ Not a banner: a lint view (findings to work through, not a stop), a hint, or any
 
 ## Selection and status
 
-A selected finding (the line whose details are open) shows both: the selection is the `action-subtle` tint with the line in `action-text`, the severity keeps its marker shape in `status-*-marker` and its word in `status-*-text` (TICKET-121). Selection never hides a status. On the tint, both themes:
+A selected finding (the line whose details are open) shows both: the selection is the `action-subtle` tint with the line in `action-text`, the severity keeps its marker shape in `status-*-marker` and its word in `status-*-text`. Selection never hides a status. On the tint, both themes:
 
 | On `action-subtle`         | Light  | Graphite | Needs |
 | -------------------------- | ------ | -------- | ----- |
@@ -84,7 +84,7 @@ The token test checks these pairs and the browser test the rendered markers; `fg
 
 ## Changes to review
 
-"Changes to review" means a diff a person looks at: not a pass, not a problem. It is `signal` everywhere (decision, TICKET-121): in [Checks](/design-system/components/checks/) the dot in `signal-bg` and the words in `signal-text` on `bg-surface`; in the `dta diff` report the verdict ("Changes to review") and a token group's "to review" chip are the [Chip](/design-system/components/chip/)'s `changed` look, the `signal-subtle` tint with the word and its 6 px dot in `signal-text`. The pull-request comment of the GitHub action already says 🟠. The action tint (`action-subtle`, `action-text`) stays for actions, links and selection; before TICKET-121 the report's review verdict used it, which read as "information", not "changed".
+"Changes to review" means a diff a person looks at: not a pass, not a problem. It is `signal` everywhere: in [Checks](/design-system/components/checks/) the dot in `signal-bg` and the words in `signal-text` on `bg-surface`; in the `dta diff` report the verdict ("Changes to review") and a token group's "to review" chip are the [Chip](/design-system/components/chip/)'s `changed` look, the `signal-subtle` tint with the word and its 6 px dot in `signal-text`. The pull-request comment of the GitHub action already says 🟠. The action tint (`action-subtle`, `action-text`) stays for actions, links and selection: for a review verdict it would read as "information", not "changed".
 
 On a tint the dot takes the word's colour, because `signal-bg` reaches only 2.77:1 on `signal-subtle` in Light (3:1 needed); on a surface (Checks) `signal-bg` passes. Shape and word come with the colour as for every status:
 
@@ -102,7 +102,7 @@ The three statuses and `signal` were checked with simulated protanopia and deute
 
 ## Examples stay blue and grey
 
-Rule (TICKET-122): example content uses blues and neutral greys only. The system colours are reserved for what the page says about the example: `signal` for "changed", the status colours for results. The rule covers the `brand-ab` fixtures (the playground's examples, the CLI output quoted in the docs), the landing page's Orbit Burger, the stories' example UI and the `dta diff` report's example data. Not covered: the gravity well's orange objects (decoration, the key visual) and the report's pixel-diff overlay (report UI that marks the changed pixels, in redline orange so it stands apart from any example).
+Rule: example content uses blues and neutral greys only. The system colours are reserved for what the page says about the example: `signal` for "changed", the status colours for results. The rule covers the `brand-ab` fixtures (the playground's examples, the CLI output quoted in the docs), the landing page's Orbit Burger, the stories' example UI and the `dta diff` report's example data. Not covered: the gravity well's orange objects (decoration, the key visual) and the report's pixel-diff overlay (report UI that marks the changed pixels, in redline orange so it stands apart from any example).
 
 `site/example-colours.test.ts` reads every colour value of the fixtures (`test/fixtures`, apart from the third-party daisyUI export), the Orbit Burger token sets, the stories' example literals and the report test data, and fails on a saturated hue in the orange, red, yellow or green range; the key visual's `well-object-orange*` tokens are excluded by name.
 
