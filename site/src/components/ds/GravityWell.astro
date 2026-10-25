@@ -120,11 +120,20 @@ const at = (angle: number) =>
     const still = () => reduce.matches || 'still' in root.dataset
     let t0 = performance.now()
     let running = false
+    let laidOut = { W: 0, H: 0 }
 
     function layout() {
       const box = root.getBoundingClientRect()
       const W = Math.round(box.width)
       const H = Math.round(box.height)
+      /*
+       * Only a real change of the hero's size needs a new layout. Phones fire `resize` every
+       * time the browser's toolbar collapses or expands while scrolling; re-sizing the canvas
+       * (which clears it) and re-placing the objects on each of those made the well flash and
+       * jump on the way down and up (TICKET-154).
+       */
+      if (W === laidOut.W && H === laidOut.H) return
+      laidOut = { W, H }
       well.size(W, H)
       stage.style.translate = '0 0'
       const r = stage.getBoundingClientRect()
