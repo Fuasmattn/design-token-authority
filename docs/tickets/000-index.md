@@ -293,7 +293,7 @@ Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17, rev
 | [111](./111-diff-attribution-scoped-example.md) | `dta diff` attribution for the Orbit Burger example (scoped selectors)                       | Medium   | M      | 108        | Done   |
 | [112](./112-landing-workflow-strip.md)          | Workflow strip below the hero; scenes in the same order                                      | Medium   | M      | —          | Done   |
 | [114](./114-site-polish-after-112-077.md)       | Site polish after 112 and 077 (strip label, nav current page, diagnostic links, scene order) | Low      | S      | 112, 077   | Done   |
-| [146](./146-icon-button-external-links.md)      | `IconButton`; GitHub and npm in the header and the phone menu                                | Low      | S      | —          | Review |
+| [146](./146-icon-button-external-links.md)      | `IconButton`; GitHub and npm in the header and the phone menu                                | Low      | S      | —          | Done   |
 
 Order: 110 → 105 → 106 → 107 → 108 → 112 (done); 114 (done); 109 and 111 later.
 

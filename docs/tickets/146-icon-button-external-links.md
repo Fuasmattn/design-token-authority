@@ -4,7 +4,7 @@
 **Priority:** Low
 **Effort:** S
 **Blocked by:** —
-**Status:** in review (2026-10-24)
+**Status:** done (2026-10-24)
 
 ## What to build
 
@@ -39,7 +39,7 @@ The Button's 48 px stays as it is in this ticket (no visual change wanted there)
 - [x] Nav burger: circle hover in `bg-hover`; Nav docs page and stories updated
 - [x] `IconButton.astro` + `icons.ts`; only token variables (`components.test.ts` passes)
 - [x] Docs page `design-system/components/icon-button.mdx` (when to use, guidelines, tokens used)
-- [x] Stories: `IconButtonDefault` (both icons), the header row at 1280 and the open phone menu at 390 (Nav story with icons)
+- [x] Stories: `IconButtonStates` (both icons: rest, hover, focus), the header row at 1280 and the open phone menu at 390 (Nav story with icons)
 - [x] SiteLayout: GitHub + npm icon buttons before the theme switch; footer unchanged
 - [x] Starlight `social`: npm (https://www.npmjs.com/package/design-token-authority) next to GitHub
 - [x] Screenshots 1280 and 390, light and Graphite, before any push
@@ -50,3 +50,7 @@ The Button's 48 px stays as it is in this ticket (no visual change wanted there)
 
 - Links: https://github.com/Fuasmattn/design-token-authority, https://www.npmjs.com/package/design-token-authority
 - The footer's GitHub text link stays (footers repeat the main links).
+
+## Progress (2026-10-24)
+
+- Pushed in 790d7b2 (feature) and e4141f9 (TICKET-147 follow-up); CI green on e4141f9; maintainer checked the preview.
