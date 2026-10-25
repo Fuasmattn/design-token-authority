@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** S
 **Blocked by:** —
-**Status:** in review
+**Status:** done (2026-10-24)
 **Spec:** [diff-zero-setup](../specs/diff-zero-setup.md) (decision 7)
 
 ## What to build
@@ -15,11 +15,11 @@
 
 ## Acceptance criteria
 
-- [ ] Each check has a test for pass and fail, and each failure a hint
-- [ ] `CI=true` without a browser exits with an error; locally it warns and continues
-- [ ] Every error message in `diff.ts` and `packages/cli/src/io/*` used by diff has a fix and a docs link (a test lists them)
-- [ ] Docs: the diff guide starts troubleshooting with `dta diff --check`
-- [ ] All gates pass, and the GitHub run is green
+- [x] Each check has a test for pass and fail, and each failure a hint
+- [x] `CI=true` without a browser exits with an error; locally it warns and continues
+- [x] Every error message in `diff.ts` and `packages/cli/src/io/*` used by diff has a fix and a docs link (a test lists them)
+- [x] Docs: the diff guide starts troubleshooting with `dta diff --check`
+- [x] All gates pass, and the GitHub run is green
 
 ## Notes
 
@@ -29,3 +29,8 @@
 - With `CI` set (not `false`/`0`), a missing browser stops `dta diff` with the fix; locally it warns and shows token changes only.
 - Docs: the diff guide's Troubleshooting starts with `dta diff --check` (with a table of the checks).
 - **Review (fixed):** `dta diff --check` looks for playwright-core from the project first (what `dta init --diff` installs), as init does.
+
+## Review (2026-10-24)
+
+- `dta diff --check` has a pass and a fail test per check, each failure with `Fix:` and `Docs:`; `CI=true` without a browser exits 1, locally it warns and continues (also run by hand); `diff-problems.test.ts` lists every problem with its fix and docs page; the diff guide's troubleshooting starts with `--check`. CI green on 3bdd228.
+- Follow-ups in TICKET-148: docs links to the website instead of GitHub sources, the no-browser fix said once.

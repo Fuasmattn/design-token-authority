@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** M
 **Blocked by:** —
-**Status:** in review
+**Status:** done (2026-10-24)
 **Spec:** [diff-zero-setup](../specs/diff-zero-setup.md) (decisions 2, 3)
 
 ## What to build
@@ -19,10 +19,10 @@ One detection function that `dta init` (TICKET-131) and `dta diff --check` (TICK
 
 ## Acceptance criteria
 
-- [ ] Each result carries its source ("pnpm, from pnpm-lock.yaml"); a result that was not found says so, it is never guessed
-- [ ] Tests on small fixture folders: npm, pnpm, Storybook, no Storybook, no lockfile, no git remote
-- [ ] Detection reads files only: no network, no installs
-- [ ] All gates pass, and the GitHub run is green
+- [x] Each result carries its source ("pnpm, from pnpm-lock.yaml"); a result that was not found says so, it is never guessed
+- [x] Tests on small fixture folders: npm, pnpm, Storybook, no Storybook, no lockfile, no git remote
+- [x] Detection reads files only: no network, no installs
+- [x] All gates pass, and the GitHub run is green
 
 ## Notes
 
@@ -35,3 +35,7 @@ One detection function that `dta init` (TICKET-131) and `dta diff --check` (TICK
 - Git: host from the `origin` URL, default branch through `defaultBranch` of `io/diff-base.ts` (now exported, with `gitOutput`), so `dta diff` and detection agree. No network.
 - Tests: npm with Storybook, pnpm without, Storybook script named otherwise, packageManager fallback and nothing found, git host and branch, Yarn 2+.
 - **Review (fixed):** a workspace package finds the lockfile, `.nvmrc` / `.node-version` and `packageManager` at the repository root (it looked only in the project folder, so pnpm monorepos got npm); Storybook is found by a script named `build-storybook` or one that runs `storybook build` (also `npx storybook@8 build`, `sb build`), not by a script that only names another (`chromatic --build-script-name build-storybook`).
+
+## Review (2026-10-24)
+
+- Every criterion checked against the code: each result is `{ value, source }`, a missing one says why (`packages/cli/src/io/detect.ts`, `describeFound`); fixture tests for npm, pnpm, Storybook, no Storybook, no lockfile and no git remote (`detect.test.ts`); detection uses only `fs` and local git commands. CI green on 3bdd228.

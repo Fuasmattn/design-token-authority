@@ -303,12 +303,13 @@ Spec: [diff-zero-setup](../specs/diff-zero-setup.md) (approved 2026-10-21). From
 
 | #                                             | Ticket                                              | Priority | Effort | Blocked by    | Status    |
 | --------------------------------------------- | --------------------------------------------------- | -------- | ------ | ------------- | --------- |
-| [126](./126-diff-detect-project.md)           | Detect the project for `dta diff` setup             | High     | M      | —             | In review |
-| [127](./127-diff-base-build-without-setup.md) | Base build without `diff.setup`                     | High     | M      | —             | In review |
-| [128](./128-diff-stories-page-list.md)        | Stories as a page list                              | Medium   | S      | —             | In review |
-| [129](./129-diff-one-workflow.md)             | One workflow file for private and team repositories | High     | M      | 090           | In review |
-| [130](./130-diff-check-loud-failures.md)      | `dta diff --check` and loud failures                | High     | S      | —             | In review |
-| [131](./131-init-diff-step.md)                | Init step for `dta diff`, re-runnable               | High     | M      | 126, 128, 129 | In review |
+| [126](./126-diff-detect-project.md)           | Detect the project for `dta diff` setup             | High     | M      | —             | Done      |
+| [127](./127-diff-base-build-without-setup.md) | Base build without `diff.setup`                     | High     | M      | —             | Done      |
+| [128](./128-diff-stories-page-list.md)        | Stories as a page list                              | Medium   | S      | —             | Done      |
+| [129](./129-diff-one-workflow.md)             | One workflow file for private and team repositories | High     | M      | 090           | Done      |
+| [130](./130-diff-check-loud-failures.md)      | `dta diff --check` and loud failures                | High     | S      | —             | Done      |
+| [131](./131-init-diff-step.md)                | Init step for `dta diff`, re-runnable               | High     | M      | 126, 128, 129 | Done      |
+| [148](./148-diff-phase-11-follow-ups.md)      | Follow-ups: pinned action refs, docs links, cleanups | Medium   | M      | —             | Open      |
 
 Order: 126, 127, 128 and 130 in parallel → 129 (after 090) → 131.
 

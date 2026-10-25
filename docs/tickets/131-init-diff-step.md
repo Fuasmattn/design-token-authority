@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** M
 **Blocked by:** 126, 128, 129
-**Status:** in review
+**Status:** done (2026-10-24)
 **Spec:** [diff-zero-setup](../specs/diff-zero-setup.md) (decisions 1–5, 8)
 
 ## What to build
@@ -27,11 +27,11 @@
 
 ## Acceptance criteria
 
-- [ ] End-to-end (`DTA_E2E=1`): `dta init --diff --yes` on a Storybook fixture, then `dta diff`, gives a report with screenshots and no hand edits
-- [ ] Re-run tests: unchanged project, switched package manager, Storybook added, hand-edited key kept, hand-edited workflow not overwritten
-- [ ] CLI snapshots for the init scenarios re-recorded by name and reviewed in the same PR
-- [ ] Docs: Quick start and the diff guide lead with the one-command path; the guide has a "Change your setup later" section with re-running first
-- [ ] All gates pass, and the GitHub run is green
+- [x] End-to-end (`DTA_E2E=1`): `dta init --diff --yes` on a Storybook fixture, then `dta diff`, gives a report with screenshots and no hand edits
+- [x] Re-run tests: unchanged project, switched package manager, Storybook added, hand-edited key kept, hand-edited workflow not overwritten
+- [x] CLI snapshots for the init scenarios re-recorded by name and reviewed in the same PR
+- [x] Docs: Quick start and the diff guide lead with the one-command path; the guide has a "Change your setup later" section with re-running first
+- [x] All gates pass, and the GitHub run is green
 
 ## Notes
 
@@ -53,3 +53,8 @@
 - A `diff` section written by hand in a TS/JS config is never edited: init names only the keys to add (`keyLines`); with no section and no place to insert one, it prints the whole block.
 - The report workflow has one step (no checkout, install or secrets) unless the config has `diff.publish`; then init carries that command into the workflow (quoted as Prettier writes YAML) with a note where the hook's secrets go.
 - In a git repository init adds `.dta/diff/` to the project's `.gitignore` unless a rule already ignores it (`git check-ignore --no-index`, so a committed report folder does not add the rule again).
+
+## Review (2026-10-24)
+
+- `init-diff-e2e.test.ts` runs `dta init --diff --yes` then `dta diff` on a Storybook fixture with screenshots, no hand edits (CI job `diff-e2e`); the re-run cases are in `init-diff.test.ts`; Quick start and the diff guide lead with the one-command path, "Change your setup later" starts with re-running. CI green on 3bdd228.
+- No CLI snapshot scenarios exist for `init`; its output is covered by the tests above instead. Maintainer accepted that in place of re-recorded snapshots on 2026-10-24.

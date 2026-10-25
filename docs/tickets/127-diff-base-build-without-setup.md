@@ -4,7 +4,7 @@
 **Priority:** High
 **Effort:** M
 **Blocked by:** —
-**Status:** in review
+**Status:** done (2026-10-24)
 **Spec:** [diff-zero-setup](../specs/diff-zero-setup.md) (settled question 2)
 
 ## What to build
@@ -18,11 +18,11 @@ Today the base is built in a fresh worktree (`createBaseWorktree` in `packages/c
 
 ## Acceptance criteria
 
-- [ ] The Storybook trial from TICKET-089 runs with no `setup` key
-- [ ] Tests: lockfile unchanged (reuse), lockfile changed (install), `setup` set (override), base build fails (error, no report of "all added")
-- [ ] The time saved with an unchanged lockfile is measured once and noted here
-- [ ] Docs: the `setup` key is described as optional
-- [ ] All gates pass, and the GitHub run is green
+- [x] The Storybook trial from TICKET-089 runs with no `setup` key
+- [x] Tests: lockfile unchanged (reuse), lockfile changed (install), `setup` set (override), base build fails (error, no report of "all added")
+- [x] The time saved with an unchanged lockfile is measured once and noted here
+- [x] Docs: the `setup` key is described as optional
+- [x] All gates pass, and the GitHub run is green
 
 ## Notes
 
@@ -32,3 +32,9 @@ Today the base is built in a fresh worktree (`createBaseWorktree` in `packages/c
 - Time, measured once on that trial (90 packages): the whole run takes 38 s with reuse and 39 s with a clean install; `npm ci` itself takes 2 s with a warm npm cache and 4 s cold. On a small dependency tree the saving is small; it grows with the tree.
 - Docs: `setup` is described as optional (config reference via `.describe()`, Storybook guide).
 - **Review (fixed):** the base no longer links the head's whole `node_modules`: it gets a real `node_modules` folder whose packages link to the head's, workspace packages (links into the repository) link to the base's own copy, and caches (`.cache`, `.vite`) are not shared, so the base renders its own code and does not write into the head's folders (test: a workspace package at base and head).
+
+## Review (2026-10-24)
+
+- Reuse, install, `setup` override and a failing base build are tested (`base-build.test.ts`); a failed base build stops with `diffProblems.baseBuildFailed`. The setup key is optional in the config reference and the Storybook guide. CI green on 3bdd228 (`diff-e2e` builds a Storybook fixture's base without `setup`).
+- The Storybook trial from TICKET-089 without `setup` (Progress above) confirmed by the maintainer on 2026-10-24.
+- Follow-ups in TICKET-148: one lockfile list for detection and the base build.
