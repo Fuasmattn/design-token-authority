@@ -5,18 +5,18 @@ sidebar:
   order: 3
 ---
 
-`dta build` writes Tailwind files next to the CSS:
+Use your tokens as Tailwind utilities. `dta build` writes the Tailwind files next to the CSS:
 
-| File                                         | For                                                                      |
-| -------------------------------------------- | ------------------------------------------------------------------------ |
-| `output/tailwind/tailwind.css`               | Tailwind v4: an `@theme` block of the primitives (as `var()` references) |
-| `output/tailwind/<brand>/tailwind.css`       | Tailwind v4: one brand's tokens, with resolved values                    |
-| `output/tailwind/tailwind.tokens.ts`         | Tailwind v3: a `theme.extend` object                                     |
-| `output/tailwind/<brand>/tailwind.tokens.ts` | Tailwind v3: one brand, resolved                                         |
+| File                                         | For                                           |
+| -------------------------------------------- | --------------------------------------------- |
+| `output/tailwind/tailwind.css`               | Tailwind v4: `@theme` with `var()` references |
+| `output/tailwind/<brand>/tailwind.css`       | Tailwind v4: one brand, resolved values       |
+| `output/tailwind/tailwind.tokens.ts`         | Tailwind v3: a `theme.extend` object          |
+| `output/tailwind/<brand>/tailwind.tokens.ts` | Tailwind v3: one brand, resolved              |
 
 ## Tailwind v4
 
-Import the token CSS and the `@theme` file into your stylesheet. The `@theme` entries point at the custom properties, so `variables.css` must be loaded too:
+Import the token CSS, then the `@theme` file. Map brand tokens with `@theme inline` so they switch with `[data-brand]`:
 
 ```css title="src/app.css"
 @import 'tailwindcss';
@@ -25,49 +25,23 @@ Import the token CSS and the `@theme` file into your stylesheet. The `@theme` en
 @import '../output/css/themes/brandb.css';
 @import '../output/tailwind/tailwind.css';
 
-/* Brand tokens switch with [data-brand]: map them as theme variables that stay references. */
 @theme inline {
   --color-brand-primary: var(--colors-brand-primary);
   --color-brand-accent: var(--colors-brand-accent);
 }
 ```
 
-Then use the utilities:
-
 ```html
 <html data-brand="branda">
-  <button class="bg-brand-primary text-foundation-white p-4 rounded-dimensions-radius-md">
-    Save
-  </button>
+  <button class="bg-brand-primary p-4">Save</button>
 </html>
 ```
 
-Compiled with Tailwind 4.3.3 against the `brand-ab` fixture, these utilities come out as:
-
-```css
-.rounded-dimensions-radius-md {
-  border-radius: var(--radius-dimensions-radius-md);
-}
-.bg-brand-primary {
-  background-color: var(--colors-brand-primary);
-}
-.p-4 {
-  padding: var(--spacing-4);
-}
-.text-foundation-white {
-  color: var(--color-foundation-white);
-}
-```
-
-Two things to know:
-
-- **Spacing replaces Tailwind's scale.** The fixture's `Dimensions.spacing.4` becomes `--spacing-4` (16px), so `p-4` uses your token instead of Tailwind's default calculation.
-- **Breakpoint tokens switch too.** With [`breakpoints`](/reference/outputs/#breakpoint-modes) in the config, `tailwind.css` ends with an `@theme inline` block for the breakpoint collection: `p-spacing-gap` compiles to `padding: var(--spacing-gap)`, which `variables.css` sets per media query. Load `variables.css`, as above.
-- **Brand files are resolved.** `output/tailwind/<brand>/tailwind.css` holds one brand's final values: use it when a build ships one brand only. For switching brands at runtime, map the brand tokens with `@theme inline` as above, so the utilities keep reading the custom properties.
+- **Your spacing replaces Tailwind's scale:** a spacing token `…spacing.4` becomes `--spacing-4`, so `p-4` uses it.
+- **Breakpoint tokens switch** with the screen when `breakpoints` is set ([Breakpoint modes](/reference/outputs/#breakpoint-modes)); keep `variables.css` loaded.
+- **Ship one brand only?** Use `output/tailwind/<brand>/tailwind.css` instead.
 
 ## Tailwind v3
-
-Spread the generated object into your config:
 
 ```ts title="tailwind.config.ts"
 import type { Config } from 'tailwindcss'
@@ -79,4 +53,4 @@ export default {
 } satisfies Config
 ```
 
-Its values are `var()` references too (`'foundation-blue-500': 'var(--colors-foundation-blue-500)'`), so load `output/css/variables.css` in your app.
+The values are `var()` references, so load `output/css/variables.css` in your app.

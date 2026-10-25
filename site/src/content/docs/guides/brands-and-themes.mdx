@@ -5,185 +5,61 @@ sidebar:
   order: 2
 ---
 
-A brand (or a theme) is a **mode** of the collection that holds your semantic tokens. In the `brand-ab` fixture that collection is `Brand(Alias)` with the modes `BrandA` and `BrandB`; both alias into the same primitives:
-
-```json title="tokens/Brand(Alias).BrandA.json (excerpt)"
-{
-  "Colors": {
-    "Brand": { "Primary": { "$type": "color", "$value": "{Colors.Foundation.Blue.500}" } }
-  }
-}
-```
-
-```json title="tokens/Brand(Alias).BrandB.json (excerpt)"
-{
-  "Colors": {
-    "Brand": { "Primary": { "$type": "color", "$value": "{Colors.Foundation.Navy.500}" } }
-  }
-}
-```
+How to build several brands (or light and dark) from one token set. A brand is a **mode** of the collection that holds your semantic tokens: `Brand.BrandA.json`, `Brand.BrandB.json`.
 
 ## Build one theme per brand
 
-List the modes to build in `brands`:
+List the modes in `brands`:
 
 ```ts title="dta.config.ts"
-export default {
-  brands: ['BrandA', 'BrandB'],
-  // …
-}
+brands: ['BrandA', 'BrandB'],
 ```
 
-`dta build` then writes the primitives once (`output/css/variables.css`, on `:root`) and one file per brand, scoped to an attribute with the lower-cased brand name:
+`dta build` writes the primitives once (`variables.css`) and one theme per brand, scoped to `[data-brand="<brand>"]`:
 
-```css title="output/css/themes/brandb.css (excerpt)"
+{/* prettier-ignore */}
+```css title="output/css/themes/brandb.css"
 [data-brand="brandb"] {
   --colors-brand-primary: var(--colors-foundation-navy-500);
-  …
 }
 ```
 
-Load all of them and switch with the attribute. It works on any element, so a page can show two brands side by side:
+Load all of them and switch with the attribute, on any element:
 
 ```html
-<link rel="stylesheet" href="output/css/variables.css" />
-<link rel="stylesheet" href="output/css/themes/branda.css" />
-<link rel="stylesheet" href="output/css/themes/brandb.css" />
-
 <html data-brand="branda">
-  …
   <section data-brand="brandb">this part uses BrandB</section>
 </html>
 ```
 
-Because brand values stay `var()` references to the primitives, a change to `Colors.Foundation.Blue.500` reaches every brand that uses it without a rebuild of the themes.
-
 ### Tokens that alias brand tokens
 
-A collection with one mode (a component tier, say) is written to `variables.css` on `:root`. When one of its tokens aliases a brand token, directly or through other single-mode tokens, each theme file declares it again with the same reference. CSS resolves `var()` where a property is declared, so the copy in the theme is what lets a nested `data-brand` section resolve it to its own brand. A build of the Learn `multi-brand` example with a single-mode `Component` collection added (`button.background` → `{action.background}`, `button.radius` → `{shape.control}`, `card.accent` → `{button.background}`, `button.border` → `{color.blue.600}`):
-
-{/* prettier-ignore */}
-```css title="output/css/themes/brandb.css"
-[data-brand="brandb"] {
-  --action-background: var(--color-green-600);
-  --action-foreground: var(--color-neutral-0);
-  --shape-control: var(--radius-999);
-  --type-heading: var(--font-serif);
-  --button-background: var(--action-background);
-  --button-radius: var(--shape-control);
-  --card-accent: var(--button-background);
-}
-```
-
-All four are in `variables.css` on `:root` as before; `--button-border` aliases a primitive only, so it is not repeated in the themes. What `base.css` writes for them: [Outputs](/reference/outputs/#single-mode-tokens-that-alias-brand-tokens).
+A single-mode token that aliases a brand token (a `button.background` pointing at `{action.background}`) is declared again in every theme, so a nested `data-brand` section resolves it to its own brand. Nothing to configure. What `base.css` writes for them: [Outputs](/reference/outputs/#single-mode-tokens-that-alias-brand-tokens).
 
 ### Breakpoint tokens and brands
 
-The same holds for a [breakpoint collection](/reference/outputs/#breakpoint-modes): a breakpoint token that aliases a brand token in any of its modes is repeated in every theme, once per mode, inside the same media queries. The Learn `multi-brand` example with a `Screen` collection added (`card.radius` → `{radius.4}` on Mobile, `{radius.999}` on Desktop; `card.accent` → `{color.blue.600}` on Mobile, `{action.background}` on Desktop) and `breakpoints: { collection: 'Screen', default: 'Mobile', modes: { Desktop: '(min-width: 1024px)' } }`:
-
-{/* prettier-ignore */}
-```css title="output/css/themes/brandb.css"
-[data-brand="brandb"] {
-  --action-background: var(--color-green-600);
-  --action-foreground: var(--color-neutral-0);
-  --shape-control: var(--radius-999);
-  --type-heading: var(--font-serif);
-}
-
-/* Screen · Mobile (default) */
-[data-brand="brandb"] {
-  --card-accent: var(--color-blue-600);
-}
-
-/* Screen · Desktop */
-@media (min-width: 1024px) {
-  [data-brand="brandb"] {
-    --card-accent: var(--action-background);
-  }
-}
-```
-
-So a `<section data-brand="brandb">` inside a BrandA page gets BrandB's green accent from 1024 px and the blue one below. `card.radius` reaches primitives only and stays in `variables.css`.
+The same holds for a [breakpoint collection](/reference/outputs/#breakpoint-modes): a breakpoint token that aliases a brand token is repeated in every theme, inside the same media queries.
 
 ## Light and dark
 
-Light and dark are the same mechanism: a collection with the modes `Light` and `Dark` (or `Graphite`), listed in `brands`. This website does exactly that: its tokens have a `Theme` collection with `Light` and `Graphite`, built into `[data-brand="light"]` and `[data-brand="graphite"]`, and a small script sets the attribute when you switch the theme.
+The same mechanism: a collection with the modes `Light` and `Dark`, listed in `brands`, switched with `data-brand`. This website works that way.
 
 ## Brands and themes together
 
-Per-mode files hold one dimension per collection, so a set with both brands and light/dark (BrandA light, BrandA dark, …) needs one mode per combination there. A DTCG [resolver document](/reference/token-files/#resolver-documents) describes them as two **modifiers** instead, and `dta build` combines them. In the `dtcg-modifiers` fixture a `theme` (light, dark) and then a `brand` (a, b) both change `accent`: the sets give it blue, the dark theme a lighter blue, brand b navy (it comes later in the resolution order, so it wins).
-
-```ts title="dta.config.ts"
-export default {
-  brands: ['a', 'b'], // the brand modifier switches with data-brand; the theme with data-theme
-  // …
-}
-```
-
-Tokens one modifier changes go to that modifier's theme files as above (`themes/theme-dark.css` with `[data-theme="dark"]`). A token both change gets a custom property per layer, and reads the last one that is set:
-
-{/* prettier-ignore */}
-```css title="output/css/variables.css (end)"
-/* theme × brand: the sets' values and the default contexts; [data-theme] and [data-brand] choose others */
-:root {
-  --accent-dta-base: var(--color-blue-500);
-  --accent: var(--accent-dta-brand, var(--accent-dta-theme, var(--accent-dta-base)));
-}
-```
-
-{/* prettier-ignore */}
-```css title="output/css/themes/theme-dark.css (end)"
-/* theme × brand: theme · dark */
-[data-theme="dark"] {
-  --accent-dta-theme: var(--color-blue-300);
-  --accent: var(--accent-dta-brand, var(--accent-dta-theme, var(--accent-dta-base)));
-  --button-background: var(--accent);
-}
-```
-
-{/* prettier-ignore */}
-```css title="output/css/themes/b.css (end)"
-/* theme × brand: brand · b */
-[data-brand="b"] {
-  --accent-dta-brand: var(--color-navy-700);
-  --accent: var(--accent-dta-brand, var(--accent-dta-theme, var(--accent-dta-base)));
-  --button-background: var(--accent);
-}
-```
-
-`:root` also holds the layers of each modifier's default context (none here: light and a leave `accent` alone), so a page without the attributes gets the default combination. A context that leaves the token alone sets its layer to `initial` (brand a, light), so a nested section can undo an outer one. Set both attributes on any elements, in either order:
+For brands _and_ light and dark at once, describe them as two **modifiers** in a DTCG [resolver document](/reference/token-files/#resolver-documents) instead of one mode per combination. `dta build` combines them:
 
 ```html
 <html data-theme="light" data-brand="a">
   <section data-theme="dark">dark × a</section>
-  <section data-brand="b"><div data-theme="dark">dark × b</div></section>
 </html>
 ```
 
-Each combination gives the value the resolver document gives (a browser test checks all four, nested both ways). `dta token get accent` lists them, and `color-contrast` checks a pair in each combination. Two things to know:
-
-- Single-mode tokens that alias such a token (`button.background` → `{accent}`) are declared again in every context, like [tokens that alias brand tokens](#tokens-that-alias-brand-tokens).
-- A token of one modifier that aliases it (`ring` → `{accent}` in the dark theme) is declared again inside each of that modifier's contexts, wherever an element sets the other modifier, with the single-mode tokens that alias it (`button.focus` → `{ring}`). `@scope` lets the nearest context win (a browser without `@scope` ignores the block, and such a nested section keeps the outer value):
-
-{/* prettier-ignore */}
-```css title="output/css/themes/theme-dark.css (end)"
-/* theme × brand: theme · dark tokens again where [data-brand] is set inside */
-@scope ([data-theme="dark"]) {
-  :scope[data-brand], [data-brand] {
-    --ring: var(--accent); /** Focus ring */
-    --button-focus: var(--ring);
-  }
-}
-```
-
-- Tailwind and JS outputs leave combined tokens out; use the CSS custom properties. A token that aliases one is written resolved there for the defaults of the other modifiers (the Tailwind file of the dark theme has `ring` for dark × a).
+`brands` names the modifier that switches with `data-brand`; the other one switches with its own attribute (`data-theme`). Every combination gives the value the resolver document gives. Tailwind and JS outputs leave the combined tokens out: use the CSS custom properties. Nesting one modifier inside the other relies on CSS `@scope`; a browser without it keeps the outer value in the nested section.
 
 ## Keep the brand layer clean
 
-The `semantic-must-alias` rule fails when a token in the brand layer holds a raw value instead of an alias, so a brand never drifts from the palette:
-
 ```ts
-lint: { rules: { 'semantic-must-alias': { severity: 'error', collections: ['Brand(Alias)'] } } }
+lint: { rules: { 'semantic-must-alias': { severity: 'error', collections: ['Brand'] } } }
 ```
 
-`color-contrast` checks text and background pairs through their aliases, once per brand (and per light or dark mode, if you have them); a finding names the brand it fails in: [Lint rules](/reference/lint-rules/).
+Fails when a brand token holds a raw value instead of an alias. `color-contrast` checks text and background pairs once per brand ([Lint rules](/reference/lint-rules/)).

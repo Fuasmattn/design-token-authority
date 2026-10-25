@@ -5,152 +5,62 @@ sidebar:
   order: 1
 ---
 
-How DTA reads your variables depends on your Figma plan. `dta init` asks which plan you have and sets `figma.source` to match.
+How DTA reads your Figma variables depends on your plan. `dta init` asks and sets it up.
 
-| Plan                       | Pull                            | Push                                |
-| -------------------------- | ------------------------------- | ----------------------------------- |
-| Enterprise                 | `dta pull` (Variables REST API) | `dta push`                          |
-| Professional, Organization | `dta pull --from-file <export>` | not available (the API returns 403) |
+| Plan                       | Pull                            | Push          |
+| -------------------------- | ------------------------------- | ------------- |
+| Enterprise                 | `dta pull` (REST API)           | `dta push`    |
+| Professional, Organization | `dta pull --from-file <export>` | not available |
 
 ## Enterprise: the REST API
 
-`dta pull` reads the local variables of one Figma file. It needs the file key (from the file's URL, `figma.com/file/<FILE_KEY>/…`) and a personal access token (Figma › Settings › Personal access tokens). `dta init` writes both into `.env`, and the config reads them from there:
-
-```ts title="dta.config.ts"
-export default {
-  figma: {
-    source: 'api',
-    fileKey: process.env.FIGMA_FILE_KEY!,
-    personalAccessToken: process.env.FIGMA_PERSONAL_ACCESS_TOKEN!,
-  },
-  // …
-}
+```sh
+npx dta pull
 ```
 
-```text title=".env (never commit it)"
+Reads the variables of one Figma file into `tokens/`. It needs two values in `.env` in the folder you run it in (never commit it); `dta init` writes them:
+
+```text title=".env"
 FIGMA_FILE_KEY=…
 FIGMA_PERSONAL_ACCESS_TOKEN=…
 ```
 
-`dta` loads `.env` from the folder you run it in. A run on the `brand-ab` fixture against a recording of the Figma API, writing into `pulled/` instead of `tokens/`:
-
-```text
-$ dta pull -o pulled
-T   ⤵  dta pull
-|
-o  Received 6 token files from Figma
-|
-o  Wrote Primitives.Value.json
-|
-o  Wrote Brand(Alias).BrandA.json
-|
-o  Wrote Brand(Alias).BrandB.json
-|
-o  Wrote ScreenType.Desktop.json
-|
-o  Wrote ScreenType.Tablet.json
-|
-o  Wrote ScreenType.Mobile.json
-|
-—  Tokens written to pulled/
-```
-
-`dta analyze` reads the same file and shows which collection plays which role, before you commit to a config.
+The file key is in the file's URL (`figma.com/file/<FILE_KEY>/…`); the token comes from Figma › Settings › Personal access tokens.
 
 ## Any plan: a plugin export
 
-Export your variables with a Figma plugin, then import the file:
+Export your variables with a Figma plugin (tokenHaus, for example), then:
 
 ```sh
-dta pull --from-file exports/variables.json
+npx dta pull --from-file export.json
 ```
 
-DTA reads its own per-mode format directly ([Token files](/reference/token-files/)) and converts a few known single-file exports. On the repository's `daisyui` fixture, a public daisyUI library exported with the tokenHaus plugin:
-
-```text
-$ dta pull --from-file ../../../docs/token-files/design-tokens-daisyui.json
-T   ⤵  dta pull
-|
-o  Converted tokenhaus export into 41 token files
-|
-o  Wrote join-direction.Bottom.json
-…
-```
-
-DTA does not depend on any plugin. If yours writes something DTA does not know, convert it to the per-mode format (the JSON Schema helps) or [contribute an adapter](/contribute/).
+DTA reads its own format ([Token files](/reference/token-files/)) and converts a few known plugin exports. Another plugin? Convert its output to the documented format, or [contribute an adapter](/contribute/).
 
 :::tip[Default mode names]
-Figma names the first mode of a new collection `Mode 1`. `dta lint` fails on that name (`no-default-mode-names`): rename the modes in Figma to what they mean (`Light`, `BrandA`, `Desktop`).
+`dta lint` fails on Figma's default mode name `Mode 1`: rename modes to what they mean (`Light`, `BrandA`, `Desktop`).
 :::
-
-Figma has announced native variable export in the DTCG format; once it is generally available, `--from-file` is meant to read it directly.
 
 ## Pushing back to Figma
 
-`dta push` writes your token files to Figma (Enterprise only). It is conservative: it creates and updates variables and never deletes one. Before it changes anything it runs the lint check, shows the plan and asks you to type `push variables to figma`.
-
-```text
-$ dta push --dry-run
-T   ⤴  dta push
-|
-!  8 lint warnings found.
-|
-o  Diff computed
-|
-|  Summary: +1 added, ~2 modified
-|
-|  Added (1):
-|    + Dimensions/radius/pill [VariableCollectionId:1:1]
-|
-|  Modified (2):
-|    ~ VariableID:1:1 (1:0) → {"r":0,"g":0.3411764705882353,"b":0.7215686274509804}
-|    ~ VariableID:1:11 (1:0) → 8
-|
-|
-—  Dry run — no changes were applied to Figma.
+```sh
+npx dta push --dry-run
 ```
 
-`--yes` (or `push: { skipConfirmation: true }` in the config) skips the typed confirmation for CI. `--format markdown` or `json` prints the plan for a pull-request comment.
+Shows what `dta push` would change (Enterprise only). Without `--dry-run` it runs `dta lint` first, then asks you to type `push variables to figma`; `--yes` (or `push.skipConfirmation`) skips that in CI. It creates and updates variables and **never deletes** one.
+
+Figma variables hold colours, numbers, text and booleans. Tokens Figma can't hold (`rem` sizes, font weights, shadows and other composite types) are skipped with a warning that says why. A colour outside sRGB is clipped, with a `clipped-to-srgb` warning.
 
 ### Removing variables: dta prune
 
-Since `dta push` never deletes, a token you remove from the files stays in Figma as a variable without a token. `dta prune` (Enterprise only) finds those and deletes them, as a separate step you run on purpose:
-
-```text
-$ dta prune --dry-run
-T   ✂  dta prune
-|
-o  Compared
-|
-o  1 variable in Figma without a token --------+
-|                                              |
-|  Primitives  Colors.Foundation.Old  #3355d4  |
-|                                              |
-+----------------------------------------------+
-|
-—  Dry run: nothing was deleted.
+```sh
+npx dta prune --dry-run
 ```
 
-Without `--dry-run` it asks you to type `delete variables from figma`; `--force` deletes without asking (CI, on purpose). It is narrow by design:
+Lists Figma variables whose token is gone. Without `--dry-run` it asks you to type `delete variables from figma` (`--force` skips that, in CI). It is careful on purpose:
 
-- only collections that are in your token files, with at least one token, are looked at; a Figma collection you never pulled, that `collections` leaves out, or whose file is empty is left alone, with a note;
-- a collection that would lose more than half of its variables is left alone too (that usually means the files are incomplete); `--allow-bulk` deletes there anyway;
-- an entry the files have but DTA does not read as a token (a `$` name, a value that is neither a token nor a group) stops prune: its variable would look orphaned;
-- library variables, and variables Figma has already deleted but still references, are never deleted;
-- a variable that other variables in Figma still alias is kept and named: run `dta push` first, then prune;
-- with no token files it stops instead of treating every variable as an orphan.
+- only collections that are in your token files are looked at;
+- a collection that would lose more than half its variables is left alone (`--allow-bulk` overrides);
+- a variable that others still alias is kept: run `dta push` first.
 
-Collection names are matched exactly: with `tokens.stripEmojis`, a Figma collection whose name has an emoji has no match in the files and is left alone.
-
-Figma's REST API does not say which components or frames use a variable, so prune cannot check that: layers that use a deleted variable lose its value. Look at the list before you confirm.
-
-### What Figma variables can hold
-
-Figma variables hold colours, numbers, text and booleans. Of the DTCG 2025.10 types, `dta push` sends:
-
-- **colours** in any colour space, converted to sRGB; one outside sRGB is clipped, with a `clipped-to-srgb` warning naming the colour Figma gets;
-- **dimensions in `px`** as numbers;
-- **a font family** that names one font, as text;
-- **a `$ref`** to a token as an alias, and one into a value as that value.
-
-Everything else is skipped with a `not-pushable` warning that says why: `rem` dimensions, lists of font families, font weights, durations, cubic Béziers and the composite types (shadow, border, transition, typography, gradient, stroke style). An alias to a skipped token is skipped too, so Figma never gets an alias to a variable it does not have. `dta pull` writes what Figma holds, so those tokens stay in your files only.
+Figma's API can't say which layers use a variable, so check the list before you confirm.

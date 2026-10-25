@@ -5,16 +5,16 @@ sidebar:
   order: 4
 ---
 
-The two commands that belong in every pipeline:
+Run DTA on every push so broken tokens never reach `main`.
 
-- `dta lint` exits with **2** when it finds errors (dangling or circular aliases, default mode names, rules you set to `error`). Warnings print but exit with 0.
-- `dta build` exits with **1** when the token files cannot be read or built, among them a dangling or circular alias, and then writes nothing; otherwise it writes the outputs.
+- `dta lint` exits with **2** on errors (broken aliases, rules set to `error`). Warnings exit with 0.
+- `dta build` exits with **1** when the tokens can't be built, and then writes nothing.
 
 All exit codes: [Exit codes](/reference/exit-codes/).
 
 ## Workflow
 
-`design-token-authority` is a dev dependency of your project (`npm create dta` adds it), so the workflow installs your dependencies and runs `npx design-token-authority` (Node.js 24 or newer). With pnpm or yarn, swap the install step and `npx` for `pnpm exec` or `yarn`.
+`npm create dta` adds DTA as a dev dependency, so CI installs your dependencies and runs it (Node.js 24 or newer). With pnpm or yarn, use `pnpm exec` or `yarn` instead of `npx`.
 
 ```yaml title=".github/workflows/tokens.yml"
 name: tokens
@@ -36,45 +36,40 @@ jobs:
         run: npx design-token-authority build
 ```
 
-Commit the `tokens/` folder, not the build output: CI rebuilds it, and `dta clean` removes it locally.
+Commit `tokens/`, not the build output.
 
 ## On pull requests
 
-- **What changed in the tokens:** `dta diff --tokens-only -f markdown -o token-changes.md` writes the change set as a Markdown table for a comment or the job summary (`>> $GITHUB_STEP_SUMMARY`).
-- **What it looks like:** with a `diff` section in the config (`dta init` writes it, and the workflow), `dta diff` renders your stories at the base and the head and explains the differences by token. [dta diff in pull requests](/guides/dta-diff-in-pull-requests/) has ready-made actions for the status check and the comment.
-- **Pushing to Figma from CI** (Enterprise): `dta push --yes` skips the typed confirmation. Run `dta push --dry-run --format markdown` on the pull request and the real push only on the main branch.
-
-The token diff needs the base commit: check out with `fetch-depth: 0`, or pass `--base <ref|folder>`.
+- **Token changes as a table:** `dta diff --tokens-only -f markdown -o token-changes.md`, for a comment or `>> $GITHUB_STEP_SUMMARY`. Needs the base commit: `fetch-depth: 0`, or `--base <ref|folder>`.
+- **Screenshots explained by token:** [dta diff in pull requests](/guides/dta-diff-in-pull-requests/).
+- **Pushing to Figma** (Enterprise): `dta push --dry-run --format markdown` on the pull request, `dta push --yes` on `main` only.
 
 ## Hard-coded values in code
 
-`dta audit` scans your source for colours, lengths and font families that equal a token and names the token to use (CSS, SCSS, JS/TS/JSX/TSX, the `<style>` blocks of Astro, Vue and Svelte files, and Tailwind arbitrary values such as `bg-[#2f55d4]`). It exits with **1** when it finds something. On the `brand-ab` test fixture:
+`dta audit` finds colours, lengths and fonts in your code that equal a token, and names the token to use. It exits with **1** when it finds something.
 
 ```text
 $ dta audit
 src/Button.css
   3:15  #0057b8  background → Colors.Brand.Primary  var(--colors-brand-primary)
   5:12  16px     padding → Dimensions.spacing.4  var(--dimensions-spacing-4)
-
-src/Card.tsx
-  3:30  #f3f4f6  bg-[…] → Colors.Surface.Muted  var(--colors-surface-muted)
-  3:42  16px     p-[…] → Dimensions.spacing.4  var(--dimensions-spacing-4)
-  3:71  Inter    fontFamily → Typography.Body.Family  var(--typography-body-family)
-
-5 hard-coded values in 2 files could be tokens.
 ```
 
-Lengths are compared with the tokens of their kind only: spacing (margin, padding, gap, inset), size (width, height, their min, max and logical forms, flex-basis), radius, stroke (border and outline widths) and font size. The kind comes from the token's Figma scope (`GAP` is spacing, `WIDTH_HEIGHT` is size, a token with both is both) or, without scopes, from its name (`space`, `size`, `width`, `height` …). Comments, `0`, percentages, `var()` fallbacks, `@font-face`, the conditions of `@media`, `@container` and `@supports`, tests (`*.test.*`, `*.spec.*`), the token files and the build output are skipped; a deliberate value gets a `dta-audit-ignore` comment on its line or the line before. The scanned folders, ignore globs and languages are the `audit` section of the config ([Configuration](/reference/configuration/#audit)).
+- It reads CSS, SCSS, JS/TS, the `<style>` blocks of Astro, Vue and Svelte, and Tailwind arbitrary values (`bg-[#2f55d4]`).
+- A length is only matched to tokens of its kind: spacing, size, radius, stroke or font size, by the token's Figma scope or its name.
+- Comments, `0`, percentages, `var()` fallbacks, tests and build output are skipped; mark a deliberate value with a `dta-audit-ignore` comment on its line or the line before.
+- Folders and languages: the `audit` section of the [config](/reference/configuration/#audit).
 
-Widths and heights are checked too. Coming from a version that did not check them, the audit may report values it skipped before: fix them, or accept them for now with `dta audit --update-baseline`.
+Start advisory: record today's findings once, then only new ones are reported.
 
-Add it as its own step, so its status is separate from lint and build. Start advisory, with today's findings recorded as accepted, and tighten it once the count is down:
+```sh
+npx dta audit --update-baseline   # then commit .dta/audit-baseline.json
+```
 
 ```yaml
-# Once, locally: dta audit --update-baseline, then commit .dta/audit-baseline.json
 - name: Audit hard-coded values
   run: npx design-token-authority audit --format markdown >> $GITHUB_STEP_SUMMARY
-  continue-on-error: true # advisory; remove to make new findings fail the job
+  continue-on-error: true # remove to make new findings fail the job
 ```
 
-With the baseline, later runs report only new findings (a finding is recognised by file, value and property, so moving lines does not make it new). `--format json` prints the findings for scripts and agents ([schema](/schemas/dta.audit.schema.json)).
+After a DTA upgrade the audit may find values it didn't check before (widths and heights, for example): fix them, or accept them with `--update-baseline`. `--format json` is for scripts ([schema](/schemas/dta.audit.schema.json)).
