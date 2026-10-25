@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { installCommand, type PackageManager } from './detect.js'
+import { installCommand, lockfileIn, type PackageManager } from './detect.js'
 import { gitOutput } from './diff-base.js'
 import { CommandFailedError, runCommand } from './run-command.js'
 import type { BaseWorktree } from './worktree.js'
@@ -13,24 +13,14 @@ export class BaseBuildError extends Error {
   }
 }
 
-const LOCKFILES: ReadonlyArray<[string, PackageManager]> = [
-  ['pnpm-lock.yaml', 'pnpm'],
-  ['package-lock.json', 'npm'],
-  ['yarn.lock', 'yarn'],
-  ['bun.lock', 'bun'],
-  ['bun.lockb', 'bun'],
-]
-
 /** The nearest lockfile from `dir` up to `root`: its folder (relative to root) and manager. */
 function findLockfile(
   root: string,
   dir: string,
 ): { folder: string; file: string; manager: PackageManager } | null {
   for (let current = dir; ; current = path.dirname(current)) {
-    for (const [file, manager] of LOCKFILES) {
-      if (fs.existsSync(path.join(current, file)))
-        return { folder: path.relative(root, current), file, manager }
-    }
+    const lock = lockfileIn(current)
+    if (lock) return { folder: path.relative(root, current), ...lock }
     if (current === root || path.dirname(current) === current) return null
   }
 }

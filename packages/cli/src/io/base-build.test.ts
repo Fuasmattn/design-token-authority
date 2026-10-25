@@ -88,6 +88,77 @@ describe('buildBase (TICKET-127)', () => {
     expect(fs.existsSync(path.join(worktree.root, 'node_modules', '.cache'))).toBe(false)
   })
 
+  it("reuses pnpm's node_modules, its .pnpm store included (TICKET-148)", () => {
+    git('rm', '-q', 'package-lock.json')
+    put('pnpm-lock.yaml', "lockfileVersion: '9.0'\n")
+    git('add', '.')
+    git('commit', '-q', '-m', 'pnpm')
+    // As pnpm installs: the package lives in .pnpm, node_modules/<name> links to it.
+    put('node_modules/.pnpm/left-pad@1.3.0/node_modules/left-pad/index.js', 'module.exports = 2')
+    fs.symlinkSync(
+      '.pnpm/left-pad@1.3.0/node_modules/left-pad',
+      path.join(dir, 'node_modules', 'left-pad'),
+    )
+    worktree = createBaseWorktree(dir, git('rev-parse', 'HEAD'))
+    const { calls, run } = recorder()
+    const logs: string[] = []
+    expect(
+      buildBase({ cwd: dir, worktree, build: 'pnpm run build', run, log: (t) => logs.push(t) }),
+    ).toBe('reused')
+    expect(calls).toEqual(['pnpm run build @ .'])
+    expect(logs).toEqual(["Reusing the head's node_modules: the lockfile did not change"])
+    const modules = path.join(worktree.root, 'node_modules')
+    expect(fs.existsSync(path.join(modules, '.pnpm'))).toBe(true)
+    expect(fs.readFileSync(path.join(modules, 'left-pad', 'index.js'), 'utf8')).toBe(
+      'module.exports = 2',
+    )
+  })
+
+  it("reuses Yarn's node_modules, and installs with its own command when the lockfile changed (TICKET-148)", () => {
+    git('rm', '-q', 'package-lock.json')
+    put('yarn.lock', '# yarn lockfile v1\n')
+    git('add', '.')
+    git('commit', '-q', '-m', 'yarn')
+    const base = git('rev-parse', 'HEAD')
+    worktree = createBaseWorktree(dir, base)
+    const reuse = recorder()
+    expect(buildBase({ cwd: dir, worktree, build: 'yarn build', run: reuse.run })).toBe('reused')
+    expect(reuse.calls).toEqual(['yarn build @ .'])
+    worktree.remove()
+
+    put('yarn.lock', '# yarn lockfile v1\n\nleft-pad@^1.3.0:\n')
+    git('commit', '-q', '-am', 'new dependency')
+    worktree = createBaseWorktree(dir, base)
+    const logs: string[] = []
+    const install = recorder()
+    expect(
+      buildBase({
+        cwd: dir,
+        worktree,
+        build: 'yarn build',
+        run: install.run,
+        log: (t) => logs.push(t),
+      }),
+    ).toBe('installed')
+    expect(install.calls).toEqual(['yarn install --frozen-lockfile @ .', 'yarn build @ .'])
+    expect(logs).toEqual(['Installing the base: yarn install --frozen-lockfile'])
+  })
+
+  it('only builds a base that has no lockfile yet (TICKET-148)', () => {
+    git('rm', '-q', 'package-lock.json')
+    git('commit', '-q', '-m', 'no lockfile yet')
+    const base = git('rev-parse', 'HEAD')
+    put('package-lock.json', '{"lockfileVersion":3}')
+    git('add', '.')
+    git('commit', '-q', '-m', 'lockfile at the head')
+    worktree = createBaseWorktree(dir, base)
+    const { calls, run } = recorder()
+    expect(buildBase({ cwd: dir, worktree, build: 'npm run build', run })).toBe(
+      'nothing to install',
+    )
+    expect(calls).toEqual(['npm run build @ .'])
+  })
+
   it('installs from the lockfile when it changed', () => {
     const base = git('rev-parse', 'HEAD')
     put('package-lock.json', '{"lockfileVersion":3,"packages":{}}')

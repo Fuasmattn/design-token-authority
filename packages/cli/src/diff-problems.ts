@@ -4,16 +4,26 @@
  */
 
 /**
- * Where the docs live. The website has no domain yet (TICKET-075), so links point at the page
- * sources in the repository; with a domain this becomes the site URL, and `docsUrl` the path.
+ * The website (TICKET-075), where the docs live. The same address as `site/site-url.mjs`
+ * (a test keeps them equal).
  */
-export const DOCS_ROOT =
-  'https://github.com/Fuasmattn/design-token-authority/blob/main/site/src/content/docs'
+export const SITE_URL = 'https://dta.martinprinz.dev'
+
+/**
+ * A heading's anchor on the website, as Starlight makes it (github-slugger): lower case, without
+ * punctuation and symbols, spaces as hyphens.
+ */
+export function headingSlug(heading: string): string {
+  return heading
+    .toLowerCase()
+    .replace(/[^\p{L}\p{M}\p{N}\p{Pc} -]/gu, '')
+    .replace(/ /g, '-')
+}
 
 export interface DocsRef {
   /** The page, as on the website: `guides/dta-diff-in-pull-requests`. */
   page: string
-  /** The section's heading, named in the message (anchors do not survive the source view). */
+  /** The section's heading, as written on the page; the link goes to its anchor. */
   section?: string
 }
 
@@ -28,7 +38,7 @@ const GUIDE = 'guides/dta-diff-in-pull-requests'
 const STORYBOOK = 'guides/dta-diff-with-storybook'
 
 export function docsUrl(ref: DocsRef): string {
-  return `${DOCS_ROOT}/${ref.page}.mdx${ref.section ? ` (section "${ref.section}")` : ''}`
+  return `${SITE_URL}/${ref.page}/${ref.section ? `#${headingSlug(ref.section)}` : ''}`
 }
 
 /** `dta diff: message`, then the fix and the docs link, indented. */
@@ -117,6 +127,12 @@ export const diffProblems = {
   baseBuildFailed: (message: string, command: string): DiffProblem => ({
     message: `the base did not build: ${message}`,
     fix: `run \`${command}\` on the base commit to see why; set diff.setup to the command that prepares a fresh checkout (an install) if the automatic install does not fit.`,
+    docs: { page: GUIDE, section: 'Troubleshooting' },
+  }),
+  /** Anything else that stops dta diff (TICKET-148): still with a way forward. */
+  unexpected: (message: string): DiffProblem => ({
+    message: `Unexpected error: ${message}`,
+    fix: 'run `dta diff --check`; if every check passes, report it with this output at https://github.com/Fuasmattn/design-token-authority/issues.',
     docs: { page: GUIDE, section: 'Troubleshooting' },
   }),
 } satisfies Record<string, (...args: never[]) => DiffProblem>

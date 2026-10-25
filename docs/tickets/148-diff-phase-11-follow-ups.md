@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** M
 **Blocked by:** —
-**Status:** open
+**Status:** in review (2026-10-24)
 **Spec:** [diff-zero-setup](../specs/diff-zero-setup.md)
 
 ## What to build
@@ -42,10 +42,19 @@ Found in the approval run of TICKET-129 (test repository, PR #2): after the labe
 
 ## Acceptance criteria
 
-- [ ] Generated workflows pin `@v<version>`; `main` only when the version is unknown, with a note; examples and docs follow the chosen option; tests for both
-- [ ] Every `Docs:` link is a website URL with a working anchor; the test checks pages and anchors for every problem
-- [ ] The comment headline says approved while the approval holds for the head commit, and changes back on a new push or a removed label (tests in `actions/lib/dta-diff.test.ts`); the guide's "Approving changes" section matches
-- [ ] The no-browser fix appears once; one lockfile list; unknown errors reported with a fix and docs link
-- [ ] The missing tests above
-- [ ] Docs: the diff guide says which version the generated workflow pins and how re-running `dta init` updates it
-- [ ] All gates pass, and the GitHub run is green
+- [x] Generated workflows pin `@v<version>`; `main` only when the version is unknown, with a note; examples and docs follow the chosen option; tests for both
+- [x] Every `Docs:` link is a website URL with a working anchor; the test checks pages and anchors for every problem
+- [x] The comment headline says approved while the approval holds for the head commit, and changes back on a new push or a removed label (tests in `actions/lib/dta-diff.test.ts`); the guide's "Approving changes" section matches
+- [x] The no-browser fix appears once; one lockfile list; unknown errors reported with a fix and docs link
+- [x] The missing tests above
+- [x] Docs: the diff guide says which version the generated workflow pins and how re-running `dta init` updates it
+- [x] All gates pass, and the GitHub run is green
+
+## Progress (2026-10-24)
+
+- **Pinned refs:** `actionRef()` in `init/diff-workflows.ts` returns `v<version>` of the CLI (`packageVersion()`), `main` when unknown (init warns). Examples: release-it's `after:bump` runs `pnpm workflows:generate`, so each release commit carries examples pinned to its own tag; between releases they point at the last release. This repository's own workflows keep `@main` (they test the actions at HEAD). Re-running init after an upgrade moves untouched workflows to the new tag (`diff-setup.test.ts`).
+- **Docs links:** `docsUrl()` builds `SITE_URL/<page>/#<anchor>`; `headingSlug()` follows github-slugger. The test checks every problem's page and heading (the generated commands page through `commandReference()`), and that `SITE_URL` equals `site/site-url.mjs`. All 15 links checked against the built site's ids.
+- **Approved headline:** `headline(verdict, { approved })`; `report()` and `approve()` write it while the approval holds for the commit the comment shows. An approval that arrives before that commit's run leaves the old headline until the run reports.
+- **Cleanups:** the no-browser fix only on `Fix:`; one lockfile list (`lockfileIn()` in `io/detect.ts`); any unknown error is `diffProblems.unexpected` with a fix and the troubleshooting link (exit 1 as before).
+- **Found by the new end-to-end test:** `--list` accepted `/about` for `about.html`, but the screenshot server did not serve it (the run failed). `resolvePage()` in `io/static-server.ts` is now the one rule for both; the guide says how a page path maps to files.
+- Tests: `actionRef`, upgrade re-run, docs links and slugs, headline states, the fix said once, unexpected errors, page lookup, pnpm and Yarn reuse, a base without a lockfile, `lockfileIn`, `resolvePage`/server, page list end to end. All gates pass; CLI end-to-end tests (Chromium) pass.

@@ -2,6 +2,7 @@ import { createRequire } from 'node:module'
 import fs from 'node:fs'
 import path from 'node:path'
 import pc from 'picocolors'
+import { actionRef } from '../init/diff-workflows.js'
 import type { CommandContext } from '../commands.js'
 import { ConfigError, loadConfig } from '../config/load.js'
 import { describeFound, detectProject, type ProjectDetection } from '../io/detect.js'
@@ -264,6 +265,11 @@ export async function runDiffStep(
       fs.mkdirSync(path.dirname(target), { recursive: true })
       fs.writeFileSync(target, file.content)
       ui.log.success(`Wrote ${pc.bold(file.path)}`)
+    }
+    if ((workflows?.write.length ?? 0) > 0 && actionRef() === 'main') {
+      ui.log.warn(
+        'The workflows use the DTA actions from the main branch: the version of this dta is unknown, so there is no release to pin. Run `dta init --diff` again from an installed release to pin them.',
+      )
     }
     if (detection.git.host.value === 'other') {
       ui.log.info(

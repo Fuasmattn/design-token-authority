@@ -21,6 +21,7 @@
     ],
     "after:bump": [
       "pnpm --filter create-dta exec npm version ${version} --no-git-tag-version --allow-same-version",
+      "pnpm workflows:generate",
       "pnpm package:build"
     ],
     "before:git:release": [
@@ -34,13 +35,34 @@
       "preset": {
         "name": "conventionalcommits",
         "types": [
-          { "type": "feat", "section": "Features" },
-          { "type": "fix", "section": "Bug Fixes" },
-          { "type": "perf", "section": "Performance" },
-          { "type": "refactor", "section": "Refactoring" },
-          { "type": "docs", "section": "Documentation" },
-          { "type": "test", "section": "Tests" },
-          { "type": "chore", "hidden": true }
+          {
+            "type": "feat",
+            "section": "Features"
+          },
+          {
+            "type": "fix",
+            "section": "Bug Fixes"
+          },
+          {
+            "type": "perf",
+            "section": "Performance"
+          },
+          {
+            "type": "refactor",
+            "section": "Refactoring"
+          },
+          {
+            "type": "docs",
+            "section": "Documentation"
+          },
+          {
+            "type": "test",
+            "section": "Tests"
+          },
+          {
+            "type": "chore",
+            "hidden": true
+          }
         ]
       },
       "infile": "CHANGELOG.md",

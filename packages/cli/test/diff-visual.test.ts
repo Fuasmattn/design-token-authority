@@ -312,3 +312,67 @@ describe.skipIf(!enabled)('dta diff (visual, end to end)', () => {
     }
   }, 120_000)
 })
+
+describe.skipIf(!enabled)('dta diff on a page list (TICKET-148, end to end)', () => {
+  beforeAll(() => {
+    dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'dta-diff-pages-')))
+    write(
+      'dta.config.json',
+      JSON.stringify({
+        tokens: { dir: 'tokens' },
+        diff: { build: 'node build.mjs', outDir: 'dist', stories: ['/', '/about', '/pricing'] },
+      }),
+    )
+    // The "build": pages as they are, and tokens.css from the token file.
+    write(
+      'build.mjs',
+      `import fs from 'node:fs'
+const brand = JSON.parse(fs.readFileSync('tokens/Base.Value.json', 'utf8')).Brand.$value
+fs.rmSync('dist', { recursive: true, force: true })
+fs.cpSync('pages', 'dist', { recursive: true })
+fs.writeFileSync('dist/tokens.css', ':root { --brand: ' + brand + '; }')
+`,
+    )
+    write('.gitignore', 'dist\n.dta\n')
+    const tokens = (brand: string) => JSON.stringify({ Brand: { $type: 'color', $value: brand } })
+    write('tokens/Base.Value.json', tokens('#2f55d4'))
+    write(
+      'pages/index.html',
+      page('<div style="width:200px;height:80px;background:var(--brand)"></div>'),
+    )
+    // A page as <page>.html.
+    write('pages/about.html', page('<p>About us</p>'))
+    git('init', '-q', '-b', 'main')
+    git('add', '.')
+    git('commit', '-q', '-m', 'base')
+    git('checkout', '-q', '-b', 'feature')
+    write('tokens/Base.Value.json', tokens('#13213f'))
+    // A page the base does not have yet, as <page>/index.html.
+    write('pages/pricing/index.html', page('<p>Pricing</p>'))
+    git('add', '.')
+    git('commit', '-q', '-m', 'head')
+  })
+
+  afterAll(() => {
+    fs.rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('renders the pages at base and head; a page new at the head is added', async () => {
+    let stdout = ''
+    let stderr = ''
+    const exitCode = await runCli(['diff', '--format', 'json'], {
+      cwd: dir,
+      stdout: (text) => (stdout += text),
+      stderr: (text) => (stderr += text),
+      input: new PassThrough(),
+    })
+    expect(stderr).toBe('')
+    expect(exitCode).toBe(0)
+    const result = JSON.parse(stdout)
+    expect(
+      Object.fromEntries(
+        result.stories.map((s: { id: string; status: string }) => [s.id, s.status]),
+      ),
+    ).toEqual({ home: 'changed', about: 'unchanged', pricing: 'added' })
+  })
+})

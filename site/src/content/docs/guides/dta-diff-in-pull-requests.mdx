@@ -43,7 +43,7 @@ npx dta diff           # report in .dta/diff/index.html
 
 `diff.stories` says what `dta diff` screenshots, in three forms:
 
-- **A list of pages**, the simplest form for a site: each path is rendered from `diff.outDir` as it is, no manifest needed. A page the base does not have yet counts as added.
+- **A list of pages**, the simplest form for a site: each path is rendered from `diff.outDir` as it is, no manifest needed. `/pricing` is served from `pricing`, `pricing.html` or `pricing/index.html`, as static hosts do. A page the base does not have yet counts as added.
 
   ```ts title="dta.config.ts"
   diff: {
@@ -115,6 +115,8 @@ Added and removed stories show their one side ("With this change" for a new stor
 
 **One file** is enough when everyone who opens pull requests can push to the repository (private and team repositories): one job runs `dta diff`, sets the status check and writes the comment, and the same file handles approval. **Three files** are for public repositories: a pull request from a fork must never run with write permissions, so the run, the report and the approval are split. `dta init` asks which one you need and writes it for your package manager and Node version.
 
+The workflows use the DTA actions of the release that wrote them (`Fuasmattn/design-token-authority/actions/diff-pr@v2.1.0`, say), so your CI does not change when DTA's main branch moves. After upgrading DTA, run `npx dta init` again: it moves workflows you have not edited to the new release and leaves edited ones alone. A dta run from a checkout without a version pins `@main` and says so.
+
 ### One workflow
 
 <Code code={singleWorkflow} lang="yaml" title=".github/workflows/dta-diff.yml" />
@@ -147,9 +149,9 @@ The actions only wrap `dta diff`: `diff` runs it and uploads the report folder, 
 
 ## Approving changes
 
-Explained changes are reviewed once per token change, not once per screenshot: _"`action.bg` 600 → 700 explains 7 stories"_. When you have looked at them, add the **`dta-diff-approved`** label. The status of the head commit turns green and the comment says who approved it.
+Explained changes are reviewed once per token change, not once per screenshot: _"`action.bg` 600 → 700 explains 7 stories"_. When you have looked at them, add the **`dta-diff-approved`** label. The status of the head commit turns green, and the comment's headline changes to **dta diff: approved**, with who approved it below.
 
-An approval belongs to one commit. When you push again, the report workflow removes the label and the new commit needs a new review. Removing the label by hand withdraws the approval.
+An approval belongs to one commit. When you push again, the report workflow removes the label, the headline goes back to the new run's verdict and the new commit needs a new review. Removing the label by hand withdraws the approval.
 
 Thresholds decide what needs a look at all (in the `diff` section, as changed-pixel ratios):
 

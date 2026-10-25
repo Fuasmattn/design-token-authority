@@ -1,5 +1,15 @@
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { planSection, readRecord, writeSection, type DiffSection } from './diff-setup.js'
+import {
+  planSection,
+  planWorkflows,
+  readRecord,
+  writeSection,
+  type DiffSection,
+} from './diff-setup.js'
+import { renderDiffWorkflows } from './diff-workflows.js'
 
 const SECTION: DiffSection = {
   build: 'npx dta build && npm run build-storybook',
@@ -84,5 +94,37 @@ describe('planSection', () => {
     const next = planSection(proposed, current, readRecord(content))
     expect(next.kept).toEqual([`build: ${handBuild} (changed by hand)`])
     expect(next.next.build).toBe(handBuild)
+  })
+})
+
+describe('planWorkflows after an upgrade (TICKET-148)', () => {
+  const render = (ref: string) =>
+    renderDiffWorkflows({
+      manager: 'npm',
+      install: 'npm ci',
+      node: { file: '.nvmrc' },
+      layout: 'single',
+      ref,
+    })
+
+  it('moves an untouched workflow to the new release, and keeps one edited by hand', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'dta-workflows-'))
+    try {
+      for (const file of planWorkflows(root, render('v2.1.0')).write) {
+        fs.mkdirSync(path.dirname(path.join(root, file.path)), { recursive: true })
+        fs.writeFileSync(path.join(root, file.path), file.content)
+      }
+      const upgrade = planWorkflows(root, render('v2.2.0'))
+      expect(upgrade.changes).toEqual(['.github/workflows/dta-diff.yml (updated)'])
+      expect(upgrade.write[0].content).toContain('actions/diff-pr@v2.2.0')
+
+      const file = path.join(root, '.github/workflows/dta-diff.yml')
+      fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace('npm ci', 'npm install'))
+      expect(planWorkflows(root, render('v2.2.0')).kept).toEqual([
+        '.github/workflows/dta-diff.yml (edited by hand: not overwritten)',
+      ])
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true })
+    }
   })
 })

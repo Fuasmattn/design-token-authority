@@ -58,7 +58,7 @@ import {
   resolveDiffHead,
 } from '../io/diff-base.js'
 import { CommandFailedError, runCommand } from '../io/run-command.js'
-import { serveStatic } from '../io/static-server.js'
+import { resolvePage, serveStatic } from '../io/static-server.js'
 import { createBaseWorktree } from '../io/worktree.js'
 import { readTokenDir, TokenDirError, tokenParseOptions } from '../io/token-dir.js'
 import { banner, createUi } from '../ui.js'
@@ -99,9 +99,21 @@ function consoleReport(set: TokenChangeSet): string {
 /**
  * `dta diff`: compares the project's tokens with a base (a directory, a git ref, or the merge
  * base with the default branch) and, with a `diff` section and a git base, renders the stories
- * of the base and the head and compares the screenshots (report in `.dta/diff/`).
+ * of the base and the head and compares the screenshots (report in `.dta/diff/`). Every way it
+ * stops is a problem with a fix and a docs link (TICKET-130), also an error it does not know
+ * (TICKET-148).
  */
 export async function runDiff(context: CommandContext): Promise<number> {
+  try {
+    return await diffCommand(context)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    context.stderr(formatProblem(diffProblems.unexpected(message.split('\n')[0])))
+    return 1
+  }
+}
+
+async function diffCommand(context: CommandContext): Promise<number> {
   const tokensDir = context.config?.tokens.dir ?? 'tokens'
   const requested = String(context.options.format ?? 'console')
   const out = typeof context.options.out === 'string' ? context.options.out : undefined
@@ -340,17 +352,9 @@ function storiesSource(diff: DiffConfig) {
   }
 }
 
-/** The file a page path is served from: `/` → index.html, `/a` → a/index.html, a.html or a. */
+/** Whether the build output has the page, by the rule the server renders it with (resolvePage). */
 function pageExists(outDir: string, url: string): boolean {
-  const clean = decodeURIComponent(url.split(/[?#]/)[0]).replace(/^\/+/, '')
-  const candidates =
-    clean.endsWith('/') || clean === ''
-      ? [path.join(clean, 'index.html')]
-      : [clean, `${clean}.html`, path.join(clean, 'index.html')]
-  return candidates.some((file) => {
-    const full = path.join(outDir, file)
-    return fs.existsSync(full) && fs.statSync(full).isFile()
-  })
+  return resolvePage(outDir, url) !== null
 }
 
 type StoriesRead =

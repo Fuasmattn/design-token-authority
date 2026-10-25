@@ -5,10 +5,8 @@
  */
 export class BrowserUnavailableError extends Error {
   constructor(reason: string) {
-    super(
-      `No browser for screenshots (${reason}). Install it with \`npm i -D playwright-core\` and ` +
-        '`npx playwright install chromium`, or set DTA_BROWSER_PATH to a Chromium binary.',
-    )
+    // What to do is the problem's Fix line (diffProblems.noBrowser), said once (TICKET-148).
+    super(`No browser for screenshots (${reason}).`)
     this.name = 'BrowserUnavailableError'
   }
 }

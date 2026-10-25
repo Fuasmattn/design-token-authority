@@ -77,6 +77,7 @@ export function statusFor(verdict, { approvedBy, label = DEFAULT_LABEL } = {}) {
 }
 
 const HEADLINE = {
+  approved: '✅ **dta diff: approved**',
   pass: '✅ **dta diff: pass**',
   review: '🟠 **dta diff: changes to review**',
   fail: '🔴 **dta diff: unexplained changes**',
@@ -93,34 +94,38 @@ export const MARK = {
 
 /**
  * The comment's first line: the mark (GitHub picks the dark file in its dark theme), then the
- * verdict. The mark is decorative (empty alt); the emoji and the text carry the verdict for
+ * verdict, or "approved" while an approval holds for the head commit (TICKET-148; a pass needs
+ * none). The mark is decorative (empty alt); the emoji and the text carry the verdict for
  * screen readers and e-mail notifications.
  */
-export function headline(verdict) {
+export function headline(verdict, { approved = false } = {}) {
   const icon =
     `<picture><source media="(prefers-color-scheme: dark)" srcset="${MARK.dark}">` +
     `<img src="${MARK.light}" width="20" height="20" alt="" align="top"></picture>`
-  return `${icon} ${HEADLINE[verdict] ?? '**dta diff**'}`
+  const key = approved && verdict !== 'pass' ? 'approved' : verdict
+  return `${icon} ${HEADLINE[key] ?? '**dta diff**'}`
 }
+
+/** Whether the state holds an approval of its own commit. */
+const isApproved = (state) => Boolean(state.approvedBy && state.approvedSha === state.sha)
 
 const APPROVAL = /<!-- dta-diff-approval -->[\s\S]*?<!-- \/dta-diff-approval -->/
 
 /** The approval line, between markers so `approve` can replace it. */
 export function approvalBlock(state, label = DEFAULT_LABEL) {
   const sha = state.sha.slice(0, 7)
-  const text =
-    state.approvedBy && state.approvedSha === state.sha
-      ? `Approved by @${state.approvedBy} for ${sha}.`
-      : state.verdict && state.verdict !== 'pass'
-        ? `Reviewed the changes? Add the \`${label}\` label to approve ${sha}. A new push needs a new review.`
-        : ''
+  const text = isApproved(state)
+    ? `Approved by @${state.approvedBy} for ${sha}.`
+    : state.verdict && state.verdict !== 'pass'
+      ? `Reviewed the changes? Add the \`${label}\` label to approve ${sha}. A new push needs a new review.`
+      : ''
   return `<!-- dta-diff-approval -->${text ? `\n\n${text}\n` : ''}<!-- /dta-diff-approval -->`
 }
 
 /** The sticky comment: verdict, approval, where the report is, then summary.md. */
 export function commentBody({ result, summary, state, artifactUrl, label = DEFAULT_LABEL }) {
   const lines = [MARKER, stateLine(state)]
-  lines.push(headline(result.verdict))
+  lines.push(headline(result.verdict, { approved: isApproved(state) }))
   lines.push(approvalBlock(state, label))
   if (!result.publish) {
     lines.push(
@@ -252,8 +257,19 @@ export async function approve(api, options) {
   // Before the run for this SHA has reported, only the approval is recorded; the run picks it up.
   if (previous.sha === sha) await api.post(`/statuses/${sha}`, { context: CONTEXT, ...status })
   if (existing) {
+    // The headline is the line after the state line (commentBody); it follows the approval of
+    // the commit the comment shows. An approval that arrives before this commit's run reports
+    // leaves it alone: the run writes the comment for this commit with the approval.
     const body = existing.body
-      .replace(/<!-- dta-diff-state \{.*?\} -->/, stateLine(state))
+      .replace(
+        /<!-- dta-diff-state \{.*?\} -->(\n[^\n]*)/,
+        (_line, oldHeadline) =>
+          `${stateLine(state)}${
+            previous.sha === sha
+              ? `\n${headline(verdict ?? undefined, { approved: isApproved(state) })}`
+              : oldHeadline
+          }`,
+      )
       .replace(APPROVAL, approvalBlock(state, label))
     await api.patch(`/issues/comments/${existing.id}`, { body })
   }

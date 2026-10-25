@@ -143,6 +143,10 @@ describe('report', () => {
     expect(lib.headline('fail')).toBe(`${icon} 🔴 **dta diff: unexplained changes**`)
     // Token changes only (no verdict): the mark and the name.
     expect(lib.headline(undefined)).toBe(`${icon} **dta diff**`)
+    // An approval of the head commit (TICKET-148); a pass needs none, so it stays a pass.
+    expect(lib.headline('review', { approved: true })).toBe(`${icon} ✅ **dta diff: approved**`)
+    expect(lib.headline('fail', { approved: true })).toBe(`${icon} ✅ **dta diff: approved**`)
+    expect(lib.headline('pass', { approved: true })).toBe(`${icon} ✅ **dta diff: pass**`)
     // The marker and the state line stay first, so comments posted before are found again.
     const body = lib.commentBody({
       result: { verdict: 'pass' },
@@ -216,6 +220,9 @@ describe('approval by label', () => {
     })
     expect(db.comments[0].body).toContain('Approved by @ana for aaaaaaa.')
     expect(db.comments[0].body).not.toContain('Add the')
+    // The headline says so too (TICKET-148), right after the state line as before.
+    expect(db.comments[0].body.split('\n')[2]).toBe(lib.headline('fail', { approved: true }))
+    expect(db.comments[0].body).toContain('✅ **dta diff: approved**')
     expect(lib.readState(db.comments[0].body)).toEqual({
       sha: SHA,
       verdict: 'fail',
@@ -223,10 +230,11 @@ describe('approval by label', () => {
       approvedBy: 'ana',
     })
 
-    // A rerun for the same commit keeps the approval and the label.
+    // A rerun for the same commit keeps the approval, the label and the headline.
     await lib.report(api, { dir, sha: SHA, pr: '7' })
     expect(db.statuses.at(-1)?.state).toBe('success')
     expect(db.labels).toEqual(['dta-diff-approved'])
+    expect(db.comments[0].body.split('\n')[2]).toBe(lib.headline('fail', { approved: true }))
   })
 
   it('needs a new review after a new push: the label is removed', async () => {
@@ -241,6 +249,7 @@ describe('approval by label', () => {
     expect(db.labels).toEqual([])
     expect(db.statuses.at(-1)).toMatchObject({ sha: NEW_SHA, state: 'pending' })
     expect(db.comments[0].body).toContain('to approve bbbbbbb')
+    expect(db.comments[0].body.split('\n')[2]).toBe(lib.headline('review'))
   })
 
   it('withdraws the approval when the label is removed', async () => {
@@ -251,6 +260,8 @@ describe('approval by label', () => {
     await lib.approve(api, { pr: '7', sha: SHA, user: 'ana', removed: true })
     expect(db.statuses.at(-1)?.state).toBe('pending')
     expect(db.comments[0].body).toContain('Add the `dta-diff-approved` label')
+    expect(db.comments[0].body.split('\n')[2]).toBe(lib.headline('review'))
+    expect(db.comments[0].body).not.toContain('dta diff: approved')
   })
 
   it('records an approval that arrives before the run reports, without a status', async () => {
@@ -262,8 +273,11 @@ describe('approval by label', () => {
     db.labels.push('dta-diff-approved')
     await lib.approve(api, { pr: '7', sha: NEW_SHA, user: 'ana' })
     expect(db.statuses).toHaveLength(statuses)
+    // The comment still shows the older commit's run: its headline does not say approved yet.
+    expect(db.comments[0].body.split('\n')[2]).toBe(lib.headline('review'))
     await lib.report(api, { dir, sha: NEW_SHA, pr: '7' })
     expect(db.statuses.at(-1)).toMatchObject({ sha: NEW_SHA, state: 'success' })
+    expect(db.comments[0].body.split('\n')[2]).toBe(lib.headline('review', { approved: true }))
     expect(db.labels).toEqual(['dta-diff-approved'])
   })
 })
@@ -311,7 +325,7 @@ describe('actions and example workflows', () => {
     const steps = single.jobs.diff.steps as Array<{ uses?: string; env?: object }>
     const withSecrets = steps.filter((step) => JSON.stringify(step).includes('secrets.'))
     expect(withSecrets.map((step) => step.uses)).toEqual([
-      'Fuasmattn/design-token-authority/actions/diff-pr@main',
+      expect.stringMatching(/^Fuasmattn\/design-token-authority\/actions\/diff-pr@v\d+\.\d+\.\d+/),
     ])
     expect(
       JSON.stringify({

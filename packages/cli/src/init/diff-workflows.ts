@@ -1,11 +1,16 @@
 import path from 'node:path'
 import type { PackageManager } from '../io/detect.js'
+import { packageVersion } from '../version.js'
 
 /**
- * The ref of the DTA actions the generated workflows use. TICKET-129 pins it to a release tag;
- * until the first release (TICKET-090) there is none, so it is the default branch.
+ * The ref of the DTA actions the generated workflows use (TICKET-148): the release tag of the CLI
+ * that writes them, so a project's CI does not change when the default branch moves. Re-running
+ * `dta init` after an upgrade moves an untouched workflow to the new tag. When the version is
+ * unknown there is no tag to pin, so it is the default branch (init says so).
  */
-export const ACTION_REF = 'main'
+export function actionRef(version: string = packageVersion()): string {
+  return /^\d+\.\d+\.\d+(-[\w.]+)?$/.test(version) ? `v${version}` : 'main'
+}
 
 const ACTIONS = 'Fuasmattn/design-token-authority/actions'
 
@@ -274,7 +279,7 @@ function split(options: WorkflowOptions, ref: string): WorkflowFile[] {
 
 /** The workflow file(s) of `dta diff` for a project (TICKET-129), rendered from one template. */
 export function renderDiffWorkflows(options: WorkflowOptions): WorkflowFile[] {
-  const ref = options.ref ?? ACTION_REF
+  const ref = options.ref ?? actionRef()
   return options.layout === 'single' ? [single(options, ref)] : split(options, ref)
 }
 

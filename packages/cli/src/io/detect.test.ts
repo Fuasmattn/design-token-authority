@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { describeFound, detectProject, installCommand } from './detect.js'
+import { describeFound, detectProject, installCommand, lockfileIn } from './detect.js'
 
 let dir: string
 beforeEach(() => {
@@ -157,5 +157,20 @@ describe('detectProject', () => {
     put('.yarnrc.yml', 'nodeLinker: node-modules')
     expect(installCommand('yarn', dir)).toBe('yarn install --immutable')
     expect(installCommand('bun')).toBe('bun install --frozen-lockfile')
+  })
+})
+
+describe('lockfileIn (TICKET-148)', () => {
+  it('names the lockfile of a folder and its manager, pnpm first when there are several', () => {
+    const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'dta-lock-'))
+    try {
+      expect(lockfileIn(folder)).toBeNull()
+      fs.writeFileSync(path.join(folder, 'package-lock.json'), '{}')
+      expect(lockfileIn(folder)).toEqual({ file: 'package-lock.json', manager: 'npm' })
+      fs.writeFileSync(path.join(folder, 'pnpm-lock.yaml'), '')
+      expect(lockfileIn(folder)).toEqual({ file: 'pnpm-lock.yaml', manager: 'pnpm' })
+    } finally {
+      fs.rmSync(folder, { recursive: true, force: true })
+    }
   })
 })

@@ -2,8 +2,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { parse } from 'yaml'
+import { packageVersion } from '../version.js'
 import {
   ACTION_VERSIONS,
+  actionRef,
   exampleWorkflows,
   renderDiffWorkflows,
   type WorkflowOptions,
@@ -11,6 +13,21 @@ import {
 
 const repo = path.resolve(import.meta.dirname, '..', '..', '..', '..')
 const examples = path.join(repo, 'actions', 'examples')
+/** The ref the generated workflows use: the release of this CLI (TICKET-148). */
+const REF = actionRef()
+
+describe('actionRef (TICKET-148)', () => {
+  it('pins the release tag of the CLI that writes the workflows', () => {
+    expect(actionRef('2.1.0')).toBe('v2.1.0')
+    expect(actionRef('3.0.0-beta.1')).toBe('v3.0.0-beta.1')
+    expect(REF).toBe(`v${packageVersion()}`)
+  })
+
+  it('falls back to main when the version is unknown', () => {
+    expect(actionRef('unknown')).toBe('main')
+    expect(actionRef('')).toBe('main')
+  })
+})
 
 describe('renderDiffWorkflows (TICKET-129)', () => {
   it('renders one workflow for npm that runs, reports and approves', () => {
@@ -45,10 +62,10 @@ describe('renderDiffWorkflows (TICKET-129)', () => {
       ACTION_VERSIONS.setupNode,
       'npm ci',
       'npx playwright-core install --with-deps chromium',
-      'Fuasmattn/design-token-authority/actions/diff-pr@main',
+      `Fuasmattn/design-token-authority/actions/diff-pr@${REF}`,
     ])
     expect(yaml.jobs.approve.steps[0].uses).toBe(
-      'Fuasmattn/design-token-authority/actions/diff-approve@main',
+      `Fuasmattn/design-token-authority/actions/diff-approve@${REF}`,
     )
   })
 
@@ -81,7 +98,7 @@ describe('renderDiffWorkflows (TICKET-129)', () => {
     })
     expect(steps[4].run).toBe('pnpm exec playwright-core install --with-deps chromium')
     expect(steps[5]).toEqual({
-      uses: 'Fuasmattn/design-token-authority/actions/diff@main',
+      uses: `Fuasmattn/design-token-authority/actions/diff@${REF}`,
       with: { command: 'pnpm exec dta', 'working-directory': 'apps/web' },
     })
     // The report workflow publishes with DTA but renders nothing: no Chromium.
@@ -114,7 +131,7 @@ describe('renderDiffWorkflows (TICKET-129)', () => {
       layout: 'split',
     })[1].content
     const steps = parse(report).jobs.report.steps
-    expect(steps).toEqual([{ uses: 'Fuasmattn/design-token-authority/actions/diff-report@main' }])
+    expect(steps).toEqual([{ uses: `Fuasmattn/design-token-authority/actions/diff-report@${REF}` }])
     expect(report).not.toContain('secrets.')
   })
 

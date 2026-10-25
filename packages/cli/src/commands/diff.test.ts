@@ -361,6 +361,26 @@ describe('dta diff --list', () => {
     )
   })
 
+  it('finds a page as a file, as <page>.html or as <page>/index.html (TICKET-148)', async () => {
+    site(
+      { diff: { outDir: 'dist', stories: ['/about', '/docs/', '/feed.xml', '/team?tab=1#x'] } },
+      false,
+    )
+    fs.mkdirSync(path.join(dir, 'dist', 'docs'), { recursive: true })
+    fs.writeFileSync(path.join(dir, 'dist', 'about.html'), '<h1>About</h1>')
+    fs.writeFileSync(path.join(dir, 'dist', 'docs', 'index.html'), '<h1>Docs</h1>')
+    fs.writeFileSync(path.join(dir, 'dist', 'feed.xml'), '<feed/>')
+    fs.mkdirSync(path.join(dir, 'dist', 'team'), { recursive: true })
+    fs.writeFileSync(path.join(dir, 'dist', 'team', 'index.html'), '<h1>Team</h1>')
+    expect((await diff(['--list'])).exitCode).toBe(0)
+    // A folder alone is not a page: it needs its index.html.
+    site({ diff: { outDir: 'dist', stories: ['/empty'], build: 'npm run build' } }, false)
+    fs.mkdirSync(path.join(dir, 'dist', 'empty'), { recursive: true })
+    const missing = await diff(['--list'])
+    expect(missing.exitCode).toBe(1)
+    expect(missing.stderr).toContain('dta diff: "/empty" is not in dist.')
+  })
+
   it('rejects a page that does not start with "/"', async () => {
     site({ diff: { outDir: 'dist', stories: ['pricing'] } }, false)
     const { exitCode, stderr } = await diff(['--list'])
@@ -476,7 +496,9 @@ describe('dta diff --check (TICKET-130)', () => {
     expect(stdout).toMatch(/✗ config\s+no diff section\n\s+Fix: run `dta init`/)
     expect(stdout).toMatch(/✗ browser\s+DTA_BROWSER_PATH points at .*no-chrome/)
     expect(stdout).toMatch(/✗ git history\s+not a git repository\n\s+Fix: in CI, check out/)
-    expect(stdout).toMatch(/Docs: https:\/\/github\.com\/.*dta-diff-in-pull-requests\.mdx/)
+    expect(stdout).toContain(
+      'Docs: https://dta.martinprinz.dev/guides/dta-diff-in-pull-requests/#troubleshooting',
+    )
     expect(stdout).toContain('3 of 3 checks failed.')
   })
 
@@ -520,6 +542,25 @@ describe('dta diff --check (TICKET-130)', () => {
     expect(stdout).toContain('fetch-depth: 0')
   })
 
+  it('reports an unexpected error with a fix and a docs link (TICKET-148)', async () => {
+    repo()
+    setup({ tokens: { dir: 'tokens' } })
+    let stderr = ''
+    const exitCode = await runCli(['diff'], {
+      cwd: dir,
+      // Writing the report fails in a way dta diff does not know.
+      stdout: () => {
+        throw new Error('EPIPE: broken pipe')
+      },
+      stderr: (text) => (stderr += text),
+      input: new PassThrough(),
+    })
+    expect(exitCode).toBe(1)
+    expect(stderr).toMatch(
+      /^dta diff: Unexpected error: EPIPE: broken pipe\n {2}Fix: .+\n {2}Docs: https:\/\/.+#troubleshooting\n/s,
+    )
+  })
+
   it('stops with an error in CI when there is no browser, and only warns locally', async () => {
     process.env.DTA_BROWSER_PATH = path.join(dir, 'no-chrome')
     repo()
@@ -531,6 +572,8 @@ describe('dta diff --check (TICKET-130)', () => {
     expect(ci.exitCode).toBe(1)
     expect(ci.stderr).toContain('dta diff: No browser for screenshots')
     expect(ci.stderr).toContain('  Fix: `npm i -D playwright-core`')
+    // The fix is said once, on the Fix line (TICKET-148).
+    expect(ci.stderr.split('npm i -D playwright-core')).toHaveLength(2)
     delete process.env.CI
     const local = await diff(['--format', 'markdown'])
     expect(local.exitCode).toBe(0)

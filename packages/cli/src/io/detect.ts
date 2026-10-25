@@ -36,6 +36,7 @@ export interface ProjectDetection {
   }
 }
 
+/** Lockfiles and the manager each belongs to, in the order they are looked for. */
 const LOCKFILES: ReadonlyArray<[string, PackageManager]> = [
   ['pnpm-lock.yaml', 'pnpm'],
   ['package-lock.json', 'npm'],
@@ -43,6 +44,17 @@ const LOCKFILES: ReadonlyArray<[string, PackageManager]> = [
   ['bun.lock', 'bun'],
   ['bun.lockb', 'bun'],
 ]
+
+/**
+ * The lockfile in one folder, if any: the one list that detection and the base build share
+ * (TICKET-148).
+ */
+export function lockfileIn(folder: string): { file: string; manager: PackageManager } | null {
+  for (const [file, manager] of LOCKFILES) {
+    if (fs.existsSync(path.join(folder, file))) return { file, manager }
+  }
+  return null
+}
 
 interface PackageJson {
   packageManager?: unknown
@@ -100,11 +112,10 @@ const shown = (cwd: string, folder: string, file: string) =>
 
 function detectLockfile(cwd: string, folders: string[]) {
   for (const folder of folders) {
-    for (const [file, manager] of LOCKFILES) {
-      if (fs.existsSync(path.join(folder, file))) {
-        const dir = path.relative(cwd, folder).split(path.sep).join('/') || '.'
-        return { file, manager, dir, source: shown(cwd, folder, file) }
-      }
+    const lock = lockfileIn(folder)
+    if (lock) {
+      const dir = path.relative(cwd, folder).split(path.sep).join('/') || '.'
+      return { ...lock, dir, source: shown(cwd, folder, lock.file) }
     }
   }
   return null

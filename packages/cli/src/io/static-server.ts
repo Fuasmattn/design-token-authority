@@ -23,18 +23,33 @@ export interface StaticServer {
   close(): Promise<void>
 }
 
-/** Serves a folder of static files on a free localhost port (`/a/` serves `/a/index.html`). */
+const isFile = (file: string) => fs.existsSync(file) && fs.statSync(file).isFile()
+
+/**
+ * The file a page URL is served from, as static hosts do: the file itself, `<page>.html`, or
+ * `<page>/index.html` (`/` and `/docs/` only the last). Null when there is none, or when the
+ * path leads outside `root`. The one rule for `dta diff --list` and the server that renders the
+ * pages (TICKET-148), so a page that is listed is a page that renders.
+ */
+export function resolvePage(root: string, url: string): string | null {
+  const base = path.resolve(root)
+  const pathname = decodeURIComponent(url.split(/[?#]/)[0])
+  const target = path.join(base, pathname)
+  if (target !== base && !target.startsWith(base + path.sep)) return null
+  const candidates =
+    pathname.endsWith('/') || target === base
+      ? [path.join(target, 'index.html')]
+      : [target, `${target}.html`, path.join(target, 'index.html')]
+  return candidates.find(isFile) ?? null
+}
+
+/** Serves a folder of static files on a free localhost port, pages found by resolvePage. */
 export async function serveStatic(root: string): Promise<StaticServer> {
   const base = path.resolve(root)
   const server = http.createServer((request, response) => {
-    const pathname = decodeURIComponent(new URL(request.url ?? '/', 'http://localhost').pathname)
-    let file = path.join(base, pathname)
-    if (!file.startsWith(base)) {
-      response.writeHead(403).end()
-      return
-    }
-    if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html')
-    if (!fs.existsSync(file)) {
+    const pathname = new URL(request.url ?? '/', 'http://localhost').pathname
+    const file = resolvePage(base, pathname)
+    if (!file) {
       response.writeHead(404).end()
       return
     }
