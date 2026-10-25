@@ -7,9 +7,7 @@ sidebar:
 
 import MotionTokens from '../../../../components/docs/MotionTokens.astro'
 
-A short scale: most transitions take `motion.duration.base`, small changes in place `fast`, larger moves such as a panel sliding in `slow`. Nothing waits longer than a third of a second, except the highlight of a changed value, which is colour and fades back on its own. How and when to use them is on the [Motion](/design-system/motion/) page.
-
-The tokens are `string` tokens in `Primitives.Value.json`, so `dta build` writes them as they are: `--motion-duration-base: 200ms;`, `--motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);`. (DTA's token model has the four Figma types; the DTCG `duration` and `cubicBezier` types are not read yet, so a string keeps the CSS exact.)
+`fast` for small changes in place, `base` for most transitions, `slow` for larger moves; `highlight` is the fade of a changed value. How to use them: [Motion](/design-system/motion/).
 
 ## Durations
 
@@ -17,7 +15,7 @@ The tokens are `string` tokens in `Primitives.Value.json`, so `dta build` writes
 
 ## Easings
 
-Standard for something that stays on screen and moves or resizes, enter for things that appear (they arrive fast and settle), exit for things that leave (they start gently and go). Never a bounce or an overshoot.
+`standard` for things that stay and move, `enter` for things that appear, `exit` for things that leave. Never a bounce.
 
 <MotionTokens kind="ease" />
 
@@ -29,4 +27,4 @@ Standard for something that stays on screen and moves or resizes, enter for thin
 }
 ```
 
-Components use these variables only; a literal duration or easing in `src/components/ds` fails a test (`components.test.ts`). The endless loops of decoration (the gravity well's orbits, the floating objects, the terminal cursor) keep their own periods.
+Components use these variables only; a literal duration or easing fails a test. Endless decorative loops (the gravity well, the terminal cursor) keep their own periods.

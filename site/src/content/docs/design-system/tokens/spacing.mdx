@@ -7,7 +7,7 @@ sidebar:
 
 import Dimensions from '../../../../components/docs/Dimensions.astro'
 
-A 4px base. Figma scopes on the tokens (`GAP`, `CORNER_RADIUS`, `STROKE_FLOAT`, `WIDTH_HEIGHT`) tell `dta build` to write these in `px`.
+A 4px base, in `px`.
 
 ## Spacing
 
@@ -15,24 +15,24 @@ A 4px base. Figma scopes on the tokens (`GAP`, `CORNER_RADIUS`, `STROKE_FLOAT`, 
 
 ## Radius
 
-Six for chips and inputs, ten for buttons, eighteen for cards, full only for status dots.
+`sm` for chips and inputs, `md` for buttons, `lg` for cards, `full` for dots and round controls.
 
 <Dimensions group="radius" />
 
 ## Stroke
 
-Hairline for surfaces, redline for measurements, ink for interactive outlines and the dashed rail, focus for the focus ring.
+`hairline` for surfaces, `redline` for measurements, `ink` for interactive outlines, `focus` for the focus ring.
 
 <Dimensions group="stroke" />
 
 ## Layout
 
-Maximum widths: page content, a section heading, the page title and running text.
+Maximum widths of content, headings, titles and running text.
 
 <Dimensions group="layout" />
 
 ## Size
 
-Controls and icons: the 44px touch target that every icon-only control fills (the [Icon button](/design-system/components/icon-button/), the menu toggle, the theme switch), and the glyph inside it.
+`target` (44px) is the touch target of every icon-only control ([Icon button](/design-system/components/icon-button/), menu toggle, theme switch); `icon` the glyph inside.
 
 <Dimensions group="size" />

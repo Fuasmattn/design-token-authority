@@ -7,8 +7,9 @@ sidebar:
 
 import TypeScale from '../../../../components/docs/TypeScale.astro'
 
-Instrument Sans for everything you read, condensed (`font-stretch: 85%`) for display sizes. Martian Mono for anything a machine also reads: commands, token names, file paths, meta labels and redline labels. Both are self-hosted.
+- **Instrument Sans** for everything you read; condensed (`font-stretch: 85%`) for display sizes.
+- **Martian Mono** for what a machine also reads: commands, token names, file paths, meta and redline labels.
 
-Each style is four or five tokens (`type.<style>.family`, `.size`, `.line-height`, `.weight`, sometimes `.letter-spacing`). DTA writes font sizes without a unit, so CSS multiplies them: `calc(var(--type-body-size) * 1px)`.
+Sizes are unitless: `calc(var(--type-body-size) * 1px)`.
 
 <TypeScale />
