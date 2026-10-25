@@ -225,7 +225,7 @@ summary.dta-findings__rule-row:focus-visible {
   align-items: baseline;
   gap: var(--space-2);
   width: 100%;
-  min-height: 44px;
+  min-height: var(--size-target);
   padding: var(--space-2);
   border: 0;
   border-radius: var(--radius-sm);

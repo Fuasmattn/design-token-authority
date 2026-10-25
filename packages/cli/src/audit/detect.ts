@@ -1,6 +1,6 @@
 /**
- * Finds hard-coded values in source files: colours, lengths in spacing, radius, stroke and font
- * size properties, and font families. Language-aware enough to skip comments and to know which
+ * Finds hard-coded values in source files: colours, lengths in spacing, size, radius, stroke and
+ * font size properties, and font families. Language-aware enough to skip comments and to know which
  * property a value belongs to; it does not parse the languages fully.
  */
 
@@ -16,7 +16,8 @@ export const LANGUAGES: readonly Language[] = [
 ]
 
 /** What a value is, which decides the tokens it is compared with. */
-export type ValueKind = 'color' | 'spacing' | 'radius' | 'stroke' | 'font-size' | 'font-family'
+export type ValueKind =
+  'color' | 'spacing' | 'size' | 'radius' | 'stroke' | 'font-size' | 'font-family'
 
 export interface Candidate {
   /** 1-based. */
@@ -164,6 +165,10 @@ function lengthKind(property: string): ValueKind | null {
     return 'stroke'
   }
   if (p === 'font-size') return 'font-size'
+  // The size of a box (TICKET-147); `line-height` and `border-width` are not sizes.
+  if (/^((min|max)-)?(width|height|inline-size|block-size)$/.test(p) || p === 'flex-basis') {
+    return 'size'
+  }
   if (
     /^(margin|padding|scroll-margin|scroll-padding|inset)(-.+)?$/.test(p) ||
     /^((row|column)-)?gap$/.test(p) ||
@@ -226,9 +231,16 @@ function valuesIn(property: string, value: string, offset: number): Found[] {
 const withoutFontFaces = (text: string) =>
   text.replace(/@font-face\s*\{[^}]*\}/g, (block) => blank(block))
 
+/**
+ * The condition of a block at-rule (`@media (max-width: 760px)`, `@container`, `@supports`)
+ * reads like a declaration but sets nothing: blanked, the block's own declarations stay.
+ */
+const withoutAtRuleConditions = (text: string) =>
+  text.replace(/@[\w-]+\b[^{};]*(?=\{)/g, (prelude) => blank(prelude))
+
 /** `property: value;` declarations (CSS, SCSS, style attributes, CSS in template literals). */
 function declarations(source: string, offset = 0): Found[] {
-  const text = withoutFontFaces(source)
+  const text = withoutAtRuleConditions(withoutFontFaces(source))
   const found: Found[] = []
   const DECLARATION = /(?<![\w-])(-{0,2}[A-Za-z][\w-]*)\s*:\s*([^;{}]+)/g
   for (const match of text.matchAll(DECLARATION)) {
@@ -247,6 +259,7 @@ const TAILWIND_KINDS: Array<[RegExp, ValueKind, 'color' | 'length']> = [
   [/^rounded(-[a-z]{1,2})?$/, 'radius', 'length'],
   [/^(border(-[trblxyse])?|ring|outline|divide-[xy])$/, 'stroke', 'length'],
   [/^text$/, 'font-size', 'length'],
+  [/^(w|h|size|min-w|min-h|max-w|max-h|basis)$/, 'size', 'length'],
   [
     /^-?(p[xytrblse]?|m[xytrblse]?|gap(-[xy])?|space-[xy]|inset(-[xy])?|top|right|bottom|left|start|end|scroll-[mp][xytrblse]?)$/,
     'spacing',

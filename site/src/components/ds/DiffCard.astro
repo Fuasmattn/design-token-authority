@@ -688,7 +688,7 @@ const toggles = [
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
-    min-height: 44px;
+    min-height: var(--size-target);
   }
   .side {
     margin: 0;
@@ -735,7 +735,7 @@ const toggles = [
     align-items: center;
     justify-content: center;
     gap: 10px;
-    min-height: 44px;
+    min-height: var(--size-target);
     padding: 0 14px;
     border: var(--stroke-ink) solid var(--border-strong);
     border-radius: var(--radius-md);
@@ -891,8 +891,8 @@ const toggles = [
     display: none;
     position: absolute;
     box-sizing: border-box;
-    min-width: 20px;
-    height: 20px;
+    min-width: 20px; /* dta-audit-ignore: numbered marker, not an icon */
+    height: 20px; /* dta-audit-ignore: numbered marker, not an icon */
     padding: 0 5px;
     border: var(--stroke-hairline) solid var(--ink-900);
     border-radius: var(--radius-full);

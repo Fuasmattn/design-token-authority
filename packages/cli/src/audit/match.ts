@@ -39,6 +39,19 @@ export interface TokenIndex {
   reach: (name: string, holds: (value: TokenValue, type: TokenType) => boolean) => BreakpointReach
 }
 
+/**
+ * The kind of value each Figma scope is for, as Figma means it: `GAP` is space between and around
+ * things, `WIDTH_HEIGHT` the size of a thing (TICKET-147: not spacing, or a size token would be
+ * offered for every padding). A token with several scopes is a candidate for each kind.
+ */
+const SCOPE_KINDS: Readonly<Record<string, ValueKind>> = {
+  GAP: 'spacing',
+  WIDTH_HEIGHT: 'size',
+  CORNER_RADIUS: 'radius',
+  STROKE_FLOAT: 'stroke',
+  FONT_SIZE: 'font-size',
+}
+
 /** What a number or string token is for: from its Figma scopes, else from its name. */
 function kindsOf(name: string, type: TokenType, scopes: readonly string[]): Set<ValueKind> {
   const kinds = new Set<ValueKind>()
@@ -60,10 +73,10 @@ function kindsOf(name: string, type: TokenType, scopes: readonly string[]): Set<
   }
   // A DTCG dimension is a length: the same kinds as a number, by scopes or name.
   if (type !== 'number' && type !== 'dimension') return kinds
-  if (scopes.includes('GAP') || scopes.includes('WIDTH_HEIGHT')) kinds.add('spacing')
-  if (scopes.includes('CORNER_RADIUS')) kinds.add('radius')
-  if (scopes.includes('STROKE_FLOAT')) kinds.add('stroke')
-  if (scopes.includes('FONT_SIZE')) kinds.add('font-size')
+  for (const scope of scopes) {
+    const kind = SCOPE_KINDS[scope]
+    if (kind) kinds.add(kind)
+  }
   if (kinds.size > 0) return kinds
   const segments = lower.split('.')
   if (segments.some((s) => /^(space|spacing|spacer|gap|padding|margin|inset|gutter)s?$/.test(s))) {
@@ -78,6 +91,9 @@ function kindsOf(name: string, type: TokenType, scopes: readonly string[]): Set<
     /font|type|text/.test(lower)
   ) {
     kinds.add('font-size')
+  } else if (segments.some((s) => /^(sizes?|sizing|width|height|dimensions?)$/.test(s))) {
+    // A size by name (`icon.size`, `control.height`), unless the name says font size.
+    kinds.add('size')
   }
   return kinds
 }

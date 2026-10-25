@@ -211,7 +211,7 @@
   gap: var(--space-2);
 }
 .dta-detail__actions .dta-button {
-  min-height: 44px;
+  min-height: var(--size-target);
   padding: 0 var(--space-4);
 }
 
@@ -347,7 +347,7 @@
   padding-top: var(--space-1);
 }
 .dta-detail__links .dta-button {
-  min-height: 44px;
+  min-height: var(--size-target);
   padding: 0 var(--space-4);
 }
 .dta-detail[data-presentation='sheet'] .dta-detail__links .dta-button {
@@ -405,7 +405,7 @@
   padding-top: var(--space-1);
 }
 .dta-detail__step .dta-button {
-  min-height: 44px;
+  min-height: var(--size-target);
   padding: 0 var(--space-4);
 }
 .dta-detail[data-presentation='sheet'] .dta-detail__step .dta-button {

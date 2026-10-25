@@ -58,6 +58,50 @@ describe('suggestToken', () => {
   })
 })
 
+describe('suggestToken: sizes and spacing by Figma scope (TICKET-147)', () => {
+  const scoped = (value: number, scopes: string[]) => ({
+    $type: 'number',
+    $value: value,
+    $extensions: { 'com.figma': { scopes } },
+  })
+  const { model: sizes } = parseTokenFiles([
+    file('Primitives.Value.json', {
+      size: { icon: scoped(20, ['WIDTH_HEIGHT']) },
+      gap: { m: scoped(24, ['GAP']) },
+      both: { l: scoped(32, ['GAP', 'WIDTH_HEIGHT']) },
+      // No scopes: the name decides.
+      icon: { size: { $type: 'number', $value: 18 } },
+      control: { height: { $type: 'number', $value: 40 } },
+      font: { size: { body: { $type: 'number', $value: 14 } } },
+    }),
+  ])
+  const sizeIndex = buildTokenIndex(sizes, null)
+
+  it('suggests a WIDTH_HEIGHT token for sizes, never for spacing', () => {
+    expect(suggestToken(sizeIndex, at('size', '20px'))?.token).toBe('size.icon')
+    expect(suggestToken(sizeIndex, at('spacing', '20px'))).toBeNull()
+  })
+
+  it('suggests a GAP token for spacing, never for sizes', () => {
+    expect(suggestToken(sizeIndex, at('spacing', '24px'))?.token).toBe('gap.m')
+    expect(suggestToken(sizeIndex, at('size', '24px'))).toBeNull()
+  })
+
+  it('suggests a token with both scopes for both', () => {
+    expect(suggestToken(sizeIndex, at('spacing', '32px'))?.token).toBe('both.l')
+    expect(suggestToken(sizeIndex, at('size', '2rem'))?.token).toBe('both.l')
+  })
+
+  it('reads the kind from the name when a token has no scopes', () => {
+    expect(suggestToken(sizeIndex, at('size', '18px'))?.token).toBe('icon.size')
+    expect(suggestToken(sizeIndex, at('size', '40px'))?.token).toBe('control.height')
+    expect(suggestToken(sizeIndex, at('spacing', '18px'))).toBeNull()
+    // A font size is not a size.
+    expect(suggestToken(sizeIndex, at('font-size', '14px'))?.token).toBe('font.size.body')
+    expect(suggestToken(sizeIndex, at('size', '14px'))).toBeNull()
+  })
+})
+
 describe('suggestToken: DTCG 2025.10 tokens', () => {
   const { model: dtcg } = parseTokenFiles([
     file('Base.Value.json', {

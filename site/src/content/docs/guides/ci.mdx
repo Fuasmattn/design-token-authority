@@ -64,7 +64,9 @@ src/Card.tsx
 5 hard-coded values in 2 files could be tokens.
 ```
 
-Lengths are compared with the tokens of their kind only: spacing (margin, padding, gap, inset), radius, stroke (border and outline widths) and font size, recognised by Figma scope or by name. Comments, `0`, percentages, `var()` fallbacks, `@font-face`, tests (`*.test.*`, `*.spec.*`), the token files and the build output are skipped; a deliberate value gets a `dta-audit-ignore` comment on its line or the line before. The scanned folders, ignore globs and languages are the `audit` section of the config ([Configuration](/reference/configuration/#audit)).
+Lengths are compared with the tokens of their kind only: spacing (margin, padding, gap, inset), size (width, height, their min, max and logical forms, flex-basis), radius, stroke (border and outline widths) and font size. The kind comes from the token's Figma scope (`GAP` is spacing, `WIDTH_HEIGHT` is size, a token with both is both) or, without scopes, from its name (`space`, `size`, `width`, `height` …). Comments, `0`, percentages, `var()` fallbacks, `@font-face`, the conditions of `@media`, `@container` and `@supports`, tests (`*.test.*`, `*.spec.*`), the token files and the build output are skipped; a deliberate value gets a `dta-audit-ignore` comment on its line or the line before. The scanned folders, ignore globs and languages are the `audit` section of the config ([Configuration](/reference/configuration/#audit)).
+
+Widths and heights are checked too. Coming from a version that did not check them, the audit may report values it skipped before: fix them, or accept them for now with `dta audit --update-baseline`.
 
 Add it as its own step, so its status is separate from lint and build. Start advisory, with today's findings recorded as accepted, and tighten it once the count is down:
 

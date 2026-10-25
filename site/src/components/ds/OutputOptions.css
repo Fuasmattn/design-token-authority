@@ -34,15 +34,15 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  min-height: 44px;
+  min-height: var(--size-target);
   font-size: calc(var(--type-label-size) * 1px);
   font-weight: var(--type-label-weight);
   line-height: var(--type-label-line-height);
   cursor: pointer;
 }
 .dta-options__box {
-  width: 20px;
-  height: 20px;
+  width: 20px; /* dta-audit-ignore: native checkbox, not an icon */
+  height: 20px; /* dta-audit-ignore: native checkbox, not an icon */
   margin: 0;
   accent-color: var(--action-bg);
   cursor: pointer;

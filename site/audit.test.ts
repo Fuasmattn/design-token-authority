@@ -15,10 +15,9 @@ describe('dta audit on the website', () => {
       cwd: site,
       encoding: 'utf8',
     })
-    // The baseline accepts the agent scene's quoted colour (src/landing/content.ts) and four 20px
-    // paddings that the audit matches to size.icon, a width/height token (TICKET-147), nothing else.
+    // The baseline accepts the agent scene's quoted colour (src/landing/content.ts), nothing else.
     expect(output).toMatch(
-      /^No hard-coded token values in \d+ files \(6 more in the baseline\)\.\n$/,
+      /^No hard-coded token values in \d+ files \(2 more in the baseline\)\.\n$/,
     )
   })
 })

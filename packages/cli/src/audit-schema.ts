@@ -25,7 +25,9 @@ export function auditJsonSchema(): Record<string, unknown> {
             line: { type: 'integer', minimum: 1 },
             column: { type: 'integer', minimum: 1 },
             value: { type: 'string', description: 'The value as written, e.g. #2f55d4 or 16px' },
-            kind: { enum: ['color', 'spacing', 'radius', 'stroke', 'font-size', 'font-family'] },
+            kind: {
+              enum: ['color', 'spacing', 'size', 'radius', 'stroke', 'font-size', 'font-family'],
+            },
             context: {
               type: 'string',
               description: 'The CSS property, object key or Tailwind utility (bg-[…]) it is in',
