@@ -13,4 +13,4 @@ jobs:
     if: github.event.label.name == 'dta-diff-approved'
     runs-on: ubuntu-latest
     steps:
-      - uses: Fuasmattn/design-token-authority/actions/diff-approve@v2.1.0
+      - uses: Fuasmattn/design-token-authority/actions/diff-approve@v2.2.0

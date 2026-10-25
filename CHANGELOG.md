@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.2.0](https://github.com/Fuasmattn/design-token-authority/compare/v2.1.0...v2.2.0) (2026-10-25)
+
+### Features
+
+* **diff:** pinned action refs, website docs links, approved headline (TICKET-148) ([b81fb91](https://github.com/Fuasmattn/design-token-authority/commit/b81fb911e50d4ea5eb86f9bee112560a06e4e96f))
+
+### Documentation
+
+* **tickets:** close Phase 11 (TICKET-126 to 131), add TICKET-148 ([e825709](https://github.com/Fuasmattn/design-token-authority/commit/e8257096bd950d2de244b8955e1816cafb4ae33e))
+* **tickets:** close TICKET-148 (CI green on b81fb91) ([0ac6c15](https://github.com/Fuasmattn/design-token-authority/commit/0ac6c155c44564cd921789ad3df6056e3afd8beb))
+* **tickets:** TICKET-148 comment headline says approved ([91f67be](https://github.com/Fuasmattn/design-token-authority/commit/91f67be63703cda98fe2a7f474f92b59fc9a0070))
+
 ## [2.1.0](https://github.com/Fuasmattn/design-token-authority/compare/v2.0.5...v2.1.0) (2026-10-25)
 
 ### Features

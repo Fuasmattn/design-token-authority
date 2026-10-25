@@ -20,4 +20,4 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright-core install --with-deps chromium
-      - uses: Fuasmattn/design-token-authority/actions/diff@v2.1.0
+      - uses: Fuasmattn/design-token-authority/actions/diff@v2.2.0
