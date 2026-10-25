@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** M
 **Blocked by:** —
-**Status:** in review (2026-10-24)
+**Status:** done (2026-10-25)
 **Spec:** [diff-zero-setup](../specs/diff-zero-setup.md)
 
 ## What to build
@@ -58,3 +58,4 @@ Found in the approval run of TICKET-129 (test repository, PR #2): after the labe
 - **Cleanups:** the no-browser fix only on `Fix:`; one lockfile list (`lockfileIn()` in `io/detect.ts`); any unknown error is `diffProblems.unexpected` with a fix and the troubleshooting link (exit 1 as before).
 - **Found by the new end-to-end test:** `--list` accepted `/about` for `about.html`, but the screenshot server did not serve it (the run failed). `resolvePage()` in `io/static-server.ts` is now the one rule for both; the guide says how a page path maps to files.
 - Tests: `actionRef`, upgrade re-run, docs links and slugs, headline states, the fix said once, unexpected errors, page lookup, pnpm and Yarn reuse, a base without a lockfile, `lockfileIn`, `resolvePage`/server, page list end to end. All gates pass; CLI end-to-end tests (Chromium) pass.
+- Pushed in b81fb91; CI green (test, site, diff-e2e, package, audit). Ships with the next npm release (the maintainer releases it).
