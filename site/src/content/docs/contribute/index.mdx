@@ -1,9 +1,9 @@
 ---
 title: Contribute
-description: How the code is organised, the rules every change follows, and how work is planned with specs and tickets.
+description: How the code is organised, the rules every change follows, and how work is planned.
 ---
 
-DTA lives in one repository: [github.com/Fuasmattn/design-token-authority](https://github.com/Fuasmattn/design-token-authority). You need Node.js 24 or newer and pnpm.
+Everything lives in [one repository](https://github.com/Fuasmattn/design-token-authority). You need Node.js 24 or newer and pnpm.
 
 ```sh
 pnpm install
@@ -11,38 +11,39 @@ pnpm dta --help      # the CLI from the sources
 pnpm site:dev        # this website
 ```
 
-## Architecture
+## Packages
 
-A pnpm workspace of small packages behind one CLI ([ADR 0002](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/adr/0002-pnpm-monorepo-single-cli.md)):
+A pnpm workspace of small packages behind one CLI:
 
-| Package            | Responsibility                                                                |
-| ------------------ | ----------------------------------------------------------------------------- |
-| `@dta/core`        | Token model, parsing and writing token files, alias resolution, graph, colour |
-| `@dta/figma`       | Figma REST client, variables ⇄ model, push planning, plugin-export adapters   |
-| `@dta/build`       | CSS, JavaScript and Tailwind outputs (Style Dictionary)                       |
-| `@dta/lint`        | Lint rules and their config                                                   |
-| `@dta/visual-diff` | `dta diff`: token change sets, screenshot comparison, attribution, report     |
-| `@dta/cli`         | Commands, config loading, terminal UI; the only user-facing package           |
-| `@dta/testkit`     | Private test helpers: the Figma fake and snapshot capture                     |
-| `create-dta`       | `npm create dta`: runs `design-token-authority init`                          |
+| Package            | Does                                                        |
+| ------------------ | ----------------------------------------------------------- |
+| `@dta/core`        | Token model, token files, aliases, graph, colour            |
+| `@dta/figma`       | Figma REST client, pull and push, plugin-export adapters    |
+| `@dta/build`       | CSS, JavaScript, Tailwind and native outputs                |
+| `@dta/lint`        | Lint rules                                                  |
+| `@dta/visual-diff` | `dta diff`: token changes, screenshots, attribution, report |
+| `@dta/cli`         | Commands, config, terminal UI; the only user-facing package |
+| `@dta/testkit`     | Private test helpers: Figma fake, snapshots                 |
+| `create-dta`       | `npm create dta`                                            |
 
-`bin/dta.js` starts the CLI from the sources. The npm package `design-token-authority` is the root of the repository: `pnpm package:build` bundles `@dta/cli` and the packages it uses into `dist/` (plain JavaScript and one declaration file; third-party packages stay dependencies). `site/` is this website, built with DTA from its own tokens. `actions/` holds the GitHub actions for `dta diff`.
+`site/` is this website, `actions/` the GitHub actions for `dta diff`.
 
 ## Rules every change follows
 
-- **Package boundaries.** A package imports another only by its name (`@dta/core`), never by a path into it, and `@dta/core` depends on no other package. `pnpm run guardrails:boundaries` checks this.
-- **Variable names are unique** across collections; alias resolution and push planning rely on it.
-- **Push never deletes** variables in Figma. Deleting is `dta prune`, a separate command with its own confirmation.
-- **No real customer names** in code, fixtures or docs: BrandA, BrandB.
-- **Imports use `.js` extensions** in TypeScript sources (ESM with tsx).
+- **Package boundaries:** import other packages by name (`@dta/core`), never by path; `@dta/core` depends on no other package.
+- **Variable names are unique** across collections.
+- **Push never deletes** in Figma; deleting is `dta prune`.
+- **The website uses only its tokens and design-system components**; anything new becomes a component first, with a docs page and a story.
+- **No real customer names**: BrandA, BrandB.
+- **Imports use `.js` extensions** in TypeScript sources.
 
 ## Tests
 
-- **Package seam:** each package is tested through its public API, next to the sources (`*.test.ts`).
-- **CLI seam:** `test/snapshots/` holds the CLI's output on the fixtures in `test/fixtures/`. A failing snapshot means the output changed: fix the code. An intended change is re-recorded for the named scenario only (`pnpm snapshot:record --scenario <fixture>/<scenario>`) and reviewed in the same pull request.
-- **Figma:** tests run against a fake built from recordings (`test/recordings/`); CI needs no Figma secrets.
+- Each package is tested through its public API (`*.test.ts` next to the sources).
+- `test/snapshots/` holds the CLI's output on the fixtures. A failing snapshot means the output changed: fix the code, or re-record that one scenario on purpose (`pnpm snapshot:record --scenario <fixture>/<scenario>`).
+- Figma is faked from recordings; CI needs no secrets.
 
-The gates CI runs, and every change must pass:
+Every change passes the gates CI runs:
 
 ```sh
 pnpm run prettier:check
@@ -54,24 +55,16 @@ pnpm run snapshot:check
 
 ## Specs, tickets and decisions
 
-Work is planned before it is built:
+- **Specs** (`docs/specs/`) describe an epic: the problem and the decisions.
+- **Tickets** (`docs/tickets/`, index in `000-index.md`) are one deliverable each, with acceptance criteria.
+- **ADRs** (`docs/adr/`) record decisions that shape the code.
 
-- **Specs** (`docs/specs/`) describe an epic: the problem, the decisions, the open questions.
-- **Tickets** (`docs/tickets/`, index in `000-index.md`) are one deliverable each, with acceptance criteria. Work happens one ticket at a time; a ticket is done when its criteria are met and the gates pass.
-- **ADRs** (`docs/adr/`) record decisions that shape the code, such as the [strangler rewrite](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/adr/0001-strangler-rewrite.md) of v1.
-
-A plugin-export adapter is a good first contribution: one file in `packages/figma/src/adapters/`, one line in its index, and a fixture.
+A good first contribution: a plugin-export adapter in `packages/figma/src/adapters/`, with a fixture.
 
 ## Releases
 
-Releases run from `main` with the **Release** workflow (Actions → Release → Run workflow, with `patch`, `minor`, `major` or a version). release-it sets the version of both packages, writes the changelog from the conventional commit messages, builds `dist/`, tags and creates the GitHub release; then pnpm packs `design-token-authority` and `create-dta` and npm publishes the two tarballs. Publishing uses npm trusted publishing: both packages trust `release.yml` of this repository on npmjs.com, so the workflow holds no npm token, and npm adds provenance itself.
-
-A release stops when `pnpm audit --prod` finds a known vulnerability in what users install; the CI job `audit` runs `pnpm audit` on every push. Fixes for transitive dependencies are overrides in `pnpm-workspace.yaml`. How to report a vulnerability: [SECURITY.md](https://github.com/Fuasmattn/design-token-authority/blob/main/SECURITY.md).
-
-Before a release, the CI job `package` installs both packages from their tarballs into an empty project and runs `create-dta --yes`, `build`, `lint`, `diff --tokens-only` and a type check of the config there. Locally: `DTA_PACKAGE_E2E=1 pnpm vitest run --project create-dta`.
+Run the **Release** workflow from `main` (Actions → Release, with `patch`, `minor`, `major` or a version). It sets the versions, writes the changelog from the commit messages, tags, and publishes both packages to npm with trusted publishing (no npm token). A release stops when `pnpm audit --prod` finds a known vulnerability. Report vulnerabilities as described in [SECURITY.md](https://github.com/Fuasmattn/design-token-authority/blob/main/SECURITY.md).
 
 ## The website
 
-The website deploys with Vercel's GitHub integration: production from `main` at [dta.martinprinz.dev](https://dta.martinprinz.dev) (also `design-token-authority.vercel.app`), a preview for every pull request. Vercel reads the install and build commands and the output folder from `vercel.json`; the project's Node.js version is 24.x. The repository holds no Vercel secret. The address used by the sitemap, the links in `llms.txt` and the `$id` of the published schemas is `SITE_URL` in `site/site-url.mjs`.
-
-One-time setup, done once in the Vercel dashboard: import the repository (Add New → Project, root directory `./`, framework Other), set Node.js to 24.x, add the domain under Settings → Domains, and point it at Vercel with the CNAME record the dashboard shows.
+Vercel deploys `main` to [dta.martinprinz.dev](https://dta.martinprinz.dev) and a preview for every pull request, with the settings in `vercel.json`. The site's address for the sitemap, `llms.txt` and the schemas is `SITE_URL` in `site/site-url.mjs`.

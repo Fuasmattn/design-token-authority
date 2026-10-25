@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** L (section by section)
 **Blocked by:** 150
-**Status:** in progress (2026-10-25)
+**Status:** done (2026-10-25)
 
 ## What to build
 
@@ -33,9 +33,9 @@ Each section is its own commit after the maintainer's review of its pages.
 ## Acceptance criteria
 
 - [x] Style agreed on a sample page (What DTA is)
-- [ ] Each section rewritten to the style; word count before and after in the progress notes
-- [ ] Nothing a user needs is lost: removed details exist on the page that owns them, or were not needed
-- [ ] Links checked by the site build; all gates pass
+- [x] Each section rewritten to the style; word count before and after in the progress notes
+- [x] Nothing a user needs is lost: removed details exist on the page that owns them, or were not needed
+- [x] Links checked by the site build; all gates pass
 
 ## Progress (2026-10-25)
 
@@ -49,3 +49,7 @@ Words of prose (code excluded), before → after:
 - **Learn:** new page "What design tokens are" (231 words: what they are, what they solve, primitives and semantic tokens, where DTA fits; maintainer, 2026-10-25). The DTCG format 209 → 157, Token patterns 428 → 307 (its outdated "one mode per combination" note now points at Brands and themes together).
 - **Reference:** Outputs 1834 → 937, Token files 1289 → 570, Lint rules 737 → 415, Token queries 478 → 233, Exit codes 443 → 441 (the table is the content), index 171 → 176. Kept as one line each: a `.tokens` file must not repeat a per-mode file's collection and mode; `--mode` repeats to pick a combination. Command and config descriptions were already one sentence each.
 - **Sidebar:** the Guides and Reference overview pages are labelled "Overview", so the sidebar no longer reads "Guides › Guides" (maintainer, 2026-10-25: keep "Guides", not "Recipes").
+- **Design system:** overview 1479 → 547, Status colours 1749 → 693, Motion 870 → 449, the four token pages 633 → 332. Corrected on the way: the redline-label contrast (5.7:1, not 4.5:1), the DTCG duration types (read now), `radius-full` (dots and round controls). Removed: contrast tables and colour-vision figures (the tests still enforce the rules), per-component motion techniques.
+- **Components:** 38 pages 13,403 → about 6,700 words; each keeps one intro line, When to use (where it had one), the examples, Guidelines and Tokens used. Removed: exact figures, placement algorithms, class names and other implementation detail that lives in the component source.
+- **Contribute:** 734 → 407; adds the rule that the website uses only its tokens and design-system components.
+- **In total:** about 33,000 words of prose → about 15,800. All gates pass; the site build checks every link.
