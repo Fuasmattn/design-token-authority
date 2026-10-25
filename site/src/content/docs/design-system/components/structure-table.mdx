@@ -8,24 +8,23 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-The structure of a token set, as `analyzeStructure` in `@dta/core` infers it and `dta analyze` prints it: one row per collection with its modes, the inferred layer role (primitives, brand, dimension, semantic or unknown) and its confidence, the variable count and the share of aliases. Used by the [playground](/playground/).
+The collections of a token set as `dta analyze` reports them: modes, layer role and confidence, variable count and share of aliases. Used in the [playground](/playground/)'s Structure view.
 
 ## When to use
 
-- To show what `analyzeStructure` found, wherever a token set has been read: the playground's Structure view.
-- Selectable when there is more to see per collection (its tokens); plain in documentation.
+- Wherever a token set has been read and its structure should be shown.
+- Selectable when each collection has more to show (its tokens); plain in documentation.
 
 <Examples component="structure-table" />
 
 ## Guidelines
 
-- Rules and type on the surface, no card: a 2 px ink rule under the mono header, hairlines between rows.
-- Names, modes and numbers are mono; modes are small `bg-subtle` labels.
-- A confidence below the review threshold (`LOW_CONFIDENCE`, the one `dta analyze` marks with ⚠) gets "⚠ review" in `status-warning-text` (a caveat, not a change: never `signal`; [Status colours](/design-system/status-colours/)): a word, not colour alone. Notes follow their row in `fg-muted`.
-- In a container narrower than 640 px each collection becomes a short labelled list; the table keeps explicit roles for screen readers.
-- The brands (the modes of the brand collection) go under the table when there are any.
-- **Selectable rows** (`onSelect`): each collection name becomes a button with a `›`, and the whole row is its hit area. It opens the collection's details in the [Detail panel](/design-system/components/detail-panel/); the open row is marked with `aria-current` and tinted `action-subtle` (text in `action-text`), hovered rows `bg-subtle`. Inside a tab whose label already names the view, `hideCaption` keeps the caption for screen readers only.
-- **Motion:** the selected row's tint comes and goes over `motion.duration.fast`; instant under reduced motion. See [Motion](/design-system/motion/).
+- Rules and type, no card: a 2 px ink rule under the mono header, hairlines between rows. Names, modes and numbers in mono; modes as small `bg-subtle` labels.
+- Low confidence (the one `dta analyze` marks with ⚠) gets "⚠ review" in `status-warning-text`: a word, never colour alone, never `signal` ([Status colours](/design-system/status-colours/)).
+- Below 640 px of container each collection becomes a short labelled list; table roles stay for screen readers.
+- Brands (the brand collection's modes) go under the table.
+- **Selectable rows** (`onSelect`): the name is a button with `›`, the whole row its hit area; it opens the [Detail panel](/design-system/components/detail-panel/). The open row has `aria-current` and `action-subtle` (text `action-text`); hover `bg-subtle`. `hideCaption` keeps the caption for screen readers only.
+- **Motion:** the selection tint fades over `motion.duration.fast`; instant under reduced motion.
 
 ## Tokens used
 

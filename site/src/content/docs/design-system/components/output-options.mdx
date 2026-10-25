@@ -8,22 +8,21 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-The choices that shape what is built, in one row above the result: in the [playground](/playground/)'s Outputs view, which outputs `dta build` writes (CSS, Tailwind v4, Tailwind v3, JS; `outputs.formats` in `dta.config.ts`), with "Download all" at the end. The choices go into the generated config, so the CLI gives the same files.
+The choices that shape what is built, in one row above the result: in the [playground](/playground/)'s Outputs view, which outputs `dta build` writes, with "Download all" at the end.
 
 ## When to use
 
 - For a few independent on/off choices that change the result below them at once (no "Apply").
-- Not for choosing a view (that is [Tabs](/design-system/components/tabs/)) or one value of many (a mode is the Detail panel's segmented switch).
+- Not for choosing a view ([Tabs](/design-system/components/tabs/)) or one value of many.
 
 <Examples component="output-options" />
 
 ## Guidelines
 
-- A named group (`role="group"`, labelled by the mono label in `fg-subtle`) of native checkboxes in `action-bg` (`accent-color`), each label in the `label` type with a 44 px hit area.
-- Rules and type on the canvas, no card: a hairline `border-default` rule closes the row.
-- The row's actions (at most one primary) sit at the end. Below 560 px of container width the choices form two columns and the actions take a full-width line of their own.
-- With nothing chosen, the page says what to do ("Choose at least one output to build.") instead of disabling the boxes.
-- A Preact component; stories render it to static HTML.
+- A labelled `role="group"` of native checkboxes in `action-bg`, each with a 44 px hit area.
+- No card: a hairline `border-default` rule closes the row.
+- Actions (at most one primary) sit at the end; below 560 px the choices form two columns and the actions get their own line.
+- With nothing chosen, say what to do ("Choose at least one output to build."); don't disable the boxes.
 
 ## Tokens used
 

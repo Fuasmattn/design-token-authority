@@ -8,17 +8,17 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-A small mono label for state and context: info (`action-subtle`), neutral (`bg-subtle`, `fg-muted`), changed (`signal-subtle`), and the [status colours](/design-system/status-colours/): pass (`status-success-subtle`), warning (`status-warning-subtle`) and error (`status-error-subtle`).
+A small mono label for state and context: info, neutral, changed, and the [status colours](/design-system/status-colours/) pass, warning and error.
 
 <Examples component="chip" />
 
 ## Guidelines
 
-- Text is `meta`-sized mono, lower case, values after a middle dot: "changed · 4.2%".
-- State chips carry a marker so the state is not told by colour alone: a dot for changed and pass, an open ring for a warning, a filled square for an error (the shapes of the [severity markers](/design-system/#patterns)). Text in the tone's text colour on its tint (7:1), the status markers in `status-*-marker`.
-- Counts of findings are status chips (`3 errors`, `2 warnings`, `0 findings`); something that changed is `changed`, never a status (and an error is never `changed`).
-- Info and neutral are context, not a state, and carry no marker. Neutral is for a settled fact beside a state chip, such as "explained" next to "changed" on a [Diff card](/design-system/components/diff-card/).
-- Chips are not buttons; a filter that toggles is a segmented control.
+- `meta`-sized mono, lower case, values after a middle dot: "changed · 4.2%".
+- State chips carry a marker so colour is never the only cue: a dot (changed, pass), an open ring (warning), a filled square (error).
+- Counts of findings are status chips (`3 errors`); a change is `changed`, never a status.
+- Info and neutral are context and carry no marker.
+- Chips are not buttons; a toggle filter is a segmented control.
 
 ## Tokens used
 

@@ -8,7 +8,7 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-One scene of the landing page's story: a numbered kicker, a heading, one paragraph, the command as a [command button](/design-system/components/command-button/) and the example in a slot. The example sits on the surface itself: no border, no card chrome.
+One scene of the landing page's story: numbered kicker, heading, one paragraph, a [command button](/design-system/components/command-button/), and the example in a slot, on the surface itself (no card).
 
 <Examples component="scene" />
 
@@ -16,8 +16,8 @@ One scene of the landing page's story: a numbered kicker, a heading, one paragra
 
 - The kicker is `number · title` in mono weight 500 and `action-text` (AAA on the canvas in both themes).
 - One heading, one paragraph (`fg-muted`, 44 characters wide at most), one command. Nothing numbered beyond the kicker.
-- The example takes the right column by default (`example="right"`); scenes alternate with `example="left"`. On phones the copy comes first and the example stacks under it.
-- Scenes are `space-36` apart on desktop; the page, not the scene, sets that.
+- The example sits right by default; alternate with `example="left"`. On phones the copy comes first.
+- The page sets the spacing between scenes (`space-36` on desktop).
 
 ## Tokens used
 

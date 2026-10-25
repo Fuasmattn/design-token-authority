@@ -8,15 +8,15 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-A short list of token rows (swatch, name, value) on the Orbit Burger surface. Rows with a `from` value show the change as `from → value` in Nova and carry a dashed outline in `action-bg`: the changed token is the mass everything else orbits.
+A short list of token rows (swatch, name, value) on the Orbit Burger example surface. A changed row shows `from → value` and a dashed `action-bg` outline.
 
 <Examples component="token-rows" />
 
 ## Guidelines
 
-- Three rows at most; the page tells a story, not a diff.
-- The swatch is the colour itself, or the radius drawn as a cornered square (`sm` / `lg`).
-- Rows are 18 px apart so the outlines (4 px offset) have air; on phones the type drops to 12 px so name and value never crowd each other.
+- Three rows at most.
+- The swatch is the colour itself, or the radius drawn as a cornered square.
+- Rows 18 px apart so the outlines (4 px offset) have air; on phones the type drops to 12 px.
 - Surface and text come from the example's tokens; only the outline is the design system's.
 
 ## Tokens used

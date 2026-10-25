@@ -8,23 +8,21 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-"Take it to the CLI": in the [playground](/playground/)'s Outputs view, the `dta.config.ts` the playground generates for the choices made (its name opens a preview; Copy and Download next to it) and the steps that give the same files with the CLI, each command as a copyable command chip. For a plugin export the steps import it first (`pull --from-file`), as the playground did.
+"Take it to the CLI": in the [playground](/playground/)'s Outputs view, the generated `dta.config.ts` and the commands that give the same files with the CLI.
 
 ## When to use
 
 - At the end of something tried in the browser that a project can repeat with the CLI.
-- Not for documentation of a command (that is the reference) or for a single command on its own (a [Command button](/design-system/components/command-button/)).
+- Not for one command on its own: that is a [Command button](/design-system/components/command-button/).
 
 <Examples component="cli-handoff" />
 
 ## Guidelines
 
-- A section under a `stroke-ink` rule in `border-strong`, the title in the `title` type, an intro in `fg-muted`.
-- The config is one file row like an [output file](/design-system/components/output-files/): the name in mono `action-text`, its size, Copy and Download (quiet Buttons). Its row is tinted `action-subtle` while its preview is open.
-- Numbered steps in `body-sm`; a command is the site's command chip (`CommandButton.css`: `terminal-bg`, the `$` in `terminal-prompt`, a copy icon that turns into a tick). Here the chip may wrap, so a long command never runs past a phone screen; a file in it breaks after a `/` or `.`, like the config's name and the steps ([Token path](/design-system/components/token-path/)).
-- Commands read `npx design-token-authority …`, never `npx dta` (that npm name belongs to another package). A note under the steps says what the steps assume, such as the package installed in the project.
-- A Preact component; stories render it to static HTML.
-- **Motion:** a view-transition part (`dta-swap`), so it moves to its new place when the output files above it change. See [Motion](/design-system/motion/).
+- The config is one file row like an [output file](/design-system/components/output-files/), with Copy and Download.
+- Each step's command is the site's [command chip](/design-system/components/command-button/); here it may wrap, so it never runs past a phone screen. Paths break after `/` or `.`.
+- Commands read `npx design-token-authority …`, never `npx dta` (that npm name belongs to another package).
+- A note under the steps says what they assume, such as the package installed in the project.
 
 ## Tokens used
 

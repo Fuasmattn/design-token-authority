@@ -8,22 +8,21 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-The [Graph canvas](/design-system/components/graph-canvas/)'s data as a list, for phones: no columns to pan and nothing to pinch. Summaries first: each layer is a disclosure with its collection, the mode shown, its token count and its worst finding; open, it lists every token with its alias chain and value. A row opens the token in the [Detail panel](/design-system/components/detail-panel/)'s bottom sheet.
+The [Graph canvas](/design-system/components/graph-canvas/)'s data as a list for phones: each layer a disclosure, every token with its alias chain and value. A row opens the token in the [Detail panel](/design-system/components/detail-panel/)'s bottom sheet.
 
 ## When to use
 
-- In the [playground](/playground/)'s Graph view on screens up to 760 px (the site's break), instead of the canvas.
-- Wherever the graph's chains matter more than its shape: the list reads the same as `dta token get` prints a chain.
+- In the [playground](/playground/)'s Graph view up to 760 px, instead of the canvas.
 
 <Examples component="graph-list" />
 
 ## Guidelines
 
-- **Layers between hairline rules**, like the Lint view's rule rows: a native `details`/`summary` (works without script), at least 52 px tall, the collection as a mono kicker (`fg-subtle`, uppercase), the mode and its count, then the layer's findings as marker + word (`■ 1 error`, [Status colours](/design-system/status-colours/)) and a `›` that turns when open. The playground opens the brand layer at first; a file finding (default mode name) sits under the summary as a button that opens it in the Lint view.
-- **Token rows:** the whole row is a button (at least 52 px): the full token name in mono, then its chain (`→ Colors.Foundation.Navy.500`) and value with a swatch for colours in `fg-muted`, or why it does not resolve (`does not exist`, `circular`) in `status-error-text`. A row with a finding ends in its marker and word. Missing targets are not rows here; their alias says so.
-- **Selection:** the selected row (`aria-current`) on `action-subtle`, its text and chain in `action-text`; the marker and word keep their status colours. When the selection moves into a closed layer, the layer opens; the component never closes a layer the visitor opened.
-- Paths break between their segments ([Token path](/design-system/components/token-path/)); nothing scrolls sideways on a phone.
-- **Motion:** a layer opens by growing (`::details-content`, `motion.duration.base`), its chevron turns; a selected row tints over `fast` (a hover at once). At once under reduced motion. See [Motion](/design-system/motion/).
+- **Layers** are native `details`/`summary` between hairline rules, at least 52 px tall: collection (mono kicker), mode and count, the worst finding as marker and word (`■ 1 error`, [Status colours](/design-system/status-colours/)), and a chevron. A file finding sits under the summary as a button to the Lint view.
+- **Token rows** are buttons, at least 52 px: the full name in mono, then the chain and value (swatch for colours) in `fg-muted`, or why it doesn't resolve in `status-error-text`. A row with a finding ends in its marker and word.
+- **Selection:** `aria-current` on `action-subtle`, text in `action-text`; markers keep their status colours. Moving the selection into a closed layer opens it; a layer the visitor opened is never closed.
+- Paths break between segments ([Token path](/design-system/components/token-path/)); nothing scrolls sideways.
+- **Motion:** layers grow open (`motion.duration.base`), selection tints over `fast`; at once under reduced motion ([Motion](/design-system/motion/)).
 
 ## Tokens used
 

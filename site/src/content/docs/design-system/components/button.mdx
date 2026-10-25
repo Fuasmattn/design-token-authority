@@ -8,19 +8,19 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-Four variants for actions: primary (`action-bg`), outline (`stroke-ink` in `border-strong`), quiet (`stroke-hairline` in `border-default`, no fill) and link (underlined `action-bg` text).
+Four variants for actions: primary (`action-bg`), outline (`border-strong`), quiet (hairline, no fill) and link.
 
 <Examples component="button" />
 
 ## Guidelines
 
-- One primary button per view. Outline for the secondary action next to it; link for tertiary.
-- Quiet for the small action that repeats on every row of a list (the playground's Copy and Download next to each output file), so a column of them does not outweigh the content. Its border turns `border-strong` on hover.
-- At least 48px tall (44px is the minimum on touch), `radius-md`, the `label` text style.
+- One primary per view; outline for the secondary action, link for tertiary.
+- Quiet for the small action repeated on every row (Copy, Download); its border turns `border-strong` on hover.
+- At least 48 px tall (44 px minimum on touch), `radius-md`, the `label` text style.
 - Focus is a `stroke-focus` ring in `action-subtle`, never only a colour change.
-- Labels are verbs or verb phrases: "See a review", not "Click here".
-- With an `href` it renders a link, otherwise a `<button>`.
-- **In a Preact island** (the playground): the styles live in `Button.css`, so island components render the same button with the class `dta-button` plus the variant (`primary`, `outline`, `quiet`, `link`) instead of re-styling their own. [Token input](/design-system/components/token-input/), [Source bar](/design-system/components/source-bar/), [Output options](/design-system/components/output-options/), [Output files](/design-system/components/output-files/), [Copy button](/design-system/components/copy-button/) and [CLI hand-off](/design-system/components/cli-handoff/) do; a compact row may lower the height to the 44 px touch minimum.
+- Labels are verbs: "See a review", not "Click here".
+- With `href` it is a link, otherwise a `<button>`.
+- In a Preact island use the classes from `Button.css` (`dta-button` plus the variant), never a look of its own.
 
 ## Tokens used
 

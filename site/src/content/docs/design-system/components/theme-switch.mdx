@@ -8,15 +8,15 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-Switches the whole page between the Light and Graphite themes. The choice is shared with the docs (Starlight's `starlight-theme` setting) and sets `data-brand` on the root element, which selects the theme file DTA built.
+Switches the whole page between Light and Graphite. The choice is shared with the docs (Starlight's `starlight-theme`) and sets `data-brand` on the root, which selects the theme file DTA built.
 
 <Examples component="theme-switch" />
 
 ## Guidelines
 
-- A segmented control: two buttons in a group, the active one pressed (`aria-pressed`), on a surface.
+- A segmented control: two buttons in a group, the active one `aria-pressed`, each `size-target` tall.
 - One per page, in the header next to the navigation.
-- Pressing a button in the examples switches this page too: there is only one theme per page.
+- It switches the whole page, the examples here included.
 
 ## Tokens used
 

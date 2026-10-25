@@ -8,20 +8,20 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-The main navigation of a page. On tablets and desktops its links sit in a row, followed by the controls passed to it in one row ([icon buttons](/design-system/components/icon-button/) and the [theme switch](/design-system/components/theme-switch/)); on phones that row sits at the bottom of the menu. Below 760px a burger button opens them as a full-screen menu.
+The main navigation: links in a row followed by the controls passed to it ([icon buttons](/design-system/components/icon-button/), the [theme switch](/design-system/components/theme-switch/)); below 760px a burger opens a full-screen menu with the controls at the bottom.
 
 <Examples component="nav" />
 
-The examples on this page are wide, so they show the row; open the story of "Menu open on a phone" at phone width to see the menu.
+The examples are wide; open the "Menu open on a phone" story at phone width to see the menu.
 
 ## Guidelines
 
-- Four links or fewer, labelled with the place they lead to ("Docs"), not an action. With so few links, tablets keep the row.
-- The burger is an icon control like the [Icon button](/design-system/components/icon-button/): nothing around it at rest, a circle in `bg-hover` on hover and focus. It turns into a cross while the menu is open. Its accessible name says what it does ("Menu", "Close menu").
-- The menu is a disclosure that takes the whole screen: the page behind it does not scroll, focus stays inside it, Escape closes it and returns focus to the button, and so does following a link.
-- Motion follows the [motion rule](/design-system/motion/) on the motion tokens: the sheet wipes down (`slow`, `enter`) and back up (`base`, `exit`), a redline draws under the header, the links rise one after another (`motion.stagger`). Reduced motion shows the menu at once.
-- **The page you are on** is marked: its link has `aria-current="page"` and keeps an underline in `action-bg` at `stroke-ink` (the row), or under its label (the menu); the words stay `fg-default`, so the mark never costs contrast, and a hover's ink underline does not replace it. Pass `current: true` on that link. Links to sections of a page (`#how`) are never current, also on that page: the landing page marks none, the playground marks "Playground". The docs have Starlight's own header and sidebar, which mark the page there.
-- Links and the button are at least `size-target` (44px) high, so they work as touch targets.
+- Four links or fewer, named after where they lead ("Docs").
+- The burger is an icon control like the [Icon button](/design-system/components/icon-button/): a `bg-hover` circle on hover and focus, a cross while open, named "Menu" / "Close menu".
+- The open menu takes the screen: the page behind doesn't scroll, focus stays inside, Escape or a link closes it and returns focus to the button.
+- **The current page:** pass `current: true`; its link gets `aria-current="page"` and an `action-bg` underline at `stroke-ink`, words stay `fg-default`. Section links (`#how`) are never current.
+- Links and the button are at least `size-target` (44px) high.
+- **Motion:** the sheet wipes down (`slow`, `enter`) and up (`base`, `exit`), links rise with `motion.stagger`; at once under reduced motion ([Motion](/design-system/motion/)).
 
 ## Tokens used
 

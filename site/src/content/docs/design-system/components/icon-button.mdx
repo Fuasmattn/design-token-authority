@@ -8,22 +8,22 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-An action or a link shown only as an icon. The site header uses two, for the GitHub repository and the npm package, next to the [theme switch](/design-system/components/theme-switch/) (in the [Nav](/design-system/components/nav/)'s row, at the bottom of its menu on phones). The [Detail panel](/design-system/components/detail-panel/)'s close button is one too.
+An action or link shown only as an icon: GitHub and npm in the site header ([Nav](/design-system/components/nav/)), and the [Detail panel](/design-system/components/detail-panel/)'s close button.
 
 ## When to use
 
-- For a destination everyone recognises by its mark (GitHub, npm), or an action everyone recognises by its glyph (close), where a word would only take room.
+- For a destination or action everyone recognises by its mark or glyph (GitHub, npm, close).
 - Not for actions that need a word to be understood: use a [Button](/design-system/components/button/).
 
 <Examples component="icon-button" />
 
 ## Guidelines
 
-- A circle of `size-target` (44px, a full touch target) around a glyph of `size-icon` (20px) in `fg-default`. At rest only the icon shows; hover fills the circle with `bg-hover`, keyboard focus adds the focus ring (`stroke-focus` in `action-subtle`). No border, no shadow. The Nav's menu button looks and behaves the same.
-- `label` is required: it is the accessible name and the tooltip ("GitHub repository", "npm package"). The icon is hidden from assistive tech.
-- Icons live in `icons.ts`, one path each, in `currentColor`: the services' official marks (one-colour use is allowed by the brands) and plain glyphs (close). Add one there before using it.
-- With `href` it is a link, otherwise a button. External links open in the same tab.
-- The styles live in `IconButton.css` (global class `dta-icon-button`), so a Preact island renders the same button: the [Detail panel](/design-system/components/detail-panel/) does for its close button.
+- A `size-target` (44px) circle around a `size-icon` (20px) glyph in `fg-default`. At rest only the icon; hover fills the circle with `bg-hover`; keyboard focus adds the `stroke-focus` ring in `action-subtle`. No border, no shadow.
+- `label` is required: the accessible name and tooltip ("GitHub repository"). The icon is hidden from assistive tech.
+- Icons live in `icons.ts`, one path each in `currentColor`; add one there before using it.
+- With `href` a link (same tab), otherwise a button.
+- Preact islands use the same styles: `IconButton.css`, class `dta-icon-button`.
 
 ## Tokens used
 

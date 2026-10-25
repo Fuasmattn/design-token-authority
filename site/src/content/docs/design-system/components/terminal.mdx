@@ -15,9 +15,9 @@ A read-only block of CLI output on `terminal-bg`, showing what DTA actually prin
 ## Guidelines
 
 - Header strip in mono meta: "TERMINAL" and "SAME INPUT · SAME OUTPUT".
-- Prompt and changes in `terminal-prompt`, passes and found values in `terminal-success`, secondary lines in `terminal-muted`, everything else `terminal-fg`; all at 7:1 on `terminal-bg`.
-- `terminal-success` stays the terminal's own token, not a [status colour](/design-system/status-colours/): the terminal is dark in both themes, so Light's `status-success-text` (dark green) would not read on it. It is `sage-300` in both themes, the same green as Graphite's success text. A pass line is a word ("passed", "found") as in the CLI, never colour alone.
-- Output is copied from a real run and stays stable; never invent statistics. The example is abridged output of `dta diff` on the brand-ab fixture.
+- Prompt and changes in `terminal-prompt`, passes in `terminal-success`, secondary lines in `terminal-muted`, the rest `terminal-fg`; all 7:1 on `terminal-bg`.
+- `terminal-success` is the terminal's own token, not a [status colour](/design-system/status-colours/): the terminal is dark in both themes. A pass is a word ("passed"), never colour alone.
+- Output is copied from a real run; never invent numbers.
 - The cursor blinks; it stops under reduced motion.
 
 ## Tokens used

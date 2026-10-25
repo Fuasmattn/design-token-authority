@@ -8,17 +8,16 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-A surface with a hairline border, the large radius and card padding. With `href` the whole card is a link that lifts on hover; `featured` draws it in the action colour; `grid` lays grid paper under the content.
+A surface for one idea, with a hairline border and the large radius. With `href` the whole card is a link; `featured` draws it in the action colour; `grid` lays grid paper under it.
 
 <Examples component="card" />
 
 ## Guidelines
 
-- One idea per card; cards in a row have the same structure.
+- One idea per card; cards in a row share their structure.
 - At most one featured card per group.
-- A link card has one target: no other links inside it.
-- Borders, not shadows: the card lifts on hover by moving and darkening its border.
-- **Motion:** a link card lifts by `space-1` and its border turns ink over `motion.duration.base` on hover; still under reduced motion.
+- A link card has one target: no links inside it.
+- Borders, not shadows: on hover a link card lifts by `space-1` and its border turns ink (`motion.duration.base`); still under reduced motion.
 
 ## Tokens used
 

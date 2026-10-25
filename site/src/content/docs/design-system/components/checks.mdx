@@ -8,16 +8,16 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-The checks of a pull request as flat rows on `bg-surface` with a hairline, and the approve action.
+The checks of a pull request as flat rows on `bg-surface`, with the approve action.
 
 <Examples component="checks" />
 
 ## Guidelines
 
-- Each row: a marker, the check's name, its status word with an optional detail. In the [status colours](/design-system/status-colours/): `passed` with the dot in `status-success-marker` and the word in `status-success-text`, `passed with warnings` with the open ring and `status-warning-text`, `failed` with the filled square and `status-error-text`.
-- `changes to review` is a diff state, not a problem: the pull request changed something a person looks at. It stays `signal` (the dot in `signal-bg`, the word in `signal-text`), never a warning. The `dta diff` report shows its review verdict in `signal` too (see [Status colours](/design-system/status-colours/#changes-to-review)). `pending` stays in the ink (`fg-subtle` dot, `fg-muted` word).
-- On the landing page the list appears twice: all checks in the strip's order in scene 02 (no approve action: nothing there needs a person), and in scene 03 only the check that waits for a person (`dta diff` · changes to review) with the approve action under it, beside the differences it approves (maintainer decision, 2026-10-19).
-- The approve action is the one blue surface on the landing page: `action-text` with `action-fg`, 9.7:1 in Light and 12:1 in Graphite. It is a label of what the person does, not a working button on the page.
+- Each row: a marker, the check's name and its status word, in the [status colours](/design-system/status-colours/): `passed`, `passed with warnings`, `failed`.
+- `changes to review` is not a problem: it stays `signal` (dot `signal-bg`, word `signal-text`), never a warning.
+- `pending` stays in the ink (`fg-subtle` dot, `fg-muted` word).
+- The approve action is a label of what a person does (`action-text` with `action-fg`), not a working button.
 
 ## Tokens used
 

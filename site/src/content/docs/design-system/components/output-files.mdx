@@ -8,26 +8,25 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-Built files to take away, grouped by kind: in the [playground](/playground/)'s Outputs view, the files `dta build` writes (`output/css/…`, `output/tailwind/…`, `output/js/…`) in CSS, Tailwind and JS. Each group has one download for all its files (a zip with the same folders); each file has its path, its size, Copy and Download. The path opens the file's preview in the [Detail panel](/design-system/components/detail-panel/).
+The files `dta build` writes, grouped by kind (CSS, Tailwind, JS), each with its size, Copy and Download, and one zip per group; used in the [playground](/playground/)'s Outputs view.
 
 ## When to use
 
 - For a handful to a few dozen generated files a visitor takes some or all of.
-- Not for source files someone edits, and not for a single file (show that one in the panel or a Terminal).
+- Not for source files someone edits, and not for a single file (show that in the panel or a Terminal).
 
 <Examples component="output-files" />
 
 ## Guidelines
 
-- Rules and type on the canvas, no cards. A group's head: the name in the `title` type, the file count in mono `fg-muted`, the group download as an outline Button (`Download CSS (.zip)`), closed by a `stroke-ink` rule in `border-strong`.
-- A row per file, hairline `border-default` between rows: the path in mono `action-text`, underlined, as written by `dta build`; the size in mono `fg-muted`, tabular figures; Copy ([Copy button](/design-system/components/copy-button/)) and Download as quiet Buttons at the 44 px touch minimum. Their accessible names say which file (`Download output/css/base.css`).
-- **Which output, where a group mixes them:** the Tailwind group holds the v4 files (`tailwind.css`, an `@theme` stylesheet) and the v3 files (`tailwind.tokens.ts`, a theme object) side by side, so each of its rows says which after the path: `Tailwind v4` or `Tailwind v3`, mono `fg-muted` in a hairline `border-default` outline (`tag`). The playground takes it from the file's `format` (`@dta/build`) and labels only groups with more than one output, so CSS and JS rows say nothing twice. The preview's kicker names it too (`Output · Tailwind v4 · 1.1 KB`).
-- The row whose preview is open is marked (`aria-current`) and tinted `action-subtle`, as in the [Structure table](/design-system/components/structure-table/).
-- Below 560 px of container width the path (with its output label) takes its own line and the size and actions follow under it; nothing scrolls sideways. A long path breaks after a `/` or `.`, never inside a folder or file name ([Token path](/design-system/components/token-path/)).
-- **When the build fails:** `dta build` writes no files while the tokens have errors (a broken alias), so the Outputs view lists none and shows the build's diagnostics as an error **status banner** instead ([Findings](/design-system/components/findings/) with `banner`: `status-error-subtle`, a complete 2 px `status-error-marker` outline, the lines in `status-error-text`); the summary line's part reads `build failed` with the error square. See [Status colours](/design-system/status-colours/); the Findings page shows it as "The build has errors: a status banner".
-- The component reports clicks; saving files is the page's (in the playground a blob URL: nothing leaves the browser).
-- A Preact component; stories render it to static HTML.
-- **Motion:** each group is a view-transition part (`view-transition-class: dta-swap`); when the chosen formats change, the playground keeps the files on screen until the new build lands, then the groups that stay move into place and the others fade. The open row's tint comes and goes over `fast`. See [Motion](/design-system/motion/).
+- Rules and type on the canvas, no cards. Group head: name in `title` type, file count in mono `fg-muted`, the group download as an outline Button, closed by a `stroke-ink` rule in `border-strong`.
+- One row per file, hairlines between: the path in mono `action-text`, underlined (it opens the preview in the [Detail panel](/design-system/components/detail-panel/)); the size in mono `fg-muted`; Copy ([Copy button](/design-system/components/copy-button/)) and Download as quiet Buttons, at least 44 px. Accessible names say which file (`Download output/css/base.css`).
+- A group that mixes outputs (Tailwind v4 and v3) labels each row with its output as a hairline tag; groups with one output don't.
+- The row whose preview is open has `aria-current` and the `action-subtle` tint.
+- Below 560 px the path takes its own line, size and actions under it; nothing scrolls sideways. Paths break after `/` or `.` ([Token path](/design-system/components/token-path/)).
+- **When the build fails** there are no files: show the diagnostics as an error status banner ([Findings](/design-system/components/findings/) with `banner`).
+- The component reports clicks; saving files is the page's job.
+- **Motion:** groups are view-transition parts (`dta-swap`) when the formats change; the open row's tint over `fast` ([Motion](/design-system/motion/)).
 
 ## Tokens used
 

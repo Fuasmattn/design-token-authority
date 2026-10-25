@@ -8,26 +8,23 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-How token files get into the [playground](/playground/) before anything is loaded: the drop area takes the page. It takes files dragged onto it and is also the button that opens the file picker, so it works with a keyboard and on phones, where dragging is not an option. Several files at once. Under it: the examples, "Load example" (brand-ab, which lints clean) and "Example with problems" (the same tokens with three flaws the default rules catch, so a visitor sees what a finding looks like), and "Paste JSON instead", which swaps the drop area for a paste field.
-
-The component reads the files and hands them on as `{ fileName, content }`; it does not interpret them (the playground decides between per-mode files and a plugin export, as the CLI does). Once something is loaded the input shrinks to the [Source bar](/design-system/components/source-bar/); its "Paste JSON instead" opens the same paste field (`PasteForm`, exported from this component), and its "Replace files" reads files with the same `readFiles`. A Preact component, because the playground is a Preact island; the stories render it to static HTML.
+How token files get into the [playground](/playground/) before anything is loaded: a drop area that takes the page and is also a button, the examples, and a paste field.
 
 ## When to use
 
-- As the whole page of a tool that needs input first, before there is anything to show.
-- Not once something is loaded: then the Source bar says what it is and offers to replace it.
+- As the whole page of a tool that needs input first.
+- Not once something is loaded: then the [Source bar](/design-system/components/source-bar/) takes over.
 
 <Examples component="token-input" />
 
 ## Guidelines
 
-- The drop area is a dashed ink outline on `bg-surface`: a place to put something. It is tall (about 40 % of the screen, at least 220 px), so it is the page until something is loaded. Hover and focus turn the outline `action-bg`; while files are dragged over it, it fills with `action-subtle`.
-- Its label says both ways in: "Drop token files", then "or choose files" in `action-text`, underlined like a link. The help line under it names what it accepts.
-- The actions under it: the examples (`examples`: id, button label, what it loads), one under the other, each an outline [Button](/design-system/components/button/) with what it loads beside it in mono `fg-subtle` (the button's description, `aria-describedby`); the buttons share one column width, so the descriptions line up. At the end of the first row "Paste JSON instead" (link button). Below 560 px of container width each description goes under its button and the switch follows the examples. The paste field takes the drop area's place, and the button then says "Choose files instead"; switching moves focus to the field or back to the drop area.
-- The examples are bundled with the page (fixtures in `test/fixtures/`, read with `import.meta.glob`), so loading one needs no request; `onExample` gets the id.
-- The paste field is mono, labelled above like [Text field](/design-system/components/text-field/). A pasted per-mode file needs a `{Collection}.{Mode}.json` name; a plugin export needs none. "Check pasted JSON" is the one primary action; under the Source bar the form also has "Cancel" (and Escape).
-- **Input that cannot be read** (broken JSON, a file name without collection and mode, an export in no known format) is not shown in the input: the playground answers with the input's diagnostics as an error **status banner** above everything else ([Findings](/design-system/components/findings/) with `banner`, in the [status colours](/design-system/status-colours/)), with the Source bar to try again. The [Findings](/design-system/components/findings/) page shows both: "Input that cannot be read" and "An export it does not know".
-- **Motion:** the drop area (or the paste field in its place) is the view-transition part `dta-source`: a page that loads inside `transition()` collapses it into the [Source bar](/design-system/components/source-bar/). Switching between drop area and paste field crossfades; the drop area's hover and drag states change over `motion.duration.fast`. See [Motion](/design-system/motion/).
+- **Drop area:** dashed ink outline on `bg-surface`, about 40 % of the screen (at least 220 px). Hover and focus turn it `action-bg`; dragging files over fills it with `action-subtle`. A button that opens the file picker, so keyboard and phones work; several files at once.
+- Label "Drop token files" then "or choose files" in `action-text`, underlined; a help line says what it accepts.
+- **Examples:** outline [Buttons](/design-system/components/button/) in one column, what each loads beside it in mono `fg-subtle` (`aria-describedby`). Below 560 px the description goes under its button. Bundled with the page, so loading one needs no request.
+- **Paste:** "Paste JSON instead" (link button) swaps the drop area for a mono textarea labelled like a [Text field](/design-system/components/text-field/); the button then says "Choose files instead"; focus moves to the field or back. A pasted per-mode file needs a `{Collection}.{Mode}.json` name; "Check pasted JSON" is the one primary action.
+- It only reads files (`{ fileName, content }`); the playground interprets them. Input that cannot be read shows as an error banner from [Findings](/design-system/components/findings/), not in the input.
+- **Motion:** view-transition part `dta-source`: loading collapses it into the Source bar; drop area and paste field crossfade; hover and drag states over `motion.duration.fast`.
 
 ## Tokens used
 

@@ -15,7 +15,7 @@ Two rounded squares, one outlined and one filled, then the wordmark "dta". It li
 ## Guidelines
 
 - Once per page, top left. The mark alone is decorative; the link is named "dta, home".
-- The filled square moves onto the outlined one on hover (`motion.duration.slow`, `motion.ease.standard`): a token changing a component. Reduced motion turns it off.
+- On hover the filled square moves onto the outlined one (`motion.duration.slow`, `motion.ease.standard`); off under reduced motion.
 
 ## Tokens used
 
@@ -25,7 +25,7 @@ Read from the component's source:
 
 ## The mark as a file
 
-The mark alone, as an SVG, from `site/src/lib/brand-mark.ts`: the same drawing as the favicon, coloured by the tokens (`blueprint.600` for the square, `border.strong` of the theme for the outline).
+The mark alone as SVG, drawn from the tokens (`site/src/lib/brand-mark.ts`):
 
 - `/favicon.svg`: the light theme.
-- `/brand/dta-mark-light.svg` and `/brand/dta-mark-dark.svg`: for light and dark backgrounds. The `dta diff` comment in pull requests shows them in front of its headline, chosen by GitHub's theme. Keep these URLs stable: comments already posted load them.
+- `/brand/dta-mark-light.svg` and `/brand/dta-mark-dark.svg`: used by the `dta diff` pull-request comment. Keep these URLs stable: posted comments load them.

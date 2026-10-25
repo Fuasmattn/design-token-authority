@@ -8,28 +8,26 @@ sidebar:
 import Examples from '../../../../components/docs/Examples.astro'
 import TokensUsed from '../../../../components/docs/TokensUsed.astro'
 
-The token dependency graph of the [playground](/playground/)'s Graph view: one column per layer of the 3-layer model, Primitives · Brand · ScreenType, each in the mode the [Graph switcher](/design-system/components/graph-switcher/) shows; every token a row under its group label; an arrow from each alias to the token it uses, so a chain reads right to left. The data is `analyzeGraph` from `@dta/core` (nodes, alias edges, cycles, dangling aliases, unused raw values) with each row resolved in the modes shown (`resolve`); the playground maps it, the component only draws. Positions come from `layoutGraph` (`graph-layout.ts`), pure geometry the stories and the playground share.
+The token dependency graph of the [playground](/playground/)'s Graph view: one column per layer, every token a row, an arrow from each alias to the token it uses.
 
 ## When to use
 
 - To see how tokens depend on each other across layers, and where a chain breaks.
-- On desktop. On phones the same data is the [Graph list](/design-system/components/graph-list/); the playground switches at the site's 760 px break. No pinch-zoom.
+- On desktop only; on phones (below 760 px) the same data is the [Graph list](/design-system/components/graph-list/).
 
 <Examples component="graph-canvas" />
 
 ## Guidelines
 
-- **Layers as columns, few crossings without a layout engine.** A layer's groups are ordered by the layers to its right that use them (colours, font families and effects for Brand first, then spacing, sizes and radius for ScreenType; groups nothing uses last), and every layer after the first starts level with the topmost group it points into, so the ScreenType column starts beside the spacing it uses and its arrows pass under the Brand column. Rows keep the order of the token files.
-- **Rows, not cards.** A row is a 1 px ink outline (`border-strong`) on `bg-surface`, `radius-sm`: the leaf name, then the value with a swatch for colours, or `· unused` in `fg-subtle` for a raw value no alias uses (the engine's orphans). Mono, the meta size. No shadows.
-- **Headers:** the collection (mono kicker), the mode shown and its token count, over a 2 px ink rule. A finding about the layer's file (Figma's default mode name) sits on its header as a tinted button with marker and words, which opens the finding in the Lint view.
-- **Arrows:** hairline curves in `fg-subtle` with a filled arrowhead on the target's edge. An alias into its own column (a circle) arcs on the column's right.
-- **Findings keep shape + word + colour** ([Status colours](/design-system/status-colours/)): an error row is tinted `status-error-subtle` inside a complete 2 px outline in `status-error-marker`, with the filled square and "error" (`status-error-text`) where the value was; a warning has the open ring and "warn". A circular pair gets two error arcs and a "circular" chip; a dangling alias's arrow is dashed and ends in a dashed "missing" row, built from the alias's target name in the group whose names it shares (the engine reports it in `danglingAliases`, not as a node). Dangling and circular aliases are errors. Never `signal`: nothing in the graph is a change.
-- **Selection is blueprint:** the selected row and every row on its alias chain on `action-subtle` inside a 2 px `action-bg` outline, their text in `action-text`; the chain's arrows in `action-bg` at `stroke-ink`. A selected row with a finding keeps its marker and word.
-- **Keyboard:** one row is in the tab order (roving `tabindex`, the selected or last focused one). ↑ and ↓ move within a column; ← follows the alias to the token it uses (else the nearest row to the left); → goes back to a token that uses it (else the nearest row to the right); Home and End go to the column's ends; Enter or Space selects (the playground opens the [Detail panel](/design-system/components/detail-panel/)). A row's accessible name is the full token name and what it shows (`Colors.Brand.Accent #3b8fd9`), then what it uses and why it does not resolve.
-- **Size:** the drawing has a fixed width (three 208 px columns with 46 px between them, 716 px), which fits beside the detail panel at 1280 px; a narrower box scrolls it inside itself, never the page. `reveal` scrolls the selected row into view after a selection made elsewhere ("Show in graph", a brand switch).
-- **Legend** under the drawing, as wide as the drawing: alias arrow, selected chain, error, warning (a config's rules can produce warnings), unused.
-- **Motion:** rows and arrows change their tint over `motion.duration.fast` when the selection moves; a hover tints at once (only a plain row, never a selection or a finding), so a passing pointer never leaves a transition cut short. A revealed row scrolls smoothly. Under reduced motion the highlight is there at once and the scroll jumps. See [Motion](/design-system/motion/).
-- `dta graph --format html` keeps its own page.
+- **Rows, not cards:** a 1 px `border-strong` outline on `bg-surface`, `radius-sm`; the leaf name, then the value (a swatch for colours) or `· unused` in `fg-subtle`. No shadows.
+- **Headers:** collection, mode and token count over a 2 px ink rule. A finding about the layer's file sits on the header as a button that opens it in the Lint view.
+- **Arrows:** hairline curves in `fg-subtle` with a filled head; an alias into its own column arcs on the right.
+- **Findings keep shape, word and colour** ([Status colours](/design-system/status-colours/)): an error row on `status-error-subtle` in a 2 px `status-error-marker` outline with the filled square and "error"; a warning with the open ring and "warn". A circular pair gets error arcs and a "circular" chip; a dangling alias a dashed arrow to a dashed "missing" row. Never `signal`.
+- **Selection is blueprint:** the selected row and its alias chain on `action-subtle` in a 2 px `action-bg` outline, text in `action-text`, arrows in `action-bg`. A selected finding keeps its marker and word.
+- **Keyboard:** one row in the tab order (roving `tabindex`). ↑/↓ within a column, ← to the token it uses, → back to a token that uses it, Home/End to the column's ends, Enter or Space selects. The accessible name is the full token name, its value, what it uses and why it doesn't resolve.
+- **Size:** fixed width (716 px, fits beside the detail panel at 1280); a narrower box scrolls inside itself, never the page. `reveal` scrolls a selection made elsewhere into view.
+- **Legend** under the drawing: alias arrow, selected chain, error, warning, unused.
+- **Motion:** tints change over `motion.duration.fast`; hover tints at once. Under reduced motion the highlight is immediate and the scroll jumps ([Motion](/design-system/motion/)).
 
 ## Tokens used
 
