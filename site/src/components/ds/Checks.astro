@@ -1,8 +1,8 @@
 ---
 /**
- * The checks of a pull request and the approve action: each check a flat row on bg-surface with
- * a hairline, its status as a marker and a word; the approve action in the action text colour so
- * its label reads at 7:1 in both themes.
+ * The checks of a pull request and the approve action: each check a well in the paper (bg-subtle,
+ * no border, TICKET-153), its status as a marker and a word; the approve action in the action text
+ * colour so its label reads at 7:1 in both themes.
  *
  * Status colours (TICKET-120): passed is the success dot, passed with warnings the warning ring,
  * failed the error square, each with its word in status-*-text. "Changes to review" is a diff
@@ -68,9 +68,8 @@ const words = {
     gap: 10px;
     align-items: center;
     padding: var(--space-4);
-    border: var(--stroke-hairline) solid var(--border-default);
     border-radius: 12px;
-    background: var(--bg-surface);
+    background: var(--bg-subtle);
     color: var(--fg-default);
     font-family: var(--font-mono);
     font-size: 13px;

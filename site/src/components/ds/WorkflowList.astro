@@ -3,12 +3,12 @@
  * The workflow as a numbered list grouped by where each step happens (TICKET-153, design system
  * "WorkflowList", principle 6 "One rhythm per list"): the change is made on one side (Figma, a
  * token file, an agent), `dta pull` carries it across on a dashed connector, and inside the pull
- * request, one card, every step has the same row: number, label, the command on the label's
- * baseline, one line below. A return line under the card says where a fix goes; no arrow back.
+ * request, one well in the paper, every step has the same row: number, label, the command on the label's
+ * baseline, one line below. A return line under the well says where a fix goes; no arrow back.
  * The accent is blueprint (`action`), not the redline: nothing here has changed yet.
  *
  * One column on a phone. From 960px of container two columns: the change and the crossing on
- * the left, the card on the right. No motion.
+ * the left, the well on the right. No motion.
  */
 import CommandButton from './CommandButton.astro'
 
@@ -247,13 +247,12 @@ const headingId = `${idPrefix}-title`
     gap: var(--space-3);
   }
 
-  /* The pull request: one card, hairlines between the rows. */
+  /* The pull request: one well in the paper (bg-subtle, no border), hairlines between the rows. */
   .pr {
     box-sizing: border-box;
     padding: var(--space-4) var(--space-4) var(--space-2);
-    border: var(--stroke-hairline) solid var(--border-default);
     border-radius: var(--radius-lg);
-    background: var(--bg-surface);
+    background: var(--bg-subtle);
   }
   .eyebrow {
     display: block;
