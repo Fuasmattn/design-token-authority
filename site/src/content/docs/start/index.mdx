@@ -1,48 +1,33 @@
 ---
 title: What DTA is
-description: DTA checks design token changes deterministically, builds them for every platform and shows their effect before they ship.
+description: A command-line tool that checks, builds and diffs your design tokens.
 sidebar:
   order: 1
 ---
 
-Design Token Authority (DTA) is a command-line tool for design tokens. It reads your tokens as plain [DTCG](https://tr.designtokens.org/format/) JSON files (pulled from Figma or written by hand), checks their structure, builds them into CSS, JavaScript and Tailwind, and shows what a change does to your UI before it ships.
+DTA is a command-line tool for design tokens. It takes your tokens from Figma (or plain [DTCG](https://tr.designtokens.org/format/) JSON files), checks them, builds them for every platform and shows what a change does to your UI before it ships. Same input, same result: on your machine, in CI or in an agent.
 
-Every command is deterministic: same input, same result, on your machine, in CI or when an agent runs it.
+## Why
 
-## Why automate
+When tokens change every week:
 
-A one-off export from Figma is easy: a plugin, a copy, done. It gets hard when tokens change every week:
+- **Structure drifts.** Naming and layers break, and nobody notices.
+- **Code breaks quietly.** A renamed token is still used somewhere.
+- **Screenshots pile up.** One colour change touches a hundred screens.
 
-- **Structure drifts.** New variables break naming and layering, and nobody notices until a theme breaks.
-- **Code breaks quietly.** A renamed or deleted token is still referenced somewhere.
-- **Screenshots pile up.** One colour change touches a hundred screens, and nobody reviews a hundred screenshots.
+DTA turns each change into one review: the token changes, the lint findings and the screenshots, grouped by the token that caused them.
 
-DTA turns each change into something you can review: the token diff, the lint findings and the visual difference, grouped by the token that caused it.
+## What it does
 
-| You need…                                      | DTA gives you                                                                                                                    |
-| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| tokens out of Figma once, for a prototype      | `dta pull` (or `--from-file`) and `dta build`                                                                                    |
-| the same tokens in code on every change        | `dta build` in CI, with `dta lint` failing on structural errors                                                                  |
-| to see the effect of a change before it merges | `dta diff`: base and head rendered and compared, explained by token                                                              |
-| tokens back in Figma after a code-side change  | `dta push`, conservative: it creates and updates, it never deletes; `dta prune` deletes what has no token any more, when you ask |
+| Command     | Does                                              |
+| ----------- | ------------------------------------------------- |
+| `dta init`  | Sets up a project                                 |
+| `dta pull`  | Figma variables to token files                    |
+| `dta push`  | Token files back to Figma (never deletes)         |
+| `dta build` | CSS, JavaScript, Tailwind, Swift, Android         |
+| `dta lint`  | Structure checks                                  |
+| `dta diff`  | Token changes and screenshots, explained by token |
 
-## What it does today
-
-| Command       | What it does                                                                                                                         |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `dta init`    | Wizard that writes `dta.config.ts` for your Figma plan and outputs, and sets up `dta diff` (with a config: sets it up or updates it) |
-| `dta pull`    | Figma variables → token files (REST API, or `--from-file` with a plugin export)                                                      |
-| `dta push`    | Token files → Figma variables, with a dry run and a typed confirmation                                                               |
-| `dta prune`   | Deletes Figma variables whose tokens are gone (dry run, typed confirmation; push never deletes)                                      |
-| `dta build`   | Token files → CSS custom properties, JavaScript, Tailwind v3 and v4; Swift, Android XML and Compose when listed in `outputs.formats` |
-| `dta lint`    | Structure checks: dangling and circular aliases, default mode names, configurable rules                                              |
-| `dta graph`   | The alias graph: depth, orphans, cycles; console, Markdown, DOT or interactive HTML                                                  |
-| `dta diff`    | Token changes against a base, and screenshots of your stories explained by token                                                     |
-| `dta analyze` | Which layer each Figma collection plays (primitives, brand, dimension)                                                               |
-| `dta clean`   | Removes token files and build output                                                                                                 |
-
-Breaking-change detection in code is planned; this page lists only what is released in the CLI.
-
-No install yet? The [playground](/playground/) shows the structure DTA detects in your token files (or a plugin export), what `dta lint` finds, and the dependency graph per brand and breakpoint (each token's alias chain as `dta token get` reads it), builds the outputs `dta build` writes (CSS, Tailwind, JS) to copy or download, one file or all of them as a zip, and generates the `dta.config.ts` that gives the same files with the CLI. Its "Example with problems" shows what a finding looks like. It all runs in your browser: nothing is uploaded. The page opens with only the input; the code that reads your files follows in the background, and if you are quicker than it, the summary says `Reading 6 files…` for a moment.
+All commands: [Commands](/reference/commands/). No install yet? Try the [playground](/playground/): it runs in your browser and uploads nothing.
 
 Next: [Quick start](/start/quick-start/).

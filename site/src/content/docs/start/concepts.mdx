@@ -1,91 +1,61 @@
 ---
 title: Core concepts
-description: Collections, modes and token files; aliases; the layers of a token set; and what the build makes of them.
+description: Token files, aliases, layers, what the build makes of them, and the config.
 sidebar:
   order: 3
 ---
 
-## Collections, modes and token files
+The few ideas behind every command.
 
-DTA follows Figma's variable model. A **collection** groups variables; a **mode** is one set of values for all of them (a brand, a theme, a breakpoint). On disk, every collection and mode is one JSON file named `{Collection}.{Mode}.json`:
+## Token files
+
+DTA follows Figma's variables: a **collection** groups tokens, a **mode** is one set of values (a brand, a theme, a breakpoint). Each collection and mode is one JSON file in the [DTCG](https://tr.designtokens.org/format/) format:
 
 ```text
-tokens/Primitives.Value.json        one collection, one mode
-tokens/Brand(Alias).BrandA.json     one collection, a mode per brand
-tokens/Brand(Alias).BrandB.json
-tokens/ScreenType.Desktop.json      one collection, a mode per breakpoint
+tokens/Primitives.Value.json
+tokens/Brand.BrandA.json
+tokens/Brand.BrandB.json
 ```
 
-Inside, the files use the [W3C Design Tokens (DTCG)](https://tr.designtokens.org/format/) format: nested groups, and tokens with `$type` and `$value`. The full format: [Token files](/reference/token-files/).
+Format details: [Token files](/reference/token-files/).
 
-## Aliases and unique names
+## Aliases
 
-A value in braces points at another token: `"$value": "{Colors.Foundation.Blue.500}"`. In Figma the same path reads `Colors/Foundation/Blue/500`; DTA converts between the two when it pulls and pushes.
+A value in braces points at another token: `"$value": "{Colors.Blue.500}"`.
 
-Aliases carry no collection name, so **variable names must be unique across all collections**. That is what lets DTA resolve `{Colors.Foundation.Blue.500}` wherever it lives, and it is the one rule DTA asks your Figma file to follow.
-
-`dta graph` shows the alias structure, and `dta lint` fails on aliases that point nowhere or in a circle.
+**Token names must be unique across all collections**, because an alias names no collection. It is the one rule DTA asks your Figma file to follow. `dta lint` fails on aliases that point nowhere or in a circle.
 
 ## Layers
 
-Most token sets end up with layers, whatever they call them. DTA works with any names, but its checks and defaults speak this model:
+Call your collections what you like. Most token sets end up with layers like these:
 
-| Layer          | Example collection | Modes              | Values                                   |
-| -------------- | ------------------ | ------------------ | ---------------------------------------- |
-| **Primitives** | `Primitives`       | one                | raw values: `#0057b8`, `8`               |
-| **Brand**      | `Brand(Alias)`     | one per brand      | aliases into the primitives              |
-| **Dimension**  | `ScreenType`       | one per breakpoint | aliases or values that differ per screen |
+| Layer      | Modes               | Values                     |
+| ---------- | ------------------- | -------------------------- |
+| Primitives | one                 | raw values: `#0057b8`, `8` |
+| Brand      | one per brand       | aliases to primitives      |
+| Breakpoint | one per screen size | aliases or values          |
 
-`dta analyze` reads a Figma file and suggests which collection plays which role, and `dta init` uses that to propose `collections` and `brands`. The `semantic-must-alias` lint rule keeps a brand layer made of aliases only.
+## What the build makes
 
-## What the build makes of it
+- **Primitives** become custom properties on `:root`.
+- **Each brand** becomes a theme scoped to `[data-brand="…"]`. Switch brands with the attribute: `<html data-brand="branda">`.
+- **Breakpoints** become media queries, once you name the collection in `breakpoints`.
+- **JavaScript and Tailwind** files come next to the CSS.
 
-`dta build` writes one set of files for the single-mode collections and one theme per brand:
-
-- **Single-mode collections** (the primitives) become `:root` custom properties in `variables.css` (aliases stay `var()` references) and `base.css` (values resolved).
-- **Each brand** listed in `brands` becomes `themes/<brand>.css`, scoped to `[data-brand="<brand>"]`. Switch brands by setting the attribute on any element, `<html data-brand="branda">` for the whole page.
-- **The breakpoint collection** named in `breakpoints` is added to `variables.css`: its default mode on `:root`, the other modes inside their media queries.
-- **JavaScript and Tailwind** files are written next to them.
-
-```css title="output/css/themes/branda.css"
-[data-brand="branda"] {
-  --colors-brand-primary: var(--colors-foundation-blue-500);
-  --colors-brand-primary-dark: var(--colors-foundation-blue-700);
-  --colors-brand-accent: var(--colors-foundation-sky-500);
-  …
-}
-```
-
-:::note[Breakpoint modes]
-A collection whose modes are screen sizes (such as `ScreenType` with `Desktop`, `Tablet` and `Mobile`) needs its media queries from you: name it in `breakpoints` with a default mode and a query per other mode, and `dta build` writes it as media blocks ([Outputs](/reference/outputs/#breakpoint-modes)). Without that section it is read, linted, diffed and pushed, and only resolves aliases in the build (through its first mode in alphabetical order).
-:::
-
-Every file and its format: [Outputs](/reference/outputs/).
+Every file: [Outputs](/reference/outputs/).
 
 ## Config
 
-The project config is `dta.config.ts` (also `.mts`, `.js`, `.mjs` or `.json`). Unknown keys are rejected, so a typo shows up as an error instead of being ignored:
+`dta.config.ts` (or `.js`, `.json`) says where the tokens are and what to build. `dta init` writes it; unknown keys are an error, so typos don't go unnoticed. `defineConfig` from `design-token-authority` adds editor completion.
 
 ```ts title="dta.config.ts"
-export default {
-  figma: { source: 'file' }, // 'api' on an Enterprise plan
+import { defineConfig } from 'design-token-authority'
+
+export default defineConfig({
   tokens: { dir: 'tokens' },
-  collections: ['Primitives', 'Brand(Alias)', 'ScreenType'], // default: all
   brands: ['BrandA', 'BrandB'],
-  breakpoints: {
-    collection: 'ScreenType',
-    default: 'Mobile', // on :root
-    modes: { Tablet: '(min-width: 768px)', Desktop: '(min-width: 1024px)' },
-  },
-  outputs: {
-    formats: ['css', 'tailwind-v4'], // default: all four ('tailwind-v3', 'js' too)
-    css: { outDir: 'output/css' },
-    tailwind: { outDir: 'output/tailwind' },
-  },
-  lint: { rules: { 'semantic-must-alias': { severity: 'error', collections: ['Brand(Alias)'] } } },
-}
+  outputs: { formats: ['css', 'tailwind-v4'] },
+})
 ```
 
-Once DTA is installed as a package, `defineConfig` from `design-token-authority` wraps the object for editor completion; it changes nothing else.
-
-Every key, with its type and default: [Configuration](/reference/configuration/). A `dta.config.json` can point `"$schema"` at [`/schemas/dta.config.schema.json`](/schemas/dta.config.schema.json) on this site for completion in editors.
+Every option: [Configuration](/reference/configuration/).
