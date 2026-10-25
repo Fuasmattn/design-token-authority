@@ -26,7 +26,14 @@ Found when TICKET-126 to 131 were checked against their criteria (2026-10-24). E
 - Links become `<SITE_URL>/<page>/#<section-anchor>`, one source of truth for the URL shared with the site.
 - `diff-problems.test.ts` checks that each linked page exists and that each section anchor matches a heading on it (Starlight's slug rule), including the page the test skips today (`reference/commands`, generated at site build).
 
-### 3. Small cleanups
+### 3. The comment headline says "approved"
+
+Found in the approval run of TICKET-129 (test repository, PR #2): after the label, the status turned green and the comment gained "Approved by @… for <sha>", but its headline still read "🟠 dta diff: changes to review". Maintainer decision (2026-10-24): the headline says approved.
+
+- `headline()` in `actions/lib/dta-diff.mjs` takes the approval into account: while the approval holds for the head commit (`approvedSha === sha`), the headline is a green "approved" one (marker and wording in line with the status, e.g. `✅ **dta diff: approved**`); the "Approved by @… for <sha>" line stays below it.
+- A new push (approval gone) or removing the label brings back "changes to review"; the hidden marker and state line are unchanged, so existing comments are still found and edited.
+
+### 4. Small cleanups
 
 - The no-browser problem says its fix twice (in the message and on the `Fix:` line); say it once, on `Fix:`.
 - One lockfile list: `base-build.ts` keeps its own copy of `LOCKFILES` and its own walk to the lockfile; use the detection from `io/detect.ts` (TICKET-126) so the two cannot drift.
@@ -37,6 +44,7 @@ Found when TICKET-126 to 131 were checked against their criteria (2026-10-24). E
 
 - [ ] Generated workflows pin `@v<version>`; `main` only when the version is unknown, with a note; examples and docs follow the chosen option; tests for both
 - [ ] Every `Docs:` link is a website URL with a working anchor; the test checks pages and anchors for every problem
+- [ ] The comment headline says approved while the approval holds for the head commit, and changes back on a new push or a removed label (tests in `actions/lib/dta-diff.test.ts`); the guide's "Approving changes" section matches
 - [ ] The no-browser fix appears once; one lockfile list; unknown errors reported with a fix and docs link
 - [ ] The missing tests above
 - [ ] Docs: the diff guide says which version the generated workflow pins and how re-running `dta init` updates it
