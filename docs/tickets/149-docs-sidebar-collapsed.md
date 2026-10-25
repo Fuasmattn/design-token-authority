@@ -4,7 +4,7 @@
 **Priority:** Low
 **Effort:** XS
 **Blocked by:** —
-**Status:** in review (2026-10-25)
+**Status:** done (2026-10-25)
 
 ## What to build
 

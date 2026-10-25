@@ -294,8 +294,8 @@ Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17, rev
 | [112](./112-landing-workflow-strip.md)          | Workflow strip below the hero; scenes in the same order                                      | Medium   | M      | —          | Done   |
 | [114](./114-site-polish-after-112-077.md)       | Site polish after 112 and 077 (strip label, nav current page, diagnostic links, scene order) | Low      | S      | 112, 077   | Done   |
 | [146](./146-icon-button-external-links.md)      | `IconButton`; GitHub and npm in the header and the phone menu                                | Low      | S      | —          | Done   |
-| [149](./149-docs-sidebar-collapsed.md)          | Docs sidebar groups collapsed by default, except Start                                       | Low      | XS     | —          | Review |
-| [150](./150-docs-no-ticket-numbers-quick-start.md) | Docs without ticket numbers; a true Quick start                                         | Medium   | S      | —          | Review |
+| [149](./149-docs-sidebar-collapsed.md)          | Docs sidebar groups collapsed by default, except Start                                       | Low      | XS     | —          | Done   |
+| [150](./150-docs-no-ticket-numbers-quick-start.md) | Docs without ticket numbers; a true Quick start                                         | Medium   | S      | —          | Done   |
 | [151](./151-lean-docs.md)                      | Lean docs: every page shorter, details one level down                                        | Medium   | L      | 150        | Done   |
 
 Order: 110 → 105 → 106 → 107 → 108 → 112 (done); 114 (done); 109 and 111 later.
