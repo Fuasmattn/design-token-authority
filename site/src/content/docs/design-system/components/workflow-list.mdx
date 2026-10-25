@@ -1,0 +1,28 @@
+---
+title: Workflow list
+description: The workflow as numbered steps grouped by where they happen; the pull request is one card.
+sidebar:
+  order: 8
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+The workflow at a glance, on the landing page under "How it works": a change is made on one side (Figma, a token file, an agent), `dta pull` carries it into the repository, and in the pull request it is checked, built, diffed and decided.
+
+<Examples component="workflow-list" />
+
+## Guidelines
+
+- **Three places, in order:** the change, the crossing (a dashed `rail` connector with `dta pull` as a [Command button](/design-system/components/command-button/)), and the pull request as one `bg-surface` card with a `border-default` hairline and a mono eyebrow in `action-text`.
+- **One row per step, always the same shape:** a mono number in a 28 px column, a one-word label in the title style, the command as plain mono text on the label's baseline, right-aligned, and one short line in `fg-muted` below. Rows in the card are separated by hairlines.
+- **Numbers:** step 1 is a 2 px `border-strong` box, because a person starts it; the steps in the card are plain `fg-muted` numerals. A step without a command (the person deciding) says "a person" in `action-text` instead.
+- **Blueprint, not the redline:** the `$` prompts in `action-bg`, the eyebrow and "a person" in `action-text`; nothing here has changed yet. Commands in the rows are not chips; the section explains, it does not install. The return line under the card says where a fix goes and carries `dta audit` as its one chip.
+- **Layout:** one column on a phone; from 960 px of container two columns, the change and the crossing left, the card right. No motion. Text pairs 7:1 in both themes.
+- Use this where the workflow is explained. A status view (which step is active) is a different component.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="WorkflowList" />

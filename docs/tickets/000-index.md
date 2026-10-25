@@ -211,39 +211,39 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 
 **Epic 8 — `dta diff`, token-aware visual regression ([spec](../specs/visual-diff.md))**
 
-| #                                        | Ticket                                              | Priority | Effort | Blocked by | Status      |
-| ---------------------------------------- | --------------------------------------------------- | -------- | ------ | ---------- | ----------- |
-| [080](./080-diff-token-change-set.md)    | `dta diff` tracer: token change set                 | High     | M      | 039        | Done        |
-| [081](./081-diff-stories-config.md)      | Stories adapter and the `diff` config section       | High     | S      | 070, 080   | Done        |
-| [082](./082-diff-dual-render-compare.md) | Render base and head in one run and compare         | High     | L      | 081        | Done        |
-| [083](./083-diff-attribution-spike.md)   | Spike: record which CSS variables each element uses | High     | S      | 082        | Done        |
-| [084](./084-diff-attribution.md)         | Explain visual changes by token                     | High     | L      | 083        | Done        |
-| [085](./085-diff-report.md)              | Review report in the Drafting Table design          | High     | M      | 084        | Done        |
-| [086](./086-diff-github.md)              | Publish hook and `dta diff` in pull requests        | High     | M      | 085        | Done        |
-| [087](./087-diff-dogfood-site.md)        | Guard the DTA website with `dta diff`               | Medium   | S      | 086        | Done        |
-| [088](./088-diff-retire-test-visual.md)  | Retire `test:visual`                                | Medium   | XS     | 082        | Done        |
-| [089](./089-diff-storybook-adapter.md)   | Storybook adapter for `dta diff`                    | Medium   | M      | 082        | Done        |
+| #                                        | Ticket                                              | Priority | Effort | Blocked by | Status |
+| ---------------------------------------- | --------------------------------------------------- | -------- | ------ | ---------- | ------ |
+| [080](./080-diff-token-change-set.md)    | `dta diff` tracer: token change set                 | High     | M      | 039        | Done   |
+| [081](./081-diff-stories-config.md)      | Stories adapter and the `diff` config section       | High     | S      | 070, 080   | Done   |
+| [082](./082-diff-dual-render-compare.md) | Render base and head in one run and compare         | High     | L      | 081        | Done   |
+| [083](./083-diff-attribution-spike.md)   | Spike: record which CSS variables each element uses | High     | S      | 082        | Done   |
+| [084](./084-diff-attribution.md)         | Explain visual changes by token                     | High     | L      | 083        | Done   |
+| [085](./085-diff-report.md)              | Review report in the Drafting Table design          | High     | M      | 084        | Done   |
+| [086](./086-diff-github.md)              | Publish hook and `dta diff` in pull requests        | High     | M      | 085        | Done   |
+| [087](./087-diff-dogfood-site.md)        | Guard the DTA website with `dta diff`               | Medium   | S      | 086        | Done   |
+| [088](./088-diff-retire-test-visual.md)  | Retire `test:visual`                                | Medium   | XS     | 082        | Done   |
+| [089](./089-diff-storybook-adapter.md)   | Storybook adapter for `dta diff`                    | Medium   | M      | 082        | Done   |
 
 **Follow-ups found while writing the docs (072)**
 
-| #                                             | Ticket                                                                 | Priority | Effort | Blocked by | Status    |
-| --------------------------------------------- | ---------------------------------------------------------------------- | -------- | ------ | ---------- | --------- |
-| [090](./090-first-npm-release.md)             | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | —          | Done      |
-| [091](./091-build-breakpoint-modes.md)        | Breakpoint modes in the build output                                   | Medium   | M      | —          | Done      |
-| [092](./092-lint-contrast-per-mode.md)        | `color-contrast` per mode, through aliases                             | Medium   | S      | —          | Done      |
-| [117](./117-css-prefix.md)                    | Make `outputs.css.prefix` work (or remove it)                          | Low      | M      | —          | Done      |
-| [118](./118-init-writes-output-formats.md)    | `dta init` writes `outputs.formats`                                    | Low      | S      | —          | Done      |
-| [119](./119-build-fails-on-broken-aliases.md) | `dta build` must not write broken CSS for dangling or circular aliases | High     | S      | —          | Done      |
-| [125](./125-audit-rank-breakpoint-values.md)  | `dta audit` / `token find` rank breakpoint-only matches lower          | Low      | S      | 091        | In review |
-| [139](./139-playground-e2e-races.md)          | Two playground e2e tests that fail now and then in CI                  | Medium   | S      | —          | In review |
-| [140](./140-security-baseline.md)             | Security baseline: SECURITY.md, dependency audit, current Node         | High     | S      | —          | Done      |
-| [141](./141-npm-trusted-publishing.md)        | Release with npm trusted publishing (OIDC), without an npm token       | High     | S      | 090        | Done      |
+| #                                               | Ticket                                                                 | Priority | Effort | Blocked by | Status    |
+| ----------------------------------------------- | ---------------------------------------------------------------------- | -------- | ------ | ---------- | --------- |
+| [090](./090-first-npm-release.md)               | First npm release (compiled CLI, `npx design-token-authority`)         | High     | M      | —          | Done      |
+| [091](./091-build-breakpoint-modes.md)          | Breakpoint modes in the build output                                   | Medium   | M      | —          | Done      |
+| [092](./092-lint-contrast-per-mode.md)          | `color-contrast` per mode, through aliases                             | Medium   | S      | —          | Done      |
+| [117](./117-css-prefix.md)                      | Make `outputs.css.prefix` work (or remove it)                          | Low      | M      | —          | Done      |
+| [118](./118-init-writes-output-formats.md)      | `dta init` writes `outputs.formats`                                    | Low      | S      | —          | Done      |
+| [119](./119-build-fails-on-broken-aliases.md)   | `dta build` must not write broken CSS for dangling or circular aliases | High     | S      | —          | Done      |
+| [125](./125-audit-rank-breakpoint-values.md)    | `dta audit` / `token find` rank breakpoint-only matches lower          | Low      | S      | 091        | In review |
+| [139](./139-playground-e2e-races.md)            | Two playground e2e tests that fail now and then in CI                  | Medium   | S      | —          | In review |
+| [140](./140-security-baseline.md)               | Security baseline: SECURITY.md, dependency audit, current Node         | High     | S      | —          | Done      |
+| [141](./141-npm-trusted-publishing.md)          | Release with npm trusted publishing (OIDC), without an npm token       | High     | S      | 090        | Done      |
 | [142](./142-diff-assets-branch-private-repo.md) | Assets-branch thumbnails in private repositories (split from 086)      | Low      | S      | 086        | Done      |
-| [143](./143-diff-workflow-action-versions.md) | `dta init` workflows: action versions that run on Node 24              | Medium   | S      | —          | Done      |
-| [144](./144-diff-comment-icon.md)             | DTA icon in the `dta diff` pull-request comment                        | Low      | S      | —          | Done      |
-| [145](./145-init-build-runs-dta-build-once.md) | `dta init --diff`: no second `dta build` when the build script runs it | Low      | XS     | —          | Done      |
-| [147](./147-audit-width-height-not-spacing.md) | `dta audit`: size tokens for widths and heights, not for paddings       | Medium   | M      | 146        | Done      |
-| [152](./152-node-floor-security.md)          | Require the patched Node.js 24 (October 2026 security release)        | High     | XS     | —          | Review    |
+| [143](./143-diff-workflow-action-versions.md)   | `dta init` workflows: action versions that run on Node 24              | Medium   | S      | —          | Done      |
+| [144](./144-diff-comment-icon.md)               | DTA icon in the `dta diff` pull-request comment                        | Low      | S      | —          | Done      |
+| [145](./145-init-build-runs-dta-build-once.md)  | `dta init --diff`: no second `dta build` when the build script runs it | Low      | XS     | —          | Done      |
+| [147](./147-audit-width-height-not-spacing.md)  | `dta audit`: size tokens for widths and heights, not for paddings      | Medium   | M      | 146        | Done      |
+| [152](./152-node-floor-security.md)             | Require the patched Node.js 24 (October 2026 security release)         | High     | XS     | —          | Review    |
 
 **Follow-ups found while writing Learn (073)**
 
@@ -282,22 +282,23 @@ Order: 100 → 101 → 102 → 103 → 104 (the audit section of the guide follo
 
 Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17, revised 2026-10-18). One story, quietly told: a hero on the gravity-well key visual, one change in four scenes with the Orbit Burger example, facts, final call; one surface, no grid, commands as copyable chips, AAA. Accepted prototype: `docs/specs/landing-redesign/prototypes/p17-page.html`.
 
-| #                                               | Ticket                                                                                       | Priority | Effort | Blocked by | Status |
-| ----------------------------------------------- | -------------------------------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| [110](./110-design-system-one-surface.md)       | Design system: one surface, the well's tokens, command chips, AAA                            | High     | M      | —          | Done   |
-| [105](./105-orbit-burger-example.md)            | Orbit Burger: example brand as a real token set and fixture                                  | High     | M      | —          | Done   |
-| [106](./106-landing-components.md)              | Design-system components for the redesigned landing page                                     | High     | M      | 110, 105   | Done   |
-| [107](./107-gravity-well.md)                    | `GravityWell` and `FloatingObjects`: the key visual                                          | High     | L      | 110, 106   | Done   |
-| [108](./108-landing-rebuild.md)                 | Rebuild the landing page                                                                     | High     | M      | 106, 107   | Done   |
-| [109](./109-diff-report-before-after.md)        | `dta diff` report: before/after with the change outlined                                     | Medium   | M      | 108        | Done   |
-| [123](./123-diff-report-refs-in-words.md)       | `dta diff` report: refs in words, commit hashes for both sides                               | Low      | S      | 109        | Done   |
-| [111](./111-diff-attribution-scoped-example.md) | `dta diff` attribution for the Orbit Burger example (scoped selectors)                       | Medium   | M      | 108        | Done   |
-| [112](./112-landing-workflow-strip.md)          | Workflow strip below the hero; scenes in the same order                                      | Medium   | M      | —          | Done   |
-| [114](./114-site-polish-after-112-077.md)       | Site polish after 112 and 077 (strip label, nav current page, diagnostic links, scene order) | Low      | S      | 112, 077   | Done   |
-| [146](./146-icon-button-external-links.md)      | `IconButton`; GitHub and npm in the header and the phone menu                                | Low      | S      | —          | Done   |
-| [149](./149-docs-sidebar-collapsed.md)          | Docs sidebar groups collapsed by default, except Start                                       | Low      | XS     | —          | Done   |
-| [150](./150-docs-no-ticket-numbers-quick-start.md) | Docs without ticket numbers; a true Quick start                                         | Medium   | S      | —          | Done   |
-| [151](./151-lean-docs.md)                      | Lean docs: every page shorter, details one level down                                        | Medium   | L      | 150        | Done   |
+| #                                                  | Ticket                                                                                       | Priority | Effort | Blocked by | Status      |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------- | -------- | ------ | ---------- | ----------- |
+| [110](./110-design-system-one-surface.md)          | Design system: one surface, the well's tokens, command chips, AAA                            | High     | M      | —          | Done        |
+| [105](./105-orbit-burger-example.md)               | Orbit Burger: example brand as a real token set and fixture                                  | High     | M      | —          | Done        |
+| [106](./106-landing-components.md)                 | Design-system components for the redesigned landing page                                     | High     | M      | 110, 105   | Done        |
+| [107](./107-gravity-well.md)                       | `GravityWell` and `FloatingObjects`: the key visual                                          | High     | L      | 110, 106   | Done        |
+| [108](./108-landing-rebuild.md)                    | Rebuild the landing page                                                                     | High     | M      | 106, 107   | Done        |
+| [109](./109-diff-report-before-after.md)           | `dta diff` report: before/after with the change outlined                                     | Medium   | M      | 108        | Done        |
+| [123](./123-diff-report-refs-in-words.md)          | `dta diff` report: refs in words, commit hashes for both sides                               | Low      | S      | 109        | Done        |
+| [111](./111-diff-attribution-scoped-example.md)    | `dta diff` attribution for the Orbit Burger example (scoped selectors)                       | Medium   | M      | 108        | Done        |
+| [112](./112-landing-workflow-strip.md)             | Workflow strip below the hero; scenes in the same order                                      | Medium   | M      | —          | Done        |
+| [114](./114-site-polish-after-112-077.md)          | Site polish after 112 and 077 (strip label, nav current page, diagnostic links, scene order) | Low      | S      | 112, 077   | Done        |
+| [146](./146-icon-button-external-links.md)         | `IconButton`; GitHub and npm in the header and the phone menu                                | Low      | S      | —          | Done        |
+| [149](./149-docs-sidebar-collapsed.md)             | Docs sidebar groups collapsed by default, except Start                                       | Low      | XS     | —          | Done        |
+| [150](./150-docs-no-ticket-numbers-quick-start.md) | Docs without ticket numbers; a true Quick start                                              | Medium   | S      | —          | Done        |
+| [151](./151-lean-docs.md)                          | Lean docs: every page shorter, details one level down                                        | Medium   | L      | 150        | Done        |
+| [153](./153-workflow-list.md)                      | Landing: the workflow as a numbered list grouped by place (`WorkflowList`)                   | Medium   | S      | 112        | In progress |
 
 Order: 110 → 105 → 106 → 107 → 108 → 112 (done); 114 (done); 109 and 111 later.
 
@@ -305,15 +306,15 @@ Order: 110 → 105 → 106 → 107 → 108 → 112 (done); 114 (done); 109 and 1
 
 Spec: [diff-zero-setup](../specs/diff-zero-setup.md) (approved 2026-10-21). From nine manual steps to two: `npm create dta`, then open a pull request. No new diff features; setup and robustness only.
 
-| #                                             | Ticket                                              | Priority | Effort | Blocked by    | Status    |
-| --------------------------------------------- | --------------------------------------------------- | -------- | ------ | ------------- | --------- |
-| [126](./126-diff-detect-project.md)           | Detect the project for `dta diff` setup             | High     | M      | —             | Done      |
-| [127](./127-diff-base-build-without-setup.md) | Base build without `diff.setup`                     | High     | M      | —             | Done      |
-| [128](./128-diff-stories-page-list.md)        | Stories as a page list                              | Medium   | S      | —             | Done      |
-| [129](./129-diff-one-workflow.md)             | One workflow file for private and team repositories | High     | M      | 090           | Done      |
-| [130](./130-diff-check-loud-failures.md)      | `dta diff --check` and loud failures                | High     | S      | —             | Done      |
-| [131](./131-init-diff-step.md)                | Init step for `dta diff`, re-runnable               | High     | M      | 126, 128, 129 | Done      |
-| [148](./148-diff-phase-11-follow-ups.md)      | Follow-ups: pinned action refs, docs links, cleanups | Medium   | M      | —             | Done      |
+| #                                             | Ticket                                               | Priority | Effort | Blocked by    | Status |
+| --------------------------------------------- | ---------------------------------------------------- | -------- | ------ | ------------- | ------ |
+| [126](./126-diff-detect-project.md)           | Detect the project for `dta diff` setup              | High     | M      | —             | Done   |
+| [127](./127-diff-base-build-without-setup.md) | Base build without `diff.setup`                      | High     | M      | —             | Done   |
+| [128](./128-diff-stories-page-list.md)        | Stories as a page list                               | Medium   | S      | —             | Done   |
+| [129](./129-diff-one-workflow.md)             | One workflow file for private and team repositories  | High     | M      | 090           | Done   |
+| [130](./130-diff-check-loud-failures.md)      | `dta diff --check` and loud failures                 | High     | S      | —             | Done   |
+| [131](./131-init-diff-step.md)                | Init step for `dta diff`, re-runnable                | High     | M      | 126, 128, 129 | Done   |
+| [148](./148-diff-phase-11-follow-ups.md)      | Follow-ups: pinned action refs, docs links, cleanups | Medium   | M      | —             | Done   |
 
 Order: 126, 127, 128 and 130 in parallel → 129 (after 090) → 131.
 

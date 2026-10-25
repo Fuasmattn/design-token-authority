@@ -53,6 +53,10 @@ Nothing numbered beyond the scene kickers. No FAQ, no cards, no "why trust it", 
 
 12. **The workflow at a glance (2026-10-19, maintainer).** Below the hero, one unnumbered strip shows the workflow as two sides meeting in a pull request: Change (Figma, token file or agent) → in the pull request: Check (`dta lint`) → Build (`dta build`) → Diff (`dta diff`) → Decide, and a fix goes back to whichever side caused it. It is the "How it works" anchor. The four scenes stay and follow the strip's order; the checks scene shows `dta lint` instead of `dta build` (scene order revised the same day, see the revision note of 2026-10-19). "Nothing numbered beyond the scene kickers" still holds. TICKET-112.
 
+## Revision note (2026-10-25): the strip is a numbered list grouped by place
+
+Maintainer decision on TICKET-153, after three drafts on the Design canvas: the workflow section (decision 12) is rebuilt as `WorkflowList`, one numbered row per step with the command on the label's baseline, grouped by where it happens: the change, the crossing (`dta pull`), and the pull request as one card. It is numbered and it is a card, so "nothing numbered beyond the scene kickers" and "no cards" no longer hold for this one section; the four scenes and the rest of the page are unchanged. The design system carries the rules (component _WorkflowList_, principle 6 "One rhythm per list").
+
 ## Revision note (2026-10-19): scenes follow the strip
 
 Maintainer decision on TICKET-114 item 5: scenes 02 and 03 swap, so the scene commands read in the strip's order (`dta pull` → `dta lint` → `dta diff` → `dta skill add`). Scene 02 is now the checks (lint, then every output rebuilt; nothing there needs a person), scene 03 the differences together with the decision: the approve action moved from the checks scene to the diff scene, under the one check that waits for a person (`dta diff` · changes to review), because what a person approves is the differences, by token. Kickers, headings and copy were rewritten to read in that order; the one blue surface on the page (decision 9) is still the approve action of scene 03. `landing.test.ts` checks the order against the strip.

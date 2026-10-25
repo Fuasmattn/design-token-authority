@@ -41,10 +41,11 @@ export const HERO = {
 }
 
 /**
- * The workflow at a glance, right below the hero (spec decision 12, TICKET-112): two sides
- * meeting in a pull request, unnumbered. The change is made on the design side (or in a file, or
- * by an agent), `dta pull` carries it across, and in the pull request it is checked, built,
- * diffed and decided. A fix goes back to whichever side caused it; there is no arrow back.
+ * The workflow at a glance, right below the hero (spec decision 12, revised 2026-10-25,
+ * TICKET-153): numbered rows grouped by where they happen. The change is made on the design side
+ * (or in a file, or by an agent), `dta pull` carries it across, and in the pull request, one card,
+ * it is checked, built, diffed and decided. A fix goes back to whichever side caused it; there is
+ * no arrow back.
  */
 export const WORKFLOW = {
   title: 'How it works',

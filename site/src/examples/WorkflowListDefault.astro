@@ -1,5 +1,5 @@
 ---
-import WorkflowRail from '../components/ds/WorkflowRail.astro'
+import WorkflowList from '../components/ds/WorkflowList.astro'
 
 interface Props {
   idPrefix: string
@@ -7,7 +7,7 @@ interface Props {
 const { idPrefix } = Astro.props
 ---
 
-<WorkflowRail
+<WorkflowList
   idPrefix={idPrefix}
   title="How it works"
   change={{

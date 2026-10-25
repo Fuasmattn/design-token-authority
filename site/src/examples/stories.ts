@@ -243,10 +243,10 @@ export const STORIES: readonly Story[] = [
     viewports: [DESKTOP],
   },
   {
-    component: 'workflow-rail',
+    component: 'workflow-list',
     variant: 'default',
-    title: 'Two sides meeting in a pull request',
-    example: 'WorkflowRailDefault',
+    title: 'Numbered steps grouped by place',
+    example: 'WorkflowListDefault',
     viewports: [DESKTOP, MOBILE],
   },
   {

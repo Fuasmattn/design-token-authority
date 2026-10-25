@@ -19,7 +19,7 @@ import GravityWell from '../components/ds/GravityWell.astro'
 import Scene from '../components/ds/Scene.astro'
 import Terminal from '../components/ds/Terminal.astro'
 import TokenRows from '../components/ds/TokenRows.astro'
-import WorkflowRail from '../components/ds/WorkflowRail.astro'
+import WorkflowList from '../components/ds/WorkflowList.astro'
 import {
   AGENT_RUN,
   APPROVE,
@@ -54,7 +54,7 @@ const [s1, s2, s3, s4] = SCENES
       </GravityWell>
 
       <div class="wrap how">
-        <WorkflowRail
+        <WorkflowList
           id="how"
           idPrefix="how"
           title={WORKFLOW.title}
