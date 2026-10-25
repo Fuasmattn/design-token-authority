@@ -5,22 +5,18 @@ sidebar:
   order: 3
 ---
 
-DTA reads and writes one JSON file per collection and mode. This page describes that format, lists ways to get your Figma variables into it, and explains which third-party exports DTA can convert for you.
+The files DTA reads and writes: one JSON file per collection and mode, in the [DTCG](https://tr.designtokens.org/format/) format.
 
 ## The format
 
-- File name: `{Collection}.{Mode}.json`, for example `Brand(Alias).BrandA.json`. The name is split at the **first** dot, so a collection name must not contain a dot; a mode name may.
-- A DTCG file `{Collection}.tokens` or `{Collection}.tokens.json` (for example `motion.tokens`) holds a collection with one mode, named `Value`. It must not repeat a collection and mode a per-mode file already holds. `*.resolver.json` files are not read as token files.
-- Content: [W3C Design Tokens (DTCG)](https://tr.designtokens.org/format/) groups and tokens.
-- Groups nest freely; the path of a token (`Colors/Brand/Primary` in Figma, `Colors.Brand.Primary` in files and aliases) is its variable name.
-- A token has a `$value` and a type: its own `$type`, or, if it has none, the type of the token its alias points to, or the `$type` of the closest group above it. Optionally `$description`, `$deprecated` (`true` or an explanation; groups pass it on, `false` on a token overrides that) and `$extensions`.
-- Names must not contain `{` or `}` (an error). A `.` in a name is a warning: DTA reads it, but DTCG 2025.10 does not allow it, so other tools may not.
-- A value that starts with `{` is an alias to another token: `{Colors.Foundation.Blue.500}`. Variable names are unique across all collections, so the alias carries no collection name.
-- A `$ref` (JSON Pointer) does the same as `{ "$ref": "#/Colors/Foundation/Blue/500/$value" }`, and can also point at a part of a value: `#/Colors/Blue/$value/components/0`. Only pointers into the token files (`#/…`) are read.
-- Aliases and `$ref` work for a whole value and for each part of a composite (a shadow's `color`, a typography's `fontSize`); `dta token get` lists them as the token's parts.
-- `$root` is a group's own token: `{color.accent.$root}`.
-- `$extends: "{button}"` on a group gives it the tokens of another group in the same file; a token of its own at the same path replaces the inherited one. Inherited tokens stay implicit when DTA writes the file back.
-- `$extensions["com.figma"]` holds Figma-only metadata that is kept when you push: `hiddenFromPublishing`, `scopes` and `codeSyntax` (`WEB`, `ANDROID`, `iOS`).
+- **File name:** `{Collection}.{Mode}.json`, for example `Brand.BrandA.json`. The name splits at the first dot, so a collection name has no dot.
+- **One-mode files:** `{Collection}.tokens` or `.tokens.json` hold a collection with the mode `Value`. Don't also keep a per-mode file for the same collection and mode.
+- **Groups** nest freely; a token's path (`Colors.Brand.Primary`) is its name, unique across all collections.
+- **A token** has a `$value` and a type: its own `$type`, else the type its alias points to, else the closest group's `$type`. Optional: `$description`, `$deprecated`, `$extensions`.
+- **Aliases:** `{Colors.Foundation.Blue.500}`, or a `$ref` JSON Pointer (`#/Colors/Blue/$value/components/0`), for a whole value or one part of a composite.
+- **`$root`** is a group's own token (`{color.accent.$root}`); **`$extends`** gives a group another group's tokens in the same file.
+- **Names** must not contain `{` or `}`; a `.` is a warning (DTCG 2025.10 doesn't allow it).
+- **`$extensions["com.figma"]`** (`hiddenFromPublishing`, `scopes`, `codeSyntax`) is kept when you push.
 
 ```json
 {
@@ -29,44 +25,34 @@ DTA reads and writes one JSON file per collection and mode. This page describes 
       "Primary": {
         "$type": "color",
         "$value": "{Colors.Foundation.Blue.500}",
-        "$description": "Primary brand color",
-        "$extensions": {
-          "com.figma": { "hiddenFromPublishing": false, "scopes": ["ALL_SCOPES"], "codeSyntax": {} }
-        }
+        "$description": "Primary brand color"
       }
     }
   }
 }
 ```
 
-A token that exists in several modes of a collection appears in several files with the same name and type.
-
 ### Types and values
 
-DTA reads the types of [DTCG 2025.10](https://www.designtokens.org/tr/2025.10/format/) and checks each value against its type, with an `invalid-value` error that names the rule. `string` and `boolean` are Figma variable types that DTCG does not have.
+DTA reads every [DTCG 2025.10](https://www.designtokens.org/tr/2025.10/format/) type and checks each value (`invalid-value`). An unknown type is an error. How each is built: [Outputs](/reference/outputs/#dtcg-202510-types); `dta push` skips what Figma can't hold (`not-pushable`).
 
-| Type                                                   | `$value`                                                                                                   |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| `color`                                                | `{ "colorSpace": "oklch", "components": [0.7, 0.15, 250], "alpha": 1, "hex": "#4ba3f7" }`, or a hex string |
-| `dimension`, `duration`                                | `{ "value": 16, "unit": "px" }` (`px`, `rem`; `ms`, `s`), or `"16px"` as in earlier drafts                 |
-| `fontFamily`, `fontWeight`                             | `"Inter"` or `["Inter", "sans-serif"]`; `700` or `"bold"`                                                  |
-| `cubicBezier`, `number`                                | `[0.5, 0, 1, 1]`; `1.5`                                                                                    |
-| `strokeStyle`, `border`, `transition`                  | the objects of the report; each part may be an alias                                                       |
-| `shadow`, `gradient`, `typography`                     | the objects (a shadow may be a list) of the report; each part may be an alias                              |
-| `string`, `boolean` (and `number`, `color` as strings) | any scalar, as Figma variables hold them                                                                   |
-
-A token of an unknown type is an error. `dta build` writes every type ([Outputs](/reference/outputs/#dtcg-202510-types)); `dta push` skips the ones Figma variables cannot hold, with a `not-pushable` warning.
+| Type                                                                      | `$value`                                                             |
+| ------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `color`                                                                   | `{ "colorSpace": "oklch", "components": [0.7, 0.15, 250] }` or a hex |
+| `dimension`, `duration`                                                   | `{ "value": 16, "unit": "px" }` (`px`, `rem`; `ms`, `s`) or `"16px"` |
+| `fontFamily`, `fontWeight`                                                | `"Inter"` or `["Inter", "sans-serif"]`; `700` or `"bold"`            |
+| `cubicBezier`, `number`                                                   | `[0.5, 0, 1, 1]`; `1.5`                                              |
+| `shadow`, `border`, `transition`, `typography`, `gradient`, `strokeStyle` | objects as in the DTCG format; each part may be an alias             |
+| `string`, `boolean`                                                       | any scalar, as Figma variables hold them (not in DTCG)               |
 
 ### Resolver documents
 
-A DTCG 2025.10 [resolver document](https://www.designtokens.org/tr/2025.10/resolver/) (`*.resolver.json`) in the tokens folder describes the token set instead of the file names: **sets** of token files, **modifiers** whose **contexts** (light and dark, brand A and B) change some tokens, and the **order** they apply in. When the folder has one, DTA reads it and the files it names, also in folders below (`sets/color.json`); `tokens.resolver` in the config names one when there are several.
+A DTCG [resolver document](https://www.designtokens.org/tr/2025.10/resolver/) (`*.resolver.json`) in the tokens folder describes the set instead of the file names: **sets** of files, **modifiers** with **contexts** (light and dark, brand A and B) and the order they apply in. `tokens.resolver` picks one when there are several.
 
 ```json title="tokens/app.resolver.json"
 {
   "version": "2025.10",
-  "sets": {
-    "core": { "sources": [{ "$ref": "sets/color.json" }, { "$ref": "sets/size.tokens" }] }
-  },
+  "sets": { "core": { "sources": [{ "$ref": "sets/color.json" }] } },
   "modifiers": {
     "theme": {
       "contexts": {
@@ -80,40 +66,31 @@ A DTCG 2025.10 [resolver document](https://www.designtokens.org/tr/2025.10/resol
 }
 ```
 
-- Every **set** becomes a collection with one mode, named after the set.
-- Every **modifier** becomes a collection with one mode per context, named after the modifier; it holds the tokens its contexts change, and `default` is the mode read when nothing selects one. `modifiers: { theme: 'dark' }` in the config reads another context by default.
-- Sources merge in order and the last one wins; aliases and `$extends` resolve after merging, so they reach across sets.
-- `dta build` writes one theme file per context of each modifier: `themes/theme-dark.css` with `[data-theme="dark"]` for a modifier `theme`. List a modifier's contexts in `brands` (`brands: ['a', 'b']`) to switch them with `data-brand` instead (`themes/b.css`).
-- Token files in the folder that the document does not name are reported (`not-in-resolver`) and not read. Errors follow the report's list, for example a modifier without contexts or a `default` that is not one of them.
-- A token that several modifiers change (a brand and a theme) goes into a collection for that combination, `theme × brand`, with one mode per combination of contexts (`dark × b`). Select it by modifier (`dta token get accent --mode theme=dark --mode brand=b`) or by combination. In CSS the modifiers combine freely and nest: [Brands and themes](/guides/brands-and-themes/#brands-and-themes-together).
+- A **set** becomes a collection with one mode; a **modifier** a collection with one mode per context.
+- Sources merge in order, the last one wins; aliases resolve after merging.
+- `dta build` writes one theme per context: `themes/theme-dark.css` on `[data-theme="dark"]`. List a modifier's contexts in `brands` to switch them with `data-brand` instead.
+- `modifiers: { theme: 'dark' }` in the config changes the default context.
+- Token files the document doesn't name are reported (`not-in-resolver`) and not read.
+- Several modifiers combine freely: [Brands and themes](/guides/brands-and-themes/#brands-and-themes-together).
 
 ### JSON Schema
 
-[`/schemas/token-file.schema.json`](/schemas/token-file.schema.json) describes one file (JSON Schema draft 2020-12; the source is [`docs/token-files/token-file.schema.json`](https://github.com/Fuasmattn/design-token-authority/blob/main/docs/token-files/token-file.schema.json) in the repository). Use it to validate files in your editor or in a script, or when you write your own exporter. It is generated from the Zod schema in `@dta/figma` with `pnpm run schema:generate`, and a test fails when it is out of date.
-
-The schema checks the shape only. `dta` additionally checks things a schema cannot, such as unknown alias targets, type mismatches between modes and duplicate variable names.
+[`/schemas/token-file.schema.json`](/schemas/token-file.schema.json) describes one file, for your editor or your own exporter. It checks the shape; `dta lint` checks the rest (alias targets, type mismatches, duplicate names).
 
 ## Getting your tokens into this format
 
-DTA does not depend on any particular tool for this. Pick what suits your Figma plan and workflow.
-
-| Way                                                           | Needs                       | Notes                                                                                                                  |
-| ------------------------------------------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Figma Variables REST API (`dta pull`)                         | Enterprise plan and a token | The supported path: always complete, keeps ids and metadata.                                                           |
-| A Figma plugin that exports variables, plus a conversion step | Any plan                    | Choose any exporter you trust. If its output is already per-mode DTCG, save it in the format above. If not, see below. |
-| Figma's native DTCG export/import                             | Rolling out gradually       | Planned to be read directly once available.                                                                            |
-| Writing the files yourself or from your own tooling           | Nothing                     | Validate with the JSON Schema above.                                                                                   |
+| Way                                    | Needs           |
+| -------------------------------------- | --------------- |
+| `dta pull` (Figma REST API)            | Enterprise plan |
+| A Figma plugin export, converted below | Any plan        |
+| Your own files or tooling              | Nothing         |
 
 ### Converting third-party exports
 
-Some exporters write one file with all modes of all collections. DTA can convert formats it knows through small adapters, listed in [`packages/figma/src/adapters/index.ts`](https://github.com/Fuasmattn/design-token-authority/blob/main/packages/figma/src/adapters/index.ts):
+`dta pull --from-file` converts known single-file exports:
 
-| Format      | Recognised by                             | Notes                                                                                                               |
-| ----------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `tokenhaus` | `$extensions.com.figma.modes` at the root | Single file, `$value` objects for multi-mode tokens. Best effort; kept for compatibility with earlier DTA versions. |
+| Format      | Recognised by                             |
+| ----------- | ----------------------------------------- |
+| `tokenhaus` | `$extensions.com.figma.modes` at the root |
 
-An adapter is one file and one line in that list; DTA works without it. Input in any other format is reported as unknown. If you rely on an exporter that is not listed, convert its output to the format above, or contribute an adapter with a fixture.
-
-Per-mode files that are already in the format above need no conversion: put them into your tokens directory under their `{Collection}.{Mode}.json` names.
-
-To check a file before you set anything up, drop it into the [playground](/playground/): it detects the format the same way `dta pull --from-file` does and shows the same diagnostics, in your browser. Its Outputs view builds the files `dta build` would write from it and lets you download them.
+Files already in the format above need no conversion. Anything else is reported as unknown: convert it yourself, or [contribute an adapter](/contribute/). The [playground](/playground/) checks a file in your browser the same way.

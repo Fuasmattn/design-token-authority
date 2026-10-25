@@ -5,7 +5,7 @@ sidebar:
   order: 5
 ---
 
-`dta lint` checks the token files in `tokens.dir`. A rule reports **errors** (exit code 2) or **warnings** (exit code 0, printed). `dta push` runs the same check before it changes Figma (`--skip-lint` skips it).
+What `dta lint` checks in the token files of `tokens.dir`. Errors exit with 2, warnings with 0. `dta push` runs the same check first (`--skip-lint` skips it).
 
 ## Always on
 
@@ -15,158 +15,47 @@ sidebar:
 | `no-circular-aliases`   | error    | Aliases that point at each other in a circle            |
 | `no-default-mode-names` | error    | Modes still called `Mode 1`, `Mode 2` (Figma's default) |
 
-One finding of each, on the `brand-ab-problems` fixture (the brand-ab tokens with three flaws; it is the [playground](/playground/)'s "Example with problems", which shows the same findings in your browser):
-
-```txt title="dta lint (test/fixtures/brand-ab-problems)"
-|  Brand(Alias).BrandB.json
-|
+```txt
 |    error Alias {Colors.Foundation.Sky.550} references non-existent token "Colors.Foundation.Sky.550" [no-dangling-aliases]
-|
-|  (unknown file)
-|
-|    error Circular alias chain: Brand(Alias).BrandA/Colors/Surface/Muted → Brand(Alias).BrandA/Colors/Text/Muted → Brand(Alias).BrandA/Colors/Surface/Muted [no-circular-aliases]
-|
-|  Primitives.Mode 1.json
-|
-|    error Mode name "Mode 1" is a Figma default — rename to something meaningful [no-default-mode-names]
-|
-|
-|  3 errors found.
-|
-—  Lint failed.
 ```
+
+The playground's "Example with problems" shows one finding of each.
 
 ### Broken aliases fail the build
 
-A dangling or a circular alias has no value, so `dta build` fails on the first two rules too: it prints the same message as `dta lint` (one error per alias and per cycle), writes no file at all and exits with 1. Files from an earlier build stay as they were, so the output folder is never half rebuilt. Fix the alias, then build again. On the same fixture:
-
-```txt title="dta build (test/fixtures/brand-ab-problems)"
-x  error [dangling-alias] Alias {Colors.Foundation.Sky.550} references non-existent token "Colors.Foundation.Sky.550". See site/src/content/docs/reference/lint-rules.mdx. (Brand(Alias).BrandB.json)
-|
-x  error [circular-alias] Circular alias chain: Brand(Alias).BrandA/Colors/Surface/Muted → Brand(Alias).BrandA/Colors/Text/Muted → Brand(Alias).BrandA/Colors/Surface/Muted. See site/src/content/docs/reference/lint-rules.mdx. (Brand(Alias).BrandA.json)
-|
-|  Nothing was written: fix the errors above and build again.
-|
-—  Build failed.
-```
-
-The playground's Outputs view shows these errors instead of files. A default mode name does not stop the build. Its Graph view draws them where they are: BrandB's dangling alias ends in a dashed "missing" row, BrandA's circular pair gets two error arcs, and the default mode name sits on the primitives' header; "Show in graph" on a finding leads there.
+A dangling or circular alias has no value, so `dta build` fails on it too: same message, exit code 1, and **no file is written**. Files from an earlier build stay as they were. A default mode name does not stop the build.
 
 ## Configurable
 
-Configured under `lint.rules`. A configured rule is a warning unless you set `severity: 'error'`; `'off'` disables it.
+Set under `lint.rules`. A configured rule is a warning unless you set `severity: 'error'`; `'off'` disables it.
 
-```ts title="dta.config.ts (the brand-ab fixture)"
+```ts title="dta.config.ts"
 lint: {
   rules: {
-    'semantic-must-alias': { severity: 'error', collections: ['Brand(Alias)', 'ScreenType'] },
-    'naming-pattern': { severity: 'warn', patterns: { 'Brand(Alias)': '^[A-Z][A-Za-z ]*$' } },
-    'color-contrast': {
-      severity: 'warn',
-      minRatio: 4.5,
-      pairs: [
-        ['Colors.Text.Default', 'Colors.Surface.Default'],
-        ['Colors.Text.On Primary', 'Colors.Brand.Primary'],
-        ['Colors.Text.Muted', 'Colors.Surface.Muted'],
-      ],
-    },
-    'no-duplicate-values': { severity: 'warn' },
+    'semantic-must-alias': { severity: 'error', collections: ['Brand'] },
+    'color-contrast': { pairs: [['Colors.Text.Default', 'Colors.Surface.Default']] },
   },
 },
 ```
 
-### `semantic-must-alias`
+| Rule                  | Fails or reports                                                  | Options                                                                             |
+| --------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `semantic-must-alias` | a token in the listed collections holds a raw value, not an alias | `collections`                                                                       |
+| `naming-pattern`      | a path segment doesn't match its collection's regular expression  | `patterns`: collection → regex                                                      |
+| `naming-case`         | a path segment isn't in its collection's case style               | `collections`: collection → `kebab-case`, `camelCase`, `PascalCase` or `snake_case` |
+| `naming-depth`        | a token path has fewer or more segments than allowed              | `collections`: collection → `{ min, max }`                                          |
+| `no-spaces`           | spaces in collection names or path segments                       | —                                                                                   |
+| `collection-pattern`  | a collection name doesn't match the regular expression            | `pattern` (not anchored: write `^…$` for the whole name)                            |
+| `color-contrast`      | a text and background pair is below the WCAG ratio                | `pairs`: `[foreground, background]`; `minRatio` (default 4.5)                       |
+| `no-duplicate-values` | a raw value appears more than once (one could be an alias)        | —                                                                                   |
 
-Every token in the listed `collections` must be an alias. Catches a semantic or brand token that holds a raw value and would no longer follow the palette.
+- **Naming rules:** scale steps (`700`, `0-5`, `2xl`) fit every case style; `$root` is not checked or counted. An invalid regular expression is a config error.
+- **`color-contrast`** checks each pair in every brand or mode it can differ in, through aliases, and names the mode in the finding. Colours outside sRGB are checked clipped (`contrast-clipped` warning). A pair that can't be resolved is skipped with a warning.
 
-```text
-Token has a raw value "#ffffff" but should be an alias in collection "Brand(Alias)"
-```
-
-### `naming-pattern`
-
-`patterns` maps a collection name to a regular expression; every segment of every token path in that collection must match it. An invalid expression is a config error.
-
-```text
-warn Token path segment "overlay" does not match pattern /^[A-Z][A-Za-z ]*$/ for collection "Brand(Alias)" [naming-pattern]
-```
-
-### `naming-case`
-
-`collections` maps a collection name to a case style: `kebab-case`, `camelCase`, `PascalCase` or `snake_case`. Every segment of every token path in that collection must be in it; a scale step (`700`, `0-5`, `1.5`, `2xl`) fits every style, and `$root` is not checked. A token in several modes is reported once. For other conventions, use `naming-pattern`.
-
-```ts
-'naming-case': { collections: { Primitives: 'camelCase' } },
-```
-
-```text
-warn Token path segment "Colors" is not camelCase (collection "Primitives") [naming-case]
-```
-
-### `naming-depth`
-
-`collections` maps a collection name to `{ min, max }` (one of them is enough): how many segments a token path has, without `$root`. `Colors.Brand.Primary` has 3.
-
-```ts
-'naming-depth': { collections: { 'Brand(Alias)': { max: 2 } } },
-```
-
-```text
-warn Token path has 3 segments, expected at most 2 (collection "Brand(Alias)") [naming-depth]
-```
-
-### `no-spaces`
-
-Reports spaces in collection names and token path segments. CSS variable names replace them, but other tools and future outputs may not.
-
-```text
-warn Token path segment "Primary Dark" contains a space [no-spaces]
-```
-
-### `collection-pattern`
-
-`pattern` is a regular expression every collection name must match; it is not anchored, so write `^…$` to match the whole name. A collection's problem is reported on its first mode file. An invalid expression is a config error.
-
-```ts
-'collection-pattern': { pattern: '^[A-Za-z]+$' },
-```
-
-```text
-warn Collection name "Brand(Alias)" does not match pattern /^[A-Za-z]+$/ [collection-pattern]
-```
-
-### `color-contrast`
-
-For each `[foreground, background]` pair, the WCAG contrast ratio must reach `minRatio` (default 4.5, level AA). Token names are written with dots or slashes. Colours in any DTCG colour space are converted to sRGB first; one outside sRGB is checked clipped to it, with a `contrast-clipped` warning that names the sRGB colour used.
-
-Each pair is checked in every mode it can differ in: both tokens are resolved through their aliases, and every multi-mode collection either alias chain passes through (each brand, light and dark, …) adds its modes. A brand text colour over a single-mode background is checked once per brand; a pair of primitives once, without a mode. The finding names the mode and sits under the file of that mode:
-
-```txt title="dta lint (test/fixtures/brand-ab)"
-|  Brand(Alias).BrandA.json
-|
+```txt
 |    warn Contrast ratio 4.39:1 between "Colors.Text.Muted" (#6b7280) and "Colors.Surface.Muted" (#f3f4f6) is below 4.5:1 in BrandA [color-contrast]
-|
-|  Brand(Alias).BrandB.json
-|
-|    warn Contrast ratio 4.39:1 between "Colors.Text.Muted" (#6b7280) and "Colors.Surface.Muted" (#f3f4f6) is below 4.5:1 in BrandB [color-contrast]
-```
-
-When several multi-mode collections are involved, the finding lists one mode of each (`in BrandA · Dark`). A pair that cannot be read (a name that is not a token, an alias that breaks in one mode, a value that is not a colour) is skipped where it fails, with a warning; the other modes are still checked. With a pair whose foreground does not exist:
-
-```txt title="dta lint (brand-ab, one more pair)"
-!  warning [contrast-unresolved] color-contrast: "Colors.Text.Link" does not resolve: There is no token "Colors.Text.Link". Pair "Colors.Text.Link" / "Colors.Surface.Default" skipped. See site/src/content/docs/reference/lint-rules.mdx.
-```
-
-The playground runs the default rules only, so it shows no contrast findings.
-
-### `no-duplicate-values`
-
-Reports raw values that appear more than once, across all collections and modes: a hint that one of them could be an alias.
-
-```text
-warn Duplicate value "8" — also defined in: Primitives.Value/Dimensions/spacing/2 [no-duplicate-values]
 ```
 
 ## `--fix`
 
-`dta lint --fix` is accepted but has no fixes yet; it says so and lints as usual.
+Accepted, but there are no fixes yet: it says so and lints as usual.

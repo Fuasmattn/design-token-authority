@@ -5,6 +5,8 @@ sidebar:
   order: 7
 ---
 
+What a `dta` exit code means, so scripts and CI can act on it.
+
 | Code | Meaning                                                                         |
 | ---- | ------------------------------------------------------------------------------- |
 | 0    | Success, also with lint warnings                                                |
@@ -28,4 +30,4 @@ sidebar:
 | `dta context`   | tokens folder missing or token files invalid; `--check`: `DESIGN.md` or the `AGENTS.md` block is missing or out of date                                                                             | the context file exists and was not written by `dta context` (it is left unchanged)                              |
 | `dta audit`     | hard-coded values that equal a token, not in the baseline                                                                                                                                           | a path not found; unknown `--format`; tokens folder missing or token files invalid; the baseline is not valid    |
 
-`dta diff --fail-on-change` exits 1 when stories changed in a way that needs a look (unexplained changes above the threshold, explained ones not yet approved, added or removed stories); without stories, on any token change. See [dta diff in pull requests](/guides/dta-diff-in-pull-requests/).
+`dta diff --fail-on-change` exits 1 when a story needs a look (unexplained, not yet approved, added or removed), or, without stories, on any token change.

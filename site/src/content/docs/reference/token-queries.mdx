@@ -5,13 +5,11 @@ sidebar:
   order: 6
 ---
 
-`dta token` answers questions about the token files without reading the JSON by hand: what a token resolves to in each brand or mode, which tokens have a value, which tokens exist. It reads the files in `tokens.dir`, resolves aliases like `dta build` does, and changes nothing. Coding agents use it to pick a token instead of writing a raw value; every option is in [Commands](/reference/commands/#dta-token-get).
-
-The output below is from the `brand-ab` test fixture.
+Look tokens up without reading the JSON: what a token resolves to, which token has a value, which tokens exist. Reads `tokens.dir`, changes nothing. Every option: [Commands](/reference/commands/#dta-token-get).
 
 ## dta token get
 
-The value and the alias chain in every mode combination the chain goes through, and the names to use in code (as `dta build` writes them).
+A token's value and alias chain per brand or mode, and its names in code.
 
 ```text
 $ dta token get Colors.Brand.Primary
@@ -24,11 +22,12 @@ Colors.Brand.Primary  color · Brand(Alias)
   Tailwind  --color-brand-primary
 ```
 
-`--mode Brand=BrandB` reads in one mode only (repeat it for several collections; the collection name may leave out a suffix in brackets). A token the build does not write, for example in a collection with no mode listed in `brands`, shows its values but no names for code. An unknown name exits with 1 and lists the closest names.
+- `--mode Brand=BrandB` reads one mode only; repeat it to pick a combination (`--mode theme=dark --mode brand=b`).
+- An unknown name exits with 1 and lists the closest names.
 
 ## dta token find
 
-Every token that resolves to a value. Tokens the build writes come first, and among them aliases (semantic and component tokens) before the primitive that holds the value: the first line is usually the one to use. With breakpoints, where the value holds counts before that (below).
+Every token that resolves to a value. The first line is usually the one to use: tokens the build writes come first, aliases before primitives.
 
 ```text
 $ dta token find '#003f8a'
@@ -36,33 +35,16 @@ $ dta token find '#003f8a'
 
   Colors.Brand.Primary Dark   BrandA      var(--colors-brand-primary-dark)
   Colors.Foundation.Blue.700  every mode  var(--colors-foundation-blue-700)
-
-Tokens the build writes come first, aliases (semantic tokens) before primitives: use the first that fits.
 ```
 
-Colours match in any case and as `rgb(…)`, in any colour space (`#4ba3f7` finds `oklch(0.7 0.15 250)`); `--near` also matches colours within about 2 % per channel. Numbers match with or without `px`; dimensions and durations with their unit (`0.2s` finds `200ms`), font weights as number or keyword, font families by their first name, other values by their text (`cubic-bezier(0.5, 0, 1, 1)`). `--type` limits the search to one token type. No match exits with 1.
-
-With [`breakpoints`](/reference/configuration/) in the config, where a token has the value counts first, for each brand on its own. Tokens that have it at every screen width come first, then those that have it at the default breakpoint, and last those that have it only at other breakpoints, with their media query. In code, one of those would change the page at the other widths. Brand modes do not count: a brand value is the same at every width.
-
-```text
-$ dta token find 16px
-5 tokens resolve to 16px:
-
-  Dimensions.spacing.4    every mode                                              var(--dimensions-spacing-4)
-  Typography.FontSize.md  every mode                                              var(--typography-fontsize-md)
-  Spacing.Gap             Desktop (min-width: 1024px)                             var(--spacing-gap)
-  Spacing.Padding         Tablet (min-width: 768px)                               var(--spacing-padding)
-  Typography.Body.Size    Desktop (min-width: 1024px), Tablet (min-width: 768px)  var(--typography-body-size)
-
-Tokens that have the value at every screen width come first, then tokens the build writes, aliases (semantic tokens) before primitives: use the first that fits.
-A token with a media query has the value only at those widths: in code it changes the page at the others.
-```
-
-`--format json` marks those matches with `"breakpoint": "default"` or `"other"`. [`dta audit`](/reference/commands/) ranks the same way and never suggests a token that has the value only at other breakpoints.
+- Colours match in any notation and colour space; `--near` also matches within about 2 % per channel.
+- Numbers with or without `px`, dimensions and durations with their unit (`0.2s` finds `200ms`).
+- `--type` limits the search to one token type. No match exits with 1.
+- With `breakpoints` in the config, tokens that have the value at every screen width come first; a token that has it only at some widths shows its media query. `dta audit` ranks the same way.
 
 ## dta token list
 
-Names with type and collection, sorted. `--collection`, `--type` and `--match` (a glob on the dot name: `*` within a segment, `**` across segments) filter the list.
+Names with type and collection. Filter with `--collection`, `--type` and `--match` (a glob: `*` within a segment, `**` across).
 
 ```text
 $ dta token list --match 'Colors.Text.*'
@@ -75,35 +57,4 @@ Colors.Text.On Primary  color  Brand(Alias)  (alias)
 
 ## JSON output
 
-`--format json` prints one object with `"schema": "dta.token/1"` and a `kind`: `token` (get), `unknown` (get, name not found, with `suggestions`), `matches` (find) or `list`. The JSON Schema is published at [`/schemas/dta.token.schema.json`](/schemas/dta.token.schema.json).
-
-```text
-$ dta token get Colors.Brand.Primary --format json
-{
-  "schema": "dta.token/1",
-  "kind": "token",
-  "name": "Colors.Brand.Primary",
-  "type": "color",
-  "collection": "Brand(Alias)",
-  "readings": [
-    {
-      "modes": {
-        "Brand(Alias)": "BrandA"
-      },
-      "raw": "{Colors.Foundation.Blue.500}",
-      "value": "#0057b8",
-      "chain": [
-        "Colors.Brand.Primary",
-        "Colors.Foundation.Blue.500"
-      ]
-    },
-    …
-  ],
-  "code": {
-    "css": "--colors-brand-primary",
-    "tailwind": "--color-brand-primary"
-  }
-}
-```
-
-`code` is missing for a token the build does not write. Exit codes: [Exit codes](/reference/exit-codes/).
+`--format json` prints one object with `"schema": "dta.token/1"` and a `kind`: `token`, `unknown` (with `suggestions`), `matches` or `list`. Schema: [`/schemas/dta.token.schema.json`](/schemas/dta.token.schema.json). `code` is missing for a token the build doesn't write.
