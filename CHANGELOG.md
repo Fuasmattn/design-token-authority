@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.1.0](https://github.com/Fuasmattn/design-token-authority/compare/v2.0.5...v2.1.0) (2026-10-25)
+
+### Features
+
+* **audit:** size tokens for widths and heights, not for paddings (TICKET-147) ([3124544](https://github.com/Fuasmattn/design-token-authority/commit/31245441400385f8f8294e52c555965d5ca44c13))
+* **site:** IconButton; GitHub and npm in the header and the phone menu (TICKET-146) ([790d7b2](https://github.com/Fuasmattn/design-token-authority/commit/790d7b2621715d98ee28bd89ce4f100c4602c564))
+
+### Bug Fixes
+
+* **init:** no second dta build when the build script runs it (TICKET-145) ([fe40afa](https://github.com/Fuasmattn/design-token-authority/commit/fe40afa839d44232172a5e93cea54341eafff7c9))
+
+### Documentation
+
+* assets-branch thumbnails do not load in private repositories (TICKET-142) ([5472d7e](https://github.com/Fuasmattn/design-token-authority/commit/5472d7e13f68bc91e5398eb3486ffbffbf80ced7))
+* **tickets:** add TICKET-147 (dta audit suggests width/height tokens for paddings) ([e4141f9](https://github.com/Fuasmattn/design-token-authority/commit/e4141f92bfd9c32980d61a425f2824ae4bf62281))
+* **tickets:** close TICKET-145 (CI green on 806c0fc) ([0988934](https://github.com/Fuasmattn/design-token-authority/commit/0988934695b72f4cba979980f556302903f98ef6))
+* **tickets:** close TICKET-146 (CI green on e4141f9) ([5ebdec1](https://github.com/Fuasmattn/design-token-authority/commit/5ebdec1c332429c31017c9480a557df1936e0669))
+* **tickets:** close TICKET-147 (CI green on 3124544) ([3bdd228](https://github.com/Fuasmattn/design-token-authority/commit/3bdd2287725092728e488cd4fae50a7c70611b63))
+
+### Tests
+
+* **site:** wait for the status focus before keyboard use after Load example (TICKET-139) ([806c0fc](https://github.com/Fuasmattn/design-token-authority/commit/806c0fcc337ca20b635eca0340412c0d0fd5bcb1))
+
 ## [2.0.5](https://github.com/Fuasmattn/design-token-authority/compare/v2.0.4...v2.0.5) (2026-10-24)
 
 ### Features

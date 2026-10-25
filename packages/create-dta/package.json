@@ -1,6 +1,6 @@
 {
   "name": "create-dta",
-  "version": "2.0.5",
+  "version": "2.1.0",
   "description": "npm create dta: set up Design Token Authority in a project (runs design-token-authority init)",
   "license": "MIT",
   "author": "Martin Preciado Prinz",
