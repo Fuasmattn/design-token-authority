@@ -4,6 +4,7 @@ import starlight from '@astrojs/starlight'
 import { defineConfig } from 'astro/config'
 import starlightLinksValidator from 'starlight-links-validator'
 import { CUSTOM_PAGES } from './custom-pages.mjs'
+import { SIDEBAR } from './sidebar.mjs'
 import { SITE_URL } from './site-url.mjs'
 
 export default defineConfig({
@@ -53,27 +54,7 @@ export default defineConfig({
       components: {
         ThemeProvider: './src/components/ThemeProvider.astro',
       },
-      sidebar: [
-        { label: 'Start', items: [{ autogenerate: { directory: 'start' } }] },
-        { label: 'Learn', items: [{ autogenerate: { directory: 'learn' } }] },
-        { label: 'Guides', items: [{ autogenerate: { directory: 'guides' } }] },
-        { label: 'Reference', items: [{ autogenerate: { directory: 'reference' } }] },
-        {
-          label: 'Design system',
-          items: [
-            { label: 'DTA Drafting Table', link: '/design-system/' },
-            { label: 'Motion', link: '/design-system/motion/' },
-            { label: 'Status colours', link: '/design-system/status-colours/' },
-            { label: 'Tokens', items: [{ autogenerate: { directory: 'design-system/tokens' } }] },
-            {
-              label: 'Components',
-              items: [{ autogenerate: { directory: 'design-system/components' } }],
-            },
-          ],
-        },
-        { label: 'Playground', link: '/playground/' },
-        { label: 'Contribute', items: [{ autogenerate: { directory: 'contribute' } }] },
-      ],
+      sidebar: SIDEBAR,
     }),
   ],
 })
