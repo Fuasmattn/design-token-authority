@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.3.0](https://github.com/Fuasmattn/design-token-authority/compare/v2.2.0...v2.3.0) (2026-10-25)
+
+### Features
+
+* **site:** docs sidebar groups collapsed by default, except Start (TICKET-149) ([cff5cb9](https://github.com/Fuasmattn/design-token-authority/commit/cff5cb953806b8d4f2a0b61c26017b2068709012))
+
+### Documentation
+
+* "Overview" in the sidebar for the Guides and Reference index pages ([58335f4](https://github.com/Fuasmattn/design-token-authority/commit/58335f4286f25efad8b9edf73677e1c91d1dc468))
+* lean Contribute page; close TICKET-151 ([9cf39af](https://github.com/Fuasmattn/design-token-authority/commit/9cf39afae47c467b87fd75be1849259ec754920d))
+* lean design system component pages (TICKET-151) ([9efff43](https://github.com/Fuasmattn/design-token-authority/commit/9efff43417ecab170a7a4865f4752c98cc7c18c9))
+* lean design system overview pages (TICKET-151) ([1316889](https://github.com/Fuasmattn/design-token-authority/commit/13168898a6c02347de5acc6b3bcfcbe2ef224baa))
+* lean guides; remove Migrating from v1 (TICKET-151) ([aa8259c](https://github.com/Fuasmattn/design-token-authority/commit/aa8259c4981638e7d10876fa728fe89cde8da42d))
+* lean reference pages (TICKET-151) ([297a593](https://github.com/Fuasmattn/design-token-authority/commit/297a593a5e1de690783f0fd0b13a105114e14d07))
+* lean Start pages (TICKET-151) ([337b3dc](https://github.com/Fuasmattn/design-token-authority/commit/337b3dc727e2d2a011e55ae44f3f5cfe4214738e))
+* Learn starts with what design tokens are; lean Learn pages (TICKET-151) ([737b2b8](https://github.com/Fuasmattn/design-token-authority/commit/737b2b87fef9cdb4e210c059e7710aad68c142b8))
+* no ticket numbers on the website; a one-command Quick start (TICKET-150) ([9d87370](https://github.com/Fuasmattn/design-token-authority/commit/9d873708ab76509aacc00bb4dae10bb8c5cf5fab))
+* **tickets:** close TICKET-149 and TICKET-150 (CI green) ([7417cf6](https://github.com/Fuasmattn/design-token-authority/commit/7417cf69787a68b5bc7c8d34e23f45406cedb945))
+
 ## [2.2.0](https://github.com/Fuasmattn/design-token-authority/compare/v2.1.0...v2.2.0) (2026-10-25)
 
 ### Features
