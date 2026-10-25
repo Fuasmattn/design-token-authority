@@ -22,7 +22,7 @@
     "cli"
   ],
   "engines": {
-    "node": ">=24.14.1"
+    "node": ">=24.22.1"
   },
   "type": "module",
   "exports": "./packages/cli/src/index.ts",

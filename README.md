@@ -6,7 +6,7 @@ DTA reads your design tokens as plain [DTCG](https://tr.designtokens.org/format/
 
 ## Quick start
 
-Node.js 24 or newer. In your project:
+Node.js 24.22.1 or newer. In your project:
 
 ```sh
 npm create dta                        # installs design-token-authority, then dta init

@@ -243,6 +243,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [144](./144-diff-comment-icon.md)             | DTA icon in the `dta diff` pull-request comment                        | Low      | S      | —          | Done      |
 | [145](./145-init-build-runs-dta-build-once.md) | `dta init --diff`: no second `dta build` when the build script runs it | Low      | XS     | —          | Done      |
 | [147](./147-audit-width-height-not-spacing.md) | `dta audit`: size tokens for widths and heights, not for paddings       | Medium   | M      | 146        | Done      |
+| [152](./152-node-floor-security.md)          | Require the patched Node.js 24 (October 2026 security release)        | High     | XS     | —          | Review    |
 
 **Follow-ups found while writing Learn (073)**
 
