@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** M
 **Blocked by:** 146
-**Status:** in review (2026-10-24)
+**Status:** done (2026-10-24)
 
 ## What to build
 
@@ -60,3 +60,4 @@ Teams that run `dta audit` in CI may see new findings after upgrading (widths an
 - `match.ts`: one `SCOPE_KINDS` table; unscoped tokens named `size`, `width`, `height` … are sizes unless the name says font size. `detect.ts`: size properties in CSS, JS objects and Tailwind; at-rule conditions blanked. Schema enum has `size`.
 - Snapshots unchanged; the guide's `brand-ab` example output is the same on a real run.
 - Site: the four `size.icon` paddings left the baseline by themselves (2 entries again). Of the 27 new findings, 18 now use tokens (17 touch targets → `size-target`, the burger glyph → `size-icon`); 9 only share a value (the logo's drawn squares, the diff card's numbered marker, the playground checkbox, the docs colour swatch, a story frame) and carry `dta-audit-ignore` with the reason.
+- Pushed in 3124544; CI green.
