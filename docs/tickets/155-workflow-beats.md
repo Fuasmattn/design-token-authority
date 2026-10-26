@@ -15,10 +15,10 @@ The numbered list of TICKET-153 was clean but still a list of five rows with com
 
 `Workflow` replaces `WorkflowList`:
 
-1. **Three beats on one line.** Eyebrow (where), title, two sentences; no commands, no numbers. A faint dotted `rail` line through three ring stations to an end dot labelled `Merged`; a label `changes · iterations` at the step back before the end. Stacked on phones, three columns from 960px.
+1. **Three beats on one line.** Eyebrow (where), title, two sentences; no commands, no numbers. A faint dotted `rail` line through three ring stations to an end dot labelled `Merged`; Stacked on phones, three columns from 960px.
 2. **The token.** The hero's cube (same markup, `well-object-*` tokens, hairline of the throat colour) travels the line once, with eight motes of `well-dust` (two as the hero's spheres) trailing it. While it waits at a station the dust gathers into a flat ring and turns (a loading state), then lets go. At the decision it steps back a third of the way and returns. At the end it turns blueprint; the end dot fills, gets a halo and a tick. Stations fill as the token passes and stay filled.
 3. **One run.** 28 s, started once when a third of the section is visible (`IntersectionObserver`), never looping; stations and the end are driven by the token's position along the path, not by timers. Positions are measured after layout (a polyline through the stations), so phone and desktop share one component. Under `prefers-reduced-motion` the finished picture is shown without a run.
-4. **Copy** in `content.ts` (`WORKFLOW`: title, kicker, beats, iterations, end). Headline for review: _Design changes, reviewed like code._
+4. **Copy** in `content.ts` (`WORKFLOW`: title, kicker, beats, end). Headline for review: _Design changes, reviewed like code._
 5. **Tests.** `landing.test.ts`: the beats carry no commands; the scene order checks stay. `components.test.ts`: tokens only, motion tokens for transitions. Stories `workflow--default` at both widths (the token at rest at the end, since the story is captured after the run or with reduced motion).
 
 Out of scope here: the scenes section (its own ticket, after the canvas round on the example grid).

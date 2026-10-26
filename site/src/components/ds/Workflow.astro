@@ -5,7 +5,7 @@
  * orange cube; dust from the hero trails it, gathers into a flat ring around it while it waits at
  * a station (a loading state), and lets go when it moves on. Stations fill as the token passes;
  * at the decision it steps back once (an iteration without a loop); at the end it turns
- * blueprint and the end dot gets its tick: merged.
+ * blueprint and the end dot gets its tick: merged. The step back carries no label.
  *
  * The run starts once, when the section scrolls into view, and never loops. Under
  * `prefers-reduced-motion` the finished picture is shown. The line is a polyline through the
@@ -27,8 +27,6 @@ interface Props {
   kicker?: string
   lede?: string
   beats: Beat[]
-  /** The label at the step back before the end. */
-  iterations: string
   /** The end state. */
   end: string
   /** Seconds for one run. */
@@ -41,7 +39,6 @@ const {
   kicker,
   lede,
   beats,
-  iterations,
   end,
   duration = 28,
   id,
@@ -74,17 +71,12 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2']
     </svg>
     <ol class="beats">
       {
-        beats.map((beat, index) => (
+        beats.map((beat) => (
           <li class="beat">
             <span class="station" data-station aria-hidden="true" />
             <span class="where">{beat.where}</span>
             <h3>{beat.title}</h3>
             <p>{beat.text}</p>
-            {index === beats.length - 1 && (
-              <span class="iterations" data-iterations>
-                {iterations}
-              </span>
-            )}
           </li>
         ))
       }
@@ -108,7 +100,6 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2']
     const halo = flow.querySelector<SVGCircleElement>('[data-halo]')!
     const tick = flow.querySelector<SVGPathElement>('[data-tick]')!
     const endLabel = flow.querySelector<HTMLElement>('[data-end-label]')!
-    const iterations = flow.querySelector<HTMLElement>('[data-iterations]')!
     const token = flow.querySelector<HTMLElement>('[data-token]')!
     const spin = flow.querySelector<HTMLElement>('[data-spin]')!
     const stations = [...flow.querySelectorAll<HTMLElement>('[data-station]')]
@@ -143,10 +134,6 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2']
         `M ${end.x - 3.5} ${end.y + 0.5} L ${end.x - 1} ${end.y + 3} L ${end.x + 3.5} ${end.y - 2.5}`,
       )
       endLabel.style.translate = row ? `${end.x - 10}px ${end.y + 16}px` : `${end.x + 32}px ${end.y - 8}px`
-      const iterBox = iterations.getBoundingClientRect()
-      iterations.style.translate = row
-        ? `${last.x + 60}px ${last.y - 28}px`
-        : `${last.x + 32}px ${(end.y + lastBeat.bottom - box.top) / 2 - iterBox.height / 2}px`
       total = path.getTotalLength()
       marks = centers.map((c) => {
         // position along the path: the first point of the polyline nearest the station
@@ -434,7 +421,6 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2']
     background: var(--border-strong);
   }
   .where,
-  .iterations,
   .end-label {
     font-family: var(--font-mono);
     font-size: calc(var(--type-meta-size) * 1px);
@@ -458,7 +444,6 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2']
     line-height: var(--type-body-line-height);
     color: var(--fg-muted);
   }
-  .iterations,
   .end-label {
     position: absolute;
     left: 0;

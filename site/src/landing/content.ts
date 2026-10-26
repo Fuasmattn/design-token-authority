@@ -65,7 +65,6 @@ export const WORKFLOW = {
       text: 'Signs the change off by token, or sends it back to whichever side caused it.',
     },
   ],
-  iterations: 'changes · iterations',
   end: 'Merged',
 }
 
