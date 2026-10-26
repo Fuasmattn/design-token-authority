@@ -36,7 +36,7 @@ export default function CopyButton({
   staticState,
 }: CopyButtonProps) {
   const [state, setState] = useState<'idle' | 'copied' | 'failed'>(staticState ?? 'idle')
-  const timer = useRef<ReturnType<typeof setTimeout>>()
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   useEffect(() => () => clearTimeout(timer.current), [])
 
   const done = (next: 'copied' | 'failed') => {
