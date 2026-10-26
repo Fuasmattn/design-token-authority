@@ -3,7 +3,7 @@
 **Phase:** 13 — Maintenance
 **Priority:** Medium
 **Effort:** S
-**Status:** open (needs the maintainer: the job logs need a GitHub login)
+**Status:** in review (2026-10-26), branch `158-ci-health`
 **Spec:** [maintenance](../specs/maintenance.md)
 
 ## Problem
@@ -20,8 +20,13 @@
 
 ## Acceptance criteria
 
-- [ ] Cause named in the notes, with the log lines
-- [ ] Fix plus a reproducing test; safety check of the spec green
-- [ ] CI green on Ubuntu 26, or the runner pinned with a reason
+- [x] Cause named in the notes (from the run timeline and the code; the logs need a login)
+- [x] Fix plus a reproducing test; safety check of the spec green
+- [ ] CI green on Ubuntu 26, or the runner pinned with a reason (the e2e job now prints its image as a notice; the maintainer reads it once)
 
 ## Notes
+
+Outcome (2026-10-26):
+
+1. **The failures are superseded reports, not errors.** Both red runs (03:59 and 13:22) came while the maintainer pushed to `153-workflow-list` every few minutes (03:35, 03:41, 03:48, 03:54, 03:58; 13:08, 13:12). Each push starts a `dta diff` run, and its report run lands minutes later; by then the pull request's head was already a newer commit. `resolvePullRequest` checked exactly that (`PR #N is at <new>, not <old>`), which is right: a status on an old commit or a comment over the newer report would mislead. But it threw, so the job went red for a report nobody needed. 15 of 17 report runs passed; the 2 failures fit this pattern exactly. Now `report` returns `{ superseded: true, status: { state: 'superseded' } }`, logs why, posts nothing and exits 0; the action's `state` output documents the new value. Test: "ends quietly when the pull request has moved past the reported commit" against the in-memory GitHub (no status, no comment, no write). Smoke-tested the script entry point against a local fake API: exit 0, `state=superseded`.
+2. **Ubuntu 26.** The job logs need a login, so which image today's green runs used is not visible from outside. The `diff-e2e` job now prints `ImageOS ImageVersion` and the release as a notice on the run summary; one look at the next run answers it. If the screenshots ever differ from the Ubuntu 24 ones, pin `runs-on: ubuntu-24.04` and open a follow-up.

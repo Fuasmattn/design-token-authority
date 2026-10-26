@@ -68,6 +68,8 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Runner image (ubuntu-latest moves to Ubuntu 26 from 2026-10-19; the screenshots depend on it)
+        run: echo "::notice title=Runner image::$ImageOS $ImageVersion ($(lsb_release -ds 2>/dev/null || cat /etc/os-release | head -1))"
       - name: Install Chromium for dta diff
         run: pnpm --filter @dta/cli exec playwright-core install --with-deps chromium
       - name: dta diff end to end (two commits of a fixture site, real screenshots)
