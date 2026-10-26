@@ -16,7 +16,7 @@ The landing page's key visual: a gravity well drawn on a canvas across the secti
 
 - **Colours:** mesh lines `well-line`, darkening to `well-throat` toward the mouth; the mouth `well-mouth` with a `well-glow` rim; cells painted opaque in `bg-canvas`. Orbit rings dashed in `border-default` (outer) and `well-glow` (inner); objects in the `well-object-*` triples, `well-highlight` and `well-dust`.
 - **Props:** `tilt` (40, 52, 64), `size` (S, L), `offset` (x and y, % of the section), `position` (A: well right of the copy, B: left). The landing page uses the defaults.
-- **Motion:** animates only while the page is visible, with a slight scroll parallax. Under reduced motion, or with `still`, it draws one frame and stops.
+- **Motion:** animates only while the page is visible, with a slight scroll parallax (mesh and objects together). On the way down the objects and the dust fall into the funnel: over the first 90 % of the section's height the orbit groups slide down the drawn surface to just above the throat, with a swirl in the orbit plane, and hold there; the dust fades. Under reduced motion, or with `still`, it draws one frame and stops, and nothing falls.
 - **Accessibility:** the canvas is `aria-hidden`; the copy carries the meaning.
 - **Layout:** copy left, well right on desktop; on phones the well sits above the copy and the section is clipped, so nothing scrolls sideways.
 - Objects stay hidden until their orbits are placed, so screenshots are stable for `dta diff`.
