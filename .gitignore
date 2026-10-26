@@ -42,3 +42,6 @@ __pycache__/
 
 # Playwright run state
 test-results/
+
+# Vitest coverage report (pnpm test:coverage)
+coverage/
