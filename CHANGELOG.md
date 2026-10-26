@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.4.1](https://github.com/Fuasmattn/design-token-authority/compare/v2.3.0...v2.4.1) (2026-10-26)
+
+### Features
+
+* **site:** landing without a commands section; reference link on the checks beat (TICKET-169) ([#37](https://github.com/Fuasmattn/design-token-authority/issues/37)) ([cdd43a8](https://github.com/Fuasmattn/design-token-authority/commit/cdd43a83db9c266d9df629c7aed4df588666ebd7))
+* **site:** landing without the scenes, with a commands grid (TICKET-168) ([#35](https://github.com/Fuasmattn/design-token-authority/issues/35)) ([cab0281](https://github.com/Fuasmattn/design-token-authority/commit/cab0281e0003880cb0753a9845ed682131bc3fad))
+
+### Bug Fixes
+
+* **security:** require Node.js 24.22.1 (TICKET-152) ([266ebcc](https://github.com/Fuasmattn/design-token-authority/commit/266ebccc298f27a42e0238b1ae94fc4abfd3fb1d))
+
+### Documentation
+
+* move agent instructions to a short AGENTS.md ([ba1a0f7](https://github.com/Fuasmattn/design-token-authority/commit/ba1a0f7f0f7133ea088ddee38d51dcbb88c261e6))
+* **tickets:** close 024, rewrite 032 as a native-export check, 029 not planned ([978fe31](https://github.com/Fuasmattn/design-token-authority/commit/978fe31c1a3c3808c8894930cae8a47da1a22804))
+* **tickets:** mark in-review tickets and 155 as done ([6463966](https://github.com/Fuasmattn/design-token-authority/commit/6463966f8053e453af07fc37d8abb079e646fb65)), closes [#32](https://github.com/Fuasmattn/design-token-authority/issues/32)
+* **tickets:** Phase 13 maintenance spec and tickets 156–167 ([0aec89e](https://github.com/Fuasmattn/design-token-authority/commit/0aec89ee8ea24ae95a9bdab2157539bd9d144c8c))
+
 ## [2.3.0](https://github.com/Fuasmattn/design-token-authority/compare/v2.2.0...v2.3.0) (2026-10-25)
 
 ### Features

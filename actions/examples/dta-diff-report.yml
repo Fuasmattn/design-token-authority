@@ -21,7 +21,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - uses: Fuasmattn/design-token-authority/actions/diff-report@v2.3.0
+      - uses: Fuasmattn/design-token-authority/actions/diff-report@v2.4.1
         with:
           # Publish only reports of branches in this repository: a fork's report is untrusted HTML.
           publish: "${{ github.event.workflow_run.head_repository.full_name == github.repository && 'sh .github/dta-diff-publish.sh' || '' }}"
