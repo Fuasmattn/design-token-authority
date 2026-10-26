@@ -3,7 +3,8 @@
  * The workflow at a glance (TICKET-155): three beats on one faint line — where design happens,
  * in the pull request, the decision — and the token travelling it once. The token is the hero's
  * orange cube; it breathes a little while it waits at a station. Dust from the hero flows along
- * the line on its own, each mote at its own pace, for as long as the page is open. Stations fill
+ * the line on its own, each mote at its own pace, for as long as the page is open, and bends toward
+ * the token when it passes near it, as the hero's objects bend toward the well. Stations fill
  * as the token passes; at the decision it steps back once (an iteration without a loop); at the
  * end the end dot fills and gets its tick: merged. The step back carries no label.
  *
@@ -163,13 +164,33 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2', 'd2', 'd', 'd2', 'd2'
       side: (k % 3 - 1) * 5,
     }))
     let flowing = false
+    // The token pulls the dust that comes near it, like the well pulls the objects in the hero:
+    // within `PULL` px a mote bends toward the token, strongest close in, and never quite reaches it.
+    const PULL = 56
+    let tokenAt: { x: number; y: number } | null = null
     const placeDust = (dt: number) => {
       for (const m of motes) {
         m.at = (m.at + m.speed * dt) % 1
         const q = path.getPointAtLength(m.at * total)
         const sway = Math.sin(m.at * Math.PI * 6 + m.phase) * m.sway
-        const x = row ? q.x : q.x + sway + m.side
-        const y = row ? q.y + sway + m.side : q.y
+        let x = row ? q.x : q.x + sway + m.side
+        let y = row ? q.y + sway + m.side : q.y
+        if (tokenAt) {
+          const dx = tokenAt.x - x
+          const dy = tokenAt.y - y
+          const d = Math.hypot(dx, dy)
+          if (d < PULL && d > 0) {
+            const k = (1 - d / PULL) ** 2 * 0.7
+            x += dx * k
+            y += dy * k
+            // keep a small clearance around the cube
+            const nd = Math.hypot(tokenAt.x - x, tokenAt.y - y)
+            if (nd < 12) {
+              x = tokenAt.x - ((tokenAt.x - x) / nd) * 12
+              y = tokenAt.y - ((tokenAt.y - y) / nd) * 12
+            }
+          }
+        }
         const fade = Math.min(1, m.at * 12, (1 - m.at) * 12)
         m.el.style.opacity = String(0.8 * fade)
         m.el.style.transform = `translate(${x}px, ${y}px)`
@@ -192,6 +213,7 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2', 'd2', 'd', 'd2', 'd2'
       stations.forEach((s) => s.classList.add('passed'))
       flow.classList.add('done')
       const p = path.getPointAtLength(total)
+      tokenAt = { x: p.x, y: p.y }
       token.style.opacity = '1'
       token.style.transform = `translate(${p.x}px, ${p.y}px)`
     }
@@ -250,6 +272,7 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2', 'd2', 'd', 'd2', 'd2'
           // on the move it turns; at a station it slows and breathes a little
           const rate = g.moving ? 1 : 0.15
           const breath = g.moving ? 0 : Math.sin(((now - t0) / 1000) * Math.PI * 0.5) * 0.05
+          tokenAt = { x: p.x, y: p.y }
           token.style.transform = `translate(${p.x}px, ${p.y}px) scale(${1 + breath})`
           ang += rate * 0.7
           spin.style.transform = `rotateX(${ang}deg) rotateY(${ang * 1.5}deg)`
