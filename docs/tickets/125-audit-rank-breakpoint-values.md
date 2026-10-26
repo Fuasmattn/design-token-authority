@@ -4,7 +4,7 @@
 **Priority:** Low
 **Effort:** S
 **Blocked by:** 091
-**Status:** in review
+**Status:** done (2026-10-26)
 
 ## Problem
 

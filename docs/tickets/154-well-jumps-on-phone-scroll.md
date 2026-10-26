@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** XS
 **Blocked by:** —
-**Status:** in review (2026-10-25, on the TICKET-153 branch)
+**Status:** done (2026-10-26)
 
 ## Problem
 

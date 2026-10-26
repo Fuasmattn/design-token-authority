@@ -3,7 +3,7 @@
 **Phase:** 7 — AI Interop
 **Priority:** Medium
 **Effort:** S
-**Status:** in review
+**Status:** done (2026-10-26)
 
 ## Summary
 

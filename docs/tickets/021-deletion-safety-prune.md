@@ -3,7 +3,7 @@
 **Phase:** 5 — Quality & Validation
 **Priority:** Low
 **Effort:** M
-**Status:** in review
+**Status:** done (2026-10-26)
 
 ## Summary
 

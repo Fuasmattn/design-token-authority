@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** M
 **Blocked by:** 153 (superseded by this)
-**Status:** in progress (2026-10-25), on the `153-workflow-list` branch
+**Status:** done (2026-10-26), merged in PR #32
 **Spec:** [landing-redesign](../specs/landing-redesign.md) (decision 12, revision 2026-10-25); design canvas "DTA Workflow Section Alternatives", boards T3 → LB6
 
 ## Problem

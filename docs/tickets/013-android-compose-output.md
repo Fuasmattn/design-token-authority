@@ -3,7 +3,7 @@
 **Phase:** 3 — Output Targets
 **Priority:** Low
 **Effort:** M
-**Status:** in review
+**Status:** done (2026-10-26)
 
 ## Summary
 

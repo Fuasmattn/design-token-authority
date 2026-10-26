@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** S
 **Blocked by:** —
-**Status:** in review
+**Status:** done (2026-10-26)
 
 ## Problem
 

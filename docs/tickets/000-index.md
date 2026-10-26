@@ -42,9 +42,9 @@ Add output formats for web and mobile development.
 | [009](./009-tailwind-v3-output.md)                 | Tailwind v3 theme output                            | High     | M      | **Done**  |
 | [010](./010-tailwind-v4-output.md)                 | Tailwind v4 @theme CSS output                       | Medium   | S      | **Done**  |
 | [026](./026-per-brand-build-and-tailwind-theme.md) | Per-brand build output + Tailwind theme integration | High     | M      | **Done**  |
-| [011](./011-ios-swift-output.md)                   | iOS Swift output (Color, CGFloat, Font)             | Medium   | M      | In review |
-| [012](./012-android-xml-output.md)                 | Android XML resources (colors.xml, dimens.xml)      | Medium   | M      | In review |
-| [013](./013-android-compose-output.md)             | Android Jetpack Compose output (Kotlin)             | Low      | M      | In review |
+| [011](./011-ios-swift-output.md)                   | iOS Swift output (Color, CGFloat, Font)             | Medium   | M      | **Done**  |
+| [012](./012-android-xml-output.md)                 | Android XML resources (colors.xml, dimens.xml)      | Medium   | M      | **Done**  |
+| [013](./013-android-compose-output.md)             | Android Jetpack Compose output (Kotlin)             | Low      | M      | **Done**  |
 
 ---
 
@@ -68,9 +68,9 @@ Plausibility checks, linting, and guardrails.
 | #                                             | Ticket                                   | Priority | Effort | Status    |
 | --------------------------------------------- | ---------------------------------------- | -------- | ------ | --------- |
 | [018](./018-token-linter.md)                  | Token linter with configurable rules     | High     | L      | **Done**  |
-| [019](./019-naming-convention-enforcement.md) | Naming convention rules (extends linter) | Medium   | S      | In review |
+| [019](./019-naming-convention-enforcement.md) | Naming convention rules (extends linter) | Medium   | S      | **Done**  |
 | [020](./020-sync-diff-report.md)              | Human-readable diff report on push/sync  | Medium   | S      | **Done**  |
-| [021](./021-deletion-safety-prune.md)         | `dta prune` for orphaned variables       | Low      | M      | In review |
+| [021](./021-deletion-safety-prune.md)         | `dta prune` for orphaned variables       | Low      | M      | **Done**  |
 
 **018 first; 019 is an extension of 018. 020 and 021 are independent.**
 
@@ -99,7 +99,7 @@ Figma and the design/coding AI tools will not build themselves.
 | [028](./028-design-md-generator.md)         | `DESIGN.md` / `AGENTS.md` generator for AI coding agents    | **High** | M      | Replaced by 102                           |
 | [029](./029-mcp-server.md)                  | MCP server exposing token graph to AI tools                 | **High** | M      | Deferred (agent-interop spec, decision 1) |
 | [030](./030-ai-code-audit.md)               | `dta audit` — detect hardcoded values in AI-generated code  | **High** | M      | Replaced by 103                           |
-| [031](./031-ai-design-brief-export.md)      | Brand brief export for AI design generators (Stitch, v0, …) | Medium   | S      | In review                                 |
+| [031](./031-ai-design-brief-export.md)      | Brand brief export for AI design generators (Stitch, v0, …) | Medium   | S      | **Done**  |
 | [032](./032-native-figma-dtcg-migration.md) | Migrate to Figma's native W3C DTCG export/import            | Medium   | M      | Open                                      |
 
 **Recommended order:** 028 first (static context is the cheapest win and unblocks 031). 029 next (biggest leverage; turns the tool into a live authority). 030 alongside or after 029 — they reinforce each other. 031 is light and can slot in any time. 032 is a tracking/long-running ticket paced by Figma.
@@ -207,7 +207,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [113](./113-playground-example-with-findings.md) | Playground: an example that shows findings                                  | Medium   | S      | 077        | Done      |
 | [122](./122-example-colours-off-system.md)       | Example content never uses the system colours                               | Medium   | L      | 121        | Done      |
 | [121](./121-playground-status-polish.md)         | Polish: path breaks, selected finding marker, CopyButton, review colour     | Low      | S      | 120        | Done      |
-| [124](./124-playground-first-load-budget.md)     | Playground first load: analysis engine lazy, budgets split                  | Medium   | S      | —          | In review |
+| [124](./124-playground-first-load-budget.md)     | Playground first load: analysis engine lazy, budgets split                  | Medium   | S      | —          | Done      |
 
 **Epic 8 — `dta diff`, token-aware visual regression ([spec](../specs/visual-diff.md))**
 
@@ -234,8 +234,8 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [117](./117-css-prefix.md)                      | Make `outputs.css.prefix` work (or remove it)                          | Low      | M      | —          | Done      |
 | [118](./118-init-writes-output-formats.md)      | `dta init` writes `outputs.formats`                                    | Low      | S      | —          | Done      |
 | [119](./119-build-fails-on-broken-aliases.md)   | `dta build` must not write broken CSS for dangling or circular aliases | High     | S      | —          | Done      |
-| [125](./125-audit-rank-breakpoint-values.md)    | `dta audit` / `token find` rank breakpoint-only matches lower          | Low      | S      | 091        | In review |
-| [139](./139-playground-e2e-races.md)            | Two playground e2e tests that fail now and then in CI                  | Medium   | S      | —          | In review |
+| [125](./125-audit-rank-breakpoint-values.md)    | `dta audit` / `token find` rank breakpoint-only matches lower          | Low      | S      | 091        | Done      |
+| [139](./139-playground-e2e-races.md)            | Two playground e2e tests that fail now and then in CI                  | Medium   | S      | —          | Done      |
 | [140](./140-security-baseline.md)               | Security baseline: SECURITY.md, dependency audit, current Node         | High     | S      | —          | Done      |
 | [141](./141-npm-trusted-publishing.md)          | Release with npm trusted publishing (OIDC), without an npm token       | High     | S      | 090        | Done      |
 | [142](./142-diff-assets-branch-private-repo.md) | Assets-branch thumbnails in private repositories (split from 086)      | Low      | S      | 086        | Done      |
@@ -243,7 +243,7 @@ Strangler rewrite into `@dta/*` packages behind one CLI. See the [spec](../specs
 | [144](./144-diff-comment-icon.md)               | DTA icon in the `dta diff` pull-request comment                        | Low      | S      | —          | Done      |
 | [145](./145-init-build-runs-dta-build-once.md)  | `dta init --diff`: no second `dta build` when the build script runs it | Low      | XS     | —          | Done      |
 | [147](./147-audit-width-height-not-spacing.md)  | `dta audit`: size tokens for widths and heights, not for paddings      | Medium   | M      | 146        | Done      |
-| [152](./152-node-floor-security.md)             | Require the patched Node.js 24 (October 2026 security release)         | High     | XS     | —          | Review    |
+| [152](./152-node-floor-security.md)             | Require the patched Node.js 24 (October 2026 security release)         | High     | XS     | —          | Done      |
 
 **Follow-ups found while writing Learn (073)**
 
@@ -299,8 +299,8 @@ Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17, rev
 | [150](./150-docs-no-ticket-numbers-quick-start.md) | Docs without ticket numbers; a true Quick start                                              | Medium   | S      | —          | Done        |
 | [151](./151-lean-docs.md)                          | Lean docs: every page shorter, details one level down                                        | Medium   | L      | 150        | Done        |
 | [153](./153-workflow-list.md)                      | Landing: the workflow as a numbered list grouped by place (`WorkflowList`)                   | Medium   | S      | 112        | Superseded  |
-| [155](./155-workflow-beats.md)                     | Landing: the workflow as three beats on a line, the hero's token travelling it (`Workflow`)  | Medium   | M      | 153        | In progress |
-| [154](./154-well-jumps-on-phone-scroll.md)         | Gravity well flashes and jumps while scrolling on phones                                     | Medium   | XS     | —          | Review      |
+| [155](./155-workflow-beats.md)                     | Landing: the workflow as three beats on a line, the hero's token travelling it (`Workflow`)  | Medium   | M      | 153        | Done        |
+| [154](./154-well-jumps-on-phone-scroll.md)         | Gravity well flashes and jumps while scrolling on phones                                     | Medium   | XS     | —          | Done      |
 
 Order: 110 → 105 → 106 → 107 → 108 → 112 (done); 114 (done); 109 and 111 later.
 
