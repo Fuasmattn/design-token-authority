@@ -20,7 +20,7 @@ import { codeNames, type CodeNames } from '../code-names.js'
 import { readTokenDir, TokenDirError, tokenParseOptions } from '../io/token-dir.js'
 
 /** Version of the JSON shapes `dta token … --format json` prints (schema on the website). */
-export const TOKEN_JSON_SCHEMA = 'dta.token/1'
+const TOKEN_JSON_SCHEMA = 'dta.token/1'
 
 /** Exit code for a usage error: a bad option value, an unknown collection or mode. */
 const EXIT_USAGE = 2
@@ -69,10 +69,7 @@ function type(context: CommandContext): TokenType | undefined {
 }
 
 /** `--mode Brand=BrandB` → `{ 'Brand(Alias)': 'BrandB' }`; collection names match loosely. */
-export function parseModeSelection(
-  model: TokenModel,
-  values: readonly string[],
-): Record<string, string> {
+function parseModeSelection(model: TokenModel, values: readonly string[]): Record<string, string> {
   const selection: Record<string, string> = {}
   const names = model.collections.map((collection) => collection.name)
   for (const value of values) {

@@ -5,8 +5,6 @@ import { isLegacyValue, isTokenType, TOKEN_TYPES, valueProblem } from './values.
 
 /** Internal: reading the tokens out of one parsed token file. Shared by parse and serialize. */
 
-export { TOKEN_TYPES }
-
 type Json = Record<string, unknown>
 
 export function isObject(value: unknown): value is Json {

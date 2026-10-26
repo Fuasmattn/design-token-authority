@@ -38,7 +38,7 @@ export function isTokenFileName(fileName: string): boolean {
 }
 
 /** Detect how a file was formatted so serialize can write it back the same way. */
-export function detectFormat(content: string): Pick<FileSource, 'indent' | 'trailingNewline'> {
+function detectFormat(content: string): Pick<FileSource, 'indent' | 'trailingNewline'> {
   const indent = /\n([ \t]+)\S/.exec(content)?.[1] ?? '  '
   return { indent, trailingNewline: content.endsWith('\n') }
 }

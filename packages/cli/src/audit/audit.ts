@@ -10,8 +10,8 @@ import type { Config } from '../config/schema.js'
 import { detect, languageOf, type Language, type ValueKind } from './detect.js'
 import { buildTokenIndex, suggestToken } from './match.js'
 
-export const AUDIT_JSON_SCHEMA = 'dta.audit/1'
-export const BASELINE_SCHEMA = 'dta.audit-baseline/1'
+const AUDIT_JSON_SCHEMA = 'dta.audit/1'
+const BASELINE_SCHEMA = 'dta.audit-baseline/1'
 export const DEFAULT_BASELINE = '.dta/audit-baseline.json'
 export const DEFAULT_AUDIT_PATHS = ['src']
 
@@ -44,7 +44,7 @@ const SKIPPED_DIRS = new Set([
 ])
 
 /** Tests hold literal values on purpose; they are never scanned. */
-export const DEFAULT_IGNORE = ['**/*.test.*', '**/*.spec.*', '**/__tests__/**']
+const DEFAULT_IGNORE = ['**/*.test.*', '**/*.spec.*', '**/__tests__/**']
 
 function globToRegExp(glob: string): RegExp {
   let pattern = ''

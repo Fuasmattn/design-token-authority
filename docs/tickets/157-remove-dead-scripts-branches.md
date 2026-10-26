@@ -3,7 +3,7 @@
 **Phase:** 13 — Maintenance
 **Priority:** Low
 **Effort:** XS
-**Status:** open
+**Status:** in review (2026-10-26), branch `157-dead-scripts`; the branches wait for the maintainer's go-ahead
 **Spec:** [maintenance](../specs/maintenance.md)
 
 ## What to build
@@ -17,10 +17,12 @@
 
 ## Acceptance criteria
 
-- [ ] Scripts deleted; safety check of the spec green
-- [ ] Unused exports reduced; public entry points unchanged (`package:build` types unchanged)
+- [x] Scripts deleted; safety check of the spec green
+- [x] Unused exports reduced; public entry points unchanged (`package:build` types unchanged)
 - [ ] Branches deleted after the maintainer's go-ahead; the list in this ticket matches what was deleted
 
 ## Notes
 
 `knip` without a config also reports the root `package.json` dependencies as unused; they are bundled into the npm package, so that finding is wrong. Adding a `knip` config is out of scope.
+
+Outcome (2026-10-26): `scripts/list-scopes.mjs` and `scripts/restore-dtcg-keys.mjs` deleted. 22 exports made module-private across `actions/lib/dta-diff.mjs`, `@dta/cli` (audit, commands, context, init), `@dta/core` (`parse.ts`'s internal `detectFormat`; the public one is `@dta/figma`'s), `@dta/testkit`, `@dta/visual-diff` and the site's `graph-layout.ts`. One of them, `LANGUAGES` in `audit/detect.ts`, was dead entirely and is gone. Two knip findings were wrong and kept: `TOKEN_TYPES` (public, exported from `@dta/core`'s index via `values.ts`; only the stale re-export in `entries.ts` was removed) and `GROUP_GAP` in `packages/cli/src/graph/html.ts` (a different constant of the same name). No behaviour change; `dist/index.d.ts` identical.

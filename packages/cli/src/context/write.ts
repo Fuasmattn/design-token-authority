@@ -7,7 +7,7 @@ import { CONTEXT_MARKER, renderDesignMd, updateAgentsMd } from './render.js'
 
 /** The context file when neither `--out` nor `context.out` names one. */
 export const DEFAULT_CONTEXT_FILE = 'DESIGN.md'
-export const AGENTS_FILE = 'AGENTS.md'
+const AGENTS_FILE = 'AGENTS.md'
 
 export interface ContextFile {
   /** Relative to the project, with forward slashes. */

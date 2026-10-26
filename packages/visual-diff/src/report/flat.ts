@@ -13,7 +13,7 @@ import { PNG } from 'pngjs'
  * letter (or `.` for not flat) and count pairs, row by row: `A120.8B12`.
  */
 export const FLAT_CELL = 4
-export const FLAT_TOLERANCE = 6
+const FLAT_TOLERANCE = 6
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
 /** The flat map of the top `height` pixel rows of a PNG (the cropped canvas of a report row). */

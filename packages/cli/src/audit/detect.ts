@@ -5,15 +5,6 @@
  */
 
 export type Language = 'css' | 'scss' | 'js' | 'astro' | 'vue' | 'svelte' | 'html'
-export const LANGUAGES: readonly Language[] = [
-  'css',
-  'scss',
-  'js',
-  'astro',
-  'vue',
-  'svelte',
-  'html',
-]
 
 /** What a value is, which decides the tokens it is compared with. */
 export type ValueKind =
@@ -53,7 +44,7 @@ export function languageOf(file: string): Language | null {
 }
 
 /** Marks a line (or, alone on a line, the next one) as not to be audited. */
-export const IGNORE_MARKER = 'dta-audit-ignore'
+const IGNORE_MARKER = 'dta-audit-ignore'
 
 // ---------------------------------------------------------------------------------------------
 // Text helpers: comments are blanked (replaced by spaces) so offsets and lines stay true.
