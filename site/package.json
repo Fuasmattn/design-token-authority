@@ -17,9 +17,9 @@
     "reference": "tsx scripts/generate-reference.ts"
   },
   "devDependencies": {
-    "@astrojs/check": "0.9.10",
-    "@astrojs/preact": "6.0.5",
-    "@astrojs/starlight": "0.42.5",
+    "@astrojs/check": "0.9.12",
+    "@astrojs/preact": "6.1.1",
+    "@astrojs/starlight": "0.42.7",
     "@dta/build": "workspace:*",
     "@dta/cli": "workspace:*",
     "@dta/core": "workspace:*",
@@ -32,7 +32,7 @@
     "fflate": "0.8.3",
     "playwright-core": "1.59.1",
     "preact": "10.29.8",
-    "starlight-links-validator": "0.26.0",
+    "starlight-links-validator": "0.27.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.12"
   },
