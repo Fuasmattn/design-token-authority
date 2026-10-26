@@ -3,7 +3,7 @@
 **Phase:** 10 — Landing redesign
 **Priority:** Low
 **Effort:** S
-**Status:** prototype (2026-10-26), for the maintainer to try
+**Status:** done (2026-10-26; shipped as prototyped)
 **Spec:** [landing-redesign](../specs/landing-redesign.md) (decision 3: the key visual)
 
 ## Problem
@@ -26,5 +26,6 @@ The hero has a slight scroll parallax (mesh at 0.35, objects at 0.18). The maint
 
 ## Acceptance criteria
 
-- [ ] Maintainer tried the preview and decided: ship, tune, or drop
-- [ ] If shipping: design-system docs for `GravityWell` describe the fall; `motion.e2e.test.ts` covers it
+- [x] Maintainer tried the preview and decided: ship as is
+- [x] Design-system docs for `GravityWell` describe the fall
+- [ ] Follow-up: `motion.e2e.test.ts` covers the fall (not part of the prototype)

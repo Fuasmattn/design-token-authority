@@ -303,7 +303,7 @@ Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17, rev
 | [154](./154-well-jumps-on-phone-scroll.md)         | Gravity well flashes and jumps while scrolling on phones                                     | Medium   | XS     | —          | Done       |
 | [168](./168-landing-plain-commands.md)             | Landing: drop the four scenes, add a short commands grid (`Commands`)                        | Medium   | S      | 155        | Done       |
 | [169](./169-landing-reference-link.md)             | Landing: no commands section; the checks beat links to the command reference                 | Medium   | XS     | 168        | Done       |
-| [170](./170-well-objects-fall-in.md)               | Gravity well: the objects fall into the funnel on scroll                                     | Low      | S      | —          | Prototype  |
+| [170](./170-well-objects-fall-in.md)               | Gravity well: the objects fall into the funnel on scroll                                     | Low      | S      | —          | Done       |
 
 Order: 110 → 105 → 106 → 107 → 108 → 112 (done); 114 (done); 109 and 111 later.
 
