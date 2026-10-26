@@ -219,6 +219,8 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2', 'd2', 'd', 'd2', 'd2'
     }
 
     if (reduce.matches) {
+      // the finished picture at once: no transitions to run (motion.e2e counts running animations)
+      flow.classList.add('still')
       finish()
       placeDust(0)
     } else {
@@ -560,6 +562,24 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2', 'd2', 'd', 'd2', 'd2'
     width: 5px;
     height: 5px;
     margin: -2.5px 0 0 -2.5px;
+  }
+
+  /* Under reduced motion the finished picture is shown at once, without transitions. */
+  .still .line .end,
+  .still .line .halo,
+  .still .line .tick,
+  .still .station,
+  .still .cube i {
+    transition: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .line .end,
+    .line .halo,
+    .line .tick,
+    .station,
+    .cube i {
+      transition: none;
+    }
   }
 
   /* Three columns on one horizontal line from 960px of container. */
