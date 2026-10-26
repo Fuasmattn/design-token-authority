@@ -225,11 +225,16 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2', 'd2', 'd', 'd2', 'd2'
       // The run: move to a point (eased) or rest there, each with a share of the time.
       type Seg = { to?: number; rest?: number; w: number }
       let ran = false
+      let running = false
+      const COLORS = ['orange', 'blue', 'ink']
       function run() {
-        if (ran) return
+        if (running) return
+        running = true
         ran = true
         row = layout()
         startDust()
+        stations.forEach((s) => s.classList.remove('passed'))
+        flow.classList.remove('done')
         const P = [0, ...marks, total]
         const seg: Seg[] = [
           { to: P[1], w: 0.14 },
@@ -264,6 +269,7 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2', 'd2', 'd', 'd2', 'd2'
         }
         const t0 = performance.now()
         let ang = 0
+        const dir = Math.random() < 0.5 ? -1 : 1
         token.style.opacity = '1'
         const frame = (now: number) => {
           const t = Math.min(1, (now - t0) / duration)
@@ -274,16 +280,30 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2', 'd2', 'd', 'd2', 'd2'
           const breath = g.moving ? 0 : Math.sin(((now - t0) / 1000) * Math.PI * 0.5) * 0.05
           tokenAt = { x: p.x, y: p.y }
           token.style.transform = `translate(${p.x}px, ${p.y}px) scale(${1 + breath})`
-          ang += rate * 0.7
+          ang += rate * 0.7 * dir
           spin.style.transform = `rotateX(${ang}deg) rotateY(${ang * 1.5}deg)`
           stations.forEach((s, i) => {
             if (g.pos >= marks[i] + 6) s.classList.add('passed')
           })
           if (t < 1) requestAnimationFrame(frame)
-          else flow.classList.add('done')
+          else {
+            flow.classList.add('done')
+            running = false
+          }
         }
         requestAnimationFrame(frame)
       }
+      // An easter egg: once a run is over, tapping the first beat spawns a new token — another
+      // colour from the hero's set, another size, turning the other way — and runs it from the start.
+      const first = stations[0].parentElement!
+      first.addEventListener('click', () => {
+        if (running || !ran) return
+        token.classList.remove(...COLORS)
+        token.classList.add(COLORS[Math.floor(Math.random() * COLORS.length)])
+        token.style.setProperty('--s', `${12 + Math.round(Math.random() * 8)}px`)
+        spin.style.transform = ''
+        run()
+      })
       const io = new IntersectionObserver(
         (entries) => {
           if (entries.some((e) => e.isIntersecting)) {
@@ -439,9 +459,6 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2', 'd2', 'd', 'd2', 'd2'
   /* The token: the hero's cube, and its dust. */
   .cube {
     --s: 16px;
-    --f: var(--well-object-orange);
-    --f2: var(--well-object-orange-light);
-    --f3: var(--well-object-orange-dark);
     position: absolute;
     left: 0;
     top: 0;
@@ -451,6 +468,21 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2', 'd2', 'd', 'd2', 'd2'
     opacity: 0;
     transform-style: preserve-3d;
     pointer-events: none;
+  }
+  .cube.orange {
+    --f: var(--well-object-orange);
+    --f2: var(--well-object-orange-light);
+    --f3: var(--well-object-orange-dark);
+  }
+  .cube.blue {
+    --f: var(--well-object-blue);
+    --f2: var(--well-object-blue-light);
+    --f3: var(--well-object-blue-dark);
+  }
+  .cube.ink {
+    --f: var(--well-object-ink);
+    --f2: var(--well-object-ink-light);
+    --f3: var(--well-object-ink-dark);
   }
   .spin {
     position: absolute;
