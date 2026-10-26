@@ -85,7 +85,8 @@ const RESOLVED_TYPE = {
 const isPushable = (type: string): type is keyof typeof RESOLVED_TYPE => type in RESOLVED_TYPE
 
 type FigmaValue = LocalVariable['valuesByMode'][string]
-type NewValue = Exclude<FigmaValue, boolean | number | string> | ChangeValue
+/** What a push sends: an alias or a plain colour, never a composed colour (TICKET-160). */
+type NewValue = Exclude<FigmaValue, boolean | number | string | { color: unknown }> | ChangeValue
 
 const sameSet = (a: string[], b: string[]) =>
   new Set(a).size === new Set(b).size && a.every((x) => new Set(b).has(x))
@@ -108,6 +109,8 @@ function displayValue(
     const target = variables[value.id]
     return target ? `{${target.name.split('/').join('.')}}` : `{${value.id}}`
   }
+  // a composed colour (opacity authored apart; TICKET-160): shown as what it is, not as a hex
+  if ('color' in value) return '(composed colour)'
   return toHex(value)
 }
 
@@ -116,6 +119,8 @@ function sameValue(existing: FigmaValue | undefined, next: NewValue): boolean {
   if (typeof existing !== 'object' || typeof next !== 'object') return existing === next
   if ('type' in existing) return 'type' in next && existing.id === next.id
   if ('type' in next) return false
+  // DTA never pushes a composed colour, so one in Figma is always a change (TICKET-160)
+  if ('color' in existing) return false
   return colorsApproximatelyEqual(existing, next)
 }
 
