@@ -338,6 +338,29 @@ Order: 132 → 133 → 134 → 137; 135 after 132; 136 after 133 and 135; 138 af
 
 ---
 
+## Phase 13 — Maintenance
+
+Spec: [maintenance](../specs/maintenance.md) (approved 2026-10-26). Dependencies current and the repository clean, with nothing breaking: every ticket passes the spec's safety check, output and screenshots stay the same. One ticket per major.
+
+| #                                              | Ticket                                                           | Priority | Effort | Blocked by | Status |
+| ---------------------------------------------- | ---------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
+| [156](./156-deps-minor-batch.md)               | Patch and minor dependency updates                               | Medium   | S      | —          | Open   |
+| [157](./157-remove-dead-scripts-branches.md)   | Remove dead scripts, unused exports and stale branches           | Low      | XS     | —          | Open   |
+| [158](./158-ci-diff-report-failures.md)        | CI health: `dta diff report` fails now and then, Ubuntu 26       | Medium   | S      | logs       | Open   |
+| [159](./159-playwright-core-1-64.md)           | `playwright-core` 1.59 → 1.64                                    | Medium   | S      | 158        | Open   |
+| [160](./160-figma-rest-api-spec.md)            | `@figma/rest-api-spec` 0.37 → 0.46                               | Medium   | S      | —          | Open   |
+| [161](./161-typescript-7.md)                   | TypeScript 5.9 → 6.0 → 7                                         | Medium   | M      | 156        | Open   |
+| [162](./162-vitest-5.md)                       | Vitest 4 → 5                                                     | Medium   | S      | —          | Open   |
+| [163](./163-commander-15.md)                   | commander 14 → 15                                                | Low      | S      | —          | Open   |
+| [164](./164-preact-11.md)                      | preact 10 → 11                                                   | Low      | M      | 156        | Open   |
+| [165](./165-pixelmatch-8.md)                   | pixelmatch 7 → 8                                                 | Low      | S      | —          | Open   |
+| [166](./166-diff-9.md)                         | diff 8 → 9                                                       | Low      | XS     | —          | Open   |
+| [167](./167-release-it-21.md)                  | release-it 19 → 21, conventional-changelog 10 → 12               | Low      | S      | —          | Open   |
+
+Order: 156 and 157 first; 158 before 159 (the renderer change needs a reliable report); 160–167 one at a time, each merged after a green CI run, 161 after 156 (the Astro tooling it depends on).
+
+---
+
 ## Dependency Map
 
 ```
