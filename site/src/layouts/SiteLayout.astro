@@ -32,7 +32,7 @@ const path = Astro.url.pathname
 const home = path === '/'
 const NAV = [
   { href: home ? '#how' : '/#how', label: 'How it works' },
-  { href: home ? '#agents' : '/#agents', label: 'Agents' },
+  { href: '/guides/coding-agents/', label: 'Agents' },
   { href: '/playground/', label: 'Playground' },
   { href: '/start/', label: 'Docs' },
 ].map((link) => ({ ...link, current: !link.href.includes('#') && path.startsWith(link.href) }))

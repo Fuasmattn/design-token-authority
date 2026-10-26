@@ -3,8 +3,6 @@
  * honesty rule is testable: every command the page shows exists (landing.test.ts checks the
  * names against the CLI), and every output shown as real comes from a real run.
  */
-import DIFF_RUN from './diff-run.json'
-
 /**
  * DTA is on npm since 2.0.1 (TICKET-090), so `npm create dta` works as written. (The npm name
  * `dta` belongs to an unrelated package, so the page never shows `npx dta`.)
@@ -42,8 +40,8 @@ export const HERO = {
 
 /**
  * The workflow at a glance, right below the hero (spec decision 12, revised 2026-10-25,
- * TICKET-155): three beats on one line, the token travelling it. No commands here: the example
- * section below carries them, with what each produces.
+ * TICKET-155): three beats on one line, the token travelling it. No commands here: the commands
+ * grid below carries them (TICKET-168).
  */
 export const WORKFLOW = {
   title: 'Design changes, reviewed like code.',
@@ -69,129 +67,25 @@ export const WORKFLOW = {
 }
 
 /**
- * The head of the example section (TICKET-155): the four scenes below follow one real change in
- * the Orbit Burger demo brand, which lives in the repository.
+ * The commands at a glance (TICKET-168): the six shipped commands, one line each, in the order
+ * of the workflow. Every command here is checked against the CLI in landing.test.ts.
  */
-export const EXAMPLE = {
-  kicker: 'Example · the flow in detail',
-  heading: 'One change, followed through every step.',
-  lede: 'Two tokens of the Orbit Burger demo brand, edited in Figma: a rounder card and a deeper brand blue. Each step above, with what it produces for exactly this change.',
-  link: {
-    label: 'The example brand on GitHub',
-    href: 'https://github.com/Fuasmattn/design-token-authority/tree/main/site/examples/orbit-burger',
-  },
-}
-
-/**
- * One change, four scenes, in the order of the strip (maintainer, 2026-10-19, TICKET-114 item 5):
- * the change crossing over (`dta pull`), the checks (`dta lint` first, then every output is
- * rebuilt; `dta build` lives in the strip), the differences and the person who approves them
- * (`dta diff`: the approve action sits with the diff, because that is what a person decides on),
- * and the agent. The example product is Orbit Burger (site/examples/orbit-burger).
- */
-export const SCENES = [
+export const COMMAND_GRID = [
+  { command: COMMANDS.pull, text: 'Figma Variables or a plugin export into token files.' },
+  { command: COMMANDS.lint, text: 'Structure and names, checked against your rules.' },
+  { command: COMMANDS.build, text: 'CSS, Tailwind, JS, Swift and Android outputs.' },
   {
-    number: '01',
-    kicker: 'Something changes',
-    heading: 'A change lands as a pull request.',
-    text: 'A rounder card and a slightly deeper brand blue. Made in Figma Variables or in a token file; either way DTA pulls them into the repository as one change.',
-    command: COMMANDS.pull,
-  },
-  {
-    number: '02',
-    kicker: 'The checks run first',
-    heading: 'Structure and names are checked before anyone looks.',
-    text: 'dta lint checks the change against your rules, then every output is rebuilt. Nothing here needs a person: what is left is what changed on screen.',
-    command: COMMANDS.lint,
-  },
-  {
-    number: '03',
-    kicker: 'A person decides',
-    heading: 'Approve by token, not by screenshot.',
-    text: 'dta diff renders the stories before and after and names the token behind each change. The rounder corners are obvious; the darker blue is easy to miss. Approving is a label on the pull request; a new push asks again.',
     command: COMMANDS.diff,
+    text: 'Stories before and after, the token named behind each change.',
   },
-  {
-    number: '04',
-    kicker: 'Your agent uses the same commands',
-    heading: 'No hard-coded values, even from agents.',
-    text: 'The skill teaches the loop; the context file lists your tokens. The agent proposes, the checks decide, and nothing reaches Figma without a person.',
-    command: COMMANDS.skill,
-  },
+  { command: COMMANDS.audit, text: 'Hard-coded token values in your source.' },
+  { command: COMMANDS.skill, text: 'Your agent learns the loop.' },
 ] as const
 
-/** Scene 01: the three Orbit Burger tokens, two of them changed (tokens-base → tokens). */
-export const TOKEN_ROWS = [
-  { name: 'Colors.Surface.Default', value: 'Void.900', swatch: { color: '--void-900' } },
-  { name: 'Colors.Brand.Primary', value: '600', from: 'Nova.500', swatch: { color: '--nova-600' } },
-  { name: 'Radius.Card', value: '24', from: '8', swatch: { radius: 'lg' as const } },
-]
-
-/**
- * Scene 03: what each changed token explains, from a recorded `dta diff` run of the Orbit Burger
- * change on this site's stories (TICKET-111): diff-run.json, written from the run's result.json
- * by scripts/record-diff-run.ts. The shares are worded as the CLI prints them ("explains 4 of 6
- * changed stories"); a story counts once per width. landing.test.ts checks them against the file.
- */
-const shareOf = (name: string) => {
-  const token = DIFF_RUN.tokens.find((t) => t.name === name)
-  if (!token) throw new Error(`${name} is not in the recorded dta diff run`)
-  return `explains ${token.stories.length} of ${DIFF_RUN.changed} changed stories`
-}
-export const DIFF_SHARES = {
-  lines: [
-    { token: 'Radius.Card', change: '8 → 24', share: shareOf('Radius.Card') },
-    {
-      token: 'Colors.Brand.Primary',
-      change: 'Nova 500 → 600',
-      share: shareOf('Colors.Brand.Primary'),
-    },
-  ],
-  real: true,
-}
-
-/** The `dta diff` check as GitHub shows it for the recorded run (diff-run.json): its verdict and count. */
-const DIFF_STATUS = { pass: 'passed', review: 'changes', fail: 'failed' } as const
-/**
- * Scene 02: the checks of the pull request, in the order of the strip (lint, build, diff). Lint
- * and build as `dta lint` / `dta build` report them in examples/orbit-burger (0 violations, build
- * complete); the diff check from the recorded run.
- */
-export const CHECKS = [
-  { name: 'dta lint', status: 'passed' as const, detail: '0 violations' },
-  { name: 'dta build', status: 'passed' as const },
-  {
-    name: 'dta diff',
-    status: DIFF_STATUS[DIFF_RUN.verdict as keyof typeof DIFF_STATUS],
-    detail: `${DIFF_RUN.changed} stories`,
-  },
-]
-/** Scene 03: the check that waits for a person, and the approve action under it. */
-export const DECISION = CHECKS.filter((check) => check.name === 'dta diff')
-export const APPROVE = 'Add label dta-diff-approved'
-
-/**
- * Scene 04: real output of `dta token find '#2443ac'` and `dta audit src` on this website's own
- * tokens and source (2026-10-18; #2443ac is blueprint.700, the action colour on paper).
- */
-export const AGENT_RUN = {
-  label: 'An agent looking a value up before it writes it',
-  lines: [
-    [
-      { text: 'Agent ', tone: 'muted' as const },
-      { text: 'The button needs the brand blue. Looking it up first.' },
-    ],
-    [{ text: '$ ', tone: 'prompt' as const }, { text: "dta token find '#2443ac'" }],
-    [{ text: '2 tokens resolve to #2443ac:', tone: 'muted' as const }],
-    [
-      { text: '  ' },
-      { text: 'action.bg', tone: 'ok' as const },
-      { text: '      Light       var(--action-bg)' },
-    ],
-    [{ text: '  blueprint.700  every mode  var(--blueprint-700)', tone: 'muted' as const }],
-    [{ text: '$ ', tone: 'prompt' as const }, { text: 'dta audit src' }],
-    [{ text: 'No hard-coded token values in 67 files.', tone: 'ok' as const }],
-  ],
+export const COMMANDS_SECTION = {
+  kicker: 'The commands',
+  heading: 'Six commands, one loop.',
+  link: { label: 'Command reference', href: '/reference/' },
 }
 
 export const FACTS = [

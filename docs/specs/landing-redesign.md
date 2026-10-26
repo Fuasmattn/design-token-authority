@@ -53,6 +53,10 @@ Nothing numbered beyond the scene kickers. No FAQ, no cards, no "why trust it", 
 
 12. **The workflow at a glance (2026-10-19, maintainer).** Below the hero, one unnumbered strip shows the workflow as two sides meeting in a pull request: Change (Figma, token file or agent) → in the pull request: Check (`dta lint`) → Build (`dta build`) → Diff (`dta diff`) → Decide, and a fix goes back to whichever side caused it. It is the "How it works" anchor. The four scenes stay and follow the strip's order; the checks scene shows `dta lint` instead of `dta build` (scene order revised the same day, see the revision note of 2026-10-19). "Nothing numbered beyond the scene kickers" still holds. TICKET-112.
 
+## Revision note (2026-10-26): the scenes are gone, the page is plain
+
+Maintainer decision on TICKET-168: the example section (one change in four scenes with the Orbit Burger example) is removed. The strip (decision 12) tells the story; the detail belongs in the docs. In its place a short **commands grid** (`Commands`: the six shipped commands as command chips, one muted line each, no story) so the page still shows what `dta` is made of. The page is now hero → strip → commands → facts → final call. The honesty rule (decision 5) is unchanged and now covers the grid; the recorded `dta diff` run (`diff-run.json`) had no consumer left and was removed with its script. `Scene`, `ExampleButton`, `TokenRows`, `Checks` and `Terminal` stay in the design system.
+
 ## Revision note (2026-10-25): the strip is a numbered list grouped by place
 
 Maintainer decision on TICKET-153, after three drafts on the Design canvas: the workflow section (decision 12) is rebuilt as `WorkflowList`, one numbered row per step with the command on the label's baseline, grouped by where it happens: the change, the crossing (`dta pull`), and the pull request as one card. It is numbered and it is a card, so "nothing numbered beyond the scene kickers" and "no cards" no longer hold for this one section; the four scenes and the rest of the page are unchanged. The design system carries the rules (component _WorkflowList_, principle 6 "One rhythm per list").

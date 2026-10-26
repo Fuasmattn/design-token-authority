@@ -1,18 +1,6 @@
-import fs from 'node:fs'
-import path from 'node:path'
 import { COMMAND_NAMES } from '@dta/cli'
 import { describe, expect, it } from 'vitest'
-import {
-  AGENT_RUN,
-  CHECKS,
-  COMMANDS,
-  DECISION,
-  DIFF_SHARES,
-  NPM_RELEASED,
-  SCENES,
-  WORKFLOW,
-} from './content'
-import DIFF_RUN from './diff-run.json'
+import { COMMANDS, COMMAND_GRID, NPM_RELEASED, WORKFLOW } from './content'
 
 /** Full command names: `diff`, `skill add`, … */
 const registered = new Set(COMMAND_NAMES)
@@ -33,13 +21,6 @@ describe('landing page honesty rule', () => {
     for (const command of Object.values(COMMANDS)) expect(command.text).not.toMatch(/npx dta\b/)
   })
 
-  it('shows every scene command as a shipped dta command', () => {
-    for (const scene of SCENES) {
-      expect(scene.command.shipped, scene.command.text).toBe(true)
-      for (const name of scene.command.uses) expect(registered.has(name), name).toBe(true)
-    }
-  })
-
   it('keeps the workflow to three beats without commands (TICKET-155)', () => {
     expect(WORKFLOW.beats.map((beat) => beat.title)).toEqual([
       'Tokens change',
@@ -50,99 +31,19 @@ describe('landing page honesty rule', () => {
     expect(WORKFLOW.end).toBe('Merged')
   })
 
-  it('keeps the scenes in the order of the pull request (spec decision 12)', () => {
-    // The scenes follow the pull request (TICKET-114 item 5): 02 the checks (`dta lint`), 03 the
-    // diff and the decision (`dta diff`, with the approve action).
-    expect(SCENES.map((scene) => scene.command)).toEqual([
-      COMMANDS.pull,
-      COMMANDS.lint,
-      COMMANDS.diff,
-      COMMANDS.skill,
-    ])
-    expect(SCENES[2].kicker).toBe('A person decides')
-    expect(DECISION.map((check) => check.name)).toEqual(['dta diff'])
-    // Each command appears at most once as a scene command.
-    const sceneCommands = SCENES.map((scene) => scene.command.text)
-    expect(new Set(sceneCommands).size).toBe(sceneCommands.length)
-    expect(sceneCommands).not.toContain(COMMANDS.build.text)
-    // The checks of scene 02 run in the pull request's order.
-    expect(CHECKS.map((check) => check.name)).toEqual(['dta lint', 'dta build', 'dta diff'])
-  })
-
-  it('runs the agent terminal on shipped commands', () => {
-    const commands = AGENT_RUN.lines
-      .filter((line) => line[0].text === '$ ')
-      .map((line) =>
-        line
-          .map((s) => s.text)
-          .join('')
-          .slice(2),
-      )
-    expect(commands).toEqual(["dta token find '#2443ac'", 'dta audit src'])
-    for (const name of ['token find', 'audit']) expect(registered.has(name), name).toBe(true)
-  })
-
-  describe('diff shares come from a recorded dta diff run (diff-run.json)', () => {
-    const example = path.resolve(import.meta.dirname, '..', '..', 'examples', 'orbit-burger')
-    /** `$value` of a token in one of the example's token files. */
-    const value = (dir: string, name: string) => {
-      const json = JSON.parse(
-        fs.readFileSync(path.join(example, dir, 'Brand.OrbitBurger.json'), 'utf8'),
-      )
-      return name.split('.').reduce((node, key) => node[key], json).$value
+  it('shows every command of the grid as a shipped dta command, once, in workflow order (TICKET-168)', () => {
+    for (const cell of COMMAND_GRID) {
+      expect(cell.command.shipped, cell.command.text).toBe(true)
+      for (const name of cell.command.uses) expect(registered.has(name), name).toBe(true)
+      expect(cell.text.split(/\s+/).length, cell.text).toBeLessThanOrEqual(13)
     }
-
-    it('is marked real, with no illustrative note', () => {
-      expect(DIFF_SHARES.real).toBe(true)
-      expect(DIFF_SHARES).not.toHaveProperty('note')
-    })
-
-    it('records the example change: tokens-base/ before, tokens/ after', () => {
-      expect(DIFF_RUN.tokens.map((t) => t.name).sort()).toEqual(
-        DIFF_SHARES.lines.map((l) => l.token).sort(),
-      )
-      for (const token of DIFF_RUN.tokens) {
-        expect(token.before.raw, token.name).toBe(value('tokens-base', token.name))
-        expect(token.after.raw, token.name).toBe(value('tokens', token.name))
-      }
-    })
-
-    it('words every share from the run, as the CLI prints it', () => {
-      for (const line of DIFF_SHARES.lines) {
-        const token = DIFF_RUN.tokens.find((t) => t.name === line.token)
-        expect(line.share).toBe(
-          `explains ${token?.stories.length} of ${DIFF_RUN.changed} changed stories`,
-        )
-        // Every story the token explains is a changed story of the run, explained by it.
-        for (const id of token?.stories ?? []) {
-          expect(DIFF_RUN.stories.find((s) => s.story === id)?.explainedBy).toContain(line.token)
-        }
-      }
-      expect(DIFF_RUN.stories).toHaveLength(DIFF_RUN.changed)
-    })
-
-    it("shows the dta diff check with the run's verdict and count (scenes 02 and 03)", () => {
-      const diff = CHECKS.find((check) => check.name === 'dta diff')
-      expect(DIFF_RUN.verdict).toBe('review') // explained changes, waiting for a person
-      expect(diff).toEqual({
-        name: 'dta diff',
-        status: 'changes',
-        detail: `${DIFF_RUN.changed} stories`,
-      })
-      expect(DECISION).toEqual([diff])
-      expect(DIFF_RUN.explained).toBe(DIFF_RUN.changed)
-      expect(DIFF_RUN.unexplained).toEqual([])
-    })
-
-    it('shows the change as the token files have it', () => {
-      const change = Object.fromEntries(DIFF_SHARES.lines.map((l) => [l.token, l.change]))
-      const radius = DIFF_RUN.tokens.find((t) => t.name === 'Radius.Card')
-      expect(change['Radius.Card']).toBe(`${radius?.before.resolved} → ${radius?.after.resolved}`)
-      const brand = DIFF_RUN.tokens.find((t) => t.name === 'Colors.Brand.Primary')
-      const alias = (raw: unknown) => String(raw).replace(/[{}]/g, '').replace('.', ' ')
-      expect(change['Colors.Brand.Primary']).toBe(
-        `${alias(brand?.before.raw)} → ${alias(brand?.after.raw).split(' ')[1]}`,
-      )
-    })
+    const texts = COMMAND_GRID.map((cell) => cell.command.text)
+    expect(new Set(texts).size).toBe(texts.length)
+    expect(texts.slice(0, 4)).toEqual([
+      COMMANDS.pull.text,
+      COMMANDS.lint.text,
+      COMMANDS.build.text,
+      COMMANDS.diff.text,
+    ])
   })
 })

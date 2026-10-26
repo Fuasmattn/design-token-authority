@@ -15,9 +15,7 @@ describe('dta audit on the website', () => {
       cwd: site,
       encoding: 'utf8',
     })
-    // The baseline accepts the agent scene's quoted colour (src/landing/content.ts), nothing else.
-    expect(output).toMatch(
-      /^No hard-coded token values in \d+ files \(2 more in the baseline\)\.\n$/,
-    )
+    // No baseline: nothing on the site quotes a token value (the last one left with TICKET-168).
+    expect(output).toMatch(/^No hard-coded token values in \d+ files\.\n$/)
   })
 })

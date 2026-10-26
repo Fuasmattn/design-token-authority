@@ -110,6 +110,13 @@ export const STORIES: readonly Story[] = [
     viewports: [DESKTOP, MOBILE],
   },
   {
+    component: 'commands',
+    variant: 'default',
+    title: 'Six commands, one line each',
+    example: 'CommandsDefault',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
     component: 'chip',
     variant: 'states',
     title: 'Info, changed, and the status colours: pass, error, warning',
