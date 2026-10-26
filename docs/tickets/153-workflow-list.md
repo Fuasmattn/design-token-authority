@@ -4,7 +4,7 @@
 **Priority:** Medium
 **Effort:** S
 **Blocked by:** 112 (done)
-**Status:** in progress (2026-10-25)
+**Status:** superseded by TICKET-155 on the same day (the list was built and reviewed, then replaced by three beats on a line)
 **Spec:** [landing-redesign](../specs/landing-redesign.md) (revision 2026-10-25, decision 12); design system: DTA Drafting Table, component _WorkflowList_ and principle 6 "One rhythm per list"
 
 ## Problem

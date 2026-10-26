@@ -1,0 +1,591 @@
+---
+/**
+ * The workflow at a glance (TICKET-155): three beats on one faint line — where design happens,
+ * in the pull request, the decision — and the token travelling it once. The token is the hero's
+ * orange cube; dust from the hero trails it, gathers into a flat ring around it while it waits at
+ * a station (a loading state), and lets go when it moves on. Stations fill as the token passes;
+ * at the decision it steps back once (an iteration without a loop); at the end it turns
+ * blueprint and the end dot gets its tick: merged.
+ *
+ * The run starts once, when the section scrolls into view, and never loops. Under
+ * `prefers-reduced-motion` the finished picture is shown. The line is a polyline through the
+ * stations, measured after layout, so one component serves both the stacked (phone) and the
+ * three-column (desktop) layout.
+ */
+export interface Beat {
+  /** Mono eyebrow: where this happens. */
+  where: string
+  /** A few words. */
+  title: string
+  /** Two short sentences. */
+  text: string
+}
+
+interface Props {
+  /** Read by screen readers as the section's heading; shown when `kicker` is set. */
+  title: string
+  kicker?: string
+  lede?: string
+  beats: Beat[]
+  /** The label at the step back before the end. */
+  iterations: string
+  /** The end state. */
+  end: string
+  /** Seconds for one run. */
+  duration?: number
+  id?: string
+  idPrefix?: string
+}
+const {
+  title,
+  kicker,
+  lede,
+  beats,
+  iterations,
+  end,
+  duration = 28,
+  id,
+  idPrefix = 'workflow',
+} = Astro.props
+const headingId = `${idPrefix}-title`
+const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2']
+---
+
+<section class="dta-workflow-frame" id={id} aria-labelledby={headingId}>
+  {
+    kicker ? (
+      <div class="intro">
+        <span class="kicker">{kicker}</span>
+        <h2 id={headingId}>{title}</h2>
+        {lede && <p class="lede">{lede}</p>}
+      </div>
+    ) : (
+      <h2 class="visually-hidden" id={headingId}>
+        {title}
+      </h2>
+    )
+  }
+  <div class="flow" data-flow data-duration={duration}>
+    <svg class="line" aria-hidden="true">
+      <path data-path d=""></path>
+      <circle class="end" data-end r="7"></circle>
+      <circle class="halo" data-halo r="13"></circle>
+      <path class="tick" data-tick d=""></path>
+    </svg>
+    <ol class="beats">
+      {
+        beats.map((beat, index) => (
+          <li class="beat">
+            <span class="station" data-station aria-hidden="true" />
+            <span class="where">{beat.where}</span>
+            <h3>{beat.title}</h3>
+            <p>{beat.text}</p>
+            {index === beats.length - 1 && (
+              <span class="iterations" data-iterations>
+                {iterations}
+              </span>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+    <span class="end-label" data-end-label>{end}</span>
+    {DUST.map((kind) => <i class:list={['dust', kind]} data-dust aria-hidden="true" />)}
+    <span class="cube orange" data-token aria-hidden="true">
+      <span class="spin" data-spin>
+        <i></i><i></i><i></i><i></i><i></i><i></i>
+      </span>
+    </span>
+  </div>
+</section>
+
+<script>
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+  for (const flow of document.querySelectorAll<HTMLElement>('[data-flow]')) {
+    const path = flow.querySelector<SVGPathElement>('[data-path]')!
+    const endDot = flow.querySelector<SVGCircleElement>('[data-end]')!
+    const halo = flow.querySelector<SVGCircleElement>('[data-halo]')!
+    const tick = flow.querySelector<SVGPathElement>('[data-tick]')!
+    const endLabel = flow.querySelector<HTMLElement>('[data-end-label]')!
+    const iterations = flow.querySelector<HTMLElement>('[data-iterations]')!
+    const token = flow.querySelector<HTMLElement>('[data-token]')!
+    const spin = flow.querySelector<HTMLElement>('[data-spin]')!
+    const stations = [...flow.querySelectorAll<HTMLElement>('[data-station]')]
+    const dust = [...flow.querySelectorAll<HTMLElement>('[data-dust]')]
+    const duration = Number(flow.dataset.duration) * 1000
+    const beats = flow.querySelector<HTMLElement>('.beats')!
+
+    /** Station centres, the end point and the polyline through them, from the laid-out DOM. */
+    let marks: number[] = []
+    let total = 0
+    function layout() {
+      const box = flow.getBoundingClientRect()
+      const row = getComputedStyle(beats).flexDirection === 'row'
+      const centers = stations.map((s) => {
+        const r = s.getBoundingClientRect()
+        return { x: r.left - box.left + r.width / 2, y: r.top - box.top + r.height / 2 }
+      })
+      const last = centers[centers.length - 1]
+      // the end sits one beat-gap past the last station, along the flow's direction
+      const lastBeat = stations[stations.length - 1].parentElement!.getBoundingClientRect()
+      const end = row
+        ? { x: lastBeat.right - box.left + 48, y: last.y }
+        : { x: last.x, y: lastBeat.bottom - box.top + 56 }
+      const points = [...centers, end]
+      path.setAttribute('d', points.map((p, i) => `${i ? 'L' : 'M'} ${p.x} ${p.y}`).join(' '))
+      endDot.setAttribute('cx', String(end.x))
+      endDot.setAttribute('cy', String(end.y))
+      halo.setAttribute('cx', String(end.x))
+      halo.setAttribute('cy', String(end.y))
+      tick.setAttribute(
+        'd',
+        `M ${end.x - 3.5} ${end.y + 0.5} L ${end.x - 1} ${end.y + 3} L ${end.x + 3.5} ${end.y - 2.5}`,
+      )
+      endLabel.style.translate = row ? `${end.x - 10}px ${end.y + 16}px` : `${end.x + 32}px ${end.y - 8}px`
+      const iterBox = iterations.getBoundingClientRect()
+      iterations.style.translate = row
+        ? `${last.x + 60}px ${last.y - 28}px`
+        : `${last.x + 32}px ${(end.y + lastBeat.bottom - box.top) / 2 - iterBox.height / 2}px`
+      total = path.getTotalLength()
+      marks = centers.map((c) => {
+        // position along the path: the first point of the polyline nearest the station
+        let best = 0
+        let bestD = Infinity
+        for (let l = 0; l <= total; l += 2) {
+          const p = path.getPointAtLength(l)
+          const d = (p.x - c.x) ** 2 + (p.y - c.y) ** 2
+          if (d < bestD) {
+            bestD = d
+            best = l
+          }
+        }
+        return best
+      })
+      return row
+    }
+    let row = layout()
+
+    function finish() {
+      stations.forEach((s) => s.classList.add('passed'))
+      flow.classList.add('done')
+      token.classList.add('blue')
+      const p = path.getPointAtLength(total)
+      token.style.opacity = '1'
+      token.style.transform = `translate(${p.x}px, ${p.y}px) scale(.9)`
+    }
+
+    if (reduce.matches) {
+      finish()
+    } else {
+      // The run: move to a point (eased) or rest there, each with a share of the time.
+      type Seg = { to?: number; rest?: number; w: number }
+      let ran = false
+      function run() {
+        if (ran) return
+        ran = true
+        row = layout()
+        const P = [0, ...marks, total]
+        const seg: Seg[] = [
+          { to: P[1], w: 0.14 },
+          { rest: 1, w: 0.04 },
+          { to: P[2], w: 0.14 },
+          { rest: 2, w: 0.22 },
+          { to: P[3], w: 0.12 },
+          { rest: 3, w: 0.08 },
+          { to: P[2] + (P[3] - P[2]) * 0.3, w: 0.07 },
+          { to: P[3], w: 0.07 },
+          { rest: 3, w: 0.04 },
+          { to: P[4], w: 0.1 },
+          { rest: 4, w: 0.08 },
+        ]
+        const sum = seg.reduce((s, x) => s + x.w, 0)
+        for (const s of seg) s.w /= sum
+        const at = (t: number) => {
+          let acc = 0
+          let pos = 0
+          for (let i = 0; i < seg.length; i++) {
+            const S = seg[i]
+            if (t < acc + S.w) {
+              const u = (t - acc) / S.w
+              if (S.rest) return { pos, rest: S.rest, u, moving: false, i }
+              const e = u < 0.5 ? 2 * u * u : 1 - (-2 * u + 2) ** 2 / 2
+              return { pos: pos + (S.to! - pos) * e, rest: 0, u, moving: true, i }
+            }
+            acc += S.w
+            if (!S.rest) pos = S.to!
+          }
+          return { pos: total, rest: 4, u: 1, moving: false, i: seg.length - 1 }
+        }
+        const t0 = performance.now()
+        let ang = 0
+        let blend = 0
+        let ringA = 0
+        const hist: number[] = []
+        token.style.opacity = '1'
+        const frame = (now: number) => {
+          const t = Math.min(1, (now - t0) / duration)
+          const g = at(t)
+          const p = path.getPointAtLength(g.pos)
+          let rate = g.moving ? 1 : 0.35
+          let scale = 1
+          if (g.rest === 2) {
+            scale = 1.08
+            rate = 0.18
+          }
+          if (g.rest === 3) {
+            scale = 1.04
+            rate = 0.1
+          }
+          if (g.rest === 4) {
+            scale = 0.9
+            token.classList.add('blue')
+          }
+          // dust: a trail behind the token on the move; a flat ring around it while it waits
+          hist.push(g.pos)
+          if (hist.length > 120) hist.shift()
+          const next = seg[g.i + 1]
+          const prev = seg[g.i - 1]
+          const waitAt = (s?: Seg) => s?.rest && s.rest !== 4
+          const wait =
+            g.rest && g.rest !== 4
+              ? 1
+              : g.moving && waitAt(next)
+                ? Math.max(0, (g.u - 0.66) / 0.34)
+                : g.moving && waitAt(prev)
+                  ? Math.max(0, 1 - g.u / 0.34)
+                  : 0
+          blend += (wait - blend) * 0.035
+          const eb = blend < 0.5 ? 2 * blend * blend : 1 - (-2 * blend + 2) ** 2 / 2
+          ringA += 0.02 + 0.05 * eb
+          dust.forEach((d, k) => {
+            const lag = 8 + k * 9
+            const q = path.getPointAtLength(hist[Math.max(0, hist.length - 1 - lag)])
+            const sway = Math.sin(ang / 40 + k * 1.3) * 7
+            const side = (k % 3 - 1) * 6
+            const tx = row ? q.x + (k % 2 ? 3 : -3) : q.x + sway + side
+            const ty = row ? q.y + sway + side : q.y + (k % 2 ? 3 : -3)
+            const a = ringA + k * ((Math.PI * 2) / dust.length)
+            const R = 22 + (k % 2) * 4
+            const rx = p.x + Math.cos(a) * R
+            const ry = p.y + Math.sin(a) * R
+            const x = tx + (rx - tx) * eb
+            const y = ty + (ry - ty) * eb
+            let op = 0.85
+            if (g.rest === 4) op = 0.85 * (1 - g.u)
+            d.style.opacity = String(op)
+            d.style.transform = `translate(${x}px, ${y}px)`
+          })
+          token.style.transform = `translate(${p.x}px, ${p.y}px) scale(${scale})`
+          ang += rate * 0.7
+          spin.style.transform = `rotateX(${ang}deg) rotateY(${ang * 1.5}deg)`
+          stations.forEach((s, i) => {
+            if (g.pos >= marks[i] + 6) s.classList.add('passed')
+          })
+          if (t < 1) requestAnimationFrame(frame)
+          else flow.classList.add('done')
+        }
+        requestAnimationFrame(frame)
+      }
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            run()
+            io.disconnect()
+          }
+        },
+        { threshold: 0.35 },
+      )
+      io.observe(flow)
+      addEventListener('resize', () => {
+        if (!ran) layout()
+      })
+    }
+  }
+</script>
+
+<style>
+  .dta-workflow-frame {
+    container-type: inline-size;
+    color: var(--fg-default);
+    font-family: var(--font-sans);
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-bottom: var(--space-10);
+  }
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    line-height: var(--type-meta-line-height);
+    letter-spacing: var(--type-meta-letter-spacing);
+    text-transform: uppercase;
+    color: var(--action-text);
+  }
+  .intro h2 {
+    margin: 0;
+    max-width: 16ch;
+    font-size: clamp(
+      calc(var(--type-heading-size) * 1px),
+      4.6vw,
+      calc(var(--type-display-lg-size) * 1px)
+    );
+    font-weight: var(--type-display-lg-weight);
+    line-height: var(--type-display-lg-line-height);
+    letter-spacing: var(--type-display-lg-letter-spacing);
+    font-stretch: 85%;
+  }
+  .lede {
+    margin: 0;
+    max-width: 44ch;
+    font-size: calc(var(--type-body-size) * 1px);
+    line-height: var(--type-body-line-height);
+    color: var(--fg-muted);
+  }
+
+  /* Phone first: the beats stacked down a line on the left. */
+  .flow {
+    position: relative;
+    padding-bottom: 100px;
+  }
+  .line {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .line path[data-path] {
+    fill: none;
+    stroke: var(--rail);
+    stroke-width: 1;
+    stroke-dasharray: 1 7;
+    stroke-linecap: round;
+    opacity: 0.7;
+  }
+  .line .end {
+    fill: var(--bg-canvas);
+    stroke: var(--action-bg);
+    stroke-width: 2;
+    transition: fill var(--motion-duration-slow) var(--motion-ease-exit);
+  }
+  .line .halo {
+    fill: var(--action-bg);
+    opacity: 0;
+    transition: opacity var(--motion-duration-slow) var(--motion-ease-exit);
+  }
+  .line .tick {
+    fill: none;
+    stroke: var(--terminal-bg);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0;
+    transition: opacity var(--motion-duration-base) var(--motion-ease-enter);
+  }
+  .done .line .end {
+    fill: var(--action-bg);
+  }
+  .done .line .halo {
+    opacity: 0.22;
+  }
+  .done .line .tick {
+    opacity: 1;
+  }
+  .beats {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+    margin: 0;
+    padding: 0 0 0 var(--space-10);
+    list-style: none;
+  }
+  .beat {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .station {
+    position: absolute;
+    left: calc(var(--space-10) * -1);
+    top: 6px;
+    width: 16px;
+    height: 16px;
+    box-sizing: border-box;
+    border-radius: var(--radius-full);
+    border: var(--stroke-ink) solid var(--border-strong);
+    background: var(--bg-canvas);
+    transition: background var(--motion-duration-slow) var(--motion-ease-exit);
+  }
+  .station.passed {
+    background: var(--border-strong);
+  }
+  .where,
+  .iterations,
+  .end-label {
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    line-height: var(--type-meta-line-height);
+    letter-spacing: var(--type-meta-letter-spacing);
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    white-space: nowrap;
+  }
+  .beat h3 {
+    margin: 0;
+    font-size: calc(var(--type-title-size) * 1px);
+    font-weight: var(--type-title-weight);
+    line-height: var(--type-title-line-height);
+    letter-spacing: -0.01em;
+  }
+  .beat p {
+    margin: 0;
+    max-width: 40ch;
+    font-size: calc(var(--type-body-size) * 1px);
+    line-height: var(--type-body-line-height);
+    color: var(--fg-muted);
+  }
+  .iterations,
+  .end-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  .end-label {
+    color: var(--action-text);
+  }
+
+  /* The token: the hero's cube, and its dust. */
+  .cube {
+    --s: 16px;
+    --f: var(--well-object-orange);
+    --f2: var(--well-object-orange-light);
+    --f3: var(--well-object-orange-dark);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--s);
+    height: var(--s);
+    margin: calc(var(--s) * -0.5) 0 0 calc(var(--s) * -0.5);
+    opacity: 0;
+    transform-style: preserve-3d;
+    pointer-events: none;
+  }
+  .cube.blue {
+    --f: var(--well-object-blue);
+    --f2: var(--well-object-blue-light);
+    --f3: var(--well-object-blue-dark);
+  }
+  .spin {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+  }
+  .cube i {
+    position: absolute;
+    inset: 0;
+    background: var(--f);
+    border: var(--stroke-hairline) solid color-mix(in srgb, var(--well-throat) 12%, transparent);
+    transition: background var(--motion-duration-slow) var(--motion-ease-exit);
+  }
+  .cube i:nth-child(1) {
+    transform: translateZ(calc(var(--s) * 0.5));
+  }
+  .cube i:nth-child(2) {
+    transform: rotateY(180deg) translateZ(calc(var(--s) * 0.5));
+    background: var(--f3);
+  }
+  .cube i:nth-child(3) {
+    transform: rotateY(90deg) translateZ(calc(var(--s) * 0.5));
+    background: var(--f3);
+  }
+  .cube i:nth-child(4) {
+    transform: rotateY(-90deg) translateZ(calc(var(--s) * 0.5));
+    background: var(--f2);
+  }
+  .cube i:nth-child(5) {
+    transform: rotateX(90deg) translateZ(calc(var(--s) * 0.5));
+    background: var(--f2);
+  }
+  .cube i:nth-child(6) {
+    transform: rotateX(-90deg) translateZ(calc(var(--s) * 0.5));
+    background: var(--f3);
+  }
+  .dust {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: var(--radius-full);
+    background: var(--well-dust);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .dust.d {
+    width: 3px;
+    height: 3px;
+    margin: -1.5px 0 0 -1.5px;
+    background: var(--well-object-orange);
+  }
+  .dust.d2 {
+    width: 2px;
+    height: 2px;
+    margin: -1px 0 0 -1px;
+  }
+  .dust.s,
+  .dust.s2 {
+    --f: var(--well-object-ink);
+    --f2: var(--well-object-ink-light);
+    --f3: var(--well-object-ink-dark);
+    background: radial-gradient(
+      circle at 32% 30%,
+      color-mix(in srgb, var(--well-highlight) 60%, var(--f2)) 0,
+      var(--f) 42%,
+      var(--f3) 100%
+    );
+  }
+  .dust.s {
+    width: 7px;
+    height: 7px;
+    margin: -3.5px 0 0 -3.5px;
+  }
+  .dust.s2 {
+    width: 5px;
+    height: 5px;
+    margin: -2.5px 0 0 -2.5px;
+  }
+
+  /* Three columns on one horizontal line from 960px of container. */
+  @container (min-width: 960px) {
+    .intro {
+      margin-bottom: var(--space-16);
+    }
+    .flow {
+      padding: var(--space-10) 180px 0 0;
+    }
+    .beats {
+      flex-direction: row;
+      gap: var(--space-16);
+      padding: 0;
+    }
+    .beat {
+      flex: 1;
+    }
+    .station {
+      left: 0;
+      top: calc(var(--space-10) * -1);
+    }
+  }
+</style>

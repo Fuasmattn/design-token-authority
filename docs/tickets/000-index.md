@@ -298,7 +298,8 @@ Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17, rev
 | [149](./149-docs-sidebar-collapsed.md)             | Docs sidebar groups collapsed by default, except Start                                       | Low      | XS     | —          | Done        |
 | [150](./150-docs-no-ticket-numbers-quick-start.md) | Docs without ticket numbers; a true Quick start                                              | Medium   | S      | —          | Done        |
 | [151](./151-lean-docs.md)                          | Lean docs: every page shorter, details one level down                                        | Medium   | L      | 150        | Done        |
-| [153](./153-workflow-list.md)                      | Landing: the workflow as a numbered list grouped by place (`WorkflowList`)                   | Medium   | S      | 112        | In progress |
+| [153](./153-workflow-list.md)                      | Landing: the workflow as a numbered list grouped by place (`WorkflowList`)                   | Medium   | S      | 112        | Superseded  |
+| [155](./155-workflow-beats.md)                     | Landing: the workflow as three beats on a line, the hero's token travelling it (`Workflow`)  | Medium   | M      | 153        | In progress |
 | [154](./154-well-jumps-on-phone-scroll.md)         | Gravity well flashes and jumps while scrolling on phones                                     | Medium   | XS     | —          | Review      |
 
 Order: 110 → 105 → 106 → 107 → 108 → 112 (done); 114 (done); 109 and 111 later.

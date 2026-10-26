@@ -243,10 +243,10 @@ export const STORIES: readonly Story[] = [
     viewports: [DESKTOP],
   },
   {
-    component: 'workflow-list',
+    component: 'workflow',
     variant: 'default',
-    title: 'Numbered steps grouped by place',
-    example: 'WorkflowListDefault',
+    title: 'Three beats on a line, the token at rest',
+    example: 'WorkflowDefault',
     viewports: [DESKTOP, MOBILE],
   },
   {

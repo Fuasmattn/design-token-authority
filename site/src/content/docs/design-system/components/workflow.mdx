@@ -1,0 +1,27 @@
+---
+title: Workflow
+description: The workflow at a glance as three beats on one line, with the hero's token travelling it once.
+sidebar:
+  order: 8
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+The workflow at a glance, on the landing page under "How it works": where design happens, in the pull request, the decision. The hero's orange cube travels the line once when the section scrolls into view.
+
+<Examples component="workflow" />
+
+## Guidelines
+
+- **Three beats, one line.** Each beat is a mono eyebrow (where it happens), a title of a few words and two short sentences. No commands, no numbers: the example section below carries them. A faint dotted `rail` line (1px, `1 7`) runs through the three stations to the end.
+- **Stations and the end.** Stations are 16px rings in `border-strong` that fill as the token passes and stay filled. The end is a ring in `action-bg` that fills, gets a soft halo and a tick when the token arrives: merged. Labels: `changes · iterations` at the step back before the end, the end state in `action-text`.
+- **The token.** The hero's cube (`well-object-orange`, the same faces and hairline), with eight motes of `well-dust` and two small spheres trailing it. While the token waits at a station the dust gathers into a flat ring around it and turns — a loading state — and lets go as it moves on. At the decision the token steps back once and returns; at the end it turns blueprint.
+- **Motion.** One run of 28 s, started once when a third of the section is visible; never loops. Positions are computed from the stations after layout, so the same component serves the stacked and the three-column layout. Under `prefers-reduced-motion` the finished picture is shown. Transitions take the motion tokens.
+- **Layout.** Stacked on phones with the line on the left; from 960px of container three columns on a horizontal line, the end to the right of the last column.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="Workflow" />

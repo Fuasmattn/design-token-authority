@@ -42,35 +42,31 @@ export const HERO = {
 
 /**
  * The workflow at a glance, right below the hero (spec decision 12, revised 2026-10-25,
- * TICKET-153): numbered rows grouped by where they happen. The change is made on the design side
- * (or in a file, or by an agent), `dta pull` carries it across, and in the pull request, one card,
- * it is checked, built, diffed and decided. A fix goes back to whichever side caused it; there is
- * no arrow back.
+ * TICKET-155): three beats on one line, the token travelling it. No commands here: the example
+ * section below carries them, with what each produces.
  */
 export const WORKFLOW = {
-  title: 'How it works',
-  change: {
-    side: 'where the change is made',
-    label: 'Change',
-    text: 'In Figma Variables, in a token file, or by an agent.',
-  },
-  crossing: { command: COMMANDS.pull, text: 'into the repository' },
-  pullRequest: 'in the pull request',
-  steps: [
-    { label: 'Check', text: 'Structure and names, against your rules.', command: COMMANDS.lint },
-    { label: 'Build', text: 'Every output, for every brand and mode.', command: COMMANDS.build },
+  title: 'Design changes, reviewed like code.',
+  kicker: 'How it works',
+  beats: [
     {
-      label: 'Diff',
-      text: 'Before and after, each difference named by token.',
-      command: COMMANDS.diff,
+      where: 'Where design happens',
+      title: 'Tokens change',
+      text: 'Edited or added in Figma Variables, in a token file, or by an agent, and pulled into the repository as one change.',
     },
-    { label: 'Decide', text: 'A person approves by token.' },
+    {
+      where: 'In the pull request',
+      title: 'DTA does its work',
+      text: 'Structure and names are checked against your rules, every output is rebuilt, and the stories are rendered before and after with the token named behind each difference.',
+    },
+    {
+      where: 'Still in the pull request',
+      title: 'The team decides',
+      text: 'Signs the change off by token, or sends it back to whichever side caused it.',
+    },
   ],
-  back: {
-    text: 'A fix goes back to whichever side caused it: a value in Figma, or a component in code.',
-    command: COMMANDS.audit,
-    detail: 'finds the hard-coded ones',
-  },
+  iterations: 'changes · iterations',
+  end: 'Merged',
 }
 
 /**

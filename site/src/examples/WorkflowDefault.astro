@@ -1,0 +1,33 @@
+---
+import Workflow from '../components/ds/Workflow.astro'
+
+interface Props {
+  idPrefix: string
+}
+const { idPrefix } = Astro.props
+---
+
+<Workflow
+  idPrefix={idPrefix}
+  title="Design changes, reviewed like code."
+  kicker="How it works"
+  beats={[
+    {
+      where: 'Where design happens',
+      title: 'Tokens change',
+      text: 'Edited or added in Figma Variables, in a token file, or by an agent, and pulled into the repository as one change.',
+    },
+    {
+      where: 'In the pull request',
+      title: 'DTA does its work',
+      text: 'Structure and names are checked against your rules, every output is rebuilt, and the stories are rendered before and after with the token named behind each difference.',
+    },
+    {
+      where: 'Still in the pull request',
+      title: 'The team decides',
+      text: 'Signs the change off by token, or sends it back to whichever side caused it.',
+    },
+  ]}
+  iterations="changes · iterations"
+  end="Merged"
+/>
