@@ -1,6 +1,6 @@
 # Landing redesign — reference mockups
 
-Throwaway HTML from the design rounds of 2026-10-17. They use literal colours and ad-hoc CSS on purpose: they show the look, not the code. The site itself follows the token and design-system rules in CLAUDE.md.
+Throwaway HTML from the design rounds of 2026-10-17. They use literal colours and ad-hoc CSS on purpose: they show the look, not the code. The site itself follows the token and design-system rules in AGENTS.md.
 
 | File | What it shows |
 | --- | --- |

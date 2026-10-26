@@ -4,7 +4,7 @@ The skills in this folder are copied from [mattpocock/skills](https://github.com
 
 | Skill | Use in this repo |
 |---|---|
-| `grill-with-docs` | Grill a concept against the existing docs and `CLAUDE.md` |
+| `grill-with-docs` | Grill a concept against the existing docs and `AGENTS.md` |
 | `to-spec` | Turn a grilled concept into a spec |
 | `to-tickets` | Break a spec into tickets in `docs/tickets/` |
 | `implement-spec` | Implement a spec ticket by ticket |

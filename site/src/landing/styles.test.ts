@@ -1,6 +1,6 @@
 /**
  * The landing page, the playground and the frame they share (site.css, SiteLayout) are styled
- * with the DTA Drafting Table tokens only (CLAUDE.md, TICKET-096): no colour literals, borders
+ * with the DTA Drafting Table tokens only (AGENTS.md, TICKET-096): no colour literals, borders
  * instead of shadows, and no literal px for spacing, radii or type.
  * Sizes of small decorative shapes (the logo mark, dots) and media queries are not checked.
  */

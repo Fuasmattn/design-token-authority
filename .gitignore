@@ -39,3 +39,6 @@ __pycache__/
 
 # Tarballs of a release (.release-it.json)
 .release/
+
+# Playwright run state
+test-results/
