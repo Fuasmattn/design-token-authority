@@ -203,8 +203,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@figma/rest-api-spec':
-        specifier: ^0.37.0
-        version: 0.37.0
+        specifier: ^0.46.0
+        version: 0.46.0
       zod:
         specifier: ^4.6.7
         version: 4.6.7
@@ -248,8 +248,8 @@ importers:
         version: 8.0.4
     devDependencies:
       '@figma/rest-api-spec':
-        specifier: ^0.37.0
-        version: 0.37.0
+        specifier: ^0.46.0
+        version: 0.46.0
       '@types/node':
         specifier: ^24.19.2
         version: 24.19.2
@@ -948,6 +948,9 @@ packages:
 
   '@figma/rest-api-spec@0.37.0':
     resolution: {integrity: sha512-KKeCgSRiO2gajT/sKCAsn48ubl8NRbYqyIvfkk5+NPK2ar+DVuLKg3fl3/cR1WharC5Dg4V5a9JzDsYv04k50g==}
+
+  '@figma/rest-api-spec@0.46.0':
+    resolution: {integrity: sha512-X2dNNvix+9w6pRrBb4/OumuqK+DEHriBVWfdhPmmIyeDC0VnaMoZd14XBJK5SZXCeBnGxsRRaMidha8vsWKsFw==}
 
   '@fontsource-variable/instrument-sans@5.3.0':
     resolution: {integrity: sha512-u4gKbDBTNFGkg997tfQn3eHOhHuquWUFTRT/rwzuKtrxX5P2ekfs2x+LgBPP4P32+cC+vUwF1Cr+IdRoPQbrGw==}
@@ -5099,6 +5102,8 @@ snapshots:
 
   '@figma/rest-api-spec@0.37.0': {}
 
+  '@figma/rest-api-spec@0.46.0': {}
+
   '@fontsource-variable/instrument-sans@5.3.0': {}
 
   '@fontsource-variable/martian-mono@5.3.0': {}
@@ -5941,7 +5946,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.0.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.12(@types/node@24.19.2)(@vitest/coverage-v8@4.1.12)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.15)(yaml@2.8.3))
+      vitest: 4.1.12(@types/node@24.19.2)(@vitest/coverage-v8@4.1.12)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.15)(yaml@2.9.1))
 
   '@vitest/expect@4.1.12':
     dependencies:

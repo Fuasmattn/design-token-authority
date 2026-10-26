@@ -271,6 +271,32 @@ describe('variablesToModel: problems become diagnostics and skip only that value
     expect(result.model.collections[0].tokens[0].values).toEqual({ mode2: '#000000' })
   })
 
+  it('skips a composed colour (opacity authored apart) and keeps the other modes (TICKET-160)', () => {
+    // Figma REST API spec 0.46: a colour whose opacity is its own alias or number. DTA does
+    // not model it yet; the file still pulls, with a warning that names the feature.
+    const result = variablesToModel(
+      response(modes, {
+        V1: {
+          name: 'color/alpha',
+          resolvedType: 'COLOR',
+          valuesByMode: {
+            '1:0': { color: { r: 0, g: 0, b: 1 }, opacity: { type: 'VARIABLE_ALIAS', id: 'V2' } },
+            '1:1': { r: 0, g: 0, b: 1 },
+          },
+        },
+        V2: {
+          name: 'opacity/half',
+          resolvedType: 'FLOAT',
+          valuesByMode: { '1:0': 0.5, '1:1': 0.5 },
+        },
+      }),
+    )
+    expect(codes(result)).toEqual(['composed-color'])
+    expect(result.diagnostics[0]).toMatchObject({ severity: 'warning', path: ['color', 'alpha'] })
+    expect(result.diagnostics[0].message).toContain('composed colour')
+    expect(result.model.collections[0].tokens[0].values).toEqual({ mode2: '#0000ff' })
+  })
+
   it('skips a value of the wrong kind', () => {
     const result = variablesToModel(
       response([modes[0]], {

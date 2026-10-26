@@ -18,7 +18,17 @@ const Alias = z.object({
   id: z.string(),
 })
 
-const VariableValue = z.union([z.boolean(), z.number(), z.string(), Alias, Rgba])
+/**
+ * A colour with an independently authored opacity (Figma REST API spec 0.46, TICKET-160): the
+ * colour or the opacity, or both, alias another variable. Accepted here so a file that uses it
+ * still pulls; the value itself is left out with a warning until DTA models it (TICKET-171).
+ */
+const ComposedColor = z.union([
+  z.object({ color: Rgba, opacity: Alias }),
+  z.object({ color: Alias, opacity: z.union([z.number(), Alias]) }),
+])
+
+const VariableValue = z.union([z.boolean(), z.number(), z.string(), Alias, Rgba, ComposedColor])
 
 const CodeSyntax = z.object({
   WEB: z.string().optional(),
