@@ -1,0 +1,97 @@
+---
+/**
+ * The head of a landing-page section: a mono kicker, a condensed display heading, one short lede
+ * and, when the section points somewhere, one link. The same shape above the workflow and
+ * above the example, so the sections read as siblings (TICKET-155).
+ */
+interface Props {
+  kicker: string
+  heading: string
+  lede?: string
+  link?: { label: string; href: string }
+  /** The heading's id, for `aria-labelledby` on the section. */
+  headingId?: string
+}
+const { kicker, heading, lede, link, headingId } = Astro.props
+---
+
+<div class="dta-section-intro">
+  <span class="kicker">{kicker}</span>
+  <h2 id={headingId}>{heading}</h2>
+  {lede && <p class="lede">{lede}</p>}
+  {
+    link && (
+      <a class="link" href={link.href}>
+        {link.label}
+        <svg viewBox="0 0 24 12" aria-hidden="true">
+          <path d="M1 6h21M17 1.5 22 6l-5 4.5" />
+        </svg>
+      </a>
+    )
+  }
+</div>
+
+<style>
+  .dta-section-intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    color: var(--fg-default);
+    font-family: var(--font-sans);
+  }
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: calc(var(--type-meta-size) * 1px);
+    line-height: var(--type-meta-line-height);
+    letter-spacing: var(--type-meta-letter-spacing);
+    text-transform: uppercase;
+    color: var(--action-text);
+  }
+  h2 {
+    margin: 0;
+    max-width: 16ch;
+    font-size: clamp(
+      calc(var(--type-heading-size) * 1px),
+      4.6vw,
+      calc(var(--type-display-lg-size) * 1px)
+    );
+    font-weight: var(--type-display-lg-weight);
+    line-height: var(--type-display-lg-line-height);
+    letter-spacing: var(--type-display-lg-letter-spacing);
+    font-stretch: 85%;
+  }
+  .lede {
+    margin: 0;
+    max-width: 44ch;
+    font-size: calc(var(--type-body-size) * 1px);
+    line-height: var(--type-body-line-height);
+    color: var(--fg-muted);
+  }
+  .link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+    font-size: calc(var(--type-label-size) * 1px);
+    font-weight: var(--type-label-weight);
+    line-height: var(--type-label-line-height);
+    color: var(--action-text);
+    text-decoration: none;
+    border-bottom: var(--stroke-hairline) solid transparent;
+    transition: border-color var(--motion-duration-fast) var(--motion-ease-standard);
+  }
+  .link:hover,
+  .link:focus-visible {
+    border-color: var(--action-text);
+  }
+  .link svg {
+    width: var(--space-6);
+    height: var(--space-3);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+</style>

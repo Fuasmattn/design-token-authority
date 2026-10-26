@@ -40,59 +40,33 @@ describe('landing page honesty rule', () => {
     }
   })
 
-  it('shows every command of the workflow strip as a shipped dta command from COMMANDS', () => {
-    const shown = [
-      WORKFLOW.crossing.command,
-      ...WORKFLOW.steps.flatMap((step) =>
-        'command' in step && step.command ? [step.command] : [],
-      ),
-      WORKFLOW.back.command,
-    ]
-    expect(shown.map((command) => command.text)).toEqual([
-      'dta pull',
-      'dta lint',
-      'dta build',
-      'dta diff',
-      'dta audit',
+  it('keeps the workflow to three beats without commands (TICKET-155)', () => {
+    expect(WORKFLOW.beats.map((beat) => beat.title)).toEqual([
+      'Tokens change',
+      'DTA does its work',
+      'The team decides',
     ])
-    const listed = new Set<object>(Object.values(COMMANDS))
-    for (const command of shown) {
-      expect(listed.has(command), command.text).toBe(true)
-      expect(command.shipped, command.text).toBe(true)
-      for (const name of command.uses) expect(registered.has(name), name).toBe(true)
-    }
+    for (const beat of WORKFLOW.beats) expect(beat.text).not.toMatch(/\bdta\s+\w/)
+    expect(WORKFLOW.end).toBe('Merged')
   })
 
-  it('keeps the strip unnumbered and the scenes in its order (spec decision 12)', () => {
-    for (const step of [WORKFLOW.change, ...WORKFLOW.steps]) {
-      expect(step.label).toMatch(/^[A-Z][a-z]+$/)
-    }
-    // The scenes follow the strip (TICKET-114 item 5): 02 the checks (`dta lint`), 03 the diff
-    // and the decision (`dta diff`, with the approve action).
+  it('keeps the scenes in the order of the pull request (spec decision 12)', () => {
+    // The scenes follow the pull request (TICKET-114 item 5): 02 the checks (`dta lint`), 03 the
+    // diff and the decision (`dta diff`, with the approve action).
     expect(SCENES.map((scene) => scene.command)).toEqual([
       COMMANDS.pull,
       COMMANDS.lint,
       COMMANDS.diff,
       COMMANDS.skill,
     ])
-    const stepCommands = WORKFLOW.steps.flatMap((step) =>
-      'command' in step && step.command ? [step.command.text] : [],
-    )
-    const inStrip = SCENES.map((scene) => scene.command.text).filter((t) =>
-      stepCommands.includes(t),
-    )
-    expect(inStrip).toEqual(stepCommands.filter((t) => inStrip.includes(t)))
     expect(SCENES[2].kicker).toBe('A person decides')
     expect(DECISION.map((check) => check.name)).toEqual(['dta diff'])
-    // Each command of the strip appears at most once as a scene command.
+    // Each command appears at most once as a scene command.
     const sceneCommands = SCENES.map((scene) => scene.command.text)
     expect(new Set(sceneCommands).size).toBe(sceneCommands.length)
     expect(sceneCommands).not.toContain(COMMANDS.build.text)
-    // The checks of scene 02 run in the strip's order.
-    const stripOrder = WORKFLOW.steps.flatMap((step) =>
-      'command' in step && step.command ? [step.command.text] : [],
-    )
-    expect(CHECKS.map((check) => check.name)).toEqual(stripOrder)
+    // The checks of scene 02 run in the pull request's order.
+    expect(CHECKS.map((check) => check.name)).toEqual(['dta lint', 'dta build', 'dta diff'])
   })
 
   it('runs the agent terminal on shipped commands', () => {

@@ -1,0 +1,25 @@
+---
+title: Section intro
+description: The head of a landing-page section — a mono kicker, a condensed heading, a short lede and at most one link.
+sidebar:
+  order: 7
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+The head of a landing-page section. The same shape above the workflow and above the example, so the sections read as siblings.
+
+<Examples component="section-intro" />
+
+## Guidelines
+
+- **Kicker** in `meta` style, `action-text`; **heading** condensed, from the heading size on phones to `display-lg` on desktop, at most 16 characters wide; **lede** in `fg-muted`, 44 characters wide.
+- **One link at most**, in `action-text` with a thin arrow, underlined only on hover and focus. Use it when the section points at something real (an example in the repository, a docs page), never as a second call to action.
+- Left-aligned on the page measure; the section below starts after `space-10` on phones and `space-16` on desktop.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="SectionIntro" />

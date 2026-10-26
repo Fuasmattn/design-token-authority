@@ -1,0 +1,27 @@
+---
+title: Workflow
+description: The workflow at a glance as three beats on one line, with the hero's token travelling it once.
+sidebar:
+  order: 8
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+The workflow at a glance, on the landing page under "How it works": where design happens, in the pull request, the decision. The hero's orange cube travels the line once when the section scrolls into view.
+
+<Examples component="workflow" />
+
+## Guidelines
+
+- **Three beats, one line.** Each beat is a mono eyebrow (where it happens), a title of a few words and two short sentences. No commands, no numbers: the example section below carries them. A faint dotted `rail` line (1px, `1 7`) runs through the three stations to the end.
+- **Stations and the end.** Stations are 16px rings in `border-strong` that fill as the token passes and stay filled. The end is a ring in `action-bg` that fills, gets a soft halo and a tick when the token arrives: merged. The end state is labelled in `action-text`; the step back before it carries no label.
+- **The token.** The hero's cube (`well-object-orange`, the same faces and hairline). It slows and breathes a little while it waits at a station; at the decision it steps back once and returns; it stays orange and full size at the end. Twelve motes of `well-dust` (two as the hero's spheres) flow along the line on their own, at their own pace, as long as the page is open, and bend toward the token when they pass near it.
+- **Motion.** One run of 28 s, started once when a third of the section is visible; never loops. Once it is over, tapping the first beat spawns a new token — another colour from the hero's set, another size, turning the other way — and runs it from the start; nothing happens during a run. Positions are computed from the stations after layout, so the same component serves the stacked and the three-column layout. Under `prefers-reduced-motion` the finished picture is shown. Transitions take the motion tokens.
+- **Layout.** Stacked on phones with the line on the left; from 960px of container three columns on a horizontal line, the end to the right of the last column.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="Workflow" />

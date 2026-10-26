@@ -2,7 +2,7 @@
  * The site's frame and the landing page's strip on the built site (TICKET-114): the nav marks the
  * page you are on (`aria-current="page"` and a visible underline; none on the landing page, whose
  * links are sections), in the row and in the phone menu; the docs mark theirs in Starlight's
- * sidebar; the workflow strip's "where the change is made" stays on one line on a 1280px screen.
+ * sidebar; the workflow's eyebrows stay on one line on a desktop screen.
  *
  * Same conditions as contrast.e2e.test.ts: needs the built site (`pnpm build` → dist/) and a
  * browser (DTA_E2E=1 in the CI job "site", or DTA_BROWSER_PATH); otherwise skipped.
@@ -132,17 +132,22 @@ describe.skipIf(!enabled)('site frame on the built site', () => {
   }, 60_000)
 
   it.each([1280, 1440])(
-    'keeps the strip label "where the change is made" on one line at %i px',
+    'keeps every eyebrow of the workflow on one line at %i px, without sideways scroll',
     async (width) => {
       const { context, page } = await open('/', width)
       try {
         const lines = await page.evaluate(`(() => {
-          const label = document.querySelector('.dta-workflow .design .side-label')
-          const range = document.createRange()
-          range.selectNodeContents(label)
-          return [label.textContent, new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size]
+          return [...document.querySelectorAll('.dta-workflow-frame .beat .where')].map((label) => {
+            const range = document.createRange()
+            range.selectNodeContents(label)
+            return [label.textContent, new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size]
+          })
         })()`)
-        expect(lines).toEqual(['where the change is made', 1])
+        expect(lines).toEqual([
+          ['Where design happens', 1],
+          ['In the pull request', 1],
+          ['Still in the pull request', 1],
+        ])
         expect(await page.evaluate('document.documentElement.scrollWidth')).toBe(width)
       } finally {
         await context.close()

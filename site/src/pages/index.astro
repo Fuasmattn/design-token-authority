@@ -19,7 +19,8 @@ import GravityWell from '../components/ds/GravityWell.astro'
 import Scene from '../components/ds/Scene.astro'
 import Terminal from '../components/ds/Terminal.astro'
 import TokenRows from '../components/ds/TokenRows.astro'
-import WorkflowRail from '../components/ds/WorkflowRail.astro'
+import Workflow from '../components/ds/Workflow.astro'
+import SectionIntro from '../components/ds/SectionIntro.astro'
 import {
   AGENT_RUN,
   APPROVE,
@@ -33,6 +34,7 @@ import {
   SCENES,
   TOKEN_ROWS,
   WORKFLOW,
+  EXAMPLE,
 } from '../landing/content'
 
 const title = 'Design Token Authority'
@@ -54,19 +56,23 @@ const [s1, s2, s3, s4] = SCENES
       </GravityWell>
 
       <div class="wrap how">
-        <WorkflowRail
+        <Workflow
           id="how"
           idPrefix="how"
           title={WORKFLOW.title}
-          change={WORKFLOW.change}
-          crossing={{ command: WORKFLOW.crossing.command.text, text: WORKFLOW.crossing.text }}
-          pullRequest={WORKFLOW.pullRequest}
-          steps={WORKFLOW.steps.map((step) => ({ ...step, command: step.command?.text }))}
-          back={{ ...WORKFLOW.back, command: WORKFLOW.back.command.text }}
+          kicker={WORKFLOW.kicker}
+          beats={WORKFLOW.beats}
+          end={WORKFLOW.end}
         />
       </div>
 
       <div class="wrap story" id="story">
+        <SectionIntro
+          kicker={EXAMPLE.kicker}
+          heading={EXAMPLE.heading}
+          lede={EXAMPLE.lede}
+          link={EXAMPLE.link}
+        />
         <Scene
           number={s1.number}
           kicker={s1.kicker}
