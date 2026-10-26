@@ -1,58 +1,32 @@
-# TICKET-032: Migrate to Figma's native W3C DTCG export/import
+# TICKET-032: Check Figma's native DTCG export against `dta pull --from-file`
 
 **Phase:** 7 — AI Interop
 **Priority:** Medium
-**Effort:** M
+**Effort:** S
+**Blocked by:** a real export from Figma (the maintainer provides it)
+**Status:** open (rewritten 2026-10-26; the original plan targeted the v1 importers, which were removed in TICKET-039)
 
-## Summary
+## Problem
 
-Track and adopt Figma's upcoming **native** W3C DTCG variable export/import (announced at Schema 2025, rolling out through 2026). Replace the current reliance on community plugins (tokenHaus etc.) as the default non-Enterprise path. Keep the REST API path for Enterprise customers.
+Figma is rolling out a native variable export and import in the DTCG format. DTA already reads DTCG 2025.10 (Phase 12) and its own per-mode files, and converts tokenHaus exports through an adapter. Nobody has checked a real native Figma export against `dta pull --from-file` yet, so the docs can only say it "will work".
 
-## Background
+## What to build
 
-Today the project has three ingestion paths:
+1. **A real export as a fixture.** The maintainer exports variables from a Figma file with at least two collections, one with several modes and aliases across collections. Brand names replaced by BrandA/BrandB, then committed under `test/fixtures/` (name: `figma-native-export`).
+2. **Run it through the import.** `dta pull --from-file` on the fixture. `detectFormat` in `@dta/figma` must name the format (DTCG per mode, or a new adapter if Figma's layout differs). Whatever it cannot read becomes a small adapter in `packages/figma/src/adapters/`, like the tokenHaus one.
+3. **Aliases survive.** Aliases across collections stay aliases after the import; anything that falls back to a raw value prints a warning instead of converting silently.
+4. **A snapshot.** A CLI snapshot scenario on the fixture (`pnpm snapshot:record --scenario figma-native-export/pull`), so a later change to the import shows up as a diff.
+5. **Docs.** The website's Token files page and the Figma plan section of `CLAUDE.md` name the native export as the default path for non-Enterprise plans, tokenHaus as a fallback, and the REST API as live sync for Enterprise.
 
-1. **Figma REST API** (`getLocalVariables`) — works only on Enterprise plans.
-2. **`--from-file` with community plugin exports** (tokenHaus detector in `src/importers/tokenhaus.ts`) — works on all plans but requires an external plugin in the designer's flow.
-3. **DTCG per-mode files** (native format).
+## Acceptance criteria
 
-When Figma ships native DTCG export, path 2 becomes redundant and path 1 becomes optional — any plan can export DTCG natively. The project should:
+- [ ] Fixture from a real Figma export committed, no real brand names
+- [ ] `dta pull --from-file` reads it without plugin-specific steps; aliases across collections preserved or warned about
+- [ ] Snapshot scenario recorded and reviewed
+- [ ] Token files page and `CLAUDE.md` updated; the "Outlook" note in `CLAUDE.md` replaced by the checked state
+- [ ] Gates pass
 
-- Detect native Figma DTCG exports and import them directly.
-- Deprecate tokenHaus-specific handling (keep as a fallback, not the default).
-- Position the REST API as the "live sync" path for Enterprise, and DTCG files as the portable default.
+## Notes
 
-Getting this right matters because it's the one area where the project is most exposed to being commoditized by the platform. Adopting early keeps the tool ahead of the transition rather than broken by it.
-
-## Acceptance Criteria
-
-- [ ] Tracking: monitor Figma Schema 2025 rollout; record the native DTCG schema once published.
-- [ ] Update `src/importers/detect.ts` to recognize Figma-native DTCG files as a first-class format.
-- [ ] `dta pull --from-file <native-figma-export>` works without any plugin-specific handling.
-- [ ] Documentation updated to recommend the native path for non-Enterprise plans; tokenHaus demoted to "legacy / fallback."
-- [ ] Init wizard (TICKET-015) updates: the "which plan?" branch offers native DTCG as the recommended path.
-- [ ] REST API path unchanged for Enterprise customers but clearly framed as "live sync" in docs — the native export is framed as the default for most teams.
-- [ ] Conformance tests: one golden native-Figma DTCG fixture committed, exercised on every import path change.
-- [ ] Decision recorded: if the native export drops alias preservation or metadata, does the tool fall back to an extended format, or do we accept the loss? Document the answer in the ticket resolution.
-
-## Implementation Notes
-
-**Format detection:** Figma's native export will likely carry an identifying marker (`$schema` URL or a `com.figma` section at the root). `detect.ts` should check for that marker first, falling back to current heuristics.
-
-**Schema drift watch:** Until the native export is stable, do not remove the tokenHaus importer. Flag it deprecated but keep it compilable.
-
-**Graceful alias fallback:** If the native format doesn't preserve alias references in some edge case, emit a warning during import rather than silently converting to raw values — the whole 3-layer model (Primitives → Brand → ScreenType) depends on aliases surviving the round trip.
-
-**README update:** The current README lists three compatible plugins. Once native export lands, those become a "fallback" section; the recommended path for all non-Enterprise teams is the native export.
-
-**Timing:** Figma's rollout is gradual through late 2026. A tracking issue with regular check-ins (quarterly) is more useful than a single sprint; turn this into a living ticket until the native export is broadly available.
-
-## Dependencies
-
-- TICKET-014 (autodiscovery — same analysis engine over the new format)
-- TICKET-015 (init wizard — branches update)
-- No hard blockers on our side; paced by Figma's rollout.
-
-## Why this is important
-
-This is the ticket that prevents `design-token-authority` from being framed as "a Figma import-export convenience" — a positioning that becomes indefensible once Figma ships native DTCG. Adopting the native format early keeps the project at the layer _above_ import/export: governance, multi-brand composition, code-side enforcement, and AI interop. That layer is not something Figma will build.
+- If Figma's export drops aliases or metadata the model needs, record the decision here: accept the loss with a warning, or keep the REST path as the only lossless one.
+- Keep the tokenHaus adapter; it still serves files exported before the native feature.

@@ -3,6 +3,7 @@
 **Phase:** 6 — Documentation & Visualization
 **Priority:** Low
 **Effort:** L
+**Status:** closed (2026-10-26): not planned. A coding agent with the DTA skill and docs covers unusual setups; no new features for now
 
 ## Summary
 

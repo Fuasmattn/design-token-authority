@@ -84,7 +84,7 @@ Token visibility for designers and developers.
 | ----------------------------------------- | ------------------------------------------ | -------- | ------ | -------- |
 | [022](./022-token-docs-site.md)           | Static token documentation site generator  | Medium   | L      | **Done** |
 | [023](./023-visual-regression-testing.md) | Visual regression testing with Playwright  | Low      | L      | **Done** |
-| [024](./024-ai-config-generation.md)      | AI-assisted config generation (Claude API) | Low      | L      | Open     |
+| [024](./024-ai-config-generation.md)      | AI-assisted config generation (Claude API) | Low      | L      | Closed (not planned) |
 
 ---
 
@@ -97,10 +97,10 @@ Figma and the design/coding AI tools will not build themselves.
 | #                                           | Ticket                                                      | Priority | Effort | Status                                    |
 | ------------------------------------------- | ----------------------------------------------------------- | -------- | ------ | ----------------------------------------- |
 | [028](./028-design-md-generator.md)         | `DESIGN.md` / `AGENTS.md` generator for AI coding agents    | **High** | M      | Replaced by 102                           |
-| [029](./029-mcp-server.md)                  | MCP server exposing token graph to AI tools                 | **High** | M      | Deferred (agent-interop spec, decision 1) |
+| [029](./029-mcp-server.md)                  | MCP server exposing token graph to AI tools                 | **High** | M      | Deferred, not planned |
 | [030](./030-ai-code-audit.md)               | `dta audit` — detect hardcoded values in AI-generated code  | **High** | M      | Replaced by 103                           |
 | [031](./031-ai-design-brief-export.md)      | Brand brief export for AI design generators (Stitch, v0, …) | Medium   | S      | **Done**  |
-| [032](./032-native-figma-dtcg-migration.md) | Migrate to Figma's native W3C DTCG export/import            | Medium   | M      | Open                                      |
+| [032](./032-native-figma-dtcg-migration.md) | Check Figma native DTCG export with `pull --from-file`        | Medium   | S      | Open                                      |
 
 **Recommended order:** 028 first (static context is the cheapest win and unblocks 031). 029 next (biggest leverage; turns the tool into a live authority). 030 alongside or after 029 — they reinforce each other. 031 is light and can slot in any time. 032 is a tracking/long-running ticket paced by Figma.
 
