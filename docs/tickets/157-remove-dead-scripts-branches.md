@@ -12,7 +12,7 @@
 2. **Unused exports.** `knip` lists about 20 exports nothing imports (for example `parseModeSelection`, `describeDetection`, `FLAT_TOLERANCE`, `GROUP_GAP`, several in `actions/lib/dta-diff.mjs`). Drop the `export` where it is not public API or used by a test; keep what a package's entry point exposes on purpose.
 3. **Stale branches** (with the maintainer's confirmation, deleting is hard to undo):
    - merged: `153-workflow-list`, `plan/token-engine-overhaul` (check first that Vercel no longer builds previews from it)
-   - misnumbered, replaced by `170-workflow-dust` (pull request #36 closed): `168-workflow-dust`
+   - misnumbered aliases of the flake-fix branch (pull request #38 carries it as `170-workflow-dust`, ticket 172): `168-workflow-dust`, `172-workflow-dust`
    - no open pull request: `test/dta-diff-component`, `test/dta-diff-icon`, `test/dta-diff-node24`, `test/dta-diff-token`, `dependabot/npm_and_yarn/axios-1.14.0`, `dependabot/npm_and_yarn/typescript-5.9.3`
    - keep: `dta-diff-assets` (the assets-branch recipe) and `sample/dta-diff-demo` (demo pull request #20)
 
