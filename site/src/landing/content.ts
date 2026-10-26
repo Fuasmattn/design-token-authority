@@ -69,6 +69,20 @@ export const WORKFLOW = {
 }
 
 /**
+ * The head of the example section (TICKET-155): the four scenes below follow one real change in
+ * the Orbit Burger demo brand, which lives in the repository.
+ */
+export const EXAMPLE = {
+  kicker: 'Example · the flow in detail',
+  heading: 'One change, followed through every step.',
+  lede: 'Two tokens of the Orbit Burger demo brand, edited in Figma: a rounder card and a deeper brand blue. Each step above, with what it produces for exactly this change.',
+  link: {
+    label: 'The example brand on GitHub',
+    href: 'https://github.com/Fuasmattn/design-token-authority/tree/main/site/examples/orbit-burger',
+  },
+}
+
+/**
  * One change, four scenes, in the order of the strip (maintainer, 2026-10-19, TICKET-114 item 5):
  * the change crossing over (`dta pull`), the checks (`dta lint` first, then every output is
  * rebuilt; `dta build` lives in the strip), the differences and the person who approves them

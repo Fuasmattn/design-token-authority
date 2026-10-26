@@ -20,6 +20,7 @@ import Scene from '../components/ds/Scene.astro'
 import Terminal from '../components/ds/Terminal.astro'
 import TokenRows from '../components/ds/TokenRows.astro'
 import Workflow from '../components/ds/Workflow.astro'
+import SectionIntro from '../components/ds/SectionIntro.astro'
 import {
   AGENT_RUN,
   APPROVE,
@@ -33,6 +34,7 @@ import {
   SCENES,
   TOKEN_ROWS,
   WORKFLOW,
+  EXAMPLE,
 } from '../landing/content'
 
 const title = 'Design Token Authority'
@@ -65,6 +67,12 @@ const [s1, s2, s3, s4] = SCENES
       </div>
 
       <div class="wrap story" id="story">
+        <SectionIntro
+          kicker={EXAMPLE.kicker}
+          heading={EXAMPLE.heading}
+          lede={EXAMPLE.lede}
+          link={EXAMPLE.link}
+        />
         <Scene
           number={s1.number}
           kicker={s1.kicker}

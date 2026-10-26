@@ -2,16 +2,18 @@
 /**
  * The workflow at a glance (TICKET-155): three beats on one faint line — where design happens,
  * in the pull request, the decision — and the token travelling it once. The token is the hero's
- * orange cube; dust from the hero trails it, gathers into a flat ring around it while it waits at
- * a station (a loading state), and lets go when it moves on. Stations fill as the token passes;
- * at the decision it steps back once (an iteration without a loop); at the end it turns
- * blueprint and the end dot gets its tick: merged. The step back carries no label.
+ * orange cube; it breathes a little while it waits at a station. Dust from the hero flows along
+ * the line on its own, each mote at its own pace, for as long as the page is open. Stations fill
+ * as the token passes; at the decision it steps back once (an iteration without a loop); at the
+ * end the end dot fills and gets its tick: merged. The step back carries no label.
  *
  * The run starts once, when the section scrolls into view, and never loops. Under
  * `prefers-reduced-motion` the finished picture is shown. The line is a polyline through the
  * stations, measured after layout, so one component serves both the stacked (phone) and the
  * three-column (desktop) layout.
  */
+import SectionIntro from './SectionIntro.astro'
+
 export interface Beat {
   /** Mono eyebrow: where this happens. */
   where: string
@@ -45,16 +47,14 @@ const {
   idPrefix = 'workflow',
 } = Astro.props
 const headingId = `${idPrefix}-title`
-const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2']
+const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2', 'd2', 'd', 'd2', 'd2']
 ---
 
 <section class="dta-workflow-frame" id={id} aria-labelledby={headingId}>
   {
     kicker ? (
       <div class="intro">
-        <span class="kicker">{kicker}</span>
-        <h2 id={headingId}>{title}</h2>
-        {lede && <p class="lede">{lede}</p>}
+        <SectionIntro kicker={kicker} heading={title} lede={lede} headingId={headingId} />
       </div>
     ) : (
       <h2 class="visually-hidden" id={headingId}>
@@ -153,17 +153,52 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2']
     }
     let row = layout()
 
+    // Dust flows along the line on its own, each mote with its own pace, offset and sway, as long as the page is open.
+    const motes = dust.map((d, k) => ({
+      el: d,
+      at: Math.random(),
+      speed: 0.012 + Math.random() * 0.02,
+      sway: 4 + Math.random() * 8,
+      phase: Math.random() * Math.PI * 2,
+      side: (k % 3 - 1) * 5,
+    }))
+    let flowing = false
+    const placeDust = (dt: number) => {
+      for (const m of motes) {
+        m.at = (m.at + m.speed * dt) % 1
+        const q = path.getPointAtLength(m.at * total)
+        const sway = Math.sin(m.at * Math.PI * 6 + m.phase) * m.sway
+        const x = row ? q.x : q.x + sway + m.side
+        const y = row ? q.y + sway + m.side : q.y
+        const fade = Math.min(1, m.at * 12, (1 - m.at) * 12)
+        m.el.style.opacity = String(0.8 * fade)
+        m.el.style.transform = `translate(${x}px, ${y}px)`
+      }
+    }
+    let lastDust = 0
+    const dustFrame = (now: number) => {
+      const dt = lastDust ? Math.min(0.05, (now - lastDust) / 1000) : 0
+      lastDust = now
+      placeDust(dt)
+      if (flowing) requestAnimationFrame(dustFrame)
+    }
+    const startDust = () => {
+      if (flowing) return
+      flowing = true
+      requestAnimationFrame(dustFrame)
+    }
+
     function finish() {
       stations.forEach((s) => s.classList.add('passed'))
       flow.classList.add('done')
-      token.classList.add('blue')
       const p = path.getPointAtLength(total)
       token.style.opacity = '1'
-      token.style.transform = `translate(${p.x}px, ${p.y}px) scale(.9)`
+      token.style.transform = `translate(${p.x}px, ${p.y}px)`
     }
 
     if (reduce.matches) {
       finish()
+      placeDust(0)
     } else {
       // The run: move to a point (eased) or rest there, each with a share of the time.
       type Seg = { to?: number; rest?: number; w: number }
@@ -172,6 +207,7 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2']
         if (ran) return
         ran = true
         row = layout()
+        startDust()
         const P = [0, ...marks, total]
         const seg: Seg[] = [
           { to: P[1], w: 0.14 },
@@ -195,75 +231,26 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2']
             const S = seg[i]
             if (t < acc + S.w) {
               const u = (t - acc) / S.w
-              if (S.rest) return { pos, rest: S.rest, u, moving: false, i }
+              if (S.rest) return { pos, rest: S.rest, u, moving: false }
               const e = u < 0.5 ? 2 * u * u : 1 - (-2 * u + 2) ** 2 / 2
-              return { pos: pos + (S.to! - pos) * e, rest: 0, u, moving: true, i }
+              return { pos: pos + (S.to! - pos) * e, rest: 0, u, moving: true }
             }
             acc += S.w
             if (!S.rest) pos = S.to!
           }
-          return { pos: total, rest: 4, u: 1, moving: false, i: seg.length - 1 }
+          return { pos: total, rest: 4, u: 1, moving: false }
         }
         const t0 = performance.now()
         let ang = 0
-        let blend = 0
-        let ringA = 0
-        const hist: number[] = []
         token.style.opacity = '1'
         const frame = (now: number) => {
           const t = Math.min(1, (now - t0) / duration)
           const g = at(t)
           const p = path.getPointAtLength(g.pos)
-          let rate = g.moving ? 1 : 0.35
-          let scale = 1
-          if (g.rest === 2) {
-            scale = 1.08
-            rate = 0.18
-          }
-          if (g.rest === 3) {
-            scale = 1.04
-            rate = 0.1
-          }
-          if (g.rest === 4) {
-            scale = 0.9
-            token.classList.add('blue')
-          }
-          // dust: a trail behind the token on the move; a flat ring around it while it waits
-          hist.push(g.pos)
-          if (hist.length > 120) hist.shift()
-          const next = seg[g.i + 1]
-          const prev = seg[g.i - 1]
-          const waitAt = (s?: Seg) => s?.rest && s.rest !== 4
-          const wait =
-            g.rest && g.rest !== 4
-              ? 1
-              : g.moving && waitAt(next)
-                ? Math.max(0, (g.u - 0.66) / 0.34)
-                : g.moving && waitAt(prev)
-                  ? Math.max(0, 1 - g.u / 0.34)
-                  : 0
-          blend += (wait - blend) * 0.035
-          const eb = blend < 0.5 ? 2 * blend * blend : 1 - (-2 * blend + 2) ** 2 / 2
-          ringA += 0.02 + 0.05 * eb
-          dust.forEach((d, k) => {
-            const lag = 8 + k * 9
-            const q = path.getPointAtLength(hist[Math.max(0, hist.length - 1 - lag)])
-            const sway = Math.sin(ang / 40 + k * 1.3) * 7
-            const side = (k % 3 - 1) * 6
-            const tx = row ? q.x + (k % 2 ? 3 : -3) : q.x + sway + side
-            const ty = row ? q.y + sway + side : q.y + (k % 2 ? 3 : -3)
-            const a = ringA + k * ((Math.PI * 2) / dust.length)
-            const R = 22 + (k % 2) * 4
-            const rx = p.x + Math.cos(a) * R
-            const ry = p.y + Math.sin(a) * R
-            const x = tx + (rx - tx) * eb
-            const y = ty + (ry - ty) * eb
-            let op = 0.85
-            if (g.rest === 4) op = 0.85 * (1 - g.u)
-            d.style.opacity = String(op)
-            d.style.transform = `translate(${x}px, ${y}px)`
-          })
-          token.style.transform = `translate(${p.x}px, ${p.y}px) scale(${scale})`
+          // on the move it turns; at a station it slows and breathes a little
+          const rate = g.moving ? 1 : 0.15
+          const breath = g.moving ? 0 : Math.sin(((now - t0) / 1000) * Math.PI * 0.5) * 0.05
+          token.style.transform = `translate(${p.x}px, ${p.y}px) scale(${1 + breath})`
           ang += rate * 0.7
           spin.style.transform = `rotateX(${ang}deg) rotateY(${ang * 1.5}deg)`
           stations.forEach((s, i) => {
@@ -287,6 +274,10 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2']
       addEventListener('resize', () => {
         if (!ran) layout()
       })
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) flowing = false
+        else if (ran) startDust()
+      })
     }
   }
 </script>
@@ -306,38 +297,7 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2']
     white-space: nowrap;
   }
   .intro {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
     margin-bottom: var(--space-10);
-  }
-  .kicker {
-    font-family: var(--font-mono);
-    font-size: calc(var(--type-meta-size) * 1px);
-    line-height: var(--type-meta-line-height);
-    letter-spacing: var(--type-meta-letter-spacing);
-    text-transform: uppercase;
-    color: var(--action-text);
-  }
-  .intro h2 {
-    margin: 0;
-    max-width: 16ch;
-    font-size: clamp(
-      calc(var(--type-heading-size) * 1px),
-      4.6vw,
-      calc(var(--type-display-lg-size) * 1px)
-    );
-    font-weight: var(--type-display-lg-weight);
-    line-height: var(--type-display-lg-line-height);
-    letter-spacing: var(--type-display-lg-letter-spacing);
-    font-stretch: 85%;
-  }
-  .lede {
-    margin: 0;
-    max-width: 44ch;
-    font-size: calc(var(--type-body-size) * 1px);
-    line-height: var(--type-body-line-height);
-    color: var(--fg-muted);
   }
 
   /* Phone first: the beats stacked down a line on the left. */
@@ -468,11 +428,6 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2']
     opacity: 0;
     transform-style: preserve-3d;
     pointer-events: none;
-  }
-  .cube.blue {
-    --f: var(--well-object-blue);
-    --f2: var(--well-object-blue-light);
-    --f3: var(--well-object-blue-dark);
   }
   .spin {
     position: absolute;

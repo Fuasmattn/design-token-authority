@@ -243,6 +243,13 @@ export const STORIES: readonly Story[] = [
     viewports: [DESKTOP],
   },
   {
+    component: 'section-intro',
+    variant: 'default',
+    title: 'Kicker, heading, lede and a link',
+    example: 'SectionIntroDefault',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
     component: 'workflow',
     variant: 'default',
     title: 'Three beats on a line, the token at rest',
