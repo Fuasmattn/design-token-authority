@@ -22,6 +22,8 @@ export interface Beat {
   title: string
   /** Two short sentences. */
   text: string
+  /** One link under the text, when the beat points somewhere (the command reference). */
+  link?: { label: string; href: string }
 }
 
 interface Props {
@@ -78,6 +80,16 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2', 'd2', 'd', 'd2', 'd2'
             <span class="where">{beat.where}</span>
             <h3>{beat.title}</h3>
             <p>{beat.text}</p>
+            {
+              beat.link && (
+                <a class="link" href={beat.link.href}>
+                  {beat.link.label}
+                  <svg viewBox="0 0 24 12" aria-hidden="true">
+                    <path d="M1 6h21M17 1.5 22 6l-5 4.5" />
+                  </svg>
+                </a>
+              )
+            }
           </li>
         ))
       }
@@ -448,6 +460,34 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2', 'd2', 'd', 'd2', 'd2'
     font-size: calc(var(--type-body-size) * 1px);
     line-height: var(--type-body-line-height);
     color: var(--fg-muted);
+  }
+  /* The link under a beat: the section intro's link, one size down */
+  .beat .link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    align-self: flex-start;
+    margin-top: var(--space-1);
+    font-size: calc(var(--type-label-size) * 1px);
+    font-weight: var(--type-label-weight);
+    line-height: var(--type-label-line-height);
+    color: var(--action-text);
+    text-decoration: none;
+    border-bottom: var(--stroke-hairline) solid transparent;
+    transition: border-color var(--motion-duration-fast) var(--motion-ease-standard);
+  }
+  .beat .link:hover,
+  .beat .link:focus-visible {
+    border-color: var(--action-text);
+  }
+  .beat .link svg {
+    width: var(--space-6);
+    height: var(--space-3);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
   .end-label {
     position: absolute;

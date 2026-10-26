@@ -53,6 +53,10 @@ Nothing numbered beyond the scene kickers. No FAQ, no cards, no "why trust it", 
 
 12. **The workflow at a glance (2026-10-19, maintainer).** Below the hero, one unnumbered strip shows the workflow as two sides meeting in a pull request: Change (Figma, token file or agent) → in the pull request: Check (`dta lint`) → Build (`dta build`) → Diff (`dta diff`) → Decide, and a fix goes back to whichever side caused it. It is the "How it works" anchor. The four scenes stay and follow the strip's order; the checks scene shows `dta lint` instead of `dta build` (scene order revised the same day, see the revision note of 2026-10-19). "Nothing numbered beyond the scene kickers" still holds. TICKET-112.
 
+## Revision note (2026-10-26, second): no commands section either
+
+Maintainer decision on TICKET-169, on review of 168: the commands grid is a section to read too, and the commands belong in the reference. It goes; the second beat of the strip links to the command reference under its text, and is retitled "Checked, built, rendered" (the three steps named). The page is hero → strip → facts → final call; the only command on it is `npm create dta`. `Commands` leaves the design system.
+
 ## Revision note (2026-10-26): the scenes are gone, the page is plain
 
 Maintainer decision on TICKET-168: the example section (one change in four scenes with the Orbit Burger example) is removed. The strip (decision 12) tells the story; the detail belongs in the docs. In its place a short **commands grid** (`Commands`: the six shipped commands as command chips, one muted line each, no story) so the page still shows what `dta` is made of. The page is now hero → strip → commands → facts → final call. The honesty rule (decision 5) is unchanged and now covers the grid; the recorded `dta diff` run (`diff-run.json`) had no consumer left and was removed with its script. `Scene`, `ExampleButton`, `TokenRows`, `Checks` and `Terminal` stay in the design system.

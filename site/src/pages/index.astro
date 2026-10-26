@@ -1,8 +1,8 @@
 ---
 /**
- * The landing page (spec: docs/specs/landing-redesign.md, revised 2026-10-26, TICKET-168): the hero
- * on the gravity well, the workflow at a glance, the commands, the facts, and the final call with
- * a few objects floating free. One surface, no grid. Everything on it is a design-system
+ * The landing page (spec: docs/specs/landing-redesign.md, revised 2026-10-26, TICKET-169): the hero
+ * on the gravity well, the workflow at a glance, the facts, and the final call with a few objects
+ * floating free. One surface, no grid. Everything on it is a design-system
  * component; this file and landing.css only place them. The frame (fonts, header, nav, theme
  * switch, footer) is SiteLayout, shared with the playground.
  */
@@ -10,25 +10,14 @@ import SiteLayout from '../layouts/SiteLayout.astro'
 import '../styles/landing.css'
 import Button from '../components/ds/Button.astro'
 import CommandButton from '../components/ds/CommandButton.astro'
-import Commands from '../components/ds/Commands.astro'
 import Facts from '../components/ds/Facts.astro'
 import FloatingObjects from '../components/ds/FloatingObjects.astro'
 import GravityWell from '../components/ds/GravityWell.astro'
-import SectionIntro from '../components/ds/SectionIntro.astro'
 import Workflow from '../components/ds/Workflow.astro'
-import {
-  COMMANDS,
-  COMMANDS_SECTION,
-  COMMAND_GRID,
-  FACTS,
-  FINAL,
-  HERO,
-  WORKFLOW,
-} from '../landing/content'
+import { COMMANDS, FACTS, FINAL, HERO, WORKFLOW } from '../landing/content'
 
 const title = 'Design Token Authority'
 const description = `${HERO.headline} ${HERO.headlineAccent}`
-const commandCells = COMMAND_GRID.map((cell) => ({ command: cell.command.text, text: cell.text }))
 ---
 
 <SiteLayout title={title} description={description}>
@@ -54,16 +43,6 @@ const commandCells = COMMAND_GRID.map((cell) => ({ command: cell.command.text, t
           end={WORKFLOW.end}
         />
       </div>
-
-      <section class="wrap plain" id="commands" aria-labelledby="commands-title">
-        <SectionIntro
-          kicker={COMMANDS_SECTION.kicker}
-          heading={COMMANDS_SECTION.heading}
-          link={COMMANDS_SECTION.link}
-          headingId="commands-title"
-        />
-        <Commands commands={commandCells} />
-      </section>
 
       <div class="wrap plain facts">
         <Facts facts={FACTS} />
