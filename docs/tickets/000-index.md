@@ -350,7 +350,7 @@ Spec: [maintenance](../specs/maintenance.md) (approved 2026-10-26). Dependencies
 | [156](./156-deps-minor-batch.md)             | Patch and minor dependency updates                                      | Medium   | S      | —          | Review |
 | [157](./157-remove-dead-scripts-branches.md) | Remove dead scripts, unused exports and stale branches                  | Low      | XS     | —          | Open   |
 | [158](./158-ci-diff-report-failures.md)      | CI health: `dta diff report` fails now and then, Ubuntu 26              | Medium   | S      | logs       | Review |
-| [159](./159-playwright-core-1-64.md)         | `playwright-core` 1.59 → 1.64                                           | Medium   | S      | 158        | Open   |
+| [159](./159-playwright-core-1-64.md)         | `playwright-core` 1.59 → 1.64                                           | Medium   | S      | 158        | Review |
 | [160](./160-figma-rest-api-spec.md)          | `@figma/rest-api-spec` 0.37 → 0.46                                      | Medium   | S      | —          | Open   |
 | [161](./161-typescript-7.md)                 | TypeScript 5.9 → 6.0 → 7                                                | Medium   | M      | 156        | Open   |
 | [162](./162-vitest-5.md)                     | Vitest 4 → 5                                                            | Medium   | S      | —          | Open   |
