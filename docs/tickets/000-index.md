@@ -356,8 +356,9 @@ Spec: [maintenance](../specs/maintenance.md) (approved 2026-10-26). Dependencies
 | [165](./165-pixelmatch-8.md)                   | pixelmatch 7 → 8                                                 | Low      | S      | —          | Open   |
 | [166](./166-diff-9.md)                         | diff 8 → 9                                                       | Low      | XS     | —          | Open   |
 | [167](./167-release-it-21.md)                  | release-it 19 → 21, conventional-changelog 10 → 12               | Low      | S      | —          | Open   |
+| [168](./168-workflow-dust-deterministic.md)    | Workflow section renders the same picture every time (`dta diff` flake) | High     | XS     | —          | Review |
 
-Order: 156 and 157 first; 158 before 159 (the renderer change needs a reliable report); 160–167 one at a time, each merged after a green CI run, 161 after 156 (the Astro tooling it depends on).
+Order: 156, 157 and 168 first (168 unblocks the `dta diff` check on every pull request); 158 before 159 (the renderer change needs a reliable report); 160–167 one at a time, each merged after a green CI run, 161 after 156 (the Astro tooling it depends on).
 
 ---
 
