@@ -1,0 +1,14 @@
+---
+import Commands from '../components/ds/Commands.astro'
+
+const commands = [
+  { command: 'dta pull', text: 'Figma Variables or a plugin export into token files.' },
+  { command: 'dta lint', text: 'Structure and names, checked against your rules.' },
+  { command: 'dta build', text: 'CSS, Tailwind, JS, Swift and Android outputs.' },
+  { command: 'dta diff', text: 'Stories before and after, the token named behind each change.' },
+  { command: 'dta audit', text: 'Hard-coded token values in your source.' },
+  { command: 'dta skill add', text: 'Your agent learns the loop.' },
+]
+---
+
+<Commands commands={commands} />

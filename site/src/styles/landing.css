@@ -1,7 +1,7 @@
 /*
  * The landing page (spec: docs/specs/landing-redesign.md) on the DTA Drafting Table tokens, inside
  * the shared frame (site.css). One plain surface, no grid: this file places design-system
- * components (the well, the scenes, the facts, the floating objects) and sets the hero's type;
+ * components (the well, the workflow, the commands, the facts, the floating objects) and sets the hero's type;
  * every size comes from a token (src/landing/styles.test.ts checks).
  */
 
@@ -51,49 +51,14 @@ h1 .accent {
   scroll-margin-top: var(--space-6);
 }
 
-/* The story: four scenes and the facts, space-36 apart on desktop */
-.story {
+/* The plain sections: the commands and the facts, one rhythm */
+.plain {
   display: grid;
-  gap: var(--space-20);
+  gap: var(--space-10);
   padding-top: var(--space-16);
-  padding-bottom: var(--space-24);
 }
-.two-states {
-  display: grid;
-  gap: var(--space-6);
-  justify-items: center;
-}
-.pair {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-6);
-  align-items: end;
-}
-.shares {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-family: var(--site-mono);
-  font-size: calc(var(--type-meta-size) * 1px);
-  line-height: var(--type-meta-line-height);
-  color: var(--fg-muted);
-}
-.shares .token {
-  color: var(--fg-default);
-}
-.agent {
-  display: grid;
-  gap: var(--space-3);
-  width: 100%;
-  max-width: var(--layout-measure);
-}
-.caption {
-  margin: 0;
-  font-family: var(--site-mono);
-  font-size: calc(var(--type-meta-size) * 1px);
-  color: var(--fg-subtle);
+.plain.facts {
+  padding-bottom: var(--space-16);
 }
 
 /* The end: the final call among the floating objects */
@@ -126,10 +91,12 @@ h1 .accent {
   .how {
     padding-top: var(--space-16);
   }
-  .story {
-    gap: var(--space-36);
+  .plain {
+    gap: var(--space-12);
     padding-top: var(--space-24);
-    padding-bottom: var(--space-36);
+  }
+  .plain.facts {
+    padding-bottom: var(--space-24);
   }
   .final {
     padding-top: var(--space-36);

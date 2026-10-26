@@ -301,6 +301,7 @@ Spec: [landing-redesign](../specs/landing-redesign.md) (approved 2026-10-17, rev
 | [153](./153-workflow-list.md)                      | Landing: the workflow as a numbered list grouped by place (`WorkflowList`)                   | Medium   | S      | 112        | Superseded  |
 | [155](./155-workflow-beats.md)                     | Landing: the workflow as three beats on a line, the hero's token travelling it (`Workflow`)  | Medium   | M      | 153        | Done        |
 | [154](./154-well-jumps-on-phone-scroll.md)         | Gravity well flashes and jumps while scrolling on phones                                     | Medium   | XS     | —          | Done      |
+| [168](./168-landing-plain-commands.md)             | Landing: drop the four scenes, add a short commands grid (`Commands`)                        | Medium   | S      | 155        | Done        |
 
 Order: 110 → 105 → 106 → 107 → 108 → 112 (done); 114 (done); 109 and 111 later.
 

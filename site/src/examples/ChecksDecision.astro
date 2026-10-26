@@ -1,7 +1,8 @@
 ---
-// The landing page's scene 03: the one check that waits for a person, and the approve action.
+// The one check that waits for a person, and the approve action under it.
 import Checks from '../components/ds/Checks.astro'
-import { APPROVE, DECISION } from '../landing/content'
+
+const decision = [{ name: 'dta diff', status: 'changes' as const, detail: '6 stories' }]
 ---
 
-<Checks checks={DECISION} approve={APPROVE} />
+<Checks checks={decision} approve="Add label dta-diff-approved" />
