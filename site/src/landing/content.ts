@@ -19,14 +19,8 @@ export interface Command {
 }
 
 export const COMMANDS = {
-  /** Hero and final call. */
+  /** Hero and final call: the one command on the page (TICKET-169). */
   init: { text: 'npm create dta', uses: ['init'], shipped: NPM_RELEASED },
-  pull: { text: 'dta pull', uses: ['pull'], shipped: true },
-  lint: { text: 'dta lint', uses: ['lint'], shipped: true },
-  build: { text: 'dta build', uses: ['build'], shipped: true },
-  diff: { text: 'dta diff', uses: ['diff'], shipped: true },
-  audit: { text: 'dta audit', uses: ['audit'], shipped: true },
-  skill: { text: 'dta skill add', uses: ['skill add'], shipped: true },
 } satisfies Record<string, Command>
 
 export const HERO = {
@@ -40,8 +34,8 @@ export const HERO = {
 
 /**
  * The workflow at a glance, right below the hero (spec decision 12, revised 2026-10-25,
- * TICKET-155): three beats on one line, the token travelling it. No commands here: the commands
- * grid below carries them (TICKET-168).
+ * TICKET-155): three beats on one line, the token travelling it. No commands on the page beyond
+ * `npm create dta`: the second beat links to the command reference instead (TICKET-169).
  */
 export const WORKFLOW = {
   title: 'Design changes, reviewed like code.',
@@ -54,8 +48,9 @@ export const WORKFLOW = {
     },
     {
       where: 'In the pull request',
-      title: 'DTA does its work',
+      title: 'Checked, built, rendered',
       text: 'Structure and names are checked against your rules, every output is rebuilt, and the stories are rendered before and after with the token named behind each difference.',
+      link: { label: 'Command reference', href: '/reference/' },
     },
     {
       where: 'Still in the pull request',
@@ -64,28 +59,6 @@ export const WORKFLOW = {
     },
   ],
   end: 'Merged',
-}
-
-/**
- * The commands at a glance (TICKET-168): the six shipped commands, one line each, in the order
- * of the workflow. Every command here is checked against the CLI in landing.test.ts.
- */
-export const COMMAND_GRID = [
-  { command: COMMANDS.pull, text: 'Figma Variables or a plugin export into token files.' },
-  { command: COMMANDS.lint, text: 'Structure and names, checked against your rules.' },
-  { command: COMMANDS.build, text: 'CSS, Tailwind, JS, Swift and Android outputs.' },
-  {
-    command: COMMANDS.diff,
-    text: 'Stories before and after, the token named behind each change.',
-  },
-  { command: COMMANDS.audit, text: 'Hard-coded token values in your source.' },
-  { command: COMMANDS.skill, text: 'Your agent learns the loop.' },
-] as const
-
-export const COMMANDS_SECTION = {
-  kicker: 'The commands',
-  heading: 'Six commands, one loop.',
-  link: { label: 'Command reference', href: '/reference/' },
 }
 
 export const FACTS = [

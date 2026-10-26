@@ -1,7 +1,7 @@
 /*
  * The landing page (spec: docs/specs/landing-redesign.md) on the DTA Drafting Table tokens, inside
  * the shared frame (site.css). One plain surface, no grid: this file places design-system
- * components (the well, the workflow, the commands, the facts, the floating objects) and sets the hero's type;
+ * components (the well, the workflow, the facts, the floating objects) and sets the hero's type;
  * every size comes from a token (src/landing/styles.test.ts checks).
  */
 
@@ -51,7 +51,7 @@ h1 .accent {
   scroll-margin-top: var(--space-6);
 }
 
-/* The plain sections: the commands and the facts, one rhythm */
+/* The plain section: the facts */
 .plain {
   display: grid;
   gap: var(--space-10);
