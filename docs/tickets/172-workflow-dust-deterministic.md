@@ -3,7 +3,7 @@
 **Phase:** 13 — Maintenance
 **Priority:** High
 **Effort:** XS
-**Status:** in review (2026-10-26), branch `172-workflow-dust`
+**Status:** done (2026-10-26, #38 merged)
 **Spec:** [maintenance](../specs/maintenance.md); [landing-redesign](../specs/landing-redesign.md) (decision 12)
 
 ## Problem
