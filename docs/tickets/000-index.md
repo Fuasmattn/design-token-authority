@@ -356,7 +356,7 @@ Spec: [maintenance](../specs/maintenance.md) (approved 2026-10-26). Dependencies
 | [162](./162-vitest-5.md)                     | Vitest 4 → 5                                                            | Medium   | S      | —          | Open   |
 | [163](./163-commander-15.md)                 | commander 14 → 15                                                       | Low      | S      | —          | Open   |
 | [164](./164-preact-11.md)                    | preact 10 → 11                                                          | Low      | M      | 156        | Open   |
-| [165](./165-pixelmatch-8.md)                 | pixelmatch 7 → 8                                                        | Low      | S      | —          | Open   |
+| [165](./165-pixelmatch-8.md)                 | pixelmatch 7 → 8                                                        | Low      | S      | —          | Review |
 | [166](./166-diff-9.md)                       | diff 8 → 9                                                              | Low      | XS     | —          | Open   |
 | [167](./167-release-it-21.md)                | release-it 19 → 21, conventional-changelog 10 → 12                      | Low      | S      | —          | Open   |
 | [172](./172-workflow-dust-deterministic.md)  | Workflow section renders the same picture every time (`dta diff` flake) | High     | XS     | —          | Review |
