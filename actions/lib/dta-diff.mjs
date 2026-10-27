@@ -139,13 +139,24 @@ export function commentBody({ result, summary, state, artifactUrl, label = DEFAU
   return lines.join('\n')
 }
 
+/**
+ * A report for a commit the pull request has moved past: a newer push already has its own run.
+ * Nothing to post (a status on an old commit, a comment over a newer report), and nothing wrong.
+ */
+export class SupersededError extends Error {
+  constructor(pr, headSha, sha) {
+    super(
+      `PR #${pr} is at ${headSha.slice(0, 7)}, not ${sha.slice(0, 7)}: a newer push has its own run.`,
+    )
+    this.superseded = true
+  }
+}
+
 /** The pull request a head SHA belongs to: the hint, checked, or found by head branch. */
 export async function resolvePullRequest(api, { pr, sha, headOwner, headBranch }) {
   if (pr) {
     const found = await api.get(`/pulls/${Number(pr)}`)
-    if (found.head.sha !== sha) {
-      throw new Error(`PR #${pr} is at ${found.head.sha.slice(0, 7)}, not ${sha.slice(0, 7)}.`)
-    }
+    if (found.head.sha !== sha) throw new SupersededError(pr, found.head.sha, sha)
     return found.number
   }
   if (headOwner && headBranch) {
@@ -204,8 +215,15 @@ export async function report(api, options) {
   const label = options.label ?? DEFAULT_LABEL
   const result = JSON.parse(fs.readFileSync(path.join(options.dir, 'result.json'), 'utf8'))
   const summary = fs.readFileSync(path.join(options.dir, 'summary.md'), 'utf8')
-  const pr = await resolvePullRequest(api, options)
   const sha = options.sha
+  let pr
+  try {
+    pr = await resolvePullRequest(api, options)
+  } catch (error) {
+    if (!error.superseded) throw error
+    console.log(`dta diff (GitHub): ${error.message} Nothing to report.`)
+    return { pr: null, superseded: true, status: { state: 'superseded' }, state: { sha } }
+  }
 
   const existing = pr ? await findComment(api, pr) : null
   const previous = readState(existing?.body)

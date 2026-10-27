@@ -171,12 +171,17 @@ describe('report', () => {
     expect(db.comments[0].body).not.toContain('artifacts')
   })
 
-  it('refuses a pull-request hint whose head is another commit', async () => {
-    const { api } = fakeGitHub(NEW_SHA)
+  it('ends quietly when the pull request has moved past the reported commit (TICKET-158)', async () => {
+    // Two pushes minutes apart: the report for the first lands after the second has its own run.
+    // Posting would put a status on an old commit and a stale comment over the newer report;
+    // failing the job painted a red run for a report nobody needed.
+    const { db, api } = fakeGitHub(NEW_SHA)
     writeReport({ verdict: 'pass' })
-    await expect(lib.report(api, { dir, sha: SHA, pr: '7' })).rejects.toThrow(
-      'PR #7 is at bbbbbbb, not aaaaaaa.',
-    )
+    const out = await lib.report(api, { dir, sha: SHA, pr: '7' })
+    expect(out).toMatchObject({ pr: null, superseded: true, status: { state: 'superseded' } })
+    expect(db.statuses).toEqual([])
+    expect(db.comments).toEqual([])
+    expect(db.calls.filter((c) => !c.startsWith('GET'))).toEqual([])
   })
 
   it('finds the pull request by head branch when there is no hint (forks)', async () => {

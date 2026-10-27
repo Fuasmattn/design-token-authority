@@ -27,7 +27,7 @@ inputs:
     default: dta-diff-approved
 outputs:
   state:
-    description: State of the status check (success, pending, failure)
+    description: State of the status check (success, pending, failure), or superseded when a newer push already has its own run
     value: ${{ steps.report.outputs.state }}
 runs:
   using: composite
