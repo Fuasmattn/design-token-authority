@@ -3,7 +3,7 @@
 **Phase:** 13 — Maintenance
 **Priority:** Medium
 **Effort:** M
-**Status:** in review (2026-10-26), branch `161-typescript-7`, two commits
+**Status:** done (2026-10-26, #50)
 **Spec:** [maintenance](../specs/maintenance.md)
 
 ## Problem

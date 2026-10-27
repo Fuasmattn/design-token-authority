@@ -351,14 +351,14 @@ Spec: [maintenance](../specs/maintenance.md) (approved 2026-10-26). Dependencies
 | [157](./157-remove-dead-scripts-branches.md) | Remove dead scripts, unused exports and stale branches                  | Low      | XS     | —          | Done   |
 | [158](./158-ci-diff-report-failures.md)      | CI health: `dta diff report` fails now and then, Ubuntu 26              | Medium   | S      | logs       | Done   |
 | [159](./159-playwright-core-1-64.md)         | `playwright-core` 1.59 → 1.64                                           | Medium   | S      | 158        | Done   |
-| [160](./160-figma-rest-api-spec.md)          | `@figma/rest-api-spec` 0.37 → 0.46                                      | Medium   | S      | —          | Review |
-| [161](./161-typescript-7.md)                 | TypeScript 5.9 → 6.0 → 7                                                | Medium   | M      | 156        | Review |
-| [162](./162-vitest-5.md)                     | Vitest 4 → 5                                                            | Medium   | S      | —          | Review |
-| [163](./163-commander-15.md)                 | commander 14 → 15                                                       | Low      | S      | —          | Review |
-| [164](./164-preact-11.md)                    | preact 10 → 11                                                          | Low      | M      | 156        | Review |
-| [165](./165-pixelmatch-8.md)                 | pixelmatch 7 → 8                                                        | Low      | S      | —          | Review |
-| [166](./166-diff-9.md)                       | diff 8 → 9                                                              | Low      | XS     | —          | Review |
-| [167](./167-release-it-21.md)                | release-it 19 → 21, conventional-changelog 10 → 12                      | Low      | S      | —          | Review |
+| [160](./160-figma-rest-api-spec.md)          | `@figma/rest-api-spec` 0.37 → 0.46                                      | Medium   | S      | —          | Done   |
+| [161](./161-typescript-7.md)                 | TypeScript 5.9 → 6.0 → 7                                                | Medium   | M      | 156        | Done   |
+| [162](./162-vitest-5.md)                     | Vitest 4 → 5                                                            | Medium   | S      | —          | Done   |
+| [163](./163-commander-15.md)                 | commander 14 → 15                                                       | Low      | S      | —          | Done   |
+| [164](./164-preact-11.md)                    | preact 10 → 11                                                          | Low      | M      | 156        | Done   |
+| [165](./165-pixelmatch-8.md)                 | pixelmatch 7 → 8                                                        | Low      | S      | —          | Done   |
+| [166](./166-diff-9.md)                       | diff 8 → 9                                                              | Low      | XS     | —          | Done   |
+| [167](./167-release-it-21.md)                | release-it 19 → 21, conventional-changelog 10 → 12                      | Low      | S      | —          | Done   |
 | [172](./172-workflow-dust-deterministic.md)  | Workflow section renders the same picture every time (`dta diff` flake) | High     | XS     | —          | Done   |
 
 Order: 156, 157 and 172 first (172 unblocks the `dta diff` check on every pull request); 158 before 159 (the renderer change needs a reliable report); 160–167 one at a time, each merged after a green CI run, 161 after 156 (the Astro tooling it depends on).

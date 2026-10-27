@@ -3,7 +3,7 @@
 **Phase:** 13 — Maintenance
 **Priority:** Medium
 **Effort:** S
-**Status:** in review (2026-10-26), branch `159-playwright-core-1-64`; the mixed-version screenshot comparison happens on the pull request's CI
+**Status:** done (2026-10-26, #40)
 **Spec:** [maintenance](../specs/maintenance.md) (decision 4)
 
 ## Problem

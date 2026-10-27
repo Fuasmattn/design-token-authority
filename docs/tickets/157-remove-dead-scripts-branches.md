@@ -3,7 +3,7 @@
 **Phase:** 13 — Maintenance
 **Priority:** Low
 **Effort:** XS
-**Status:** in review (2026-10-26), branch `157-dead-scripts`; the branches wait for the maintainer's go-ahead
+**Status:** done (2026-10-26, #34); deleting the stale branches is still with the maintainer
 **Spec:** [maintenance](../specs/maintenance.md)
 
 ## What to build
