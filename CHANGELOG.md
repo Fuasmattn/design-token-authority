@@ -1,5 +1,47 @@
 # Changelog
 
+## [2.4.2](https://github.com/Fuasmattn/design-token-authority/compare/v2.4.1...v2.4.2) (2026-10-27)
+
+* **deps:** @figma/rest-api-spec 0.37 → 0.46, composed colours accepted (TICKET-160) ([ca53120](https://github.com/Fuasmattn/design-token-authority/commit/ca53120d78e85390ab7ed3dd15007e2c87ee5d14))
+* **deps:** commander 14 → 15 (TICKET-163) ([e03a6c6](https://github.com/Fuasmattn/design-token-authority/commit/e03a6c6593723610e93d8f9900a0253d465344a5))
+* **deps:** diff 8 → 9 (TICKET-166) ([494113f](https://github.com/Fuasmattn/design-token-authority/commit/494113f4612d1cc90a09d521dd3aedb450e40423))
+* **deps:** patch and minor updates (TICKET-156) ([ed24bd1](https://github.com/Fuasmattn/design-token-authority/commit/ed24bd1736d6883f0c38026b19c633f5a42f8d8e))
+* **deps:** pixelmatch 7 → 8 (TICKET-165) ([f16f733](https://github.com/Fuasmattn/design-token-authority/commit/f16f733bc33430054a2b8d6812d7c878980fbb09))
+* **deps:** playwright-core 1.59.1 → 1.64.1 (TICKET-159) ([44fcbb3](https://github.com/Fuasmattn/design-token-authority/commit/44fcbb3808b6ab4d6fffcf251d58cfed0554f88f))
+* **deps:** preact 10 → 11 (TICKET-164) ([497b077](https://github.com/Fuasmattn/design-token-authority/commit/497b07728e65f2e91d041c50acd1cfae8422f84d))
+* **deps:** release-it 19 → 21, conventional-changelog 10 → 12 (TICKET-167) ([b57cf76](https://github.com/Fuasmattn/design-token-authority/commit/b57cf7681c7d969955a550d8520895e399350ef7))
+* **deps:** TypeScript 5.9 → 6.0 (TICKET-161, step 1) ([169a1eb](https://github.com/Fuasmattn/design-token-authority/commit/169a1ebe1459d6b5740ce7df88efaef139f60530))
+* **deps:** TypeScript 7 for type checking (TICKET-161, step 2) ([2b77917](https://github.com/Fuasmattn/design-token-authority/commit/2b77917bdc1a4cfe7c5c5b8b77a00c38555865ae))
+* **deps:** Vitest 4 → 5 (TICKET-162) ([b7dffd6](https://github.com/Fuasmattn/design-token-authority/commit/b7dffd662f3dc90b9de3a05f43a46b055f258c54))
+* ignore the coverage report folder (TICKET-157) ([48b4c98](https://github.com/Fuasmattn/design-token-authority/commit/48b4c9804be731464a6b6a6a3c825dbe5069008d))
+* remove dead scripts and unused exports (TICKET-157) ([0569035](https://github.com/Fuasmattn/design-token-authority/commit/0569035974d663fea28e98ad9765c7f3a018bd45))
+
+### Features
+
+* **site:** the well's objects fall into the funnel on scroll (TICKET-170) ([#43](https://github.com/Fuasmattn/design-token-authority/issues/43)) ([1e59544](https://github.com/Fuasmattn/design-token-authority/commit/1e59544f1777d350c1808cf607cf29b6668b2e7b))
+
+### Bug Fixes
+
+* **actions:** a superseded dta diff report ends quietly (TICKET-158) ([2b6ed48](https://github.com/Fuasmattn/design-token-authority/commit/2b6ed4872cbedd705e39c8b269cfe5a9fcf625f0))
+* **site:** the Workflow section renders the same picture every time (TICKET-172) ([57b43ab](https://github.com/Fuasmattn/design-token-authority/commit/57b43ab019d79f872987a2779235c31378384faa))
+
+### Documentation
+
+* leave the ticket index to the final status commit ([0a038e6](https://github.com/Fuasmattn/design-token-authority/commit/0a038e63a228c0fa787ccdd97b115e26c1ff71ed))
+* leave the ticket index to the final status commit ([0f77fbf](https://github.com/Fuasmattn/design-token-authority/commit/0f77fbfe75b6f5c9bc847299612190a4e2f62224))
+* leave the ticket index to the final status commit ([5592060](https://github.com/Fuasmattn/design-token-authority/commit/5592060d824866224a278343f131f44ef559a306))
+* leave the ticket index to the final status commit ([5ef624e](https://github.com/Fuasmattn/design-token-authority/commit/5ef624ef02a726a025420dc7fd3188a9205fc20d))
+* leave the ticket index to the final status commit ([de47da2](https://github.com/Fuasmattn/design-token-authority/commit/de47da24e8727e7eef6a1e88814449aaecd8b243))
+* leave the ticket index to the final status commit ([1a9600f](https://github.com/Fuasmattn/design-token-authority/commit/1a9600f7049e3aeb5d7af17b6e9b668f2fb60d66))
+* mark TICKET-172 done ([80d743a](https://github.com/Fuasmattn/design-token-authority/commit/80d743a43824a6235a251c56541b9d21a61274db))
+* **tickets:** 156 outcome: the dta diff flake is the Workflow dust (TICKET-168) ([c3cbb13](https://github.com/Fuasmattn/design-token-authority/commit/c3cbb135ed14c837c66a60c52751c65a9aadfd41))
+* **tickets:** 156–159 done, 160–167 in review as one pull request ([25f7b69](https://github.com/Fuasmattn/design-token-authority/commit/25f7b69ad5641703eb5534ab35753248c42ec2f1))
+* **tickets:** 157: one more branch to delete (168-workflow-dust, misnumbered) ([8f1abb0](https://github.com/Fuasmattn/design-token-authority/commit/8f1abb00aa67da258d491b85bd80fa77bfb692f1))
+* **tickets:** 157: the flake-fix alias branches to delete ([0f4e9cf](https://github.com/Fuasmattn/design-token-authority/commit/0f4e9cfbb11915357af1ddf59c19afd72d8c73a7))
+* **tickets:** 158: a timing-sensitive CLS assertion seen once under load ([df87c97](https://github.com/Fuasmattn/design-token-authority/commit/df87c979a018768217f85cd2d5f54a9407e0f177))
+* **tickets:** 159: CI green with the downloaded Chromium 156 ([a820d9b](https://github.com/Fuasmattn/design-token-authority/commit/a820d9bd6a2def89a7ebb692109713349532a083))
+* **tickets:** Phase 13 maintenance done (156–167) ([4e8759f](https://github.com/Fuasmattn/design-token-authority/commit/4e8759f660c3946ec855ac57b87fe4b6f3869c2e))
+
 ## [2.4.1](https://github.com/Fuasmattn/design-token-authority/compare/v2.3.0...v2.4.1) (2026-10-26)
 
 ### Features
