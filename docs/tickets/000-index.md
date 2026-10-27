@@ -360,6 +360,7 @@ Spec: [maintenance](../specs/maintenance.md) (approved 2026-10-26). Dependencies
 | [166](./166-diff-9.md)                       | diff 8 → 9                                                              | Low      | XS     | —          | Done   |
 | [167](./167-release-it-21.md)                | release-it 19 → 21, conventional-changelog 10 → 12                      | Low      | S      | —          | Done   |
 | [172](./172-workflow-dust-deterministic.md)  | Workflow section renders the same picture every time (`dta diff` flake) | High     | XS     | —          | Done   |
+| [173](./173-dependabot-npm-failures.md)      | Dependabot's npm job fails on every run                                 | Medium   | XS     | —          | Review |
 
 Order: 156, 157 and 172 first (172 unblocks the `dta diff` check on every pull request); 158 before 159 (the renderer change needs a reliable report); 160–167 one at a time, each merged after a green CI run, 161 after 156 (the Astro tooling it depends on).
 

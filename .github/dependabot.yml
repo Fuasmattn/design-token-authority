@@ -8,6 +8,14 @@ updates:
       # DTA runs on Node.js 24 (.nvmrc, engines): its types follow that major, not the newest Node.
       - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
+      # The site stays on TypeScript 6 until @astrojs/check allows 7 (TICKET-161). Majors get a
+      # ticket of their own anyway (docs/specs/maintenance.md).
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+      # Astro 7.4 fetches each lazy playground tab's CSS twice (TICKET-156). Drop once a newer
+      # release passes the playground's first-load budget test.
+      - dependency-name: 'astro'
+        versions: ['7.4.x']
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:

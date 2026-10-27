@@ -60,8 +60,8 @@ importers:
         specifier: workspace:*
         version: link:packages/visual-diff
       '@figma/rest-api-spec':
-        specifier: ^0.37.0
-        version: 0.37.0
+        specifier: ^0.46.0
+        version: 0.46.0
       '@release-it/conventional-changelog':
         specifier: ^12.0.2
         version: 12.0.2(conventional-commits-filter@6.0.1)(conventional-commits-parser@7.1.3)(release-it@21.1.1(@types/node@24.19.2)(magicast@0.5.5))
@@ -958,9 +958,6 @@ packages:
 
   '@expressive-code/plugin-text-markers@0.44.3':
     resolution: {integrity: sha512-4Ae2xRSDV5kdWPsi40xWbOtoihbzM0zLVjQKkDAnD5KzFXl+6/kd+VhuWOlTRVaJ5cqGk++vCbAaf0MR1XbZlw==}
-
-  '@figma/rest-api-spec@0.37.0':
-    resolution: {integrity: sha512-KKeCgSRiO2gajT/sKCAsn48ubl8NRbYqyIvfkk5+NPK2ar+DVuLKg3fl3/cR1WharC5Dg4V5a9JzDsYv04k50g==}
 
   '@figma/rest-api-spec@0.46.0':
     resolution: {integrity: sha512-X2dNNvix+9w6pRrBb4/OumuqK+DEHriBVWfdhPmmIyeDC0VnaMoZd14XBJK5SZXCeBnGxsRRaMidha8vsWKsFw==}
@@ -5021,8 +5018,6 @@ snapshots:
   '@expressive-code/plugin-text-markers@0.44.3':
     dependencies:
       '@expressive-code/core': 0.44.3
-
-  '@figma/rest-api-spec@0.37.0': {}
 
   '@figma/rest-api-spec@0.46.0': {}
 

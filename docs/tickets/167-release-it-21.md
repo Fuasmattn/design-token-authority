@@ -3,7 +3,7 @@
 **Phase:** 13 — Maintenance
 **Priority:** Low
 **Effort:** S
-**Status:** done (2026-10-26, #50); first Release run on release-it 21 still to watch
+**Status:** done (2026-10-26, #50)
 **Spec:** [maintenance](../specs/maintenance.md)
 
 ## Problem
@@ -20,7 +20,7 @@ release-it runs the Release workflow (versions, changelog, tag, npm publish with
 - [x] Dry run plans the same steps as before; changelog entry formatted like the existing ones
 - [x] `pnpm audit` result unchanged; the ignore comment updated with the checked versions
 - [x] Safety check of the spec green (release tooling is dev-only; the browser e2e jobs were not re-run for it)
-- [ ] The next real release run is watched by the maintainer
+- [x] The next real release run is watched by the maintainer
 
 ## Notes
 
@@ -33,3 +33,5 @@ Outcome (2026-10-26). `release-it` 19.2.4 → 21.1.1, `@release-it/conventional-
 **Overrides dropped** because release-it 21's tree no longer contains them at all: `handlebars`, `lodash`, `undici@6`. The others (`defu`, `basic-ftp`, `ip-address`, `qs`, the site and coverage ones) still resolve and stay.
 
 The next real release run is the maintainer's to watch (last acceptance item).
+
+**First real run (2.4.2, 2026-10-27):** release-it 21 published both packages, then its push to `main` was refused: #51 had merged while the run was going. Not a release-it problem. Finished by hand: the release commit through #52, then the maintainer tagged `v2.4.2` and published the GitHub release. Lesson: merge nothing while the Release workflow runs; a re-run would fail, because npm refuses a second publish of the same version.
