@@ -43,7 +43,7 @@ export interface CliHandoffProps {
 /** A command chip that copies its command (the CommandButton's look and behaviour, in Preact). */
 function Command({ command }: { command: string }) {
   const [copied, setCopied] = useState('')
-  const timer = useRef<ReturnType<typeof setTimeout>>()
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   useEffect(() => () => clearTimeout(timer.current), [])
   const copy = async () => {
     let text = 'copied'

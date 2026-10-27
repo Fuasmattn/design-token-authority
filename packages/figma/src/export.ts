@@ -125,6 +125,12 @@ function valueOf(
   const value = variable.valuesByMode[modeId]
   if (value === undefined) return skip('missing-value', `Variable ${where} has no value.`)
 
+  if (typeof value === 'object' && 'color' in value) {
+    return skip(
+      'composed-color',
+      `Variable ${where} is a composed colour (its opacity is authored apart, as an alias or a number), which DTA does not model yet.`,
+    )
+  }
   if (typeof value === 'object' && 'type' in value) {
     const target = variables[value.id]
     if (!target) {

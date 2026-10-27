@@ -84,7 +84,9 @@ export const diffConfigSchema = z.strictObject({
     .min(0)
     .max(1)
     .default(0)
-    .describe('Per-pixel colour tolerance (0–1); 0 sees every colour change.'),
+    .describe(
+      'Per-pixel colour tolerance (0–1); 0 sees every colour change. The scale is a perceptual (OKLab) distance, 1 is black against white.',
+    ),
   thresholds: z
     .strictObject({
       explained: z

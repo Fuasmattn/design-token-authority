@@ -53,6 +53,7 @@ function shown(
     const target = variables[value.id]
     return target ? `{${dot(target.name)}}` : `{${value.id}}`
   }
+  if ('color' in value) return '(composed colour)'
   return toHex(value)
 }
 
