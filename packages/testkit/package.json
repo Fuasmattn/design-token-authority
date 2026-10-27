@@ -16,7 +16,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "diff": "^8.0.4"
+    "diff": "^9.0.0"
   },
   "devDependencies": {
     "@figma/rest-api-spec": "^0.37.0",
