@@ -3,7 +3,7 @@
 **Phase:** 13 — Maintenance
 **Priority:** Low
 **Effort:** S
-**Status:** in review (2026-10-26), branch `167-release-it-21`
+**Status:** done (2026-10-26, #50); first Release run on release-it 21 still to watch
 **Spec:** [maintenance](../specs/maintenance.md)
 
 ## Problem

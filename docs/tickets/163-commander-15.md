@@ -3,7 +3,7 @@
 **Phase:** 13 — Maintenance
 **Priority:** Low
 **Effort:** S
-**Status:** in review (2026-10-26), branch `163-commander-15`
+**Status:** done (2026-10-26, #50)
 **Spec:** [maintenance](../specs/maintenance.md)
 
 ## Problem

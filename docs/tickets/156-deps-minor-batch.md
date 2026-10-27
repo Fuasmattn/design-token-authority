@@ -3,7 +3,7 @@
 **Phase:** 13 — Maintenance
 **Priority:** Medium
 **Effort:** S
-**Status:** in review (2026-10-26), branch `156-deps-minor-batch`; `astro` stays on 7.3.5 (see Notes)
+**Status:** done (2026-10-26, #33)
 **Spec:** [maintenance](../specs/maintenance.md)
 
 ## What to build

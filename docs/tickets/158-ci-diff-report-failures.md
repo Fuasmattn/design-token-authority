@@ -3,7 +3,7 @@
 **Phase:** 13 — Maintenance
 **Priority:** Medium
 **Effort:** S
-**Status:** in review (2026-10-26), branch `158-ci-health`
+**Status:** done (2026-10-26, #39)
 **Spec:** [maintenance](../specs/maintenance.md)
 
 ## Problem
