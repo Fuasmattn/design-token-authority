@@ -5,7 +5,7 @@ import { renderSkill, SKILL_MARKER } from '../skill/template.js'
 import { packageVersion } from '../version.js'
 
 /** Where Claude Code looks for project skills; other agents take `--dir`. */
-export const DEFAULT_SKILL_DIR = '.claude/skills/dta'
+const DEFAULT_SKILL_DIR = '.claude/skills/dta'
 
 /** Exit code when the target is a file DTA did not write. */
 const EXIT_NOT_OURS = 2

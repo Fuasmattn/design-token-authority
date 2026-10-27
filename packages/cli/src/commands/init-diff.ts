@@ -327,7 +327,7 @@ function repoRelative(cwd: string): string {
 }
 
 /** `Storybook   build-storybook → storybook-static, from …`: what detection found. */
-export function describeDetection(detection: ProjectDetection): string {
+function describeDetection(detection: ProjectDetection): string {
   const rows: Array<[string, string]> = [
     [
       'Storybook',

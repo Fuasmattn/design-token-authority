@@ -90,7 +90,7 @@ export const GUTTER = 46
 export const ROW_HEIGHT = 26
 export const ROW_STEP = 30
 export const LABEL_HEIGHT = 22
-export const GROUP_GAP = 12
+const GROUP_GAP = 12
 /** Length of an arrowhead and how far a same-column arc swings out (down, up). */
 export const ARROW = 7
 const ARC_DOWN = 24

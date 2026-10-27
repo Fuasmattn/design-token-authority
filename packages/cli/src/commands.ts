@@ -406,7 +406,7 @@ export const COMMANDS: readonly CommandDefinition[] = [
 ]
 
 /** Full command names as typed after `dta`: `build`, `token get`, … */
-export const commandPath = (command: Pick<CommandDefinition, 'name' | 'parent'>) =>
+const commandPath = (command: Pick<CommandDefinition, 'name' | 'parent'>) =>
   command.parent ? `${command.parent} ${command.name}` : command.name
 
 export const COMMAND_NAMES: readonly string[] = COMMANDS.map(commandPath)

@@ -163,7 +163,7 @@ export function keyLines(section: DiffSection, keys: readonly DiffKey[]): string
 }
 
 /** The block init writes into a TypeScript or JavaScript config, with the record of its values. */
-export function sectionBlock(
+function sectionBlock(
   section: DiffSection,
   extra: string[] = [],
   record: DiffSection = section,
@@ -331,7 +331,7 @@ export function stampWorkflow(content: string): string {
 }
 
 /** Whether a workflow file is as init wrote it (its stamp matches the content). */
-export function untouchedWorkflow(content: string): boolean {
+function untouchedWorkflow(content: string): boolean {
   const at = content.lastIndexOf(STAMP)
   if (at === -1) return false
   const body = content.slice(0, at)

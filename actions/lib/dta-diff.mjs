@@ -11,9 +11,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-export const CONTEXT = 'dta diff'
-export const MARKER = '<!-- dta-diff -->'
-export const DEFAULT_LABEL = 'dta-diff-approved'
+const CONTEXT = 'dta diff'
+const MARKER = '<!-- dta-diff -->'
+const DEFAULT_LABEL = 'dta-diff-approved'
 
 /** Minimal GitHub REST client over fetch (injectable for tests). */
 export function github({
@@ -112,7 +112,7 @@ const isApproved = (state) => Boolean(state.approvedBy && state.approvedSha === 
 const APPROVAL = /<!-- dta-diff-approval -->[\s\S]*?<!-- \/dta-diff-approval -->/
 
 /** The approval line, between markers so `approve` can replace it. */
-export function approvalBlock(state, label = DEFAULT_LABEL) {
+function approvalBlock(state, label = DEFAULT_LABEL) {
   const sha = state.sha.slice(0, 7)
   const text = isApproved(state)
     ? `Approved by @${state.approvedBy} for ${sha}.`
@@ -153,7 +153,7 @@ export class SupersededError extends Error {
 }
 
 /** The pull request a head SHA belongs to: the hint, checked, or found by head branch. */
-export async function resolvePullRequest(api, { pr, sha, headOwner, headBranch }) {
+async function resolvePullRequest(api, { pr, sha, headOwner, headBranch }) {
   if (pr) {
     const found = await api.get(`/pulls/${Number(pr)}`)
     if (found.head.sha !== sha) throw new SupersededError(pr, found.head.sha, sha)
@@ -189,7 +189,7 @@ async function upsertComment(api, pr, body) {
  * Creates the approval label when the repository does not have it yet, so the comment's "add
  * the label" works without setup. Best effort: a token that may not create labels only warns.
  */
-export async function ensureLabel(api, label = DEFAULT_LABEL) {
+async function ensureLabel(api, label = DEFAULT_LABEL) {
   try {
     if (await api.find(`/labels/${encodeURIComponent(label)}`)) return false
     await api.post('/labels', {

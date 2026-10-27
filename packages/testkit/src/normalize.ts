@@ -13,7 +13,7 @@ const REDRAW = '\u001b[1G\u001b[J'
  * redrawn yields the same output regardless of speed. All remaining ANSI
  * sequences (colors, cursor show/hide) are then stripped.
  */
-export function stripAnsi(text: string): string {
+function stripAnsi(text: string): string {
   // Line by line and with lastIndexOf: a regex such as /[^\n]*ESC.../ is quadratic on long lines.
   const redrawn = text
     .split('\n')
