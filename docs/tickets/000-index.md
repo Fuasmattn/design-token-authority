@@ -347,7 +347,7 @@ Spec: [maintenance](../specs/maintenance.md) (approved 2026-10-26). Dependencies
 
 | #                                            | Ticket                                                                  | Priority | Effort | Blocked by | Status |
 | -------------------------------------------- | ----------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| [156](./156-deps-minor-batch.md)             | Patch and minor dependency updates                                      | Medium   | S      | —          | Open   |
+| [156](./156-deps-minor-batch.md)             | Patch and minor dependency updates                                      | Medium   | S      | —          | Review |
 | [157](./157-remove-dead-scripts-branches.md) | Remove dead scripts, unused exports and stale branches                  | Low      | XS     | —          | Open   |
 | [158](./158-ci-diff-report-failures.md)      | CI health: `dta diff report` fails now and then, Ubuntu 26              | Medium   | S      | logs       | Review |
 | [159](./159-playwright-core-1-64.md)         | `playwright-core` 1.59 → 1.64                                           | Medium   | S      | 158        | Open   |
