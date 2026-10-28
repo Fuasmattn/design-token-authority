@@ -40,6 +40,7 @@ export const HERO = {
 export const WORKFLOW = {
   kicker: 'How it works',
   title: 'Catch naming, structure and visual mistakes before a token change merges.',
+  lede: 'DTA turns your tokens into CSS, Tailwind, Swift and Android. One changed value can reach many components, so it also lints and diffs every change.',
   steps: [
     {
       command: 'dta lint',
@@ -49,7 +50,11 @@ export const WORKFLOW = {
     { command: 'dta diff', text: 'Shows which stories look different, and which token did it.' },
     { who: 'You', text: 'Look once per token change and approve it.' },
   ],
-  link: { label: 'Command reference', href: '/reference/commands/' },
+  note: 'Coding agents use the same CLI to look up tokens, replace hard-coded values and follow your rules.',
+  links: [
+    { label: 'Command reference', href: '/reference/commands/' },
+    { label: 'Coding agents', href: '/guides/coding-agents/' },
+  ],
 }
 
 export const FACTS = [

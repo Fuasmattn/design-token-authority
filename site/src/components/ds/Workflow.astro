@@ -23,12 +23,14 @@ interface Props {
   kicker: string
   lede?: string
   steps: Step[]
-  /** One link after the boxes (the command reference). */
-  link?: { label: string; href: string }
+  /** One sentence after the boxes, before the links. */
+  note?: string
+  /** Links after the boxes (the command reference, a guide). */
+  links?: Array<{ label: string; href: string }>
   id?: string
   idPrefix?: string
 }
-const { title, kicker, lede, steps, link, id, idPrefix = 'workflow' } = Astro.props
+const { title, kicker, lede, steps, note, links = [], id, idPrefix = 'workflow' } = Astro.props
 const headingId = `${idPrefix}-title`
 ---
 
@@ -56,13 +58,22 @@ const headingId = `${idPrefix}-title`
     }
   </ol>
   {
-    link && (
-      <a class="link" href={link.href}>
-        {link.label}
-        <svg viewBox="0 0 24 12" aria-hidden="true">
-          <path d="M1 6h21M17 1.5 22 6l-5 4.5" />
-        </svg>
-      </a>
+    (note || links.length > 0) && (
+      <div class="outro">
+        {note && <p class="note">{note}</p>}
+        {links.length > 0 && (
+          <div class="links">
+            {links.map((link) => (
+              <a class="link" href={link.href}>
+                {link.label}
+                <svg viewBox="0 0 24 12" aria-hidden="true">
+                  <path d="M1 6h21M17 1.5 22 6l-5 4.5" />
+                </svg>
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
     )
   }
 </section>
@@ -119,12 +130,30 @@ const headingId = `${idPrefix}-title`
     line-height: var(--type-body-sm-line-height);
     color: var(--fg-default);
   }
-  /* The link after the boxes: the section intro's link */
+  /* After the boxes: one sentence, then the links (the section intro's link style) */
+  .outro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+  .note {
+    margin: 0;
+    max-width: var(--layout-measure);
+    font-size: calc(var(--type-body-size) * 1px);
+    line-height: var(--type-body-line-height);
+    color: var(--fg-muted);
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-8);
+  }
   .link {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    margin-top: var(--space-6);
     font-size: calc(var(--type-label-size) * 1px);
     font-weight: var(--type-label-weight);
     line-height: var(--type-label-line-height);

@@ -17,8 +17,8 @@ People who read the landing page did not get what DTA does from the second secti
   - `dta build`: Rebuilds every output for every brand and mode.
   - `dta diff`: Shows which stories look different, and which token did it.
   - You: Look once per token change and approve it.
-- Headline (the benefit): "Catch naming, structure and visual mistakes before a token change merges." Kicker stays "How it works" (the anchor).
-- A link to the command reference (`/reference/commands/`) after the boxes.
+- Headline (the benefit): "Catch naming, structure and visual mistakes before a token change merges." Kicker stays "How it works" (the anchor). Lede (what DTA is for, and why the checks): "DTA turns your tokens into CSS, Tailwind, Swift and Android. One changed value can reach many components, so it also lints and diffs every change."
+- After the boxes, one sentence for agents ("Coding agents use the same CLI to look up tokens, replace hard-coded values and follow your rules.") and two links: the command reference (`/reference/commands/`) and the Coding agents guide (`/guides/coding-agents/`).
 - Two columns on phones, four from 960px of container. The person's box has the strong outline.
 - No motion: the line, the token, the dust, the end and their script go.
 - Docs page and story updated; tests that pinned the old beats rewritten for the new content.

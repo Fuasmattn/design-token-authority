@@ -37,9 +37,13 @@ describe('landing page honesty rule', () => {
     expect(WORKFLOW.steps.at(-1)?.who).toBe('You')
   })
 
-  it('links the workflow to the command reference, which exists', () => {
-    expect(WORKFLOW.link.href).toBe('/reference/commands/')
-    const page = path.join(import.meta.dirname, '..', 'content', 'docs', 'reference', 'commands.md')
-    expect(fs.existsSync(page)).toBe(true)
+  it('links the workflow to the command reference and the agents guide, which exist', () => {
+    expect(WORKFLOW.links.map((link) => link.href)).toEqual([
+      '/reference/commands/',
+      '/guides/coding-agents/',
+    ])
+    const docs = path.join(import.meta.dirname, '..', 'content', 'docs')
+    expect(fs.existsSync(path.join(docs, 'reference', 'commands.md'))).toBe(true)
+    expect(fs.existsSync(path.join(docs, 'guides', 'coding-agents.mdx'))).toBe(true)
   })
 })
