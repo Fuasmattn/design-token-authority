@@ -31,4 +31,4 @@ People who read the landing page did not get what DTA does from the second secti
 
 ## Notes
 
-Also changed with it (maintainer, 2026-10-28): the hero's second button reads "Get started" instead of "Read the quick start" (same target).
+Also changed with it (maintainer, 2026-10-28): the hero's second button reads "Get started" instead of "Read the quick start" (same target). The final call adds the playground as the way in without installing ("Or try it first: drop your token files into the playground and see what DTA finds and builds. It runs in your browser; nothing is uploaded.", button "Open the playground") and a "Read the docs" link to `/start/`.

@@ -87,6 +87,12 @@ h1 .accent {
   color: var(--fg-muted);
   line-height: var(--type-body-line-height);
 }
+.final .alt {
+  margin: var(--space-10) 0 var(--space-1);
+}
+.final .cta {
+  justify-content: center;
+}
 @media (min-width: 1000px) {
   .how {
     padding-top: var(--space-24);
