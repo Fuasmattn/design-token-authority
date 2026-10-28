@@ -65,8 +65,9 @@ const { kicker, heading, lede, link, headingId } = Astro.props
   .lede {
     margin: 0;
     max-width: 44ch;
-    font-size: calc(var(--type-body-size) * 1px);
-    line-height: var(--type-body-line-height);
+    /* The hero's subline size, so the page's intro lines match */
+    font-size: calc(var(--type-body-lg-size) * 1px * 0.9);
+    line-height: var(--type-body-lg-line-height);
     color: var(--fg-muted);
   }
   .link {
