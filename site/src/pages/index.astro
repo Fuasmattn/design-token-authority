@@ -54,8 +54,9 @@ const description = `${HERO.headline} ${HERO.headlineAccent}`
           <h2>{FINAL.heading}</h2>
           <p>{FINAL.text}</p>
           <CommandButton command={COMMANDS.init.text} size="large" />
-          <p class="alt">{FINAL.playground.text}</p>
-          <div class="cta">
+          <h3>{FINAL.playground.heading}</h3>
+          <p>{FINAL.playground.text}</p>
+          <div class="stack">
             <Button variant="outline" href={FINAL.playground.href}>{FINAL.playground.label}</Button>
             <Button variant="link" href={FINAL.docs.href}>{FINAL.docs.label}</Button>
           </div>
