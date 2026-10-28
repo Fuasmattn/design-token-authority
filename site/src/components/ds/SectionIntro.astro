@@ -1,11 +1,12 @@
 ---
 /**
- * The head of a landing-page section: a mono kicker, a condensed display heading, one short lede
+ * The head of a landing-page section: an optional mono kicker, a condensed display heading, one lede
  * and, when the section points somewhere, one link. The same shape above the workflow and
  * above the example, so the sections read as siblings (TICKET-155).
  */
 interface Props {
-  kicker: string
+  /** Mono eyebrow above the heading; leave out when the heading stands on its own. */
+  kicker?: string
   heading: string
   lede?: string
   link?: { label: string; href: string }
@@ -16,7 +17,7 @@ const { kicker, heading, lede, link, headingId } = Astro.props
 ---
 
 <div class="dta-section-intro">
-  <span class="kicker">{kicker}</span>
+  {kicker && <span class="kicker">{kicker}</span>}
   <h2 id={headingId}>{heading}</h2>
   {lede && <p class="lede">{lede}</p>}
   {

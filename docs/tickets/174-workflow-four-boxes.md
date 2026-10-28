@@ -17,7 +17,7 @@ People who read the landing page did not get what DTA does from the second secti
   - `dta build`: Rebuilds every output for every brand and mode.
   - `dta diff`: Shows which stories look different, and which token did it.
   - You: Look once per token change and approve it.
-- Headline (the benefit): "Catch naming, structure and visual mistakes before a token change merges." Kicker stays "How it works" (the anchor). Lede (what DTA is for, and why the checks): "DTA turns your tokens into CSS, Tailwind, Swift and Android. One changed value can reach many components, so it also lints and diffs every change."
+- Headline (the benefit): "Catch naming, structure and visual mistakes before a token change merges." No kicker (the nav's "How it works" link still points to the section). Lede (what DTA is for, and why the checks): "DTA turns your tokens into CSS, Tailwind, Swift and Android. One changed value can reach many components, so it also lints and diffs every change."
 - After the boxes, one sentence for agents ("Coding agents use the same CLI to look up tokens, replace hard-coded values and follow your rules.") and two links: the command reference (`/reference/commands/`) and the Coding agents guide (`/guides/coding-agents/`).
 - Two columns on phones, four from 960px of container. The person's box has the strong outline.
 - No motion: the line, the token, the dust, the end and their script go.
@@ -30,3 +30,5 @@ People who read the landing page did not get what DTA does from the second secti
 - [ ] Vercel preview checked by the maintainer at 1280 and 390, light and dark
 
 ## Notes
+
+Also changed with it (maintainer, 2026-10-28): the hero's second button reads "Getting started" instead of "Read the quick start" (same target).

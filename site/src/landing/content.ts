@@ -29,7 +29,7 @@ export const HERO = {
   headlineAccent: 'agents.',
   subline:
     'A toolset to lint, structure-check, transform and visually diff design tokens. Synced with Figma, shipped as pull requests.',
-  secondary: { label: 'Read the quick start', href: '/start/quick-start/' },
+  secondary: { label: 'Getting started', href: '/start/quick-start/' },
 }
 
 /**
@@ -38,7 +38,6 @@ export const HERO = {
  * The headline names the benefit; the link goes to the command reference.
  */
 export const WORKFLOW = {
-  kicker: 'How it works',
   title: 'Catch naming, structure and visual mistakes before a token change merges.',
   lede: 'DTA turns your tokens into CSS, Tailwind, Swift and Android. One changed value can reach many components, so it also lints and diffs every change.',
   steps: [
