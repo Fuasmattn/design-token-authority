@@ -29,7 +29,7 @@ export const HERO = {
   headlineAccent: 'agents.',
   subline:
     'A toolset to lint, structure-check, transform and visually diff design tokens. Synced with Figma, shipped as pull requests.',
-  secondary: { label: 'Getting started', href: '/start/quick-start/' },
+  secondary: { label: 'Get started', href: '/start/quick-start/' },
 }
 
 /**

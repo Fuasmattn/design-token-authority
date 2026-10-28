@@ -31,4 +31,4 @@ People who read the landing page did not get what DTA does from the second secti
 
 ## Notes
 
-Also changed with it (maintainer, 2026-10-28): the hero's second button reads "Getting started" instead of "Read the quick start" (same target).
+Also changed with it (maintainer, 2026-10-28): the hero's second button reads "Get started" instead of "Read the quick start" (same target).
