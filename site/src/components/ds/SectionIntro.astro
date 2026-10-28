@@ -4,6 +4,8 @@
  * and, when the section points somewhere, one link. The same shape above the workflow and
  * above the example, so the sections read as siblings (TICKET-155).
  */
+import ArrowLink from './ArrowLink.astro'
+
 interface Props {
   /** Mono eyebrow above the heading; leave out when the heading stands on its own. */
   kicker?: string
@@ -22,12 +24,9 @@ const { kicker, heading, lede, link, headingId } = Astro.props
   {lede && <p class="lede">{lede}</p>}
   {
     link && (
-      <a class="link" href={link.href}>
-        {link.label}
-        <svg viewBox="0 0 24 12" aria-hidden="true">
-          <path d="M1 6h21M17 1.5 22 6l-5 4.5" />
-        </svg>
-      </a>
+      <span class="link">
+        <ArrowLink href={link.href}>{link.label}</ArrowLink>
+      </span>
     )
   }
 </div>
@@ -73,30 +72,7 @@ const { kicker, heading, lede, link, headingId } = Astro.props
     color: var(--fg-muted);
   }
   .link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
     margin-top: var(--space-1);
-    font-size: calc(var(--type-label-size) * 1px);
-    font-weight: var(--type-label-weight);
-    line-height: var(--type-label-line-height);
-    color: var(--action-text);
-    text-decoration: none;
-    border-bottom: var(--stroke-hairline) solid transparent;
-    transition: border-color var(--motion-duration-fast) var(--motion-ease-standard);
-  }
-  .link:hover,
-  .link:focus-visible {
-    border-color: var(--action-text);
-  }
-  .link svg {
-    width: var(--space-6);
-    height: var(--space-3);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
   }
   @media (max-width: 760px) {
     .lede {

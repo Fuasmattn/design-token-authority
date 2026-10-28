@@ -31,4 +31,4 @@ People who read the landing page did not get what DTA does from the second secti
 
 ## Notes
 
-Also changed with it (maintainer, 2026-10-28): the hero's second button reads "Get started" instead of "Read the quick start" (same target). The final call adds the playground as the way in without installing: heading "Try it in the playground.", "Drop in your token files and see what DTA finds and builds. It runs in your browser; nothing is uploaded.", the button "Open the playground" and, stacked under it, a "Read the docs" link to `/start/`.
+Also changed with it (maintainer, 2026-10-28): the hero's second button reads "Get started" instead of "Read the quick start" (same target). The final call adds the playground as the way in without installing: heading "…or try it on the playground.", "Drop in your token files and see what DTA finds and builds. It runs in your browser; nothing is uploaded.", the button "Open the playground" and, stacked under it, a "Read the docs" link to `/start/`. All links that go to another page use the new design-system component `ArrowLink` (one style instead of two).

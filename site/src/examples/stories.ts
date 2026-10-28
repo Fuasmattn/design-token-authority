@@ -26,6 +26,13 @@ export const STORIES: readonly Story[] = [
     viewports: [DESKTOP, MOBILE],
   },
   {
+    component: 'arrow-link',
+    variant: 'default',
+    title: 'Links to other pages',
+    example: 'ArrowLinkDefault',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
     component: 'command-button',
     variant: 'default',
     title: 'Copyable command',

@@ -7,6 +7,7 @@
  *
  * Two columns on phones, four from 960px of container.
  */
+import ArrowLink from './ArrowLink.astro'
 import SectionIntro from './SectionIntro.astro'
 
 export interface Step {
@@ -64,12 +65,7 @@ const headingId = `${idPrefix}-title`
         {links.length > 0 && (
           <div class="links">
             {links.map((link) => (
-              <a class="link" href={link.href}>
-                {link.label}
-                <svg viewBox="0 0 24 12" aria-hidden="true">
-                  <path d="M1 6h21M17 1.5 22 6l-5 4.5" />
-                </svg>
-              </a>
+              <ArrowLink href={link.href}>{link.label}</ArrowLink>
             ))}
           </div>
         )}
@@ -130,7 +126,7 @@ const headingId = `${idPrefix}-title`
     line-height: var(--type-body-sm-line-height);
     color: var(--fg-default);
   }
-  /* After the boxes: one sentence, then the links (the section intro's link style) */
+  /* After the boxes: one sentence, then the links (ArrowLink) */
   .outro {
     display: flex;
     flex-direction: column;
@@ -150,32 +146,6 @@ const headingId = `${idPrefix}-title`
     flex-wrap: wrap;
     gap: var(--space-3) var(--space-8);
   }
-  .link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: calc(var(--type-label-size) * 1px);
-    font-weight: var(--type-label-weight);
-    line-height: var(--type-label-line-height);
-    color: var(--action-text);
-    text-decoration: none;
-    border-bottom: var(--stroke-hairline) solid transparent;
-    transition: border-color var(--motion-duration-fast) var(--motion-ease-standard);
-  }
-  .link:hover,
-  .link:focus-visible {
-    border-color: var(--action-text);
-  }
-  .link svg {
-    width: var(--space-6);
-    height: var(--space-3);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
   /* The sentence after the boxes matches the section's lede (SectionIntro) */
   @media (max-width: 760px) {
     .note {

@@ -1,0 +1,51 @@
+---
+/**
+ * A link to another page: the label in `action-text` with a thin arrow, underlined on hover and
+ * focus. The one style for "go there" on the landing page (section intros, the workflow, the
+ * final call). An action on the page itself is a Button instead (TICKET-174).
+ */
+interface Props {
+  href: string
+}
+const { href } = Astro.props
+---
+
+<a class="dta-arrow-link" href={href}>
+  <slot />
+  <svg viewBox="0 0 24 12" aria-hidden="true">
+    <path d="M1 6h21M17 1.5 22 6l-5 4.5"></path>
+  </svg>
+</a>
+
+<style>
+  .dta-arrow-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-sans);
+    font-size: calc(var(--type-label-size) * 1px);
+    font-weight: var(--type-label-weight);
+    line-height: var(--type-label-line-height);
+    color: var(--action-text);
+    text-decoration: none;
+    border-bottom: var(--stroke-hairline) solid transparent;
+    transition: border-color var(--motion-duration-fast) var(--motion-ease-standard);
+  }
+  .dta-arrow-link:hover,
+  .dta-arrow-link:focus-visible {
+    border-color: var(--action-text);
+  }
+  .dta-arrow-link:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 var(--stroke-focus) var(--action-subtle);
+  }
+  .dta-arrow-link svg {
+    width: var(--space-6);
+    height: var(--space-3);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+</style>

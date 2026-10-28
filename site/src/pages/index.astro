@@ -8,6 +8,7 @@
  */
 import SiteLayout from '../layouts/SiteLayout.astro'
 import '../styles/landing.css'
+import ArrowLink from '../components/ds/ArrowLink.astro'
 import Button from '../components/ds/Button.astro'
 import CommandButton from '../components/ds/CommandButton.astro'
 import Facts from '../components/ds/Facts.astro'
@@ -58,7 +59,7 @@ const description = `${HERO.headline} ${HERO.headlineAccent}`
           <p>{FINAL.playground.text}</p>
           <div class="stack">
             <Button variant="outline" href={FINAL.playground.href}>{FINAL.playground.label}</Button>
-            <Button variant="link" href={FINAL.docs.href}>{FINAL.docs.label}</Button>
+            <ArrowLink href={FINAL.docs.href}>{FINAL.docs.label}</ArrowLink>
           </div>
         </div>
       </FloatingObjects>
