@@ -252,7 +252,7 @@ export const STORIES: readonly Story[] = [
   {
     component: 'workflow',
     variant: 'default',
-    title: 'Three beats on a line, the token at rest',
+    title: 'Three commands and the person who approves',
     example: 'WorkflowDefault',
     viewports: [DESKTOP, MOBILE],
   },
