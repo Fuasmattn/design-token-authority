@@ -47,7 +47,7 @@ h1 .accent {
 
 /* The workflow at a glance, right below the hero (the "How it works" anchor) */
 .how {
-  padding-top: var(--space-12);
+  padding-top: var(--space-16);
   scroll-margin-top: var(--space-6);
 }
 
@@ -89,7 +89,7 @@ h1 .accent {
 }
 @media (min-width: 1000px) {
   .how {
-    padding-top: var(--space-16);
+    padding-top: var(--space-24);
   }
   .plain {
     gap: var(--space-12);
