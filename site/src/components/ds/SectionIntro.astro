@@ -52,10 +52,11 @@ const { kicker, heading, lede, link, headingId } = Astro.props
     margin: 0;
     max-width: 24ch;
     text-wrap: balance;
+    /* A step below the hero headline at every width */
     font-size: clamp(
-      calc(var(--type-heading-size) * 1px),
-      4.6vw,
-      calc(var(--type-display-lg-size) * 1px)
+      calc(var(--type-heading-size) * 1px * 0.8),
+      3.2vw,
+      calc(var(--type-display-lg-size) * 1px * 0.8)
     );
     font-weight: var(--type-display-lg-weight);
     line-height: var(--type-display-lg-line-height);
@@ -65,9 +66,9 @@ const { kicker, heading, lede, link, headingId } = Astro.props
   .lede {
     margin: 0;
     max-width: 44ch;
-    /* The hero's subline size, so the page's intro lines match */
-    font-size: calc(var(--type-body-lg-size) * 1px * 0.9);
-    line-height: var(--type-body-lg-line-height);
+    /* Never larger than the hero's subline: the same on phones, a step below on desktop */
+    font-size: calc(var(--type-body-size) * 1px);
+    line-height: var(--type-body-line-height);
     color: var(--fg-muted);
   }
   .link {
@@ -95,5 +96,10 @@ const { kicker, heading, lede, link, headingId } = Astro.props
     stroke-width: 1.5;
     stroke-linecap: round;
     stroke-linejoin: round;
+  }
+  @media (max-width: 760px) {
+    .lede {
+      font-size: calc(var(--type-body-size) * 1px * 0.95);
+    }
   }
 </style>

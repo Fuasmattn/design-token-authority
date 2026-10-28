@@ -176,6 +176,13 @@ const headingId = `${idPrefix}-title`
     stroke-linejoin: round;
   }
 
+  /* The sentence after the boxes matches the section's lede (SectionIntro) */
+  @media (max-width: 760px) {
+    .note {
+      font-size: calc(var(--type-body-size) * 1px * 0.95);
+    }
+  }
+
   @container (min-width: 960px) {
     .steps {
       grid-template-columns: repeat(4, minmax(0, 1fr));
