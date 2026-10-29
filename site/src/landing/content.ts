@@ -69,12 +69,10 @@ export const FACTS = [
 export const FINAL = {
   heading: 'Start with one command.',
   text: 'Sets up the config, the token folder, the GitHub workflow and the agent skill.',
-  /** The way in without installing anything, and the docs (TICKET-174). */
+  /** The way in without installing anything (TICKET-174). The docs are in the menu. */
   playground: {
-    heading: '…or try it on the playground.',
-    text: 'Drop in your token files and see what DTA finds and builds. It runs in your browser; nothing is uploaded.',
+    text: 'Not ready to install? Drop your token files into the playground. It runs in your browser; nothing is uploaded.',
     label: 'Open the playground',
     href: '/playground/',
   },
-  docs: { label: 'Read the docs', href: '/start/' },
 }

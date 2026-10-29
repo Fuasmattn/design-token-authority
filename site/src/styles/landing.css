@@ -87,19 +87,16 @@ h1 .accent {
   color: var(--fg-muted);
   line-height: var(--type-body-line-height);
 }
-/* The playground: the way in without installing, a step below the final call */
-.final h3 {
-  margin: var(--space-16) 0 0;
-  font-size: calc(var(--type-heading-size) * 1px * 0.8);
-  font-weight: var(--type-heading-weight);
-  line-height: var(--type-heading-line-height);
-  letter-spacing: var(--type-heading-letter-spacing);
-}
-.final .stack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* The playground: the way in without installing, one sentence and one link under the command */
+.final .playground {
+  display: grid;
+  justify-items: center;
   gap: var(--space-3);
+  margin-top: var(--space-12);
+}
+.final .playground p {
+  margin: 0;
+  font-size: calc(var(--type-body-size) * 1px * 0.95);
 }
 @media (min-width: 1000px) {
   .how {
