@@ -25,3 +25,10 @@ auditConfig:
     # loads a PAC proxy file over ftp://, which the Release workflow never configures; get-uri
     # (release-it > proxy-agent) still requires basic-ftp 5. Drop once release-it moves on.
     - GHSA-c475-qrg2-pj4r
+    # deepmerge 4.2–4.3.1 (style-dictionary > @bundled-es-modules/deepmerge): a "__proto__" key in a
+    # merged object sets the prototype of the result. No fixed version exists. Style Dictionary merges
+    # its config, its hooks and, through its options, DTA's token tree; DTA leaves out every
+    # "__proto__" key when it reads a token or resolver file (reserved-key, TICKET-175), so token
+    # data cannot carry one.
+    # Drop once deepmerge or style-dictionary ship a fix.
+    - GHSA-gcqx-w48m-w2h4

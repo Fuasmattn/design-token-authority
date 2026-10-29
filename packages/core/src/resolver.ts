@@ -1,3 +1,4 @@
+import { parseTokenJson, reservedKeyMessage } from './json.js'
 import { readEntries, type Entry } from './entries.js'
 import { pointerSegments } from './references.js'
 import { AXIS_SEPARATOR } from './modes.js'
@@ -86,7 +87,10 @@ export function readResolver(
 
   let root: unknown
   try {
-    root = JSON.parse(document.content)
+    const parsed = parseTokenJson(document.content)
+    root = parsed.value
+    if (parsed.reservedKeys > 0)
+      fail('reserved-key', reservedKeyMessage(document.fileName, parsed.reservedKeys))
   } catch (error) {
     fail('invalid-json', `"${document.fileName}" is not valid JSON: ${(error as Error).message}`)
     return empty
@@ -123,7 +127,10 @@ export function readResolver(
       } else {
         used.add(name)
         try {
-          const tree: unknown = JSON.parse(file.content)
+          const parsed = parseTokenJson(file.content)
+          if (parsed.reservedKeys > 0)
+            fail('reserved-key', reservedKeyMessage(name, parsed.reservedKeys))
+          const tree = parsed.value
           if (isObject(tree)) cache.set(name, tree)
           else {
             fail('not-an-object', `"${name}" must contain a JSON object.`)

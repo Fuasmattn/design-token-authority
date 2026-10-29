@@ -57,7 +57,8 @@ interface Inherited {
  * `size.4.5` are common in Figma), so it is a warning that other tools may not read the name.
  */
 function nameProblem(key: string): { severity: 'error' | 'warning'; text: string } | null {
-  if (/[{}]/.test(key)) return { severity: 'error', text: 'must not contain "{" or "}"' }
+  if (/[{}]/.test(key))
+    return { severity: 'error', text: 'must not contain "{" or "}", because aliases use them' }
   if (key.includes('.')) return { severity: 'warning', text: 'contains "."' }
   return null
 }
@@ -116,7 +117,7 @@ export function readEntries(file: Json): ReadResult {
         problems.push({
           severity: 'error',
           code: 'invalid-name',
-          message: `"${key}" in "${path.join('.') || '(top level)'}": a token or group name ${badName.text}, because aliases use them.`,
+          message: `"${key}" in "${path.join('.') || '(top level)'}": a token or group name ${badName.text}.`,
           path: childPath,
         })
         continue

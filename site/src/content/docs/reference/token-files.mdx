@@ -15,7 +15,7 @@ The files DTA reads and writes: one JSON file per collection and mode, in the [D
 - **A token** has a `$value` and a type: its own `$type`, else the type its alias points to, else the closest group's `$type`. Optional: `$description`, `$deprecated`, `$extensions`.
 - **Aliases:** `{Colors.Foundation.Blue.500}`, or a `$ref` JSON Pointer (`#/Colors/Blue/$value/components/0`), for a whole value or one part of a composite.
 - **`$root`** is a group's own token (`{color.accent.$root}`); **`$extends`** gives a group another group's tokens in the same file.
-- **Names** must not contain `{` or `}`; a `.` is a warning (DTCG 2025.10 doesn't allow it).
+- **Names** must not contain `{` or `}`; a `.` is a warning (DTCG 2025.10 doesn't allow it). A `__proto__` key, anywhere in a file, is left out and reported as an error (`reserved-key`): JavaScript reserves the name.
 - **`$extensions["com.figma"]`** (`hiddenFromPublishing`, `scopes`, `codeSyntax`) is kept when you push.
 
 ```json
