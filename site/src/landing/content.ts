@@ -71,7 +71,7 @@ export const FINAL = {
   text: 'Sets up the config, the token folder, the GitHub workflow and the agent skill.',
   /** The way in without installing anything (TICKET-174). The docs are in the menu. */
   playground: {
-    text: 'Not ready to install? Drop your token files into the playground. It runs in your browser; nothing is uploaded.',
+    text: 'Not ready to install? Drop your token files into the playground. Or explore some of the examples.',
     label: 'Open the playground',
     href: '/playground/',
   },
