@@ -312,6 +312,27 @@ describe('parseTokenFiles: DTCG 2025.10 groups and names', () => {
     expect(model.collections[0].tokens.map((t) => t.name)).toEqual([['size', '4.5']])
   })
 
+  it('leaves out every "__proto__" key, in names and in values, as an error (TICKET-175)', () => {
+    // JSON.parse makes "__proto__" an own key; a computed key does the same here.
+    const { model, diagnostics } = parseTokenFiles([
+      file('A.V.json', {
+        ['__proto__']: { polluted: { $type: 'color', $value: '#ff0000' } },
+        size: { $type: 'dimension', $value: { value: 4, unit: 'px', ['__proto__']: { x: 1 } } },
+      }),
+    ])
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        code: 'reserved-key',
+        severity: 'error',
+        message: expect.stringContaining('2 "__proto__" keys'),
+      }),
+    ])
+    expect(model.collections[0].tokens.map((t) => [t.name, t.values.V])).toEqual([
+      [['size'], { value: 4, unit: 'px' }],
+    ])
+    expect(Object.getPrototypeOf(model.collections[0].tokens[0].values.V)).toBe(Object.prototype)
+  })
+
   it('reports a token that also contains tokens or groups', () => {
     const { diagnostics } = parseTokenFiles([
       file('A.V.json', { a: { $type: 'number', $value: 1, b: { $type: 'number', $value: 2 } } }),

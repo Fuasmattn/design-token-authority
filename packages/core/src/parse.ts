@@ -1,3 +1,4 @@
+import { parseTokenJson, reservedKeyMessage } from './json.js'
 import { isTokenType, partType } from './values.js'
 import { referenceOf } from './references.js'
 import { AXIS_SEPARATOR } from './modes.js'
@@ -177,7 +178,10 @@ function parseInputs(files: ParseInput[]): ParseResult {
     }
     let tree: unknown
     try {
-      tree = JSON.parse(content)
+      const parsed = parseTokenJson(content)
+      tree = parsed.value
+      if (parsed.reservedKeys > 0)
+        fail('reserved-key', reservedKeyMessage(fileName, parsed.reservedKeys))
     } catch (error) {
       fail('invalid-json', `"${fileName}" is not valid JSON: ${(error as Error).message}`)
       continue
