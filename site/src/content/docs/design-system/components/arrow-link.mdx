@@ -1,0 +1,25 @@
+---
+title: Arrow link
+description: A link to another page, with a thin arrow.
+sidebar:
+  order: 2
+---
+
+import Examples from '../../../../components/docs/Examples.astro'
+import TokensUsed from '../../../../components/docs/TokensUsed.astro'
+
+The one style for "go there": a label in `action-text` and a thin arrow, underlined on hover and focus. Used by the section intro, the workflow and the final call on the landing page.
+
+<Examples component="arrow-link" />
+
+## Guidelines
+
+- **Only for going to another page** (the reference, a guide, the docs). An action on the current page is a [Button](/design-system/components/button/).
+- **The label names the destination**, not the action: "Command reference", "Coding agents", "Read the docs".
+- Several in a row wrap with `space-3` between lines and `space-8` between links; stacked, they take `space-3`.
+
+## Tokens used
+
+Read from the component's source:
+
+<TokensUsed name="ArrowLink" />

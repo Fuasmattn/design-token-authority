@@ -53,6 +53,10 @@ Nothing numbered beyond the scene kickers. No FAQ, no cards, no "why trust it", 
 
 12. **The workflow at a glance (2026-10-19, maintainer).** Below the hero, one unnumbered strip shows the workflow as two sides meeting in a pull request: Change (Figma, token file or agent) → in the pull request: Check (`dta lint`) → Build (`dta build`) → Diff (`dta diff`) → Decide, and a fix goes back to whichever side caused it. It is the "How it works" anchor. The four scenes stay and follow the strip's order; the checks scene shows `dta lint` instead of `dta build` (scene order revised the same day, see the revision note of 2026-10-19). "Nothing numbered beyond the scene kickers" still holds. TICKET-112.
 
+## Revision note (2026-10-28): four boxes, no animation
+
+Maintainer decision on TICKET-174, after feedback from people who read the page: the strip said too little in too many words, with titles the layout asked for. It is now four boxes, one sentence each: `dta lint`, `dta build`, `dta diff` and the person who approves. The commands are the titles, so nothing is invented. The headline names the benefit: "Catch naming, structure and visual mistakes before a token change merges." A link to the command reference closes it. The change step (Figma, token file or agent) goes; the hero already says where tokens come from. The travelling token, the line, the dust and the "Merged" end go with it. This reverses the "only command on the page is `npm create dta`" rule of the 2026-10-26 note for this one section: the commands are the precise part.
+
 ## Revision note (2026-10-26, second): no commands section either
 
 Maintainer decision on TICKET-169, on review of 168: the commands grid is a section to read too, and the commands belong in the reference. It goes; the second beat of the strip links to the command reference under its text, and is retitled "Checked, built, rendered" (the three steps named). The page is hero → strip → facts → final call; the only command on it is `npm create dta`. `Commands` leaves the design system.

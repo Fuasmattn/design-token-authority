@@ -26,6 +26,13 @@ export const STORIES: readonly Story[] = [
     viewports: [DESKTOP, MOBILE],
   },
   {
+    component: 'arrow-link',
+    variant: 'default',
+    title: 'Links to other pages',
+    example: 'ArrowLinkDefault',
+    viewports: [DESKTOP, MOBILE],
+  },
+  {
     component: 'command-button',
     variant: 'default',
     title: 'Copyable command',
@@ -252,7 +259,7 @@ export const STORIES: readonly Story[] = [
   {
     component: 'workflow',
     variant: 'default',
-    title: 'Three beats on a line, the token at rest',
+    title: 'Three commands and the person who approves',
     example: 'WorkflowDefault',
     viewports: [DESKTOP, MOBILE],
   },

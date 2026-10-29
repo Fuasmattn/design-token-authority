@@ -1,367 +1,78 @@
 ---
 /**
- * The workflow at a glance (TICKET-155): three beats on one faint line — where design happens,
- * in the pull request, the decision — and the token travelling it once. The token is the hero's
- * orange cube; it breathes a little while it waits at a station. Dust from the hero flows along
- * the line on its own, each mote at its own pace, for as long as the page is open, and bends toward
- * the token when it passes near it, as the hero's objects bend toward the well. Stations fill
- * as the token passes; at the decision it steps back once (an iteration without a loop); at the
- * end the end dot fills and gets its tick: merged. The step back carries no label.
+ * The workflow at a glance (TICKET-174): what runs on a token change, as four boxes with one
+ * sentence each. The three commands are the titles of their boxes, so nothing is named that the
+ * tool does not do; the last box is the person who approves, outlined. One link to the command
+ * reference closes the section. No motion.
  *
- * The run starts once, when the section scrolls into view, and never loops. Under
- * `prefers-reduced-motion` the finished picture is shown. The line is a polyline through the
- * stations, measured after layout, so one component serves both the stacked (phone) and the
- * three-column (desktop) layout.
+ * Two columns on phones, four from 960px of container.
  */
+import ArrowLink from './ArrowLink.astro'
 import SectionIntro from './SectionIntro.astro'
 
-export interface Beat {
-  /** Mono eyebrow: where this happens. */
-  where: string
-  /** A few words. */
-  title: string
-  /** Two short sentences. */
+export interface Step {
+  /** The command that runs, without the prompt (`dta lint`). Leave out for the person's step. */
+  command?: string
+  /** Who acts, for the step without a command (`You`). */
+  who?: string
+  /** One sentence. */
   text: string
-  /** One link under the text, when the beat points somewhere (the command reference). */
-  link?: { label: string; href: string }
 }
 
 interface Props {
-  /** Read by screen readers as the section's heading; shown when `kicker` is set. */
   title: string
   kicker?: string
   lede?: string
-  beats: Beat[]
-  /** The end state. */
-  end: string
-  /** Seconds for one run. */
-  duration?: number
+  steps: Step[]
+  /** One sentence after the boxes, before the links. */
+  note?: string
+  /** Links after the boxes (the command reference, a guide). */
+  links?: Array<{ label: string; href: string }>
   id?: string
   idPrefix?: string
 }
-const {
-  title,
-  kicker,
-  lede,
-  beats,
-  end,
-  duration = 28,
-  id,
-  idPrefix = 'workflow',
-} = Astro.props
+const { title, kicker, lede, steps, note, links = [], id, idPrefix = 'workflow' } = Astro.props
 const headingId = `${idPrefix}-title`
-const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2', 'd2', 'd', 'd2', 'd2']
 ---
 
 <section class="dta-workflow-frame" id={id} aria-labelledby={headingId}>
+  <div class="intro">
+    <SectionIntro kicker={kicker} heading={title} lede={lede} headingId={headingId} />
+  </div>
+  <ol class="steps">
+    {
+      steps.map((step) => (
+        <li class:list={['step', { person: !step.command }]}>
+          {step.command ? (
+            <code class="command">
+              <span class="prompt" aria-hidden="true">
+                ${' '}
+              </span>
+              {step.command}
+            </code>
+          ) : (
+            <span class="who">{step.who}</span>
+          )}
+          <p>{step.text}</p>
+        </li>
+      ))
+    }
+  </ol>
   {
-    kicker ? (
-      <div class="intro">
-        <SectionIntro kicker={kicker} heading={title} lede={lede} headingId={headingId} />
+    (note || links.length > 0) && (
+      <div class="outro">
+        {note && <p class="note">{note}</p>}
+        {links.length > 0 && (
+          <div class="links">
+            {links.map((link) => (
+              <ArrowLink href={link.href}>{link.label}</ArrowLink>
+            ))}
+          </div>
+        )}
       </div>
-    ) : (
-      <h2 class="visually-hidden" id={headingId}>
-        {title}
-      </h2>
     )
   }
-  <div class="flow" data-flow data-duration={duration}>
-    <svg class="line" aria-hidden="true">
-      <path data-path d=""></path>
-      <circle class="end" data-end r="7"></circle>
-      <circle class="halo" data-halo r="13"></circle>
-      <path class="tick" data-tick d=""></path>
-    </svg>
-    <ol class="beats">
-      {
-        beats.map((beat) => (
-          <li class="beat">
-            <span class="station" data-station aria-hidden="true" />
-            <span class="where">{beat.where}</span>
-            <h3>{beat.title}</h3>
-            <p>{beat.text}</p>
-            {
-              beat.link && (
-                <a class="link" href={beat.link.href}>
-                  {beat.link.label}
-                  <svg viewBox="0 0 24 12" aria-hidden="true">
-                    <path d="M1 6h21M17 1.5 22 6l-5 4.5" />
-                  </svg>
-                </a>
-              )
-            }
-          </li>
-        ))
-      }
-    </ol>
-    <span class="end-label" data-end-label>{end}</span>
-    {DUST.map((kind) => <i class:list={['dust', kind]} data-dust aria-hidden="true" />)}
-    <span class="cube orange" data-token aria-hidden="true">
-      <span class="spin" data-spin>
-        <i></i><i></i><i></i><i></i><i></i><i></i>
-      </span>
-    </span>
-  </div>
 </section>
-
-<script>
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)')
-
-  for (const flow of document.querySelectorAll<HTMLElement>('[data-flow]')) {
-    const path = flow.querySelector<SVGPathElement>('[data-path]')!
-    const endDot = flow.querySelector<SVGCircleElement>('[data-end]')!
-    const halo = flow.querySelector<SVGCircleElement>('[data-halo]')!
-    const tick = flow.querySelector<SVGPathElement>('[data-tick]')!
-    const endLabel = flow.querySelector<HTMLElement>('[data-end-label]')!
-    const token = flow.querySelector<HTMLElement>('[data-token]')!
-    const spin = flow.querySelector<HTMLElement>('[data-spin]')!
-    const stations = [...flow.querySelectorAll<HTMLElement>('[data-station]')]
-    const dust = [...flow.querySelectorAll<HTMLElement>('[data-dust]')]
-    const duration = Number(flow.dataset.duration) * 1000
-    const beats = flow.querySelector<HTMLElement>('.beats')!
-
-    /** Station centres, the end point and the polyline through them, from the laid-out DOM. */
-    let marks: number[] = []
-    let total = 0
-    function layout() {
-      const box = flow.getBoundingClientRect()
-      const row = getComputedStyle(beats).flexDirection === 'row'
-      const centers = stations.map((s) => {
-        const r = s.getBoundingClientRect()
-        return { x: r.left - box.left + r.width / 2, y: r.top - box.top + r.height / 2 }
-      })
-      const last = centers[centers.length - 1]
-      // the end sits one beat-gap past the last station, along the flow's direction
-      const lastBeat = stations[stations.length - 1].parentElement!.getBoundingClientRect()
-      const end = row
-        ? { x: lastBeat.right - box.left + 48, y: last.y }
-        : { x: last.x, y: lastBeat.bottom - box.top + 56 }
-      const points = [...centers, end]
-      path.setAttribute('d', points.map((p, i) => `${i ? 'L' : 'M'} ${p.x} ${p.y}`).join(' '))
-      endDot.setAttribute('cx', String(end.x))
-      endDot.setAttribute('cy', String(end.y))
-      halo.setAttribute('cx', String(end.x))
-      halo.setAttribute('cy', String(end.y))
-      tick.setAttribute(
-        'd',
-        `M ${end.x - 3.5} ${end.y + 0.5} L ${end.x - 1} ${end.y + 3} L ${end.x + 3.5} ${end.y - 2.5}`,
-      )
-      endLabel.style.translate = row ? `${end.x - 10}px ${end.y + 16}px` : `${end.x + 32}px ${end.y - 8}px`
-      total = path.getTotalLength()
-      marks = centers.map((c) => {
-        // position along the path: the first point of the polyline nearest the station
-        let best = 0
-        let bestD = Infinity
-        for (let l = 0; l <= total; l += 2) {
-          const p = path.getPointAtLength(l)
-          const d = (p.x - c.x) ** 2 + (p.y - c.y) ** 2
-          if (d < bestD) {
-            bestD = d
-            best = l
-          }
-        }
-        return best
-      })
-      return row
-    }
-    let row = layout()
-
-    // Dust flows along the line on its own, each mote with its own pace, offset and sway, as long as the page is open.
-    // The scatter comes from a seeded generator, so the still picture (reduced motion, the
-    // stories, `dta diff`) is the same on every load; `Math.random()` made it differ by a few
-    // hundred pixels each render (TICKET-172).
-    let seed = 0x9e3779b9
-    const random = () => {
-      seed = (seed + 0x6d2b79f5) | 0
-      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-    }
-    const motes = dust.map((d, k) => ({
-      el: d,
-      at: random(),
-      speed: 0.012 + random() * 0.02,
-      sway: 4 + random() * 8,
-      phase: random() * Math.PI * 2,
-      side: (k % 3 - 1) * 5,
-    }))
-    let flowing = false
-    // The token pulls the dust that comes near it, like the well pulls the objects in the hero:
-    // within `PULL` px a mote bends toward the token, strongest close in, and never quite reaches it.
-    const PULL = 56
-    let tokenAt: { x: number; y: number } | null = null
-    const placeDust = (dt: number) => {
-      for (const m of motes) {
-        m.at = (m.at + m.speed * dt) % 1
-        const q = path.getPointAtLength(m.at * total)
-        const sway = Math.sin(m.at * Math.PI * 6 + m.phase) * m.sway
-        let x = row ? q.x : q.x + sway + m.side
-        let y = row ? q.y + sway + m.side : q.y
-        if (tokenAt) {
-          const dx = tokenAt.x - x
-          const dy = tokenAt.y - y
-          const d = Math.hypot(dx, dy)
-          if (d < PULL && d > 0) {
-            const k = (1 - d / PULL) ** 2 * 0.7
-            x += dx * k
-            y += dy * k
-            // keep a small clearance around the cube
-            const nd = Math.hypot(tokenAt.x - x, tokenAt.y - y)
-            if (nd < 12) {
-              x = tokenAt.x - ((tokenAt.x - x) / nd) * 12
-              y = tokenAt.y - ((tokenAt.y - y) / nd) * 12
-            }
-          }
-        }
-        const fade = Math.min(1, m.at * 12, (1 - m.at) * 12)
-        m.el.style.opacity = String(0.8 * fade)
-        if (dt === 0) {
-          x = Math.round(x)
-          y = Math.round(y)
-        }
-        m.el.style.transform = `translate(${x}px, ${y}px)`
-      }
-    }
-    let lastDust = 0
-    const dustFrame = (now: number) => {
-      const dt = lastDust ? Math.min(0.05, (now - lastDust) / 1000) : 0
-      lastDust = now
-      placeDust(dt)
-      if (flowing) requestAnimationFrame(dustFrame)
-    }
-    const startDust = () => {
-      if (flowing) return
-      flowing = true
-      requestAnimationFrame(dustFrame)
-    }
-
-    function finish() {
-      stations.forEach((s) => s.classList.add('passed'))
-      flow.classList.add('done')
-      const p = path.getPointAtLength(total)
-      // whole pixels: at a fractional edge the browser blends the motes over the cube a little
-      // differently on each paint, and the still picture must be the same every time (TICKET-172)
-      tokenAt = { x: Math.round(p.x), y: Math.round(p.y) }
-      token.style.opacity = '1'
-      token.style.transform = `translate(${tokenAt.x}px, ${tokenAt.y}px)`
-    }
-
-    if (reduce.matches) {
-      // the finished picture at once: no transitions to run (motion.e2e counts running animations)
-      flow.classList.add('still')
-      finish()
-      placeDust(0)
-      // The line is measured from the beats' boxes; on phones they stack, and a web font that
-      // lands after this script ran changes their height by a fraction of a pixel. Measure once
-      // more when the fonts are in, so the token sits on the end dot (TICKET-172).
-      document.fonts?.ready.then(() => {
-        row = layout()
-        finish()
-        placeDust(0)
-      })
-    } else {
-      // The run: move to a point (eased) or rest there, each with a share of the time.
-      type Seg = { to?: number; rest?: number; w: number }
-      let ran = false
-      let running = false
-      const COLORS = ['orange', 'blue', 'ink']
-      function run() {
-        if (running) return
-        running = true
-        ran = true
-        row = layout()
-        startDust()
-        stations.forEach((s) => s.classList.remove('passed'))
-        flow.classList.remove('done')
-        const P = [0, ...marks, total]
-        const seg: Seg[] = [
-          { to: P[1], w: 0.14 },
-          { rest: 1, w: 0.04 },
-          { to: P[2], w: 0.14 },
-          { rest: 2, w: 0.22 },
-          { to: P[3], w: 0.12 },
-          { rest: 3, w: 0.08 },
-          { to: P[2] + (P[3] - P[2]) * 0.3, w: 0.07 },
-          { to: P[3], w: 0.07 },
-          { rest: 3, w: 0.04 },
-          { to: P[4], w: 0.1 },
-          { rest: 4, w: 0.08 },
-        ]
-        const sum = seg.reduce((s, x) => s + x.w, 0)
-        for (const s of seg) s.w /= sum
-        const at = (t: number) => {
-          let acc = 0
-          let pos = 0
-          for (let i = 0; i < seg.length; i++) {
-            const S = seg[i]
-            if (t < acc + S.w) {
-              const u = (t - acc) / S.w
-              if (S.rest) return { pos, rest: S.rest, u, moving: false }
-              const e = u < 0.5 ? 2 * u * u : 1 - (-2 * u + 2) ** 2 / 2
-              return { pos: pos + (S.to! - pos) * e, rest: 0, u, moving: true }
-            }
-            acc += S.w
-            if (!S.rest) pos = S.to!
-          }
-          return { pos: total, rest: 4, u: 1, moving: false }
-        }
-        const t0 = performance.now()
-        let ang = 0
-        const dir = Math.random() < 0.5 ? -1 : 1
-        token.style.opacity = '1'
-        const frame = (now: number) => {
-          const t = Math.min(1, (now - t0) / duration)
-          const g = at(t)
-          const p = path.getPointAtLength(g.pos)
-          // on the move it turns; at a station it slows and breathes a little
-          const rate = g.moving ? 1 : 0.15
-          const breath = g.moving ? 0 : Math.sin(((now - t0) / 1000) * Math.PI * 0.5) * 0.05
-          tokenAt = { x: p.x, y: p.y }
-          token.style.transform = `translate(${p.x}px, ${p.y}px) scale(${1 + breath})`
-          ang += rate * 0.7 * dir
-          spin.style.transform = `rotateX(${ang}deg) rotateY(${ang * 1.5}deg)`
-          stations.forEach((s, i) => {
-            if (g.pos >= marks[i] + 6) s.classList.add('passed')
-          })
-          if (t < 1) requestAnimationFrame(frame)
-          else {
-            flow.classList.add('done')
-            running = false
-          }
-        }
-        requestAnimationFrame(frame)
-      }
-      // An easter egg: once a run is over, tapping the first beat spawns a new token — another
-      // colour from the hero's set, another size, turning the other way — and runs it from the start.
-      const first = stations[0].parentElement!
-      first.addEventListener('click', () => {
-        if (running || !ran) return
-        token.classList.remove(...COLORS)
-        token.classList.add(COLORS[Math.floor(Math.random() * COLORS.length)])
-        token.style.setProperty('--s', `${12 + Math.round(Math.random() * 8)}px`)
-        spin.style.transform = ''
-        run()
-      })
-      const io = new IntersectionObserver(
-        (entries) => {
-          if (entries.some((e) => e.isIntersecting)) {
-            run()
-            io.disconnect()
-          }
-        },
-        { threshold: 0.35 },
-      )
-      io.observe(flow)
-      addEventListener('resize', () => {
-        if (!ran) layout()
-      })
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) flowing = false
-        else if (ran) startDust()
-      })
-    }
-  }
-</script>
 
 <style>
   .dta-workflow-frame {
@@ -369,302 +80,87 @@ const DUST = ['s', 'd', 'd2', 'd2', 'd2', 'd', 'd2', 's2', 'd2', 'd', 'd2', 'd2'
     color: var(--fg-default);
     font-family: var(--font-sans);
   }
-  .visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
   .intro {
-    margin-bottom: var(--space-10);
+    margin-bottom: var(--space-12);
   }
-
-  /* Phone first: the beats stacked down a line on the left. */
-  .flow {
-    position: relative;
-    padding-bottom: 100px;
-  }
-  .line {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    pointer-events: none;
-  }
-  .line path[data-path] {
-    fill: none;
-    stroke: var(--rail);
-    stroke-width: 1;
-    stroke-dasharray: 1 7;
-    stroke-linecap: round;
-    opacity: 0.7;
-  }
-  .line .end {
-    fill: var(--bg-canvas);
-    stroke: var(--action-bg);
-    stroke-width: 2;
-    transition: fill var(--motion-duration-slow) var(--motion-ease-exit);
-  }
-  .line .halo {
-    fill: var(--action-bg);
-    opacity: 0;
-    transition: opacity var(--motion-duration-slow) var(--motion-ease-exit);
-  }
-  .line .tick {
-    fill: none;
-    stroke: var(--terminal-bg);
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    opacity: 0;
-    transition: opacity var(--motion-duration-base) var(--motion-ease-enter);
-  }
-  .done .line .end {
-    fill: var(--action-bg);
-  }
-  .done .line .halo {
-    opacity: 0.22;
-  }
-  .done .line .tick {
-    opacity: 1;
-  }
-  .beats {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-10);
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
     margin: 0;
-    padding: 0 0 0 var(--space-10);
+    padding: 0;
     list-style: none;
   }
-  .beat {
-    position: relative;
+  .step {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
+    padding: var(--space-6) var(--space-4) var(--space-6) var(--space-6);
+    background: var(--bg-surface);
+    border: var(--stroke-hairline) solid var(--border-default);
+    border-radius: var(--radius-lg);
   }
-  .station {
-    position: absolute;
-    left: calc(var(--space-10) * -1);
-    top: 6px;
-    width: 16px;
-    height: 16px;
-    box-sizing: border-box;
-    border-radius: var(--radius-full);
+  .step.person {
     border: var(--stroke-ink) solid var(--border-strong);
-    background: var(--bg-canvas);
-    transition: background var(--motion-duration-slow) var(--motion-ease-exit);
   }
-  .station.passed {
-    background: var(--border-strong);
-  }
-  .where,
-  .end-label {
+  .command {
     font-family: var(--font-mono);
-    font-size: calc(var(--type-meta-size) * 1px);
-    line-height: var(--type-meta-line-height);
-    letter-spacing: var(--type-meta-letter-spacing);
-    text-transform: uppercase;
-    color: var(--fg-muted);
+    font-size: calc(var(--type-code-size) * 1px);
+    line-height: var(--type-code-line-height);
+    font-weight: 500;
+    color: var(--fg-default);
     white-space: nowrap;
   }
-  .beat h3 {
-    margin: 0;
-    font-size: calc(var(--type-title-size) * 1px);
-    font-weight: var(--type-title-weight);
-    line-height: var(--type-title-line-height);
-    letter-spacing: -0.01em;
+  .prompt {
+    color: var(--signal-text);
   }
-  .beat p {
+  .who {
+    font-size: calc(var(--type-title-size) * 1px * 0.8);
+    line-height: calc(var(--type-code-size) * var(--type-code-line-height) * 1px);
+    font-weight: var(--type-title-weight);
+    color: var(--action-text);
+  }
+  .step p {
     margin: 0;
-    max-width: 40ch;
+    font-size: calc(var(--type-body-sm-size) * 1px * 1.08);
+    line-height: var(--type-body-sm-line-height);
+    color: var(--fg-default);
+  }
+  /* After the boxes: one sentence, then the links (ArrowLink) */
+  .outro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-6);
+    margin-top: var(--space-12);
+  }
+  .note {
+    margin: 0;
+    max-width: var(--layout-measure);
     font-size: calc(var(--type-body-size) * 1px);
     line-height: var(--type-body-line-height);
     color: var(--fg-muted);
   }
-  /* The link under a beat: the section intro's link, one size down */
-  .beat .link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    align-self: flex-start;
-    margin-top: var(--space-1);
-    font-size: calc(var(--type-label-size) * 1px);
-    font-weight: var(--type-label-weight);
-    line-height: var(--type-label-line-height);
-    color: var(--action-text);
-    text-decoration: none;
-    border-bottom: var(--stroke-hairline) solid transparent;
-    transition: border-color var(--motion-duration-fast) var(--motion-ease-standard);
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-8);
   }
-  .beat .link:hover,
-  .beat .link:focus-visible {
-    border-color: var(--action-text);
-  }
-  .beat .link svg {
-    width: var(--space-6);
-    height: var(--space-3);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .end-label {
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
-  .end-label {
-    color: var(--action-text);
-  }
-
-  /* The token: the hero's cube, and its dust. */
-  .cube {
-    --s: 16px;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: var(--s);
-    height: var(--s);
-    margin: calc(var(--s) * -0.5) 0 0 calc(var(--s) * -0.5);
-    opacity: 0;
-    transform-style: preserve-3d;
-    pointer-events: none;
-  }
-  .cube.orange {
-    --f: var(--well-object-orange);
-    --f2: var(--well-object-orange-light);
-    --f3: var(--well-object-orange-dark);
-  }
-  .cube.blue {
-    --f: var(--well-object-blue);
-    --f2: var(--well-object-blue-light);
-    --f3: var(--well-object-blue-dark);
-  }
-  .cube.ink {
-    --f: var(--well-object-ink);
-    --f2: var(--well-object-ink-light);
-    --f3: var(--well-object-ink-dark);
-  }
-  .spin {
-    position: absolute;
-    inset: 0;
-    transform-style: preserve-3d;
-  }
-  .cube i {
-    position: absolute;
-    inset: 0;
-    background: var(--f);
-    border: var(--stroke-hairline) solid color-mix(in srgb, var(--well-throat) 12%, transparent);
-    transition: background var(--motion-duration-slow) var(--motion-ease-exit);
-  }
-  .cube i:nth-child(1) {
-    transform: translateZ(calc(var(--s) * 0.5));
-  }
-  .cube i:nth-child(2) {
-    transform: rotateY(180deg) translateZ(calc(var(--s) * 0.5));
-    background: var(--f3);
-  }
-  .cube i:nth-child(3) {
-    transform: rotateY(90deg) translateZ(calc(var(--s) * 0.5));
-    background: var(--f3);
-  }
-  .cube i:nth-child(4) {
-    transform: rotateY(-90deg) translateZ(calc(var(--s) * 0.5));
-    background: var(--f2);
-  }
-  .cube i:nth-child(5) {
-    transform: rotateX(90deg) translateZ(calc(var(--s) * 0.5));
-    background: var(--f2);
-  }
-  .cube i:nth-child(6) {
-    transform: rotateX(-90deg) translateZ(calc(var(--s) * 0.5));
-    background: var(--f3);
-  }
-  .dust {
-    position: absolute;
-    left: 0;
-    top: 0;
-    border-radius: var(--radius-full);
-    background: var(--well-dust);
-    opacity: 0;
-    pointer-events: none;
-  }
-  .dust.d {
-    width: 3px;
-    height: 3px;
-    margin: -1.5px 0 0 -1.5px;
-    background: var(--well-object-orange);
-  }
-  .dust.d2 {
-    width: 2px;
-    height: 2px;
-    margin: -1px 0 0 -1px;
-  }
-  .dust.s,
-  .dust.s2 {
-    --f: var(--well-object-ink);
-    --f2: var(--well-object-ink-light);
-    --f3: var(--well-object-ink-dark);
-    background: radial-gradient(
-      circle at 32% 30%,
-      color-mix(in srgb, var(--well-highlight) 60%, var(--f2)) 0,
-      var(--f) 42%,
-      var(--f3) 100%
-    );
-  }
-  .dust.s {
-    width: 7px;
-    height: 7px;
-    margin: -3.5px 0 0 -3.5px;
-  }
-  .dust.s2 {
-    width: 5px;
-    height: 5px;
-    margin: -2.5px 0 0 -2.5px;
-  }
-
-  /* Under reduced motion the finished picture is shown at once, without transitions. */
-  .still .line .end,
-  .still .line .halo,
-  .still .line .tick,
-  .still .station,
-  .still .cube i {
-    transition: none;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .line .end,
-    .line .halo,
-    .line .tick,
-    .station,
-    .cube i {
-      transition: none;
+  /* The sentence after the boxes matches the section's lede (SectionIntro) */
+  @media (max-width: 760px) {
+    .note {
+      font-size: calc(var(--type-body-size) * 1px * 0.95);
     }
   }
 
-  /* Three columns on one horizontal line from 960px of container. */
   @container (min-width: 960px) {
-    .intro {
-      margin-bottom: var(--space-16);
+    .steps {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-4);
     }
-    .flow {
-      padding: var(--space-10) 180px 0 0;
-    }
-    .beats {
-      flex-direction: row;
-      gap: var(--space-16);
-      padding: 0;
-    }
-    .beat {
-      flex: 1;
-    }
-    .station {
-      left: 0;
-      top: calc(var(--space-10) * -1);
+    .step p {
+      font-size: calc(var(--type-body-size) * 1px);
+      line-height: var(--type-body-line-height);
     }
   }
 </style>

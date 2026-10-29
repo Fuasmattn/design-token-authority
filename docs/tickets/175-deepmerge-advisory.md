@@ -3,7 +3,7 @@
 **Phase:** 13 — Maintenance
 **Priority:** High
 **Effort:** S
-**Status:** in review (2026-10-28), branch `175-deepmerge-advisory`
+**Status:** done (2026-10-28, #54)
 **Spec:** [maintenance](../specs/maintenance.md)
 
 ## Problem

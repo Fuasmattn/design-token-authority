@@ -2,7 +2,7 @@
  * The site's frame and the landing page's strip on the built site (TICKET-114): the nav marks the
  * page you are on (`aria-current="page"` and a visible underline; none on the landing page, whose
  * links are sections), in the row and in the phone menu; the docs mark theirs in Starlight's
- * sidebar; the workflow's eyebrows stay on one line on a desktop screen.
+ * sidebar; the workflow's commands stay on one line, on a phone and on a desktop screen.
  *
  * Same conditions as contrast.e2e.test.ts: needs the built site (`pnpm build` → dist/) and a
  * browser (DTA_E2E=1 in the CI job "site", or DTA_BROWSER_PATH); otherwise skipped.
@@ -131,22 +131,24 @@ describe.skipIf(!enabled)('site frame on the built site', () => {
     }
   }, 60_000)
 
-  it.each([1280, 1440])(
-    'keeps every eyebrow of the workflow on one line at %i px, without sideways scroll',
+  it.each([360, 390, 1280, 1440])(
+    'keeps every command of the workflow on one line at %i px, without sideways scroll',
     async (width) => {
       const { context, page } = await open('/', width)
       try {
         const lines = await page.evaluate(`(() => {
-          return [...document.querySelectorAll('.dta-workflow-frame .beat .where')].map((label) => {
+          return [...document.querySelectorAll('.dta-workflow-frame .step .command')].map((label) => {
             const range = document.createRange()
             range.selectNodeContents(label)
-            return [label.textContent, new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size]
+            const box = label.closest('.step').getBoundingClientRect()
+            const text = label.getBoundingClientRect()
+            return [label.textContent.trim(), new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size, text.right <= box.right]
           })
         })()`)
         expect(lines).toEqual([
-          ['Where design happens', 1],
-          ['In the pull request', 1],
-          ['Still in the pull request', 1],
+          ['$ dta lint', 1, true],
+          ['$ dta build', 1, true],
+          ['$ dta diff', 1, true],
         ])
         expect(await page.evaluate('document.documentElement.scrollWidth')).toBe(width)
       } finally {

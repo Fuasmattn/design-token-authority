@@ -29,36 +29,31 @@ export const HERO = {
   headlineAccent: 'agents.',
   subline:
     'A toolset to lint, structure-check, transform and visually diff design tokens. Synced with Figma, shipped as pull requests.',
-  secondary: { label: 'Read the quick start', href: '/start/quick-start/' },
+  secondary: { label: 'Get started', href: '/start/quick-start/' },
 }
 
 /**
- * The workflow at a glance, right below the hero (spec decision 12, revised 2026-10-25,
- * TICKET-155): three beats on one line, the token travelling it. No commands on the page beyond
- * `npm create dta`: the second beat links to the command reference instead (TICKET-169).
+ * The workflow at a glance, right below the hero (spec revision note 2026-10-28, TICKET-174): the
+ * three commands that run on a token change and the person who approves it, one sentence each.
+ * The headline names the benefit; the link goes to the command reference.
  */
 export const WORKFLOW = {
-  title: 'Design changes, reviewed like code.',
-  kicker: 'How it works',
-  beats: [
+  title: 'Catch naming, structure and visual mistakes before a token change merges.',
+  lede: 'DTA turns your tokens into CSS, Tailwind, Swift and Android. One changed value can reach many components, so it also lints and diffs every change.',
+  steps: [
     {
-      where: 'Where design happens',
-      title: 'Tokens change',
-      text: 'Edited or added in Figma Variables, in a token file, or by an agent, and pulled into the repository as one change.',
+      command: 'dta lint',
+      text: 'Validates names and structure against your rules, and finds broken aliases and low contrast.',
     },
-    {
-      where: 'In the pull request',
-      title: 'Checked, built, rendered',
-      text: 'Structure and names are checked against your rules, every output is rebuilt, and the stories are rendered before and after with the token named behind each difference.',
-      link: { label: 'Command reference', href: '/reference/' },
-    },
-    {
-      where: 'Still in the pull request',
-      title: 'The team decides',
-      text: 'Signs the change off by token, or sends it back to whichever side caused it.',
-    },
+    { command: 'dta build', text: 'Rebuilds every output for every brand and mode.' },
+    { command: 'dta diff', text: 'Shows which stories look different, and which token did it.' },
+    { who: 'You', text: 'Look once per token change and approve it.' },
   ],
-  end: 'Merged',
+  note: 'Coding agents use the same CLI to look up tokens, replace hard-coded values and follow your rules.',
+  links: [
+    { label: 'Command reference', href: '/reference/commands/' },
+    { label: 'Coding agents', href: '/guides/coding-agents/' },
+  ],
 }
 
 export const FACTS = [
@@ -74,4 +69,10 @@ export const FACTS = [
 export const FINAL = {
   heading: 'Start with one command.',
   text: 'Sets up the config, the token folder, the GitHub workflow and the agent skill.',
+  /** The way in without installing anything (TICKET-174). The docs are in the menu. */
+  playground: {
+    text: 'Not ready to install? Drop your token files into the playground. Or explore some of the examples.',
+    label: 'Open the playground',
+    href: '/playground/',
+  },
 }

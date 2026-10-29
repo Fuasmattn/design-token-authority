@@ -8,6 +8,7 @@
  */
 import SiteLayout from '../layouts/SiteLayout.astro'
 import '../styles/landing.css'
+import ArrowLink from '../components/ds/ArrowLink.astro'
 import Button from '../components/ds/Button.astro'
 import CommandButton from '../components/ds/CommandButton.astro'
 import Facts from '../components/ds/Facts.astro'
@@ -38,9 +39,10 @@ const description = `${HERO.headline} ${HERO.headlineAccent}`
           id="how"
           idPrefix="how"
           title={WORKFLOW.title}
-          kicker={WORKFLOW.kicker}
-          beats={WORKFLOW.beats}
-          end={WORKFLOW.end}
+          lede={WORKFLOW.lede}
+          steps={WORKFLOW.steps}
+          note={WORKFLOW.note}
+          links={WORKFLOW.links}
         />
       </div>
 
@@ -53,6 +55,10 @@ const description = `${HERO.headline} ${HERO.headlineAccent}`
           <h2>{FINAL.heading}</h2>
           <p>{FINAL.text}</p>
           <CommandButton command={COMMANDS.init.text} size="large" />
+          <div class="playground">
+            <p>{FINAL.playground.text}</p>
+            <ArrowLink href={FINAL.playground.href}>{FINAL.playground.label}</ArrowLink>
+          </div>
         </div>
       </FloatingObjects>
     </main>
