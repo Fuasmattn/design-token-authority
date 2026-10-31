@@ -14,6 +14,7 @@ import '../styles/site.css'
 import sansUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wdth-normal.woff2?url'
 import sansItalicUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wdth-italic.woff2?url'
 import monoUrl from '@fontsource-variable/martian-mono/files/martian-mono-latin-wght-normal.woff2?url'
+import Analytics from '../components/Analytics.astro'
 import IconButton from '../components/ds/IconButton.astro'
 import Logo from '../components/ds/Logo.astro'
 import Nav from '../components/ds/Nav.astro'
@@ -63,6 +64,7 @@ const NAV = [
         document.documentElement.dataset.brand = dark ? 'graphite' : 'light'
       })()
     </script>
+    <Analytics />
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>

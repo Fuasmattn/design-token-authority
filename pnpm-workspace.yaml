@@ -18,6 +18,7 @@ overrides:
   source-map-js@<1.2.2: ^1.2.2 # coverage
   postcss-selector-parser@<7.1.7: ^7.1.7 # site build
   fast-uri@<3.1.9: ^3.1.9 # ajv
+  '@bundled-es-modules/glob>glob': ^14.0.2 # style-dictionary (shipped), brings minimatch 11 (TICKET-177)
 
 auditConfig:
   ignoreGhsas:
