@@ -1,0 +1,11 @@
+---
+/*
+ * Starlight's head for the docs pages, plus Vercel Web Analytics (TICKET-176). The standalone pages
+ * (SiteLayout) add the same component themselves.
+ */
+import Default from '@astrojs/starlight/components/Head.astro'
+import Analytics from './Analytics.astro'
+---
+
+<Default />
+<Analytics />

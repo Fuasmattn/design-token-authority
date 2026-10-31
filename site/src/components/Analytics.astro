@@ -1,0 +1,12 @@
+---
+/*
+ * Vercel Web Analytics (TICKET-176), with the component Vercel's quickstart gives for Astro: no
+ * adapter needed. Only in builds on Vercel (Vercel sets VERCEL=1 while building), so local, CI and
+ * e2e builds load nothing but the site's own files and the playground's request checks hold.
+ */
+import VercelAnalytics from '@vercel/analytics/astro'
+
+const enabled = process.env.VERCEL === '1'
+---
+
+{enabled && <VercelAnalytics />}

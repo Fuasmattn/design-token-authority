@@ -363,6 +363,8 @@ Spec: [maintenance](../specs/maintenance.md) (approved 2026-10-26). Dependencies
 | [173](./173-dependabot-npm-failures.md)      | Dependabot's npm job fails on every run                                 | Medium   | XS     | —          | Review |
 | [174](./174-workflow-four-boxes.md)          | The workflow section as four plain boxes                                | Medium   | S      | —          | Review |
 | [175](./175-deepmerge-advisory.md)           | `deepmerge` advisory, and `__proto__` keys in token files               | High     | S      | —          | Done   |
+| [176](./176-vercel-web-analytics.md)         | Vercel Web Analytics on the website                                     | Low      | XS     | —          | Review |
+| [177](./177-glob-minimatch-advisories.md)    | `glob` and `minimatch` advisories                                       | High     | XS     | —          | Review |
 
 Order: 156, 157 and 172 first (172 unblocks the `dta diff` check on every pull request); 158 before 159 (the renderer change needs a reliable report); 160–167 one at a time, each merged after a green CI run, 161 after 156 (the Astro tooling it depends on).
 
