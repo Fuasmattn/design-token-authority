@@ -1,6 +1,7 @@
 // @ts-check
 import preact from '@astrojs/preact'
 import starlight from '@astrojs/starlight'
+import vercel from '@astrojs/vercel'
 import { defineConfig } from 'astro/config'
 import starlightLinksValidator from 'starlight-links-validator'
 import { CUSTOM_PAGES } from './custom-pages.mjs'
@@ -8,6 +9,9 @@ import { SIDEBAR } from './sidebar.mjs'
 import { SITE_URL } from './site-url.mjs'
 
 export default defineConfig({
+  adapter: vercel({
+    webAnalytics: { enabled: true },
+  }),
   // The sitemap and canonical links (TICKET-075).
   site: SITE_URL,
   vite: {
