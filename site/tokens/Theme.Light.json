@@ -128,7 +128,7 @@
   "action": {
     "bg": {
       "$type": "color",
-      "$value": "{blueprint.700}",
+      "$value": "{sage.700}",
       "$description": "Primary buttons, links, active workflow station (its text and itself on the canvas at 7:1 or more).",
       "$extensions": {
         "com.figma": {
