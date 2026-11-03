@@ -371,6 +371,16 @@ Order: 156, 157 and 172 first (172 unblocks the `dta diff` check on every pull r
 
 ---
 
+## Phase 14 — Launch
+
+Make DTA easy to find, understand and try for people outside the maintainer's company. Docs and presentation only; no new features.
+
+| #                                 | Ticket                   | Priority | Effort | Blocked by | Status |
+| --------------------------------- | ------------------------ | -------- | ------ | ---------- | ------ |
+| [179](./179-readme-front-door.md) | README as the front door | High     | S      | —          | Open   |
+
+---
+
 ## Dependency Map
 
 ```
