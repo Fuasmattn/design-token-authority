@@ -226,6 +226,31 @@ describe.skipIf(!enabled)('rendered contrast (AAA)', () => {
     60_000,
   )
 
+  // Docs pages with code blocks (TICKET-178): a terminal block and TypeScript blocks, which are
+  // Graphite in both themes. Only the code blocks: the rest of the docs pages is not audited yet.
+  const onlyCodeBlocks: Prepare = async (page) => {
+    const blocks = await page.evaluate(`(() => {
+      for (const el of document.body.querySelectorAll('*')) {
+        if (!el.closest('.expressive-code') && !el.querySelector('.expressive-code'))
+          el.setAttribute('data-contrast-exception', '')
+      }
+      return document.querySelectorAll('.expressive-code').length
+    })()`)
+    expect(blocks).toBeGreaterThan(0)
+  }
+  it.each([
+    ['/start/quick-start/', 'light'],
+    ['/start/quick-start/', 'graphite'],
+    ['/start/concepts/', 'light'],
+    ['/start/concepts/', 'graphite'],
+  ])(
+    'docs page %s with code blocks in %s',
+    async (url, brand) => {
+      expect(await audit(`${origin}${url}`, 1280, brand, onlyCodeBlocks)).toEqual([])
+    },
+    60_000,
+  )
+
   const loadExample: Prepare = async (page) => {
     await page.getByRole('button', { name: 'Load example' }).click()
     await page.getByRole('table', { name: 'Structure' }).waitFor()
