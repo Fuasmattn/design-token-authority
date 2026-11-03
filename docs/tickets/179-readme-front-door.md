@@ -18,7 +18,7 @@ Restructure `README.md` in this order. Every claim must match the docs site; no 
 
 1. **Name and badges:** npm version (`design-token-authority`), CI (`test.yml`), licence.
 2. **One-line pitch**, problem first: see what a token change does to your UI before it merges.
-3. **Links:** website, docs, playground, example report (deployed at `dta-diff-reports.vercel.app`).
+3. **Links:** website, docs, playground, example report (#59's deployed report).
 4. **`npm create dta`** as the one-line start.
 5. **Hero:** an animated `dta diff` report (the compare slider sweeping over a changed story, with the token that caused it), one dark version as a plain Markdown image (the GitHub app and npm ignore `<picture>`), linked to the deployed example report. Assets in `docs/readme/`.
 6. **Try it:** three paths, cheapest first: the playground (no install, uploads nothing); `npm create dta` with a plugin export (any Figma plan); `dta pull` (Enterprise).
@@ -40,7 +40,6 @@ Restructure `README.md` in this order. Every claim must match the docs site; no 
 
 ## Notes
 
-- The hero is the real report of the sample pull request (#20, `dta-diff-assets` branch), recorded headless at 1100 px in the dark theme while the compare slider sweeps across `button--variants`; 59 frames, about 75 KB per GIF.
-- The report link in `dta diff` pull request comments (`/raw/dta-diff-assets/…/index.html`) is served as `text/plain`, so it shows the HTML source instead of the report. Its own ticket; the README links to the deployed report at `dta-diff-reports.vercel.app` instead.
+- The hero is the real report of the sample pull request #59 (`sample/dta-diff-showcase`: `action.bg` blue → green, `radius.md` 10 → 12, `space.2` 8 → 10), generated with `dta diff --base origin/main` and recorded headless in the dark theme: the first story with "Show before" off and on. About 100 KB.
 - The npm package page shows the same README, so the badges and the relative image paths must work there too (use absolute `raw.githubusercontent.com` URLs for images if npm drops relative ones).
 - Follow-ups for the launch, not part of this ticket: a launch post, a "Compared with" docs page, the `good first issue` triage.
