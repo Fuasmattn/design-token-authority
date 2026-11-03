@@ -5,6 +5,7 @@
 **Effort:** S (part 1), M (part 2)
 **Status:** open (2026-11-02)
 **Spec:** [visual-diff](../specs/visual-diff.md)
+**Issues:** #60 (part 1, good first issue), #61 (part 2)
 
 ## Problem
 
@@ -30,4 +31,4 @@ Attribution puts each changed token back to its base value in the head page and 
 ## Notes
 
 - Found with the README hero work (ticket 179). Evidence: #59's report, stories `token-rows--default@1280` (region 481×143 at 37,132) and `structure-table--brand-ab@1280` (region 747×13 at 101,681).
-- Part 1 is self-contained (one function, a test fixture with an outline) and a candidate for a `good first issue`. Part 2 needs the design decision first.
+- Part 1 is self-contained (one function, a test fixture with an outline): `good first issue` #60. Part 2 needs the design decision first: #61.
