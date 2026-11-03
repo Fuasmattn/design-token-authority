@@ -3,7 +3,7 @@
 **Phase:** 14 — Launch
 **Priority:** High
 **Effort:** S
-**Status:** open (2026-11-02)
+**Status:** done (2026-11-02)
 **Spec:** —
 
 ## Problem
