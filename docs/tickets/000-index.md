@@ -374,11 +374,14 @@ Order: 156, 157 and 172 first (172 unblocks the `dta diff` check on every pull r
 
 ## Phase 14 — Launch
 
-Make DTA easy to find, understand and try for people outside the maintainer's company. Docs and presentation only; no new features.
+Make DTA easy to find, understand and try for people outside the maintainer's company: docs, presentation, and small improvements to the `dta diff` report that are open for contributors (`good first issue`).
 
-| #                                 | Ticket                   | Priority | Effort | Blocked by | Status |
-| --------------------------------- | ------------------------ | -------- | ------ | ---------- | ------ |
-| [179](./179-readme-front-door.md) | README as the front door | High     | S      | —          | Open   |
+| #                                         | Ticket                                                  | Priority | Effort | Blocked by | Status |
+| ----------------------------------------- | ------------------------------------------------------- | -------- | ------ | ---------- | ------ |
+| [179](./179-readme-front-door.md)         | README as the front door                                | High     | S      | —          | Done   |
+| [181](./181-report-hold-to-compare.md)    | Press and hold "Show before" to compare                 | Low      | S      | —          | Open   |
+| [182](./182-report-keyboard-toggles.md)   | Keyboard shortcuts for "Show before" and "Diff overlay" | Low      | S      | —          | Open   |
+| [183](./183-report-overlay-dark-areas.md) | Diff overlay readable on dark areas                     | Medium   | S      | —          | Open   |
 
 ---
 

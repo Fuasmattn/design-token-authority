@@ -19,7 +19,7 @@ A CLI (`npx dta`) that syncs design tokens between Figma and DTCG files, builds 
 ## Rules
 
 - **Tickets and specs first.** Every change starts from a ticket in `docs/tickets/`; bigger work gets a spec first. One ticket at a time; when done, update its `**Status:**` line and its index row.
-- **No new features for now** (October 2026). Ask the maintainer before starting anything that has no ticket.
+- **No new features without a ticket** (November 2026). Phase 14's small `dta diff` report improvements are open for contributors; anything bigger needs a spec first. Ask the maintainer before starting anything that has no ticket.
 - **Never commit or push without the maintainer's explicit go-ahead.**
 - **Package boundaries:** import packages by name (`@dta/core`), never by path; `@dta/core` depends on no other `@dta/*` package. Only `@dta/cli` is user-facing.
 - **Validate data at boundaries** (Figma responses, token files, config) with Zod before use.
