@@ -1,5 +1,31 @@
 # Changelog
 
+## [2.4.3](https://github.com/Fuasmattn/design-token-authority/compare/v2.4.2...v2.4.3) (2026-11-03)
+
+* **deps:** Dependabot's npm job runs green again (TICKET-173) ([a75ed96](https://github.com/Fuasmattn/design-token-authority/commit/a75ed96a27a97c6238f902e16faa783ee837fa4b))
+
+### Features
+
+* **site:** hero button reads Get started (TICKET-174) ([a6d7630](https://github.com/Fuasmattn/design-token-authority/commit/a6d7630f38c35bbe5d3ae10a4e0dc4ca37d87b20))
+* **site:** no kicker on the workflow section, hero button reads Getting started (TICKET-174) ([e2aa1a8](https://github.com/Fuasmattn/design-token-authority/commit/e2aa1a8a819a0fa29331cc33faea3e3fb1df0c52))
+* **site:** one link style (ArrowLink); playground headline continues the final call (TICKET-174) ([25734d3](https://github.com/Fuasmattn/design-token-authority/commit/25734d39b69b070e110cdd2b33beb210223edfb1))
+* **site:** playground headline, button and docs link stacked (TICKET-174) ([5e72dc0](https://github.com/Fuasmattn/design-token-authority/commit/5e72dc0a449e504dd40f83e9730276274635d2ab))
+* **site:** the final call ends with one line and one link to the playground (TICKET-174) ([1ac6771](https://github.com/Fuasmattn/design-token-authority/commit/1ac677184e86aab9163e7bc507bf09751d900768))
+* **site:** the final call points to the playground and the docs (TICKET-174) ([a3b6955](https://github.com/Fuasmattn/design-token-authority/commit/a3b6955a61f1ea61682955cc7e736a362009da77))
+* **site:** the playground line mentions its examples (TICKET-174) ([a811b86](https://github.com/Fuasmattn/design-token-authority/commit/a811b86f2f6d086e75f24495d09ac45563e90a55))
+* **site:** the workflow section as four plain boxes (TICKET-174) ([813a59e](https://github.com/Fuasmattn/design-token-authority/commit/813a59e2ad856156c7de88fae81b793c94a9c35d))
+* **site:** workflow lede and a line for coding agents (TICKET-174) ([ab99d57](https://github.com/Fuasmattn/design-token-authority/commit/ab99d57740d30f33b7aeb7a0adca469c2e9d228c))
+
+### Bug Fixes
+
+* **core:** leave out __proto__ keys in token files; ignore the deepmerge advisory (TICKET-175) ([1e1e810](https://github.com/Fuasmattn/design-token-authority/commit/1e1e810d1a3c58429e91a07a81e610fc7e0f5355))
+* **site:** code blocks dark in both themes (TICKET-178) ([255fe1f](https://github.com/Fuasmattn/design-token-authority/commit/255fe1f052ccedea9d64ce9738c9a7fa4c03a9cd))
+* **site:** Web Analytics via the Astro component, audit fixes (TICKET-176, TICKET-177) ([eb311c5](https://github.com/Fuasmattn/design-token-authority/commit/eb311c5551a78364d97eb80042024443d4044d48))
+
+### Documentation
+
+* **tickets:** 175 done; index order ([baa861c](https://github.com/Fuasmattn/design-token-authority/commit/baa861c351d3dc7dc2a4c05147eb6f8c76d78a4d))
+
 ## [2.4.2](https://github.com/Fuasmattn/design-token-authority/compare/v2.4.1...v2.4.2) (2026-10-27)
 
 * **deps:** @figma/rest-api-spec 0.37 → 0.46, composed colours accepted (TICKET-160) ([ca53120](https://github.com/Fuasmattn/design-token-authority/commit/ca53120d78e85390ab7ed3dd15007e2c87ee5d14))
