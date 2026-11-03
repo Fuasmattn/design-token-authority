@@ -345,27 +345,28 @@ Order: 132 → 133 → 134 → 137; 135 after 132; 136 after 133 and 135; 138 af
 
 Spec: [maintenance](../specs/maintenance.md) (approved 2026-10-26). Dependencies current and the repository clean, with nothing breaking: every ticket passes the spec's safety check, output and screenshots stay the same. One ticket per major.
 
-| #                                            | Ticket                                                                  | Priority | Effort | Blocked by | Status |
-| -------------------------------------------- | ----------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| [156](./156-deps-minor-batch.md)             | Patch and minor dependency updates                                      | Medium   | S      | —          | Done   |
-| [157](./157-remove-dead-scripts-branches.md) | Remove dead scripts, unused exports and stale branches                  | Low      | XS     | —          | Done   |
-| [158](./158-ci-diff-report-failures.md)      | CI health: `dta diff report` fails now and then, Ubuntu 26              | Medium   | S      | logs       | Done   |
-| [159](./159-playwright-core-1-64.md)         | `playwright-core` 1.59 → 1.64                                           | Medium   | S      | 158        | Done   |
-| [160](./160-figma-rest-api-spec.md)          | `@figma/rest-api-spec` 0.37 → 0.46                                      | Medium   | S      | —          | Done   |
-| [161](./161-typescript-7.md)                 | TypeScript 5.9 → 6.0 → 7                                                | Medium   | M      | 156        | Done   |
-| [162](./162-vitest-5.md)                     | Vitest 4 → 5                                                            | Medium   | S      | —          | Done   |
-| [163](./163-commander-15.md)                 | commander 14 → 15                                                       | Low      | S      | —          | Done   |
-| [164](./164-preact-11.md)                    | preact 10 → 11                                                          | Low      | M      | 156        | Done   |
-| [165](./165-pixelmatch-8.md)                 | pixelmatch 7 → 8                                                        | Low      | S      | —          | Done   |
-| [166](./166-diff-9.md)                       | diff 8 → 9                                                              | Low      | XS     | —          | Done   |
-| [167](./167-release-it-21.md)                | release-it 19 → 21, conventional-changelog 10 → 12                      | Low      | S      | —          | Done   |
-| [172](./172-workflow-dust-deterministic.md)  | Workflow section renders the same picture every time (`dta diff` flake) | High     | XS     | —          | Done   |
-| [173](./173-dependabot-npm-failures.md)      | Dependabot's npm job fails on every run                                 | Medium   | XS     | —          | Review |
-| [174](./174-workflow-four-boxes.md)          | The workflow section as four plain boxes                                | Medium   | S      | —          | Review |
-| [175](./175-deepmerge-advisory.md)           | `deepmerge` advisory, and `__proto__` keys in token files               | High     | S      | —          | Done   |
-| [176](./176-vercel-web-analytics.md)         | Vercel Web Analytics on the website                                     | Low      | XS     | —          | Review |
-| [177](./177-glob-minimatch-advisories.md)    | `glob` and `minimatch` advisories                                       | High     | XS     | —          | Review |
-| [178](./178-code-blocks-dark.md)             | Code blocks dark in both themes                                         | Medium   | S      | —          | Review |
+| #                                                      | Ticket                                                                  | Priority | Effort | Blocked by | Status |
+| ------------------------------------------------------ | ----------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
+| [156](./156-deps-minor-batch.md)                       | Patch and minor dependency updates                                      | Medium   | S      | —          | Done   |
+| [157](./157-remove-dead-scripts-branches.md)           | Remove dead scripts, unused exports and stale branches                  | Low      | XS     | —          | Done   |
+| [158](./158-ci-diff-report-failures.md)                | CI health: `dta diff report` fails now and then, Ubuntu 26              | Medium   | S      | logs       | Done   |
+| [159](./159-playwright-core-1-64.md)                   | `playwright-core` 1.59 → 1.64                                           | Medium   | S      | 158        | Done   |
+| [160](./160-figma-rest-api-spec.md)                    | `@figma/rest-api-spec` 0.37 → 0.46                                      | Medium   | S      | —          | Done   |
+| [161](./161-typescript-7.md)                           | TypeScript 5.9 → 6.0 → 7                                                | Medium   | M      | 156        | Done   |
+| [162](./162-vitest-5.md)                               | Vitest 4 → 5                                                            | Medium   | S      | —          | Done   |
+| [163](./163-commander-15.md)                           | commander 14 → 15                                                       | Low      | S      | —          | Done   |
+| [164](./164-preact-11.md)                              | preact 10 → 11                                                          | Low      | M      | 156        | Done   |
+| [165](./165-pixelmatch-8.md)                           | pixelmatch 7 → 8                                                        | Low      | S      | —          | Done   |
+| [166](./166-diff-9.md)                                 | diff 8 → 9                                                              | Low      | XS     | —          | Done   |
+| [167](./167-release-it-21.md)                          | release-it 19 → 21, conventional-changelog 10 → 12                      | Low      | S      | —          | Done   |
+| [172](./172-workflow-dust-deterministic.md)            | Workflow section renders the same picture every time (`dta diff` flake) | High     | XS     | —          | Done   |
+| [173](./173-dependabot-npm-failures.md)                | Dependabot's npm job fails on every run                                 | Medium   | XS     | —          | Review |
+| [174](./174-workflow-four-boxes.md)                    | The workflow section as four plain boxes                                | Medium   | S      | —          | Review |
+| [175](./175-deepmerge-advisory.md)                     | `deepmerge` advisory, and `__proto__` keys in token files               | High     | S      | —          | Done   |
+| [176](./176-vercel-web-analytics.md)                   | Vercel Web Analytics on the website                                     | Low      | XS     | —          | Review |
+| [177](./177-glob-minimatch-advisories.md)              | `glob` and `minimatch` advisories                                       | High     | XS     | —          | Review |
+| [178](./178-code-blocks-dark.md)                       | Code blocks dark in both themes                                         | Medium   | S      | —          | Review |
+| [180](./180-attribution-outlines-and-inline-shifts.md) | Attribution misses outlines and text moved by a sibling's margin        | Medium   | S–M    | —          | Open   |
 
 Order: 156, 157 and 172 first (172 unblocks the `dta diff` check on every pull request); 158 before 159 (the renderer change needs a reliable report); 160–167 one at a time, each merged after a green CI run, 161 after 156 (the Astro tooling it depends on).
 
