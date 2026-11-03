@@ -6,7 +6,7 @@
 
 **See what a token change does to your UI before it merges.**
 
-[Website](https://dta.martinprinz.dev) · [Docs](https://dta.martinprinz.dev/start/) · [Playground](https://dta.martinprinz.dev/playground/) · [Example report](https://github.com/Fuasmattn/design-token-authority/pull/20)
+[Website](https://dta.martinprinz.dev) · [Docs](https://dta.martinprinz.dev/start/) · [Playground](https://dta.martinprinz.dev/playground/) · [Example report](https://dta-diff-reports.vercel.app/)
 
 ```sh
 npm create dta
@@ -14,7 +14,7 @@ npm create dta
 
 DTA is a command-line tool for design tokens. It reads your tokens from Figma or plain [DTCG](https://tr.designtokens.org/format/) JSON, checks their structure, builds them into CSS, JavaScript, Tailwind and native code, and shows each change as one review: the token changes, the lint findings and the screenshots, grouped by the token that caused them. Same input, same result, on your machine, in CI or when an agent runs it.
 
-<a href="https://github.com/Fuasmattn/design-token-authority/pull/20">
+<a href="https://dta-diff-reports.vercel.app/">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/readme/dta-diff-dark.gif" />
     <img alt="A dta diff report: the token action.bg changed from blueprint.600 to blueprint.700, and a slider compares the button story before and after" src="docs/readme/dta-diff-light.gif" width="1000" />
