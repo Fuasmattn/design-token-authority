@@ -774,7 +774,7 @@
     },
     "2": {
       "$type": "number",
-      "$value": 8,
+      "$value": 10,
       "$description": "Chip groups, inline gaps.",
       "$extensions": {
         "com.figma": {
@@ -932,7 +932,7 @@
     },
     "md": {
       "$type": "number",
-      "$value": 10,
+      "$value": 12,
       "$description": "Buttons, terminal command button.",
       "$extensions": {
         "com.figma": {
