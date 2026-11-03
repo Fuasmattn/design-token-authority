@@ -1,17 +1,25 @@
 # Design Token Authority
 
-**See what a token change does to your UI before it merges.**
-
 [![npm](https://img.shields.io/npm/v/design-token-authority)](https://www.npmjs.com/package/design-token-authority)
 [![CI](https://github.com/Fuasmattn/design-token-authority/actions/workflows/test.yml/badge.svg)](https://github.com/Fuasmattn/design-token-authority/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
+**See what a token change does to your UI before it merges.**
+
+[Website](https://dta.martinprinz.dev) · [Docs](https://dta.martinprinz.dev/start/) · [Playground](https://dta.martinprinz.dev/playground/) · [Example report](https://github.com/Fuasmattn/design-token-authority/pull/20)
+
+```sh
+npm create dta
+```
+
 DTA is a command-line tool for design tokens. It reads your tokens from Figma or plain [DTCG](https://tr.designtokens.org/format/) JSON, checks their structure, builds them into CSS, JavaScript, Tailwind and native code, and shows each change as one review: the token changes, the lint findings and the screenshots, grouped by the token that caused them. Same input, same result, on your machine, in CI or when an agent runs it.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/readme/dta-diff-dark.png" />
-  <img alt="A dta diff report: one changed story, before and after, explained by the token that changed" src="docs/readme/dta-diff-light.png" />
-</picture>
+<a href="https://github.com/Fuasmattn/design-token-authority/pull/20">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/readme/dta-diff-dark.gif" />
+    <img alt="A dta diff report: the token action.bg changed from blueprint.600 to blueprint.700, and a slider compares the button story before and after" src="docs/readme/dta-diff-light.gif" width="1000" />
+  </picture>
+</a>
 
 ## Try it
 

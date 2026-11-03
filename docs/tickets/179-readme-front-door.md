@@ -16,17 +16,19 @@ DTA is about to be shared outside the maintainer's company. The README is where 
 
 Restructure `README.md` in this order. Every claim must match the docs site; no new features.
 
-1. **Name and one-line pitch.** Problem first: see what a token change does to your UI before it merges.
-2. **Badges:** npm version (`design-token-authority`), CI (`test.yml`), licence.
-3. **Hero image:** one screenshot of a `dta diff` report (a changed story with the token that caused it), light and dark through `<picture>`. Assets in `docs/readme/`.
-4. **Try it:** three paths, cheapest first: the playground (no install, uploads nothing); `npm create dta` with a plugin export (any Figma plan); `dta pull` (Enterprise).
-5. **Why DTA:** the three problems from the docs' "What DTA is" page (structure drifts, code breaks quietly, screenshots pile up), each with the command that answers it.
-6. **How it fits:** a diagram as light and dark SVGs in `docs/readme/` (Figma or JSON → `tokens/` → `lint` / `build` / `diff`). Not Mermaid: npm and the GitHub mobile app show Mermaid as source.
-7. **Commands:** the existing table, unchanged.
-8. **Where it sits:** one short, fair paragraph on Style Dictionary (DTA builds with it) and Figma plugins (DTA reads their exports).
-9. **Documentation:** the site, with four links instead of fifteen.
-10. **Contributing:** tickets and specs, `AGENTS.md` for coding agents, link to issues labelled `good first issue`.
-11. **Licence.**
+1. **Name and badges:** npm version (`design-token-authority`), CI (`test.yml`), licence.
+2. **One-line pitch**, problem first: see what a token change does to your UI before it merges.
+3. **Links:** website, docs, playground, example report (the sample pull request #20).
+4. **`npm create dta`** as the one-line start.
+5. **Hero:** an animated `dta diff` report (the compare slider sweeping over a changed story, with the token that caused it), light and dark through `<picture>`, linked to the example report. Assets in `docs/readme/`.
+6. **Try it:** three paths, cheapest first: the playground (no install, uploads nothing); `npm create dta` with a plugin export (any Figma plan); `dta pull` (Enterprise).
+7. **Why DTA:** the three problems from the docs' "What DTA is" page (structure drifts, code breaks quietly, screenshots pile up), each with the command that answers it.
+8. **How it fits:** a diagram as light and dark SVGs in `docs/readme/` (Figma or JSON → `tokens/` → `lint` / `build` / `diff`). Not Mermaid: npm and the GitHub mobile app show Mermaid as source.
+9. **Commands:** the existing table, unchanged.
+10. **Where it sits:** one short, fair paragraph on Style Dictionary (DTA builds with it) and Figma plugins (DTA reads their exports).
+11. **Documentation:** the site, with four links instead of fifteen.
+12. **Contributing:** tickets and specs, `AGENTS.md` for coding agents, link to issues labelled `good first issue`.
+13. **Licence.**
 
 ## Acceptance criteria
 
@@ -38,6 +40,7 @@ Restructure `README.md` in this order. Every claim must match the docs site; no 
 
 ## Notes
 
-- The hero is the real report of the sample pull request (#20, `dta-diff-assets` branch), rendered headless at 1100 px in both themes and cropped to the first token card. A short animated loop can replace it later.
+- The hero is the real report of the sample pull request (#20, `dta-diff-assets` branch), recorded headless at 1100 px in both themes while the compare slider sweeps across `button--variants`; 59 frames, about 75 KB per GIF.
+- The report link in `dta diff` pull request comments (`/raw/dta-diff-assets/…/index.html`) is served as `text/plain`, so it shows the HTML source instead of the report. Its own ticket; the README links to the pull request instead.
 - The npm package page shows the same README, so the badges and the relative image paths must work there too (use absolute `raw.githubusercontent.com` URLs for images if npm drops relative ones).
 - Follow-ups for the launch, not part of this ticket: a launch post, a "Compared with" docs page, the `good first issue` triage.
