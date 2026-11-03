@@ -43,15 +43,10 @@ DTA does not dictate structure or naming: it takes your collections, modes and b
 
 ## How it fits
 
-```mermaid
-flowchart LR
-  F[Figma variables] -- dta pull --> T[tokens/<br/>DTCG JSON]
-  J[JSON by hand] --> T
-  T -- dta lint --> L[findings]
-  T -- dta build --> O[CSS · JS · Tailwind<br/>Swift · Android]
-  T -- dta push --> F
-  PR[Pull request] -- dta diff --> R[report:<br/>token changes + screenshots]
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/readme/how-it-fits-dark.svg" />
+  <img alt="Figma variables (dta pull) or hand-written JSON go into tokens/; dta lint gives findings, dta build gives CSS, JS, Tailwind, Swift and Android, dta diff gives a review in the pull request; dta push sends tokens back to Figma" src="docs/readme/how-it-fits-light.svg" width="880" />
+</picture>
 
 ## Commands
 
