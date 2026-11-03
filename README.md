@@ -14,12 +14,7 @@ npm create dta
 
 DTA is a command-line tool for design tokens. It reads your tokens from Figma or plain [DTCG](https://tr.designtokens.org/format/) JSON, checks their structure, builds them into CSS, JavaScript, Tailwind and native code, and shows each change as one review: the token changes, the lint findings and the screenshots, grouped by the token that caused them. Same input, same result, on your machine, in CI or when an agent runs it.
 
-<a href="https://dta-diff-reports.vercel.app/">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/readme/dta-diff-dark.gif" />
-    <img alt="A dta diff report: the token action.bg changed from blueprint.600 to blueprint.700, and a slider compares the button story before and after" src="docs/readme/dta-diff-light.gif" width="1000" />
-  </picture>
-</a>
+[![A dta diff report: the token action.bg changed from blueprint.600 to blueprint.700, and a slider compares the button story before and after](docs/readme/dta-diff.gif)](https://dta-diff-reports.vercel.app/)
 
 ## Try it
 
@@ -51,10 +46,7 @@ DTA does not dictate structure or naming: it takes your collections, modes and b
 
 ## How it fits
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/readme/how-it-fits-dark.svg" />
-  <img alt="Figma variables (dta pull) or hand-written JSON go into tokens/; dta lint gives findings, dta build gives CSS, JS, Tailwind, Swift and Android, dta diff gives a review in the pull request; dta push sends tokens back to Figma" src="docs/readme/how-it-fits-light.svg" width="880" />
-</picture>
+![Figma variables (dta pull) or hand-written JSON go into tokens/; dta lint gives findings, dta build gives CSS, JS, Tailwind, Swift and Android, dta diff gives a review in the pull request; dta push sends tokens back to Figma](docs/readme/how-it-fits.svg)
 
 ## Commands
 
