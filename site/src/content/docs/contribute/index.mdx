@@ -63,7 +63,7 @@ A good first contribution: a plugin-export adapter in `packages/figma/src/adapte
 
 ## Releases
 
-Run the **Release** workflow from `main` (Actions → Release, with `patch`, `minor`, `major` or a version). It sets the versions, writes the changelog from the commit messages, tags, and publishes both packages to npm with trusted publishing (no npm token). A release stops when `pnpm audit --prod` finds a known vulnerability. Report vulnerabilities as described in [SECURITY.md](https://github.com/Fuasmattn/design-token-authority/blob/main/SECURITY.md).
+Run the **Release** workflow from `main` (Actions → Release, with `patch`, `minor`, `major` or a version such as `2.4.3`, without a leading `v`). Merge nothing into `main` while it runs: the release pushes its commit to `main` at the end. It sets the versions, writes the changelog from the commit messages, tags, and publishes both packages to npm with trusted publishing (no npm token). A release stops when `pnpm audit --prod` finds a known vulnerability. Report vulnerabilities as described in [SECURITY.md](https://github.com/Fuasmattn/design-token-authority/blob/main/SECURITY.md).
 
 ## The website
 
