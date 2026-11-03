@@ -290,6 +290,49 @@ export const PAGE_DECLARATIONS_SCRIPT = `(variables) => {
 /** `[left, top, right, bottom]` in page pixels. */
 export type Box = [number, number, number, number]
 
+/** One `box-shadow` layer's geometry (colour ignored). */
+export interface BoxShadowSpec {
+  offsetX: number
+  offsetY: number
+  blur: number
+  spread: number
+}
+
+/**
+ * Grows a border box by what the element paints outside it: outline (width + offset when the
+ * style is not `none`) and each box-shadow's offset/blur/spread. Used by attribution so
+ * `BOX_TOLERANCE` only covers anti-aliasing, not ink that sits further out (TICKET-180 / #60).
+ */
+export function expandBoxByPaintOverflow(
+  box: Box,
+  options: {
+    outlineStyle?: string
+    outlineWidth?: number
+    outlineOffset?: number
+    boxShadows?: BoxShadowSpec[]
+  },
+): Box {
+  let left = 0
+  let top = 0
+  let right = 0
+  let bottom = 0
+  if (options.outlineStyle && options.outlineStyle !== 'none') {
+    const pad = (options.outlineWidth ?? 0) + (options.outlineOffset ?? 0)
+    left = Math.max(left, pad)
+    top = Math.max(top, pad)
+    right = Math.max(right, pad)
+    bottom = Math.max(bottom, pad)
+  }
+  for (const shadow of options.boxShadows ?? []) {
+    const extent = shadow.blur + shadow.spread
+    left = Math.max(left, Math.max(0, -shadow.offsetX + extent))
+    right = Math.max(right, Math.max(0, shadow.offsetX + extent))
+    top = Math.max(top, Math.max(0, -shadow.offsetY + extent))
+    bottom = Math.max(bottom, Math.max(0, shadow.offsetY + extent))
+  }
+  return [box[0] - left, box[1] - top, box[2] + right, box[3] + bottom]
+}
+
 /** An element whose style or box changed when a token was reverted. */
 export interface Dependent {
   /** e.g. `button.primary` */
@@ -310,6 +353,29 @@ export const DEPENDENTS_SCRIPT = `(groups) => {
     const cls = typeof el.className === 'string' ? el.className.trim().split(/\\s+/).find((c) => c && !c.startsWith('astro-')) : ''
     return el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (cls ? '.' + cls : '')
   }
+  // Grow the border box by outline and box-shadow ink (TICKET-180 / #60).
+  const grow = (el, box) => {
+    const cs = getComputedStyle(el)
+    let L = 0, T = 0, R = 0, B = 0
+    if (cs.outlineStyle && cs.outlineStyle !== 'none') {
+      const pad = (parseFloat(cs.outlineWidth) || 0) + (parseFloat(cs.outlineOffset) || 0)
+      L = T = R = B = Math.max(L, pad)
+    }
+    const bs = cs.boxShadow
+    if (bs && bs !== 'none') {
+      for (const part of bs.split(/,(?![^(]*\\))/)) {
+        const nums = [...part.matchAll(/-?\\d*\\.?\\d+px/g)].map((m) => parseFloat(m[0]))
+        if (nums.length < 2) continue
+        const ox = nums[0], oy = nums[1], blur = nums[2] || 0, spread = nums[3] || 0
+        const e = blur + spread
+        L = Math.max(L, Math.max(0, -ox + e))
+        R = Math.max(R, Math.max(0, ox + e))
+        T = Math.max(T, Math.max(0, -oy + e))
+        B = Math.max(B, Math.max(0, oy + e))
+      }
+    }
+    return [box[0] - L, box[1] - T, box[2] + R, box[3] + B]
+  }
   const snapshot = () => elements.map((el) => {
     let style = ''
     for (const pseudo of [null, '::before', '::after']) {
@@ -322,7 +388,8 @@ export const DEPENDENTS_SCRIPT = `(groups) => {
       style += '|'
     }
     const r = el.getBoundingClientRect()
-    return { style, box: [r.left + scrollX, r.top + scrollY, r.right + scrollX, r.bottom + scrollY] }
+    const border = [r.left + scrollX, r.top + scrollY, r.right + scrollX, r.bottom + scrollY]
+    return { style, box: grow(el, border) }
   })
   const head = snapshot()
   const out = {}
@@ -400,7 +467,7 @@ function topRegions(dependents: Dependent[], width: number, height: number, max 
   return regions.sort((a, b) => b.width * b.height - a.width * a.height).slice(0, max)
 }
 
-/** Extra pixels around each box: anti-aliased edges, outlines and shadows next to it. */
+/** Extra pixels around each box for anti-aliased edges (outlines/shadows grow the box itself). */
 export const BOX_TOLERANCE = 2
 
 /**
