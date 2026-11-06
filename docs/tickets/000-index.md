@@ -382,6 +382,7 @@ Make DTA easy to find, understand and try for people outside the maintainer's co
 | [181](./181-report-hold-to-compare.md)    | Press and hold "Show before" to compare                 | Low      | S      | —          | Open   |
 | [182](./182-report-keyboard-toggles.md)   | Keyboard shortcuts for "Show before" and "Diff overlay" | Low      | S      | —          | Open   |
 | [183](./183-report-overlay-dark-areas.md) | Diff overlay readable on dark areas                     | Medium   | S      | —          | Open   |
+| [184](./184-ci-on-pull-requests.md)       | Run CI on pull requests, including forks                | High     | XS     | —          | Open   |
 
 ---
 
