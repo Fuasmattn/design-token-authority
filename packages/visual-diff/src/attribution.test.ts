@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   attributePixels,
+  BOX_TOLERANCE,
+  DEPENDENTS_SCRIPT,
+  expandBoxByPaintOverflow,
   PAGE_DECLARATIONS_SCRIPT,
   planReverts,
   type CssBinding,
@@ -460,5 +463,76 @@ describe('attributePixels', () => {
     const result = attributePixels(mask, 10, 4, {})
     expect(result).toMatchObject({ explained: false, tokens: [], unexplainedPixels: 3 })
     expect(result.unexplainedRegion).toEqual({ x: 1, y: 1, width: 8, height: 3 })
+  })
+
+  // TICKET-180 / #60: outline-offset: 4px sits past BOX_TOLERANCE; grown boxes explain it.
+  it('explains outline pixels beyond BOX_TOLERANCE when the dependent box includes paint overflow', () => {
+    const borderBox: [number, number, number, number] = [10, 10, 20, 20]
+    const grown = expandBoxByPaintOverflow(borderBox, {
+      outlineStyle: 'dashed',
+      outlineWidth: 1,
+      outlineOffset: 4,
+    })
+    expect(grown).toEqual([5, 5, 25, 25])
+
+    // Changed pixel on the outline ring, 4 px left of the border box (x=6).
+    const wide = new Uint8Array(40 * 40)
+    wide[15 * 40 + 6] = 1
+
+    const withoutGrow = attributePixels(
+      wide,
+      40,
+      40,
+      { 'action.bg (Theme · Light)': [dep(borderBox)] },
+      BOX_TOLERANCE,
+    )
+    expect(withoutGrow.explained).toBe(false)
+
+    const withGrow = attributePixels(
+      wide,
+      40,
+      40,
+      { 'action.bg (Theme · Light)': [dep(grown)] },
+      BOX_TOLERANCE,
+    )
+    expect(withGrow.explained).toBe(true)
+    expect(withGrow.unexplainedPixels).toBe(0)
+  })
+})
+
+describe('expandBoxByPaintOverflow', () => {
+  it('grows every side by outline-width + outline-offset', () => {
+    expect(
+      expandBoxByPaintOverflow([0, 0, 10, 10], {
+        outlineStyle: 'dashed',
+        outlineWidth: 1,
+        outlineOffset: 4,
+      }),
+    ).toEqual([-5, -5, 15, 15])
+  })
+
+  it('ignores outline when style is none', () => {
+    expect(
+      expandBoxByPaintOverflow([0, 0, 10, 10], {
+        outlineStyle: 'none',
+        outlineWidth: 2,
+        outlineOffset: 8,
+      }),
+    ).toEqual([0, 0, 10, 10])
+  })
+
+  it('extends by box-shadow offset, blur and spread', () => {
+    expect(
+      expandBoxByPaintOverflow([10, 10, 20, 20], {
+        boxShadows: [{ offsetX: 0, offsetY: 4, blur: 2, spread: 1 }],
+      }),
+    ).toEqual([7, 10, 23, 27])
+  })
+})
+
+describe('DEPENDENTS_SCRIPT', () => {
+  it('grows dependent boxes by outline and box-shadow ink', () => {
+    expect(DEPENDENTS_SCRIPT).toContain('outlineOffset')
+    expect(DEPENDENTS_SCRIPT).toContain('boxShadow')
   })
 })
