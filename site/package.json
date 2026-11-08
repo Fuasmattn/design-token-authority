@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.12",
-    "@astrojs/preact": "6.1.1",
+    "@astrojs/preact": "6.1.2",
     "@astrojs/starlight": "0.42.8",
     "@dta/build": "workspace:*",
     "@dta/cli": "workspace:*",
@@ -31,7 +31,7 @@
     "esbuild": "0.28.2",
     "fflate": "0.8.3",
     "playwright-core": "1.64.1",
-    "preact": "11.0.2",
+    "preact": "11.1.1",
     "starlight-links-validator": "0.27.0",
     "typescript": "^6.0.3",
     "vitest": "^5.0.5"
