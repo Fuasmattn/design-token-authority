@@ -37,12 +37,14 @@ export {
   BOX_TOLERANCE,
   causeId,
   DEPENDENTS_SCRIPT,
+  expandBoxByPaintOverflow,
   PAGE_DECLARATIONS_SCRIPT,
   planReverts,
 } from './attribution.js'
 export type {
   Attribution,
   Box,
+  BoxShadowSpec,
   CssBinding,
   Dependent,
   PageDeclaration,

@@ -3,7 +3,7 @@
 **Phase:** 13 — Maintenance
 **Priority:** Medium
 **Effort:** S (part 1), M (part 2)
-**Status:** open (2026-11-02)
+**Status:** part 1 done (#67)
 **Spec:** [visual-diff](../specs/visual-diff.md)
 **Issues:** #60 (part 1, good first issue), #61 (part 2)
 
@@ -23,7 +23,7 @@ Attribution puts each changed token back to its base value in the head page and 
 
 ## Acceptance criteria
 
-- [ ] Part 1: a story with an outline at `outline-offset: 4px` in a changed token's colour is explained (`attribution.test.ts`, through the public API)
+- [x] Part 1: a story with an outline at `outline-offset: 4px` in a changed token's colour is explained (`attribution.test.ts`, through the public API)
 - [ ] Part 2: a story whose text moves because a sibling's margin uses a changed token is explained
 - [ ] Re-running #59's change explains all 105 changed stories; no story that was unexplained for an unrelated reason becomes explained
 - [ ] Gates green; the docs page on reading a `dta diff` report says what counts as explained
